@@ -5,9 +5,9 @@ import java.util.regex.Pattern;
 
 public class ProductCodeUtil {
 
-    private static final String FINAL_PRODUCT_CODE_WITH_SIXTH_DIGIT = "^([A-Z]\\d{4})([A-Z0-9])([A-Z0-9]{2})$";
+    private static final String FINAL_PRODUCT_CODE_WITH_SIXTH_DIGIT = "^([A-Z][A-Z0-9]\\d{3})([A-Z0-9])([A-Z0-9]{2})$";
 
-    private static final String FINAL_PRODUCT_CODE_WITHOUT_DIGIT = "^([A-Z]\\d{4})([A-Z0-9]{2})$";
+    private static final String FINAL_PRODUCT_CODE_WITHOUT_DIGIT = "^([A-Z][A-Z0-9]\\d{3})([A-Z0-9]{2})$";
 
     public static String retrieveFinalProductCodeWithoutSixthDigit(String finalProductCode) {
         if(isAFinalProductCodeWithSixthDigit(finalProductCode)) {

@@ -39,6 +39,7 @@
                         mat-header-cell
                         *matHeaderCellDef
                         [mat-sort-header]="column.sort ? column.id : null"
+                        [class]="column.headerClass"
                         [disabled]="
                             !tableDataSource?.data?.length ||
                             !configuration().showSorting ||
@@ -58,6 +59,7 @@
                         [id]="column.id + 'Row' + i"
                         mat-cell
                         *matCellDef="let element; let i = dataIndex"
+                        [class]="column.class"
                         [ngClass]="{
                             'border-b-0': isExpanded(element, expandedElement),
                         }"
@@ -203,7 +205,6 @@
                 mat-row
                 *matRowDef="let element; columns: columnsId()"
                 [class.expanded-row]="expandedElement === element"
-                (click)="expandCollapseRow(element)"
             ></tr>
 
             <!-- Row shown when there is no results -->
@@ -212,7 +213,7 @@
                     class="mat-cell text-center"
                     [attr.colspan]="columnsId().length"
                 >
-                    {{ tableNoResultsMessage() }}
+                    {{ noDataRowMessage() }}
                 </td>
             </tr>
 

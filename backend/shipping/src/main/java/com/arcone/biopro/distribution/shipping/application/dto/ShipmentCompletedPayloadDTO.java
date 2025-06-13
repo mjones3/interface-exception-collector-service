@@ -14,9 +14,11 @@ public record ShipmentCompletedPayloadDTO(
     String performedBy,
     String locationCode,
     String locationName,
+    String deliveryType,
     String customerCode,
     String customerName,
     String customerType,
+    String departmentCode,
     ZonedDateTime createDate,
     List<ShipmentCompletedItemPayloadDTO> lineItems,
     List<ShipmentCompletedServicePayloadDTO> services

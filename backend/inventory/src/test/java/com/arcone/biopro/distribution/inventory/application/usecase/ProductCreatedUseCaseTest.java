@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.application.service.ConfigurationService;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryCreatedEvent;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.exception.InvalidUpdateProductStatusException;
@@ -46,9 +47,13 @@ class ProductCreatedUseCaseTest {
     @InjectMocks
     private ProductCreatedUseCase productCreatedUseCase;
 
+    @Mock
+    private ConfigurationService configurationService;
+
     @Test
     @DisplayName("should create inventory and publish event successfully")
     void test1() {
+        when(configurationService.lookUpTemperatureCategory(any())).thenReturn(Mono.empty());
         var uuid = UUID.randomUUID();
         var input = ProductCreatedInput.builder()
             .unitNumber("W123456789012")
@@ -57,7 +62,7 @@ class ProductCreatedUseCaseTest {
             .expirationDate("01/20/2025")
             .expirationTime("00:00")
             .collectionDate(ZonedDateTime.now())
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .build();
@@ -70,7 +75,7 @@ class ProductCreatedUseCaseTest {
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
             .collectionDate(ZonedDateTime.now())
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .isLabeled(false)
@@ -109,6 +114,7 @@ class ProductCreatedUseCaseTest {
     @Test
     @DisplayName("should create new inventory when not found")
     void test2() {
+        when(configurationService.lookUpTemperatureCategory(any())).thenReturn(Mono.empty());
         var input = ProductCreatedInput.builder()
             .unitNumber("W123456789012")
             .productCode("E123412")
@@ -116,7 +122,7 @@ class ProductCreatedUseCaseTest {
             .expirationDate("01/20/2025")
             .expirationTime("00:00")
             .collectionDate(ZonedDateTime.now())
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .build();
@@ -131,6 +137,7 @@ class ProductCreatedUseCaseTest {
         when(aggregate.isAvailable()).thenReturn(true);
         when(aggregate.getIsLabeled()).thenReturn(false);
         when(aggregate.isQuarantined()).thenReturn(false);
+        when(inventory.getProductCode()).thenReturn(new ProductCode("E123412"));
         when(inventoryAggregateRepository.saveInventory(aggregate)).thenReturn(Mono.just(aggregate));
         when(aggregate.getInventory()).thenReturn(inventory);
         when(mapper.toOutput(inventory)).thenReturn(expectedOutput);

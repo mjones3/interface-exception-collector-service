@@ -16,7 +16,6 @@ import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderEndpointMetadata;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -132,7 +131,7 @@ public class Order implements Validatable {
         String orderStatus,
         String orderPriority,
         String createEmployeeId,
-        ZonedDateTime createDate,
+        String createDate,
         ZonedDateTime modificationDate,
         ZonedDateTime deleteDate
     ) {
@@ -152,7 +151,10 @@ public class Order implements Validatable {
         this.orderStatus = new OrderStatus(orderStatus, lookupService);
         this.orderPriority = new OrderPriority(orderPriority, lookupService);
         this.createEmployeeId = createEmployeeId;
-        this.createDate = createDate;
+        if(createDate != null){
+            this.createDate = checkDateTimeIsValid(createDate,"Create Date");
+        }
+
         this.modificationDate = modificationDate;
         this.deleteDate = deleteDate;
         this.backOrder = false;
@@ -192,8 +194,9 @@ public class Order implements Validatable {
         if (this.orderPriority == null) {
             throw new IllegalArgumentException("orderPriority cannot be null");
         }
-        if (this.createEmployeeId == null || this.createEmployeeId.isBlank()) {
-            throw new IllegalArgumentException("createEmployeeId cannot be null or blank");
+
+        if (this.createDate != null && this.id == null) {
+            this.checkDateTimeIsInPast(this.createDate,"Create Date");
         }
     }
 
@@ -387,20 +390,11 @@ public class Order implements Validatable {
             this.checkDateIsInPast(desireShippingDate);
         }
 
-        try{
-            LocalDateTime.parse(modifyOrderCommand.getModifyDate(),DateTimeFormatter.ofPattern(MODIFY_DATE_FORMAT));
-        }catch (Exception e){
-            throw new IllegalArgumentException("Modify Date is not a valid date");
+        var modifyDateTime = checkDateTimeIsValid(modifyOrderCommand.getModifyDate(),"Modify Date");
+
+        if(modifyDateTime != null){
+            checkDateTimeIsInPast(modifyDateTime,"Modify Date");
         }
-
-        var currentDateTimeUtc = ZonedDateTime.now(ZoneId.of("UTC"));
-        var modifyDateTimeUtc = LocalDateTime.parse(modifyOrderCommand.getModifyDate(),DateTimeFormatter.ofPattern(MODIFY_DATE_FORMAT)).atZone(ZoneId.of("UTC"));
-
-        if(modifyDateTimeUtc.isAfter(currentDateTimeUtc)){
-            log.debug("Current Date Time {} , Modify Date Time {}", currentDateTimeUtc, modifyDateTimeUtc);
-            throw new IllegalArgumentException("Modify Date cannot be in the future");
-        }
-
 
         if(orderList == null || orderList.isEmpty()){
             throw new DomainException(NO_ORDER_TO_BE_MODIFIED);
@@ -421,14 +415,14 @@ public class Order implements Validatable {
             throw new IllegalArgumentException("Order is not open and cannot be modified");
         }
 
-
+        var createDateFormat = orderToBeUpdated.getCreateDate() != null ?  DateTimeFormatter.ofPattern(MODIFY_DATE_FORMAT).format(orderToBeUpdated.getCreateDate()) : null ;
 
         var updatedOrder = new Order(customerService,lookupService,orderToBeUpdated.getId(), orderToBeUpdated.getOrderNumber().getOrderNumber(), orderToBeUpdated.getOrderExternalId().getOrderExternalId()
             , modifyOrderCommand.getLocationCode() , orderToBeUpdated.getShipmentType().getShipmentType() , modifyOrderCommand.getShippingMethod()
             , orderToBeUpdated.getShippingCustomer().getCode() , orderToBeUpdated.getBillingCustomer().getCode() , modifyOrderCommand.getDesiredShippingDate()
             , modifyOrderCommand.isWillPickUp() , modifyOrderCommand.getWillPickUpPhoneNumber() , modifyOrderCommand.getProductCategory() , modifyOrderCommand.getComments()
             , orderToBeUpdated.getOrderStatus().getOrderStatus() , modifyOrderCommand.getDeliveryType(),  orderToBeUpdated.getCreateEmployeeId()
-            , orderToBeUpdated.getCreateDate() , ZonedDateTime.now(), null
+            , createDateFormat , ZonedDateTime.now(), null
 
         );
 
@@ -468,9 +462,31 @@ public class Order implements Validatable {
         return null;
     }
 
+    private ZonedDateTime checkDateTimeIsValid(String dateTime , String field){
+
+        if(dateTime != null){
+            try {
+                return  LocalDateTime.parse(dateTime,DateTimeFormatter.ofPattern(MODIFY_DATE_FORMAT)).atZone(ZoneId.of("UTC"));
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException(field + " is not a valid date");
+            }
+        }
+
+        return null;
+    }
+
     private void checkDateIsInPast(LocalDate localDate){
         if (localDate != null && localDate.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Desired Shipping cannot be in the past");
+        }
+    }
+
+    private void checkDateTimeIsInPast(ZonedDateTime zonedDateTime , String field){
+
+        var currentDateTimeUtc = ZonedDateTime.now(ZoneId.of("UTC"));
+        if(zonedDateTime.isAfter(currentDateTimeUtc)){
+            log.debug("Current Date Time {} , Date Time compare {}", currentDateTimeUtc, zonedDateTime);
+            throw new IllegalArgumentException(field + " cannot be in the future");
         }
     }
 }

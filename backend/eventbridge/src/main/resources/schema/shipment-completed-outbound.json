@@ -14,11 +14,20 @@
     "shipmentLocationName": {
       "type": "string"
     },
+    "deliveryType": {
+      "type": "string"
+    },
+    "departmentCode": {
+      "type": "string"
+    },
     "customerCode": {
       "type": "string"
     },
-    "customerType": {
+    "customerName": {
       "type": "string"
+    },
+    "customerType": {
+      "type": ["null","string"]
     },
     "shipmentDate": {
       "type": "string"
@@ -104,7 +113,7 @@
       ]
     },
     "services": {
-      "type": "array",
+      "type": ["array","null"],
       "items": [
         {
           "type": "object",

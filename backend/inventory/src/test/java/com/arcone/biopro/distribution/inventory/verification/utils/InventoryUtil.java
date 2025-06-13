@@ -1,9 +1,6 @@
 package com.arcone.biopro.distribution.inventory.verification.utils;
 
-import com.arcone.biopro.distribution.inventory.application.dto.CheckInCompletedInput;
-import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
-import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
-import com.arcone.biopro.distribution.inventory.application.dto.ProductDiscardedInput;
+import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
@@ -18,8 +15,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -43,8 +39,10 @@ public class InventoryUtil {
             .id(UUID.randomUUID())
             .productFamily(ISBTProductUtil.getProductFamily(productCode))
             .aboRh(AboRhType.OP) // Assuming default ABO/Rh type; modify as needed
-            .location(defaultLocation)
+            .inventoryLocation(defaultLocation)
+            .collectionLocation(defaultLocation)
             .collectionDate(ZonedDateTime.now())
+            .collectionTimeZone(ZonedDateTime.now().getZone().toString())
             .inventoryStatus(status)
             .expirationDate(LocalDateTime.now().plusDays(1))
             .unitNumber(unitNumber)
@@ -79,8 +77,10 @@ public class InventoryUtil {
             .isLicensed(isLicensed)
             .productFamily(ISBTProductUtil.getProductFamily(productCode))
             .aboRh(AboRhType.OP)
-            .location(defaultLocation)
+            .inventoryLocation(defaultLocation)
+            .collectionLocation(defaultLocation)
             .collectionDate(ZonedDateTime.now())
+            .collectionTimeZone(ZonedDateTime.now().getZone().toString())
             .expirationDate(LocalDateTime.now().plusDays(1))
             .weight(100)
             .unitNumber(unitNumber)
@@ -106,8 +106,10 @@ public class InventoryUtil {
         var builder = ProductCreatedInput.builder();
         builder.productFamily(ISBTProductUtil.getProductFamily(productCode))
             .aboRh(AboRhType.OP)
-            .location(defaultLocation)
+            .inventoryLocation(defaultLocation)
+            .collectionLocation(defaultLocation)
             .collectionDate(ZonedDateTime.now())
+            .collectionTimeZone(ZonedDateTime.now().getZone().toString())
             .weight(100)
             .unitNumber(unitNumber)
             .productCode(productCode)
@@ -120,11 +122,13 @@ public class InventoryUtil {
         return builder.build();
     }
 
-    public CheckInCompletedInput newCheckInCompletedInput(String unitNumber, String productCode) {
+    public CheckInCompletedInput newCheckInCompletedInput(String unitNumber, String productCode, String collectionLocation, String collectionTimeZone) {
         return CheckInCompletedInput.builder()
             .productFamily(ISBTProductUtil.getProductFamily(productCode))
             .aboRh(AboRhType.OP)
-            .location(defaultLocation)
+            .inventoryLocation(collectionLocation)
+            .collectionLocation(collectionLocation)
+            .collectionTimeZone(collectionTimeZone)
             .collectionDate(ZonedDateTime.now())
             .unitNumber(unitNumber)
             .productCode(productCode)
@@ -138,6 +142,21 @@ public class InventoryUtil {
             .productCode(productCode)
             .reason(reason)
             .comments(comments)
+            .build();
+    }
+
+    public ProductCompletedInput newProductCompletedInput(String unitNumber, String productCode, Integer volume, Integer anticoagulantVolume, String volumeUnit) {
+        List<VolumeInput> volumeInputs = new ArrayList<>();
+        if (Objects.nonNull(volume)) {
+            volumeInputs.add(new VolumeInput("volume", volume, volumeUnit));
+        }
+        if (Objects.nonNull(anticoagulantVolume)) {
+            volumeInputs.add(new VolumeInput("anticoagulantVolume", anticoagulantVolume, volumeUnit));
+        }
+        return ProductCompletedInput.builder()
+            .productCode(productCode)
+            .unitNumber(unitNumber)
+            .volumes(volumeInputs)
             .build();
     }
 }

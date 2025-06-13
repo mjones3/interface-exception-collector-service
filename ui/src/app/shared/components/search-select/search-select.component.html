@@ -1,13 +1,10 @@
 <mat-form-field
     id="searchAndSelectField"
-    class="block w-full"
+    class="block"
     [formGroup]="formGroup"
     [id]="matSelectId"
-    appearance="outline"
 >
-    <mat-label id="searchSelectLabel">
-        {{ title }}
-    </mat-label>
+    <mat-label id="searchSelectLabel">{{ title }}</mat-label>
     <mat-select
         [required]="required"
         [id]="matSelectId + 'Select'"

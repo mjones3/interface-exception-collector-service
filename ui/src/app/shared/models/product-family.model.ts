@@ -8,6 +8,23 @@ export enum ProductFamily {
     RED_BLOOD_CELLS_LEUKOREDUCED,
     WHOLE_BLOOD,
     WHOLE_BLOOD_LEUKOREDUCED,
+    RP_FROZEN_WITHIN_120_HOURS,
+    RP_FROZEN_WITHIN_24_HOURS,
+    RP_NONINJECTABLE_FROZEN,
+    RP_NONINJECTABLE_LIQUID_RT,
+    RP_FROZEN_WITHIN_72_HOURS,
+    RP_NONINJECTABLE_REFRIGERATED,
+    APHERESIS_PLATELETS_LEUKOREDUCED,
+    PRT_APHERESIS_PLATELETS,
+}
+
+export enum ProductType {
+    RP_FROZEN_WITHIN_120_HOURS,
+    RP_FROZEN_WITHIN_24_HOURS,
+    RP_NONINJECTABLE_FROZEN,
+    RP_NONINJECTABLE_LIQUID_RT,
+    RP_FROZEN_WITHIN_72_HOURS,
+    RP_NONINJECTABLE_REFRIGERATED,
 }
 
 export enum Priority {
@@ -28,6 +45,14 @@ export const ProductFamilyMap: Record<keyof typeof ProductFamily, string> = {
     RED_BLOOD_CELLS_LEUKOREDUCED: 'Red Blood Cells Leukoreduced',
     WHOLE_BLOOD: 'Whole Blood',
     WHOLE_BLOOD_LEUKOREDUCED: 'Whole Blood Leukoreduced',
+    RP_FROZEN_WITHIN_120_HOURS: 'RP FROZEN WITHIN 120 HOURS',
+    RP_FROZEN_WITHIN_24_HOURS: 'RP FROZEN WITHIN 24 HOURS',
+    RP_NONINJECTABLE_FROZEN: 'RP NONINJECTABLE FROZEN',
+    RP_NONINJECTABLE_LIQUID_RT: 'RP NONINJECTABLE LIQUID RT',
+    RP_FROZEN_WITHIN_72_HOURS: 'RP FROZEN WITHIN 72 HOURS',
+    RP_NONINJECTABLE_REFRIGERATED: 'RP NONINJECTABLE REFRIGERATED',
+    APHERESIS_PLATELETS_LEUKOREDUCED: 'Apheresis Platelets Leukoreduced',
+    PRT_APHERESIS_PLATELETS: 'PRT Apheresis Platelets',
 };
 
 export const PriorityMap: Record<keyof typeof Priority, string> = {
@@ -36,4 +61,14 @@ export const PriorityMap: Record<keyof typeof Priority, string> = {
     ROUTINE: 'ROUTINE',
     SCHEDULED: 'SCHEDULED',
     ASAP: 'ASAP',
+};
+
+export const ProductTypeMap: Record<keyof typeof ProductType, string> = {
+    RP_FROZEN_WITHIN_120_HOURS: 'Recovered Plasma Frozen within 120 hours',
+    RP_FROZEN_WITHIN_24_HOURS: 'Recovered Plasma Frozen within 24 hours',
+    RP_NONINJECTABLE_FROZEN: 'Recovered Plasma Noninjectable Frozen',
+    RP_NONINJECTABLE_LIQUID_RT: 'Recovered Plasma Noninjectable Liquid RT',
+    RP_FROZEN_WITHIN_72_HOURS: 'Recovered Plasma Frozen within 72 hours',
+    RP_NONINJECTABLE_REFRIGERATED:
+        'Recovered Plasma Noninjectable Refrigerated',
 };

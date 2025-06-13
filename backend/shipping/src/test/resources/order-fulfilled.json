@@ -11,7 +11,7 @@
   "shippingCustomerCode": "1",
     "locationCode": "123456789",
     "deliveryType": "TEST",
-    "shippingMethod": "TEST",
+    "shippingMethod": "{SHIPPING_METHOD}",
     "productCategory": "Frozen",
     "shippingDate": "{order.shipping_date}",
     "shippingCustomerName": "Testing Customer",
@@ -26,6 +26,7 @@
     "customerAddressAddressLine2": "North Miami",
     "comments": "Distribution Comments",
     "departmentName": "Department",
+    "departmentCode": "Department Code",
     "items": [
       {
         "productFamily": "PLASMA_TRANSFUSABLE",

@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @GraphQlRepository
@@ -20,58 +22,78 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
 
     InventoryEntityRepository inventoryEntityRepository;
 
-    InventoryEntityMapper inventoryEntityMapper;
+    InventoryEntityMapper mapper;
 
     ProductFamilyEntityRepository productFamilyEntityRepository;
+    private final PropertyEntityRepository propertyEntityRepository;
 
     @Override
     public Flux<InventoryAggregate> findByUnitNumber(String unitNumber) {
         return inventoryEntityRepository.findByUnitNumber(unitNumber)
-            .map(inventoryEntityMapper::toAggregate);
+            .map(mapper::toAggregate)
+            .flatMap(this::populateProperties);
     }
 
     @Override
     public Mono<InventoryAggregate> findByUnitNumberAndProductCode(String unitNumber, String productCode) {
         return inventoryEntityRepository.findByUnitNumberAndProductCodeLike(unitNumber, createProductCodePattern(productCode))
-            .map(inventoryEntityMapper::toDomain)
-            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
+            .map(mapper::toDomain)
+            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()))
+            .flatMap(this::populateProperties);
     }
 
     @Override
     public Mono<InventoryAggregate> saveInventory(InventoryAggregate inventoryAggregate) {
         return inventoryEntityRepository
-            .save(inventoryEntityMapper.toEntity(inventoryAggregate.getInventory()))
+            .save(mapper.toEntity(inventoryAggregate.getInventory()))
+            .flatMap(inventoryEntity -> this.saveProperties(inventoryEntity, inventoryAggregate))
             .then(Mono.just(inventoryAggregate));
     }
 
-    @Override
-    public Mono<Boolean> existsByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
-        return inventoryEntityRepository.existsByLocationAndUnitNumberAndProductCode(location, unitNumber, productCode);
+    private Mono<InventoryAggregate> saveProperties(InventoryEntity inventoryEntity, InventoryAggregate inventoryAggregate) {
+        if (Objects.isNull(inventoryAggregate.getProperties())) {
+            return Mono.just(inventoryAggregate);
+        }
+
+        return propertyEntityRepository.deleteAll(propertyEntityRepository.findByInventoryId(inventoryEntity.getId()))
+                .then(propertyEntityRepository.saveAll(inventoryAggregate.getProperties().stream()
+                    .map(p -> mapper.toEntity(p, inventoryEntity))
+                    .toList())
+                    .then(Mono.just(inventoryAggregate)));
     }
 
     @Override
-    public Flux<InventoryAggregate> findAllAvailable(String location, String productFamily, AboRhCriteria aboRh) {
-        return inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE)
-            .map(inventoryEntityMapper::toAggregate);
-    }
-
-    @Override
-    public Flux<InventoryAggregate> findAllAvailableShortDate(String location, String productFamily, AboRhCriteria aboRh) {
+    public Flux<InventoryAggregate> findAllAvailableShortDate(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory) {
         return productFamilyEntityRepository.findByProductFamily(productFamily)
-            .flatMapMany(pf -> inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndIsLabeledTrueAndExpirationDateBetweenOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now(), getFinalDateTime(pf)))
-            .map(inventoryEntityMapper::toAggregate);
+            .flatMapMany(pf -> inventoryEntityRepository.findBy(
+                location,
+                productFamily,
+                aboRHArray(aboRh),
+                InventoryStatus.AVAILABLE,
+                temperatureCategory,
+                LocalDateTime.now(),
+                getFinalDateTime(pf)))
+            .map(mapper::toAggregate);
     }
 
     @Override
-    public Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria aboRh) {
-        return inventoryEntityRepository.countByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateAfterAndIsLabeledTrue(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now());
+    public Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory) {
+        return inventoryEntityRepository.countBy(location, productFamily, aboRHArray(aboRh), InventoryStatus.AVAILABLE, temperatureCategory, LocalDateTime.now());
+    }
+
+    private static String[] aboRHArray(AboRhCriteria aboRh) {
+        return aboRh.getAboRhTypes()
+            .stream()
+            .map(AboRhType::name)
+            .toArray(String[]::new);
     }
 
     @Override
     public Mono<InventoryAggregate> findByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
-        return inventoryEntityRepository.findByUnitNumberAndProductCodeLikeAndLocation(unitNumber, createProductCodePattern(productCode), location)
-            .map(inventoryEntityMapper::toDomain)
-            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
+        return inventoryEntityRepository.findByUnitNumberAndProductCodeLikeAndInventoryLocation(unitNumber, createProductCodePattern(productCode), location)
+            .map(mapper::toDomain)
+            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()))
+            .flatMap(this::populateProperties);
     }
 
     private String createProductCodePattern(String productCode) {
@@ -84,6 +106,13 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
 
     private LocalDateTime getFinalDateTime(ProductFamilyEntity productFamily) {
         return LocalDateTime.now().plusDays(productFamily.getTimeFrame());
+    }
+
+    private Mono<InventoryAggregate> populateProperties(InventoryAggregate inventoryAggregate) {
+        return propertyEntityRepository.findByInventoryId(inventoryAggregate.getInventory().getId())
+            .map(mapper::toDomain)
+            .collectList()
+            .map(inventoryAggregate::populateProperties);
     }
 
 }

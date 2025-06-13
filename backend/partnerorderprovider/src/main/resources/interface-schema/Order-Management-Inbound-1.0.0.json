@@ -20,7 +20,9 @@
       "$ref": "#/definitions/dateTimePattern"
     },
     "createEmployeeCode": {
-      "type": "string"
+      "type": ["string","null"],
+      "title": "Modify Employee Code",
+      "maxLength": 50
     },
     "shipmentType": {
       "type": "string",
@@ -90,7 +92,7 @@
       "pattern": "^(\\d{4}-\\d{2}-\\d{2})$"
     },
     "dateTimePattern": {
-      "type": "string",
+      "type": ["string","null"],
       "pattern": "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})$"
     },
     "orderPickType": {
@@ -104,14 +106,31 @@
           "$ref": "#/definitions/orderPickType.phoneNumber"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "willCallPickUp": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          }
+        }
+      }
     },
     "orderPickType.willCallPickUp": {
       "type": "boolean"
     },
     "orderPickType.phoneNumber": {
-      "type": "string"
+      "type": ["null","string"]
     },
+
     "productCategory": {
       "type": "string",
       "minLength": 1,

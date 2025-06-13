@@ -11,10 +11,12 @@ public class GeneratePickListProductCriteria implements Validatable {
 
     private String productFamily;
     private String bloodType;
+    private String temperatureCategory;
 
-    public GeneratePickListProductCriteria(String productFamily, String bloodType) {
+    public GeneratePickListProductCriteria(String productFamily, String bloodType , String temperatureCategory) {
         this.productFamily = productFamily;
         this.bloodType = bloodType;
+        this.temperatureCategory = temperatureCategory;
         checkValid();
     }
 

@@ -88,7 +88,6 @@ class OrderTest {
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", null, null, null, null, null, null, null, null), "productCategory cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", null, null, null, null, null, null), "orderStatus cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", null, null, null, null, null), "orderPriority cannot be null");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", null, null, null, null), "createEmployeeId cannot be null or blank");
 
 
         assertDoesNotThrow(() -> new Order(customerService,lookupService, null, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", null, TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null));
@@ -921,6 +920,44 @@ class OrderTest {
             Assertions.fail();
         }catch (IllegalArgumentException e){
             Assertions.assertEquals("Desired Shipping cannot be in the past",e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldNotCreateWhenCreateDateIsInvalid(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        try{
+
+            new Order(customerService, lookupService, null, 123L, "EXT", "123"
+                , "OPEN", "OPEN", "123", "123",LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+                , "2023-31-25 20:09:01", null, null);
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Create Date is not a valid date",e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldNotCreateWhenCreateDateIsInFuture(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        try{
+
+            new Order(customerService, lookupService, null, 123L, "EXT", "123"
+                , "OPEN", "OPEN", "123", "123",LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+                , LocalDateTime.now().plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), null, null);
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Create Date cannot be in the future",e.getMessage());
         }
 
     }

@@ -39,6 +39,8 @@ public record ShipmentDetailResponseDTO(
     List<ShipmentItemResponseDTO> items,
     boolean checkDigitActive,
     boolean visualInspectionActive,
-    boolean secondVerificationActive
+    boolean secondVerificationActive,
+    String departmentName,
+    String departmentCode
 ) implements Serializable {
 }

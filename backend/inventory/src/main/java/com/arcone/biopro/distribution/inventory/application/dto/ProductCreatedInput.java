@@ -16,8 +16,13 @@ public record ProductCreatedInput(String unitNumber,
                                   String expirationTimeZone,
                                   Integer weight,
                                   ZonedDateTime collectionDate,
-                                  String location,
+                                  String inventoryLocation,
+                                  String collectionLocation,
+                                  String collectionTimeZone,
                                   String productFamily,
                                   AboRhType aboRh,
-                                  List<InputProduct> inputProducts) {
+                                  Boolean licensed,
+                                  String temperatureCategory,
+                                  List<InputProduct> inputProducts,
+                                  List<AddQuarantineInput> quarantines) {
 }

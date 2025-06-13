@@ -4,7 +4,7 @@ import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.OrderItem;
 import com.arcone.biopro.distribution.order.domain.model.PickList;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO;
-import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
+import com.arcone.biopro.distribution.order.infrastructure.event.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledItemDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledItemShortDateDTO;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
@@ -87,6 +87,7 @@ public class OrderFulfilledMapper {
         orderFulfilledEvent.getPayload().setCustomerAddressDistrict(shippingAddress.district());
         orderFulfilledEvent.getPayload().setDepartmentName(customer.departmentName());
         orderFulfilledEvent.getPayload().setCustomerPhoneNumber(customer.phoneNumber());
+        orderFulfilledEvent.getPayload().setDepartmentCode(customer.departmentCode());
 
 
         return Mono.just(orderFulfilledEvent);

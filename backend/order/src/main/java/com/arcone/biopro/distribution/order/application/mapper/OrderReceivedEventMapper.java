@@ -47,7 +47,7 @@ public class OrderReceivedEventMapper {
                 orderReceivedEventPayloadDTO.orderStatus(),
                 orderReceivedEventPayloadDTO.deliveryType(),
                 orderReceivedEventPayloadDTO.createEmployeeCode(),
-                null,
+                orderReceivedEventPayloadDTO.createDate(),
                 null,
                 null);
 

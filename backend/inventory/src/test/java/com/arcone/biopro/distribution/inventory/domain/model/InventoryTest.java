@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +29,7 @@ class InventoryTest {
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.now().plusDays(5))
             .collectionDate(ZonedDateTime.now())
-            .location("Storage A")
+            .inventoryLocation("Storage A")
             .productFamily("PLASMA_TRANSFUSABLE")
             .statusReason("In Use")
             .aboRh(AboRhType.OP)
@@ -68,6 +67,16 @@ class InventoryTest {
         // Assert
         assertNotNull(inventory.getQuarantines());
         assertEquals(1, inventory.getQuarantines().size(), "Quarantine should be added");
+
+    }
+
+    @Test
+    @DisplayName("Should Add Volumes Into The Inventory")
+    void shouldAddVolumeIntoTheInventory() {
+        inventory.addVolume("volume", 50, "MILLILITERS");
+        inventory.addVolume("anticoagulantVolume", 50, "MILLILITERS");
+        assertNotNull(inventory.getVolumes());
+        assertEquals(2, inventory.getVolumes().size(), "Volumes added");
 
     }
 

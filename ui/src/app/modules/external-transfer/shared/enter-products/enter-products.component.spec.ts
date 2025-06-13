@@ -80,4 +80,17 @@ describe('EnterProductsComponent', () => {
         fixture.detectChanges();
         expect(unitNumber.hasError('pattern')).toBeTruthy();
     });
+
+    it('should hide required asterisk', () => {
+        const matFormFieldTextLabel = fixture.debugElement.query(
+            By.css('mat-form-field')
+        );
+        expect(matFormFieldTextLabel.componentInstance.hideRequiredMarker).toBe(
+            true
+        );
+        const isAsterisk = fixture.debugElement.nativeElement.querySelector(
+            '.mat-mdc-form-field-required-marker'
+        );
+        expect(isAsterisk).toBeNull();
+    });
 });

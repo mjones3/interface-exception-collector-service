@@ -53,7 +53,8 @@
                     id: shipmentInfo?.orderNumber,
                     priority: shipmentInfo?.priority,
                     externalId: shipmentInfo?.externalId,
-                    labelingProductCategory: shipmentInfo?.productCategory,
+                    labelingProductCategory:
+                        ProductCategoryMap[shipmentInfo?.productCategory],
                 }"
                 [comments]="shipmentInfo?.comments"
                 [shippingInput]="{

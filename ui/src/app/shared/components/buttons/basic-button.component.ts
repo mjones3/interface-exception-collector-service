@@ -27,7 +27,7 @@ export class BasicButtonComponent {
     id = input.required<string>();
     label = input.required<string>();
     class = input<'string'>();
-    color = input.required<'primary' | 'secondary'>();
+    color = input<'primary' | 'secondary'>();
     icon = input<'string'>();
     disabled = input(false, { transform: booleanAttribute });
 

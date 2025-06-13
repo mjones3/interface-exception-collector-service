@@ -1,0 +1,692 @@
+import { AsyncPipe, DatePipe, formatDate } from '@angular/common';
+import {
+    Component,
+    computed,
+    Inject,
+    LOCALE_ID,
+    NgZone,
+    OnDestroy,
+    OnInit,
+    signal,
+    TemplateRef,
+    ViewChild,
+    viewChild
+} from '@angular/core';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ApolloError } from '@apollo/client';
+import { Store } from '@ngrx/store';
+import { ProcessHeaderComponent, ProcessHeaderService, TableConfiguration } from '@shared';
+import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
+import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
+import { ProductIconsService } from 'app/shared/services/product-icon.service';
+import { CookieService } from 'ngx-cookie-service';
+import {
+    catchError,
+    EMPTY,
+    filter,
+    first,
+    map,
+    Observable,
+    of,
+    Subscription,
+    switchMap,
+    take,
+    takeWhile,
+    tap,
+    throwError,
+    timer
+} from 'rxjs';
+import { TableComponent } from '../../../../shared/components/table/table.component';
+import handleApolloError from '../../../../shared/utils/apollo-error-handling';
+import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
+import {
+    RecoveredPlasmaCartonStatusCssMap,
+    RecoveredPlasmaCartonStatusMap
+} from '../../graphql/query-definitions/shipment.graphql';
+import {
+    CartonDTO,
+    CartonPackedItemResponseDTO,
+    RecoveredPlasmaShipmentResponseDTO
+} from '../../models/recovered-plasma.dto';
+import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
+import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
+import {
+    ShippingInformationCardComponent
+} from '../../shared/shipping-information-card/shipping-information-card.component';
+import {
+    RecoveredPlasmaShipmentDetailsNavbarComponent
+} from '../recovered-plasma-shipment-details-navbar/recovered-plasma-shipment-details-navbar.component';
+import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+    DEFAULT_PAGE_SIZE,
+    DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+    DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH
+} from '../../../../core/models/browser-printing.model';
+import {
+    ViewShippingCartonPackingSlipComponent
+} from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
+import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
+import { ViewShippingSummaryComponent } from '../view-shipping-summary/view-shipping-summary.component';
+import { CloseShipmentDailogComponent } from '../close-shipment-dailog/close-shipment-dailog.component';
+import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
+import { FuseAlertType } from '@fuse/components/alert/public-api';
+import {
+    UnacceptableProductsReportWidgetComponent
+} from '../../shared/unacceptable-products-report-widget/unacceptable-products-report-widget.component';
+import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
+import { ToastrService } from 'ngx-toastr';
+import { ShippingSummaryReportDTO } from '../../graphql/query-definitions/print-shipping-summary-report.graphql';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { LabelPrinterResponseDTO, PrintLabelService } from '../../../../shared/services/print-label.service';
+import {
+    CartonPrintActionsDialogComponent
+} from '../carton-print-actions-dialog/carton-print-actions-dialog.component';
+import { fromPromise } from 'rxjs/internal/observable/innerFrom';
+import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
+import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
+import { ERROR_MESSAGE } from 'app/core/data/common-labels';
+import { ShipmentHistoryDTO } from '../../graphql/query-definitions/shipment-comments-history.graphql';
+
+@Component({
+    selector: 'biopro-recovered-plasma-shipping-details',
+    standalone: true,
+    imports: [
+        ProcessHeaderComponent,
+        ActionButtonComponent,
+        AsyncPipe,
+        ShippingInformationCardComponent,
+        BasicButtonComponent,
+        RecoveredPlasmaShipmentDetailsNavbarComponent,
+        TableComponent,
+        MatDividerModule,
+        MatIcon,
+        GlobalMessageComponent,
+        UnacceptableProductsReportWidgetComponent,
+        DatePipe
+    ],
+    templateUrl: './recovered-plasma-shipping-details.component.html',
+})
+export class RecoveredPlasmaShippingDetailsComponent
+    extends RecoveredPlasmaShipmentCommon
+    implements OnInit, OnDestroy
+{
+    protected readonly RecoveredPlasmaCartonStatusMap = RecoveredPlasmaCartonStatusMap;
+    protected readonly RecoveredPlasmaCartonStatusCssMap = RecoveredPlasmaCartonStatusCssMap;
+
+    protected static readonly POLLING_INTERVAL = 10 * 1000; // 10 seconds
+    protected static readonly POLLING_MAX_TIMEOUT = 120 * 1000; // 120 seconds
+    protected static readonly PRINT_PACKING_SLIP_DELAY = 300;
+
+    messageSignal = signal<string>(null);
+    messageTypeSignal = signal<FuseAlertType>(null);
+    statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
+    expandTemplateRef = viewChild<TemplateRef<Element>>('expandTemplateRef');
+    actionsTemplateRef = viewChild<TemplateRef<Element>>('actionsTemplateRef');
+
+    showComments = signal<boolean>(false);
+    protected commentsRouteComputed = computed(
+        () =>
+            `/recovered-plasma/${this.route.snapshot.params?.id}/shipment-details?type=comments`
+    );
+
+    protected cartonsRouteComputed = computed(
+        () =>
+            `/recovered-plasma/${this.route.snapshot.params?.id}/shipment-details`
+    );
+
+    protected currentRouteComputed = computed(() => this.showComments() ? this.commentsRouteComputed() : this.cartonsRouteComputed());
+
+
+    // Signal to store expanded row data
+    expandedRowDataSignal = signal<CartonPackedItemResponseDTO[]>([]);
+
+    cartonsComputed = computed(
+        () => this.shipmentDetailsSignal()?.cartonList ?? []
+    );
+
+    shipmentHistoryData= signal<ShipmentHistoryDTO[]>([])
+
+    createDateTemplateRef = viewChild<TemplateRef<Element>>('createDateTemplateRef');
+
+    cartonTableConfigComputed = computed<TableConfiguration>(() => ({
+        title: 'Carton Details',
+        showPagination: false,
+        expandableKey: 'cartonNumber',
+        columns: [
+            {
+                id: 'cartonNumberId',
+                header: '',
+                expandTemplateRef: this.expandTemplateRef(),
+            },
+            {
+                id: 'cartonNumber',
+                header: 'Carton Number',
+                sort: false,
+            },
+            {
+                id: 'cartonSequence',
+                header: 'Sequence',
+                sort: false,
+            },
+            {
+                id: 'status',
+                header: 'Status',
+                sort: false,
+                columnTempRef: this.statusTemplateRef(),
+            },
+            {
+                id: 'actions',
+                header: '',
+                columnTempRef: this.actionsTemplateRef(),
+            },
+        ],
+    }));
+
+    shipmentInfoCommentsTableConfigComputed = computed<TableConfiguration>(() => ({
+        showPagination: false,
+        columns: [
+            {
+                id: 'createEmployeeId',
+                header: 'Staff',
+                sort: false,
+            },
+            {
+              id: 'createDate',
+              header: 'Date and Time',
+              sort: false,
+              columnTempRef: this.createDateTemplateRef(),
+            },
+            {
+              id: 'comments',
+              header: 'Comments',
+              headerClass: 'w-[50ch]', 
+              class: 'w-[50ch]',
+              sort: false,
+            }
+        ],
+    }));
+
+    pollingSubscription: Subscription;
+    constructor(
+        public header: ProcessHeaderService,
+        protected store: Store,
+        protected route: ActivatedRoute,
+        protected router: Router,
+        protected toastr: ToastrService,
+        protected recoveredPlasmaService: RecoveredPlasmaService,
+        protected cookieService: CookieService,
+        protected productIconService: ProductIconsService,
+        protected printLabelService: PrintLabelService,
+        protected browserPrintingService: BrowserPrintingService,
+        protected ngZone: NgZone,
+        protected matDialog: MatDialog,
+        private fuseConfirmationService: FuseConfirmationService,
+        private shipmentService: RecoveredPlasmaShipmentService,
+        @Inject(LOCALE_ID) public locale: string
+    ) {
+        super(
+            route,
+            router,
+            store,
+            recoveredPlasmaService,
+            toastr,
+            productIconService,
+            cookieService
+        );
+    }
+
+    ngOnInit(): void {
+        this.fetchShipmentData(this.routeIdComputed());
+        this.subscribeQueryParams();
+    }
+
+    ngOnDestroy() {
+        if (this.pollingSubscription && !this.pollingSubscription.closed) {
+            this.pollingSubscription.unsubscribe();
+        }
+    }
+    
+    subscribeQueryParams(){
+        this.route.queryParams.subscribe((params) => {
+            const type = params['type'];
+            if (type) {
+                this.showComments.set(true);
+                this.fetchShipmentCommentsHistory();
+            }else{
+                this.showComments.set(false);
+            }
+        });
+    }
+
+
+    fetchShipmentData(id: number) {
+        if (this.shouldPrintCartonPackingSlipAndLabel) {
+            this.printCartonLabel(this.shipmentCloseCartonId);
+            this.printCartonPackingSlip(this.shipmentCloseCartonId);
+        }
+
+        this.pollingSubscription = timer(0, RecoveredPlasmaShippingDetailsComponent.POLLING_INTERVAL)
+            .pipe(
+                take(RecoveredPlasmaShippingDetailsComponent.POLLING_MAX_TIMEOUT / RecoveredPlasmaShippingDetailsComponent.POLLING_INTERVAL),
+                switchMap(() => this.loadRecoveredPlasmaShippingDetails(id)),
+                tap((shipping: RecoveredPlasmaShipmentResponseDTO) => this.configureUnacceptableProductsReportStatusMessage()),
+                takeWhile((shipping: RecoveredPlasmaShipmentResponseDTO) => shipping.status === 'PROCESSING', true)
+            )
+            .subscribe();
+    }
+
+    configureUnacceptableProductsReportStatusMessage(){
+        // Processing unacceptable products report
+        if (this.shipmentDetailsSignal()?.status === 'PROCESSING') {
+            this.messageSignal.set('Close Shipment is in progress.');
+            this.messageTypeSignal.set('info');
+            return;
+        }
+
+        // No more processing, check if has any processing error
+        if (this.shipmentDetailsSignal()?.unsuitableUnitReportDocumentStatus === 'ERROR_PROCESSING') {
+            this.messageSignal.set('Unacceptable Products report generation error. Contact Support.');
+            this.messageTypeSignal.set('info');
+            return;
+        }
+
+        // Nothing to process and no error
+        this.messageSignal.set(null);
+        this.messageTypeSignal.set(null);
+    }
+
+    loadCartonPackedProduct(carton: CartonDTO): void {
+        if (!carton?.id) return;
+        this.expandedRowDataSignal.set([]);
+        this.recoveredPlasmaService
+            .getCartonById(carton.id)
+            .pipe(
+                catchError((error: ApolloError) => {
+                    handleApolloError(this.toastr, error);
+                }),
+                map(
+                    (response) =>
+                        response.data?.findCartonById?.data?.packedProducts
+                )
+            )
+            .subscribe((data) => {
+                if (data) {
+                    this.expandedRowDataSignal.set(data);
+                }
+            });
+    }
+
+    editCarton(id: number) {
+        this.router.navigate([`recovered-plasma/${id}/carton-details`]);
+    }
+
+    openCartonPrintActionsDialog(event: Event, carton: CartonDTO): void {
+        // This is to prevent event bubbling, avoiding triggering the table row expansion
+        event?.stopPropagation();
+
+        this.matDialog
+            .open(CartonPrintActionsDialogComponent, {
+                id: 'cartonPrintActionsDialog',
+                hasBackdrop: true,
+                data: carton
+            })
+            .afterClosed()
+            .subscribe(result => {
+                switch (result) {
+                    case CartonPrintActionsDialogComponent.PRINT_ACTION_PRINT_CARTON_LABEL:
+                        this.printCartonLabel(carton.id);
+                        break;
+                    case CartonPrintActionsDialogComponent.PRINT_ACTION_CARTON_PACKING_SLIP:
+                        this.printCartonPackingSlip(carton.id);
+                        break;
+                    default:
+                        break;
+                }
+            });
+    }
+
+    printCartonPackingSlip(cartonId: number) {
+        let dialogRef: MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>;
+        this.recoveredPlasmaService
+            .generateCartonPackingSlip({
+                cartonId: cartonId,
+                employeeId: this.employeeIdSignal(),
+                locationCode: this.locationCodeComputed()
+            })
+            .pipe(
+                catchError((error: ApolloError) => {
+                    handleApolloError(this.toastr, error);
+                }),
+                switchMap(response => {
+                    consumeUseCaseNotifications(
+                        this.toastr,
+                        response.data.generateCartonPackingSlip?.notifications
+                    )
+                    if (response?.data?.generateCartonPackingSlip?.notifications?.[0]?.type === 'SUCCESS') {
+                        return fromPromise(this.router.navigate([`recovered-plasma/${this.shipmentId}/shipment-details`]))
+                            .pipe(switchMap(() => of(response)));
+                    }
+                    return EMPTY;
+                }),
+                switchMap((response) => {
+                    dialogRef = this.matDialog
+                        .open(ViewShippingCartonPackingSlipComponent, {
+                            id: 'ViewShippingCartonPackingSlipDialog',
+                            hasBackdrop: false,
+                            panelClass: 'hidden',
+                            data: response.data.generateCartonPackingSlip?.data
+                        });
+                    return dialogRef.afterOpened();
+                }),
+                switchMap(() => this.ngZone.onStable), // Makes sure Angular updates DOM
+                first(), // Takes only the first emission of "ngZone.onStable"
+                tap(() => {
+                    this.browserPrintingService.print('viewShippingCartonPackingSlipReport', {
+                        pageSize: DEFAULT_PAGE_SIZE,
+                        printDelay: RecoveredPlasmaShippingDetailsComponent.PRINT_PACKING_SLIP_DELAY
+                    });
+                    dialogRef?.close();
+                }),
+            )
+            .subscribe();
+    }
+
+    printerAgentUnavailableErrorHandler(details?: Error | LabelPrinterResponseDTO): Observable<never> {
+        this.toastr.error('Something went wrong with the printer integration, please try again later.');
+        return EMPTY;
+    }
+
+    printCartonLabel(cartonId: number) {
+        this.printLabelService
+            .installed()
+            .pipe(
+                catchError(this.printerAgentUnavailableErrorHandler),
+                switchMap(agentInstallationResponse => {
+                    if (!agentInstallationResponse) {
+                        return this.printerAgentUnavailableErrorHandler();
+                    }
+                    return this.recoveredPlasmaService
+                        .generateCartonLabel({
+                            cartonId: cartonId,
+                            employeeId: this.employeeIdSignal()
+                        });
+                }),
+                catchError((error: ApolloError) => handleApolloError(this.toastr, error)),
+                switchMap(cartonLabelGenerationResponse => {
+                    return this.printLabelService
+                        .print({ labelToPrint: cartonLabelGenerationResponse.data?.generateCartonLabel?.data?.labelContent })
+                        .pipe(
+                            catchError(this.printerAgentUnavailableErrorHandler),
+                            switchMap((agentResponse: LabelPrinterResponseDTO) => {
+                                if (agentResponse.status === 200) {
+                                    consumeUseCaseNotifications(
+                                        this.toastr,
+                                        cartonLabelGenerationResponse.data?.generateCartonLabel?.notifications
+                                    )
+                                    return of(agentResponse);
+                                }
+                                return this.printerAgentUnavailableErrorHandler(agentResponse)
+                            }),
+                        )
+                }),
+            )
+            .subscribe();
+    }
+
+    get shipmentId(): number {
+        return parseInt(this.route.snapshot.params?.id);
+    }
+
+    get shipmentCloseCartonId(): number {
+        return parseInt(this.route.snapshot.queryParams?.closeCartonId);
+    }
+
+    get shouldPrintCartonPackingSlipAndLabel(): boolean {
+        const shouldPrint = this.route.snapshot.queryParams?.print === 'true';
+        const hasValidCartonId = !isNaN(parseInt(this.route.snapshot.queryParams?.closeCartonId))
+        return shouldPrint && hasValidCartonId;
+    }
+
+    openReportsDialog(): void {
+        let dialogRef: MatDialogRef<ViewShippingSummaryComponent, ShippingSummaryReportDTO>;
+        this.recoveredPlasmaService
+            .printShippingSummaryReport({
+                shipmentId: this.shipmentIdComputed(),
+                employeeId: this.employeeIdSignal(),
+                locationCode: this.locationCodeComputed()
+            })
+            .pipe(
+                catchError((error: ApolloError) => handleApolloError(this.toastr, error)),
+                tap(response => {
+                    if (response?.data?.printShippingSummaryReport?.notifications?.[0]?.type === 'SUCCESS') {
+                        dialogRef = this.matDialog
+                            .open(ViewShippingSummaryComponent, {
+                                id: 'ViewShippingSummaryDialog',
+                                width: DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
+                                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+                                data: response.data?.printShippingSummaryReport?.data,
+                            });
+                        return dialogRef.afterOpened();
+                    }
+                    consumeUseCaseNotifications(this.toastr, response.data?.printShippingSummaryReport?.notifications);
+                    return of({});
+                }),
+            )
+            .subscribe();
+   }
+
+    backToSearch() {
+        this.router.navigate(['/recovered-plasma']);
+    }
+
+    addCarton(): void {
+        const shipmentId = +this.route.snapshot.params?.id;
+        this.recoveredPlasmaService
+            .createCarton({ shipmentId, employeeId: this.employeeIdSignal() })
+            .pipe(
+                catchError((error: ApolloError) => {
+                    handleApolloError(this.toastr, error);
+                }),
+                tap((response) =>
+                    consumeUseCaseNotifications(
+                        this.toastr,
+                        response.data?.createCarton?.notifications
+                    )
+                )
+            )
+            .subscribe((carton) => {
+                const nextUrl = carton?.data?.createCarton?._links.next;
+                if (nextUrl) {
+                    this.router.navigateByUrl(nextUrl);
+                }
+            });
+    }
+
+    handleCloseShipmentContinue(result){
+        if (result) {
+            const formatShipDate = formatDate(
+                result,
+                'yyyy-MM-dd',
+                this.locale
+            );
+            this.recoveredPlasmaService
+                .closeShipment({
+                    locationCode: this.locationCodeComputed(),
+                    shipmentId: this.shipmentId,
+                    shipDate: formatShipDate,
+                    employeeId: this.employeeIdSignal(),
+                })
+                .pipe(
+                    catchError((error: ApolloError) => {
+                        handleApolloError(this.toastr, error);
+                    }),
+                    tap((response) =>
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            response.data?.closeShipment?.notifications
+                        )
+                    )
+                )
+                .subscribe((response) => {
+                    if (response?.data?.closeShipment?.data) {
+                        this.fetchShipmentData(response.data.closeShipment.data.id)
+                    }
+                });
+        }
+    }
+
+    onClickCloseShipment() {
+        this.matDialog.open(CloseShipmentDailogComponent, {
+            width: '24rem',
+            disableClose: true,
+            data: {
+                shipmentDate: this.shipmentDetailsSignal().shipmentDate,
+                continueFn: this.handleCloseShipmentContinue.bind(this)
+            }
+        })
+    }
+
+
+    // Opens dialog confirmation for repack
+    repackCarton(cartonId: number){
+        this.matDialog.open(RepackCartonDialogComponent, {
+            width: '24rem',
+            disableClose: true
+        })
+        .afterClosed()
+        .subscribe((req) => {
+           if(req !== undefined){
+                this.recoveredPlasmaService
+                .repackCarton({
+                    locationCode: this.locationCodeComputed(),
+                    cartonId: cartonId,
+                    comments: req,
+                    employeeId: this.employeeIdSignal(),
+                })
+                .pipe(
+                    catchError((error: ApolloError) => {
+                        handleApolloError(this.toastr, error);
+                    }),
+                    tap((response) =>
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            response.data.repackCarton.notifications
+                        )
+                    )
+                )
+                .subscribe((response) => {
+                    if (response?.data?.repackCarton) {
+                        const nextUrl = response.data.repackCarton._links?.next;
+                        if (nextUrl) {
+                            this.router.navigateByUrl(nextUrl);
+                        }
+                    }
+                });
+            }
+        })
+    }
+
+    // Opens remove carton confirmation dialog
+    removeCarton(id: number){
+        const dialogRef = this.fuseConfirmationService.open({
+            title: 'Remove Confirmation',
+            message: 'Carton will be removed. <b>Are you sure you want to continue?</b>',
+            dismissible: false,
+            icon: {
+                show: false,
+            },
+            actions: {
+                confirm: {
+                    label: 'Continue',
+                    class: 'bg-red-700 text-white',
+                },
+                cancel: {
+                    class: 'mat-secondary',
+                },
+            },
+        })
+        dialogRef.afterClosed()
+        .pipe(filter((value) => 'confirmed' === value))
+        .subscribe(() => {
+                this.recoveredPlasmaService
+                .removeLastCarton({
+                    cartonId: id,
+                    employeeId: this.employeeIdSignal(),
+                })
+                .pipe(
+                    catchError((error: ApolloError) => {
+                        handleApolloError(this.toastr, error);
+                    }),
+                    tap((response) =>
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            response.data.removeCarton.notifications
+                        )
+                    )
+                )
+                .subscribe((response) => {
+                    const res = response?.data?.removeCarton.notifications[0].type === 'SUCCESS';
+                    if(res){
+                        this.shipmentDetailsSignal.set(response.data.removeCarton.data);
+                    }
+                });
+        })
+
+    }
+
+
+    onClickEditShipment(){
+        this.matDialog.open(CreateShipmentComponent, {
+            width: '50rem',
+            disableClose: true,
+            data:  this.shipmentDetailsSignal()
+        })
+        .afterClosed()
+        .subscribe((request) => {
+            if(request !== undefined){
+                this.shipmentService.editRecoveredPlasmaShipment(request)
+            .pipe(
+                catchError((err) => {
+                    this.toastr.error(ERROR_MESSAGE);
+                    return throwError(() => err);
+                })
+            )
+            .subscribe({
+                next: (response) => {
+                    const modifyResult = response?.data?.modifyShipment;
+                    const notifications = modifyResult.notifications;
+                    if (notifications?.length > 0) {
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            notifications
+                        );
+                        if (notifications[0].type === 'SUCCESS') {
+                            this.loadRecoveredPlasmaShippingDetails(modifyResult.data.id)
+                            .subscribe()
+                        }
+                    }
+                },
+            });
+            }
+        })
+    }
+
+    fetchShipmentCommentsHistory(){
+        this.shipmentService.getShipmentHistory(this.shipmentId).subscribe({
+          next: (response) => {
+                if (Array.isArray(response?.data?.findAllShipmentHistoryByShipmentId)) {
+                    const data = response.data.findAllShipmentHistoryByShipmentId;
+                    this.shipmentHistoryData.set(data);
+                } else {
+                    this.shipmentHistoryData.set([]);
+                }
+            },
+            error: (error) => {
+                return throwError(() => error);
+            }
+        });
+    }
+}

@@ -42,6 +42,7 @@ export const commonRegex = {
     codabarProductCode: '^a0[0-9]{5}3b$',
     aboRh: '^([A-Z]|=%[a-zA-Z]{1}[0-9]{3}|=%[a-zA-Z]{2}[0-9]{2}|=%[0-9]{4})',
     dateWithSlashes: '^(0[1-9]|1[0-2])\\/(0[1-9]|1\\d|2\\d|3[01])\\/\\d{4}$',
+    cartonWeightRegex: /^\d+(?:\.\d{1,3})?$/,
 };
 
 export const getLocalTimeZone = (dateInput: Date | string): string => {

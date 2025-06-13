@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
@@ -13,14 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
-import io.r2dbc.spi.ConnectionFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -58,12 +53,6 @@ public class KafkaListenersSteps {
     private final ObjectMapper objectMapper;
 
     private final KafkaHelper kafkaHelper;
-
-
-    @Value("classpath:/db/data.sql")
-    private Resource testDataSql;
-
-    private final ConnectionFactory connectionFactory;
 
     private static final String PRODUCT_STORED_MESSAGE = """
         {
@@ -188,7 +177,6 @@ public class KafkaListenersSteps {
 
     @Before
     public void before() {
-        populateTestData();
         topicsMap = Map.of(
             EVENT_PRODUCT_STORED, productStoredTopic,
             EVENT_PRODUCT_DISCARDED, productDiscardedTopic,
@@ -210,10 +198,8 @@ public class KafkaListenersSteps {
 
     @Given("I am listening the {string} event")
     public void iAmListeningEvent(String event) {
-        scenarioContext.setUnitNumber(TestUtil.randomString(13));
         scenarioContext.setProductCode("E0869VA0");
         scenarioContext.setEvent(event);
-        topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
             createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "PLASMA_TRANSFUSABLE", AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
@@ -221,8 +207,8 @@ public class KafkaListenersSteps {
     }
 
     @Given("I am listening the {string} event for {string}")
-    public void iAmListeningEventForUnitNumber(String event, String untNumber) {
-        scenarioContext.setUnitNumber(untNumber);
+    public void iAmListeningEventForUnitNumber(String event, String unitNumber) {
+        scenarioContext.setUnitNumber(unitNumber);
         scenarioContext.setProductCode("E0869VA0");
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
@@ -253,8 +239,10 @@ public class KafkaListenersSteps {
 
         var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
         inventory.setAboRh(aboRhType);
-        inventory.setLocation(location);
+        inventory.setInventoryLocation(location);
+        inventory.setCollectionLocation(location);
         inventory.setCollectionDate(ZonedDateTime.now());
+        inventory.setCollectionTimeZone(ZonedDateTime.now().getZone().getId());
         inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
         inventory.setProductFamily(productFamily);
         inventory.setQuarantines(quarantines);
@@ -265,8 +253,10 @@ public class KafkaListenersSteps {
         inventoryUtil.saveInventory(inventory);
     }
 
-    @When("I receive an event {string} event")
-    public void iReceiveAnEvent(String event) throws Exception {
+    @When("I receive an event {string} event for unit number {string}")
+    public void iReceiveAnEvent(String event, String unitNumber) throws Exception {
+        topicName = topicsMap.get(event);
+        scenarioContext.setUnitNumber(unitNumber);
         scenarioContext.setProductCode("E0869VA0");
         var message = buildMessage(event);
         scenarioContext.setLastSentMessage(message);
@@ -274,12 +264,6 @@ public class KafkaListenersSteps {
         var payloadObject = objectMapper.readValue(message, Object.class);
         kafkaHelper.sendEvent(topicName, scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(), payloadObject).block();
         logMonitor.await("successfully consumed.*" + scenarioContext.getUnitNumber());
-    }
-
-    public void populateTestData() {
-        ResourceDatabasePopulator resourceDatabasePopulator = new ResourceDatabasePopulator();
-        resourceDatabasePopulator.addScript(testDataSql);
-        Mono.from(resourceDatabasePopulator.populate(connectionFactory)).block();
     }
 
     public String buildMessage(String eventType, String unitNumber, String productCode, String location) {

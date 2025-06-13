@@ -87,7 +87,6 @@ public class OrderEntity {
     @Column("delivery_type")
     private String deliveryType;
 
-    @NotNull
     @Column("create_employee_id")
     private String createEmployeeId;
 

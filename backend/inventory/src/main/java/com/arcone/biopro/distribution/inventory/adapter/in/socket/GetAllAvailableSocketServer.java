@@ -28,7 +28,7 @@ public class GetAllAvailableSocketServer {
     GetAllAvailableMapper mapper;
 
     @MessageMapping("getAvailableInventoryWithShortDatedProducts")
-    public Mono<GetAvailableInventoryResponseDTO> licensing(GetAvailableInventoryCommandDTO getAllAvailableRequestDTO) {
+    public Mono<GetAvailableInventoryResponseDTO> getAllAvailableInventoryByCriteria(GetAvailableInventoryCommandDTO getAllAvailableRequestDTO) {
         log.info("getAvailableInventoryWithShortDatedProducts to get all available inventories with request: {}", getAllAvailableRequestDTO.toString());
         return useCase.execute(mapper.toInput(getAllAvailableRequestDTO))
             .map(mapper::toResponse)

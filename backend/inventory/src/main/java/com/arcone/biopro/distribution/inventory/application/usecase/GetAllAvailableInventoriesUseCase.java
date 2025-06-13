@@ -36,10 +36,10 @@ class GetAllAvailableInventoriesUseCase implements UseCase<Mono<GetAllAvailableI
     }
 
     private Mono<InventoryFamily> getAllAvailableByCriteria(String location, InventoryCriteria inventoryCriteria) {
-        Mono<List<InventoryAggregate>> shortDateProducts = this.inventoryAggregateRepository.findAllAvailableShortDate(location, inventoryCriteria.productFamily(), inventoryCriteria.aboRh())
+        Mono<List<InventoryAggregate>> shortDateProducts = this.inventoryAggregateRepository.findAllAvailableShortDate(location, inventoryCriteria.productFamily(), inventoryCriteria.aboRh(), inventoryCriteria.temperatureCategory())
             .collectList();
 
-        Mono<Long> countAvailable = this.inventoryAggregateRepository.countAllAvailable(location, inventoryCriteria.productFamily(), inventoryCriteria.aboRh());
+        Mono<Long> countAvailable = this.inventoryAggregateRepository.countAllAvailable(location, inventoryCriteria.productFamily(), inventoryCriteria.aboRh(), inventoryCriteria.temperatureCategory());
 
         return Mono.zip(shortDateProducts, countAvailable)
             .map(tuple -> mapper.toOutput(inventoryCriteria.productFamily(), inventoryCriteria.aboRh(), tuple.getT2(), tuple.getT1()));

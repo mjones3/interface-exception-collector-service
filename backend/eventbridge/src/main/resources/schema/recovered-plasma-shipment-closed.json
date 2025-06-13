@@ -1,0 +1,233 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string"
+    },
+    "occurredOn": {
+      "type": "string"
+    },
+    "eventVersion": {
+      "type": "string"
+    },
+    "eventType": {
+      "type": "string"
+    },
+
+    "payload": {
+      "type": "object",
+      "properties": {
+        "shipmentNumber": {
+          "type": "string"
+        },
+        "locationCode": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "createEmployeeId": {
+          "type": "string"
+        },
+        "productType": {
+          "type": "string"
+        },
+        "transportationReferenceNumber": {
+          "type": ["string","null"]
+        },
+        "shipmentDate": {
+          "type": ["string","null"]
+        },
+        "cartonTareWeight": {
+          "type": ["number","null"]
+        },
+        "createDate": {
+          "type": "string"
+        },
+        "modificationDate": {
+          "type": "string"
+        },
+        "closedEmployeeId": {
+          "type": "string"
+        },
+        "closeDate": {
+          "type": "string"
+        },
+        "customerCode": {
+          "type": "string"
+        },
+        "customerName": {
+          "type": "string"
+        },
+        "customerState": {
+          "type": "string"
+        },
+        "customerPostalCode": {
+          "type": "string"
+        },
+        "customerCountry":{
+          "type": "string"
+        },
+        "customerCountryCode":{
+          "type": "string"
+        },
+        "customerCity": {
+          "type": "string"
+        },
+        "customerDistrict": {
+          "type": ["string","null"]
+        },
+        "customerAddressLine1": {
+          "type": "string"
+        },
+        "customerAddressLine2": {
+          "type": ["string","null"]
+        },
+        "customerAddressContactName": {
+          "type": ["string","null"]
+        },
+        "customerAddressPhoneNumber":{
+          "type": ["string","null"]
+        },
+        "customerAddressDepartmentName": {
+          "type": ["string","null"]
+        },
+        "totalCartons": {
+          "type": "integer"
+        },
+        "locationShipmentCode": {
+          "type": "string"
+        },
+        "locationCartonCode":  {
+          "type": "string"
+        },
+        "cartonList": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+              "cartonNumber": {
+                "type": "string"
+              },
+              "locationCode": {
+                "type": "string"
+              },
+              "cartonSequence": {
+                "type": "integer"
+              },
+              "closeEmployeeId": {
+                "type": "string"
+              },
+              "closeDate": {
+                "type": "string"
+              },
+              "productType": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "totalProducts": {
+                "type": "integer"
+              },
+              "totalWeight": {
+                "type": "number"
+              },
+              "totalVolume": {
+                "type": "number"
+              },
+                "packedProducts": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+
+                      "unitNumber":  {
+                        "type": "string"
+                      },
+                      "productCode":  {
+                        "type": "string"
+                      },
+                      "packedByEmployeeId":  {
+                        "type": "string"
+                      },
+                      "productType":  {
+                        "type": "string"
+                      },
+                      "volume":  {
+                        "type": ["number","null"]
+                      },
+                      "weight":  {
+                        "type": ["number","null"]
+                      },
+                      "aboRh":  {
+                        "type": "string"
+                      },
+                      "donationDate":  {
+                        "type": "string"
+                      },
+                      "drawBeginTime":  {
+                        "type": ["string","null"]
+                      },
+                      "collectionFacility":  {
+                        "type": "string"
+                      },
+                      "collectionTimeZone":  {
+                        "type": "string"
+                      }
+                      },
+                      "required": [
+                        "unitNumber",
+                        "productCode",
+                        "packedByEmployeeId",
+                        "productType",
+                        "aboRh",
+                        "donationDate",
+                        "collectionFacility",
+                        "collectionTimeZone"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "cartonNumber",
+                "locationCode",
+                "cartonSequence",
+                "closeEmployeeId",
+                "closeDate",
+                "productType",
+                "status",
+                "totalProducts",
+                "packedProducts"
+              ]
+            }
+          ]
+        }
+     },
+      "required": [
+        "shipmentNumber",
+        "locationCode",
+        "status",
+        "createEmployeeId",
+        "productType",
+        "closedEmployeeId",
+        "closeDate",
+        "customerCode",
+        "totalCartons",
+        "locationShipmentCode",
+        "locationCartonCode",
+        "cartonList"
+      ]
+    }
+  },
+  "required": [
+    "eventId",
+    "occurredOn",
+    "eventVersion",
+    "eventType"
+  ]
+}

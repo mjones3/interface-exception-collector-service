@@ -11,6 +11,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -123,10 +124,16 @@ public class ApiHelper {
     public Map graphQlRequest(String document, String path) {
         HttpGraphQlClient qlClient = HttpGraphQlClient.create(webTestClientGraphQl);
         var response = qlClient.document(document).retrieveSync(path).toEntity(Map.class);
+        log.debug("GRAPHQL RESPONSE: {}", response);
 
         // Set the API response to the context so that it can be used in other steps.
         context.setApiMessageResponse((List<Map>)response.get("notifications"));
 
+        var results = response.get("results");
+        if(results != null) {
+            var resultsMap = (LinkedHashMap) results;
+            context.setApiMessageResultResponse((List<LinkedHashMap>) resultsMap.get("validations"));
+        }
         return response;
     }
 

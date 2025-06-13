@@ -28,8 +28,9 @@ class ShipmentCompletedOutboundMapperTest {
         Mockito.when(mockPayload.getShipmentDate()).thenReturn(createDate);
         Mockito.when(mockPayload.getExternalId()).thenReturn("EXTERNAL_ID");
         Mockito.when(mockPayload.getQuantityShipped()).thenReturn(10);
+        Mockito.when(mockPayload.getDeliveryType()).thenReturn("DELIVERY_TYPE");
 
-        Mockito.when(mockPayload.getShipmentCustomer()).thenReturn(new ShipmentCustomer("CUSTOMER_CODE","CUSTOMER_TYPE"));
+        Mockito.when(mockPayload.getShipmentCustomer()).thenReturn(new ShipmentCustomer("CUSTOMER_CODE","CUSTOMER_TYPE","NAME","DEPT_CODE"));
         Mockito.when(mockPayload.getShipmentLocation()).thenReturn(new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"));
 
         var payloadLineItem = Mockito.mock(ShipmentLineItem.class);
@@ -59,9 +60,12 @@ class ShipmentCompletedOutboundMapperTest {
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(1L,dto.shipmentNumber());
         Assertions.assertEquals("EXTERNAL_ID",dto.externalOrderId());
+        Assertions.assertEquals("DELIVERY_TYPE",dto.deliveryType());
         Assertions.assertEquals(createDate,dto.shipmentDate());
         Assertions.assertEquals("CUSTOMER_CODE",dto.customerCode());
         Assertions.assertEquals("CUSTOMER_TYPE",dto.customerType());
+        Assertions.assertEquals("NAME",dto.customerName());
+        Assertions.assertEquals("DEPT_CODE",dto.departmentCode());
 
         Assertions.assertEquals("LOCATION_CODE",dto.shipmentLocationCode());
         Assertions.assertEquals("LOCATION_NAME",dto.shipmentLocationName());

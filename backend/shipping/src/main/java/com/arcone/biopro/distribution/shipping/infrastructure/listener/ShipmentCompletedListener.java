@@ -2,10 +2,14 @@ package com.arcone.biopro.distribution.shipping.infrastructure.listener;
 
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shipping.infrastructure.config.KafkaConfiguration;
-import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCompletedDTO;
+import com.arcone.biopro.distribution.shipping.infrastructure.event.ShipmentCompletedOutputEvent;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCompletedItemPayload;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCompletedItemProductPayload;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCompletedPayload;
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
+import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
+import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,21 +23,38 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 
 import static java.util.Optional.ofNullable;
+import static org.springframework.kafka.support.mapping.AbstractJavaTypeMapper.DEFAULT_CLASSID_FIELD_NAME;
 
 @Service
 @Slf4j
 @Profile("prod")
 public class ShipmentCompletedListener {
 
-    private final ReactiveKafkaProducerTemplate<String, ShipmentCompletedDTO> producerTemplate;
+    private final ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutputEvent> producerTemplate;
     private final String topicName;
 
     public ShipmentCompletedListener(@Qualifier(KafkaConfiguration.SHIPMENT_COMPLETED_PRODUCER)
-                                ReactiveKafkaProducerTemplate<String, ShipmentCompletedDTO> producerTemplate,
+                                ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutputEvent> producerTemplate,
                                 @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String topicName) {
         this.producerTemplate = producerTemplate;
         this.topicName = topicName;
     }
+
+    @AsyncPublisher(operation = @AsyncOperation(
+        channelName = "ShipmentCompleted",
+        description = "Shipment Completed Event",
+        headers = @AsyncOperation.Headers(values = @AsyncOperation.Headers.Header(
+            name = DEFAULT_CLASSID_FIELD_NAME,
+            description = "Spring Type Id Header",
+            value = "com.arcone.biopro.distribution.order.infrastructure.event.ShipmentCompletedOutputEvent"
+        )),
+        message = @AsyncMessage(
+            name = "ShipmentCreated",
+            title = "ShipmentCreated",
+            description = "Shipment Created Event Payload"
+        ),payloadType = ShipmentCompletedOutputEvent.class
+    ))
+    @KafkaAsyncOperationBinding
 
     @EventListener
     public void handleShipmentCompletedEvent(ShipmentCompletedEvent event) {
@@ -41,13 +62,7 @@ public class ShipmentCompletedListener {
 
         var payload = event.getPayload();
 
-        var message = ShipmentCompletedDTO
-            .builder()
-            .eventId(event.getEventId())
-            .eventType(event.getEventType())
-            .eventVersion(event.getEventVersion())
-            .occurredOn(event.getOccurredOn())
-            .payload(ShipmentCompletedPayload
+        var message = new ShipmentCompletedOutputEvent(ShipmentCompletedPayload
                 .builder()
                 .shipmentId(payload.shipmentId())
                 .orderNumber(payload.orderNumber())
@@ -56,6 +71,9 @@ public class ShipmentCompletedListener {
                 .locationCode(payload.locationCode())
                 .locationName(payload.locationName())
                 .customerCode(payload.customerCode())
+                .customerName(payload.customerName())
+                .departmentCode(payload.departmentCode())
+                .deliveryType(payload.deliveryType())
                 .createDate(payload.createDate())
                 .lineItems( ofNullable(payload.lineItems())
                     .filter(items -> !items.isEmpty())
@@ -81,8 +99,7 @@ public class ShipmentCompletedListener {
                                 .createDate(ZonedDateTime.now())
                                 .build()).toList())
                         .build()).toList())
-                .build())
-            .build();
+                .build());
 
         var producerRecord = new ProducerRecord<>(topicName, String.format("%s", event.getEventId()), message);
         producerTemplate.send(producerRecord)

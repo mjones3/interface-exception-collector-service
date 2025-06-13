@@ -2,20 +2,27 @@ package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.wholeblood.WholeBloodProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
-import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.*;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage;
+import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
+import io.github.springwolf.plugins.kafka.asyncapi.annotations.KafkaAsyncOperationBinding;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +64,21 @@ class KafkaConfiguration {
     @Value("${topic.product-created.apheresis.rbc.name}")
     private String apheresisRBCProductCreatedTopic;
 
+    @Value("${topic.product-created.apheresis.platelet.name}")
+    private String apheresisPlateletProductCreatedTopic;
+
+    @Value("${topic.product-completed.apheresis.plasma.name}")
+    private String apheresisPlasmaProductCompletedTopic;
+
+    @Value("${topic.product-completed.apheresis.rbc.name}")
+    private String apheresisRBCProductCompletedTopic;
+
+    @Value("${topic.product-completed.apheresis.platelet.name}")
+    private String apheresisPlateletProductCompletedTopic;
+
+    @Value("${topic.product-completed.wholeblood.name}")
+    private String wholebloodCompletedTopic;
+
     @Value("${topic.product-created.wholeblood.name}")
     private String wholebloodCreatedTopic;
 
@@ -75,6 +97,18 @@ class KafkaConfiguration {
     @Value("${topic.product-recovered.name}")
     private String productRecoveredTopic;
 
+    @Value("${topic.recovered-plasma-carton-packed.name}")
+    private String recoveredPlasmaCartonPackedTopic;
+
+    @Value("${topic.recovered-plasma-shipment-closed.name}")
+    private String recoveredPlasmaShipmentClosedTopic;
+
+    @Value("${topic.recovered-plasma-carton-removed.name}")
+    private String recoveredPlasmaCartonRemovedTopic;
+
+    @Value("${topic.recovered-plasma-carton-unpacked.name}")
+    private String recoveredPlasmaCartonUnpackedTopic;
+
     @Value("${topic.product-remove-quarantined.name}")
     private String removeQuarantinedTopic;
 
@@ -83,6 +117,15 @@ class KafkaConfiguration {
 
     @Value("${topic.product-quarantined.name}")
     private String addQuarantinedTopic;
+
+    @Value("${topic.product-modified.name}")
+    private String productModifiedTopic;
+
+    @Value("${topic.label-invalidated.name}")
+    private String labelInvalidatedTopic;
+
+    @Value("${topic.products-imported.name}")
+    private String productsImportedTopic;
 
     @Bean
     @Qualifier("UNSUITABLE")
@@ -102,7 +145,14 @@ class KafkaConfiguration {
     @Qualifier("PRODUCT_CREATED")
     ReceiverOptions<String, String> productCreatedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
-            .subscription(List.of(apheresisPlasmaProductCreatedTopic, apheresisRBCProductCreatedTopic, wholebloodCreatedTopic));
+            .subscription(List.of(apheresisPlasmaProductCreatedTopic, apheresisRBCProductCreatedTopic, wholebloodCreatedTopic, apheresisPlateletProductCreatedTopic));
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_COMPLETED")
+    ReceiverOptions<String, String> productCompletedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(apheresisPlasmaProductCompletedTopic, apheresisRBCProductCompletedTopic, wholebloodCompletedTopic, apheresisPlateletProductCompletedTopic));
     }
 
     @Bean
@@ -110,6 +160,13 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> labelAppliedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(labelAppliedTopic));
+    }
+
+    @Bean
+    @Qualifier("LABEL_INVALIDATED")
+    ReceiverOptions<String, String> labelInvalidatedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(labelInvalidatedTopic));
     }
 
     @Bean
@@ -131,6 +188,34 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> productRecoveredReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(productRecoveredTopic));
+    }
+
+    @Bean
+    @Qualifier("RECOVERED_PLASMA_CARTON_PACKED")
+    ReceiverOptions<String, String> recoveredPlasmaCartonPackedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(recoveredPlasmaCartonPackedTopic));
+    }
+
+    @Bean
+    @Qualifier("RECOVERED_PLASMA_SHIPMENT_CLOSED")
+    ReceiverOptions<String, String> recoveredPlasmaShipmentClosedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(recoveredPlasmaShipmentClosedTopic));
+    }
+
+    @Bean
+    @Qualifier("RECOVERED_PLASMA_CARTON_REMOVED")
+    ReceiverOptions<String, String> recoveredPlasmaCartonRemovedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(recoveredPlasmaCartonRemovedTopic));
+    }
+
+    @Bean
+    @Qualifier("RECOVERED_PLASMA_CARTON_UNPACKED")
+    ReceiverOptions<String, String> recoveredPlasmaCartonUnpackedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(recoveredPlasmaCartonUnpackedTopic));
     }
 
     @Bean
@@ -179,9 +264,52 @@ class KafkaConfiguration {
         description = "Apheresis RBC Product has been created.",
         payloadType = ProductCreatedMessage.class
     ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisPlateletProductCreated",
+        description = "Apheresis Platelet Product has been created.",
+        payloadType = ProductCreatedMessage.class
+    ))
+
+    @AsyncPublisher(operation = @AsyncOperation(
+        channelName = "WholeBloodProductCreated",
+        description = "Apheresis Plasma Product Created Event",
+        message = @AsyncMessage(
+            name = "WholeBloodProductCreated",
+            title = "WholeBloodProductCreated",
+            description = "Whole Blood Product Created Event Payload"
+        ),payloadType = WholeBloodProductCreatedMessage.class
+    ))
+    @KafkaAsyncOperationBinding
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "WholeBloodProductCreated",
+        description = "Whole Blood Product Created Event Payload",
+        payloadType = WholeBloodProductCreatedMessage.class
+    ))
     @Bean(name = "PRODUCT_CREATED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productCreatedConsumerTemplate(
         @Qualifier("PRODUCT_CREATED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisPlasmaProductCompleted",
+        description = "Apheresis Plasma Product has been completed.",
+        payloadType = ProductCompletedMessage.class
+    ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisRBCProductCompleted",
+        description = "Apheresis RBC Product has been completed.",
+        payloadType = ProductCompletedMessage.class
+    ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisPlateletProductCompleted",
+        description = "Apheresis Platelet Product has been completed.",
+        payloadType = ProductCompletedMessage.class
+    ))
+    @Bean(name = "PRODUCT_COMPLETED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productCompletedConsumerTemplate(
+        @Qualifier("PRODUCT_COMPLETED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
@@ -194,6 +322,18 @@ class KafkaConfiguration {
     @Bean(name = "LABEL_APPLIED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> labelAppliedConsumerTemplate(
         @Qualifier("LABEL_APPLIED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "Label Invalidated",
+        description = "Label was invalidated",
+        payloadType = LabelInvalidatedMessage.class
+    ))
+    @Bean(name = "LABEL_INVALIDATED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> labelInvalidatedConsumerTemplate(
+        @Qualifier("LABEL_INVALIDATED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
@@ -246,6 +386,54 @@ class KafkaConfiguration {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
 
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "RecoveredPlasmaShipmentClosed",
+        description = "Recovered Plasma Shipment Closed event has been listened and inventory status was updated",
+        payloadType = RecoveredPlasmaShipmentClosedMessage.class
+    ))
+    @Bean(name = "RECOVERED_PLASMA_SHIPMENT_CLOSED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> recoveredPlasmaShipmentClosedConsumerTemplate(
+        @Qualifier("RECOVERED_PLASMA_SHIPMENT_CLOSED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "RecoveredPlasmaCartonPacked",
+        description = "Recovered Plasma Carton Packed event has been listened and inventory status was updated",
+        payloadType = RecoveredPlasmaCartonPackedMessage.class
+    ))
+    @Bean(name = "RECOVERED_PLASMA_CARTON_PACKED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> recoveredPlasmaCartonPackedConsumerTemplate(
+        @Qualifier("RECOVERED_PLASMA_CARTON_PACKED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "RecoveredPlasmaCartonRemoved",
+        description = "Recovered Plasma Carton Removed event has been listened and inventory status was updated",
+        payloadType = RecoveredPlasmaCartonRemovedMessage.class
+    ))
+    @Bean(name = "RECOVERED_PLASMA_CARTON_REMOVED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> recoveredPlasmaCartonRemovedConsumerTemplate(
+        @Qualifier("RECOVERED_PLASMA_CARTON_REMOVED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "RecoveredPlasmaCartonUnpacked",
+        description = "Recovered Plasma Carton Unpacked event has been listened and inventory status was updated",
+        payloadType = RecoveredPlasmaCartonUnpackedMessage.class
+    ))
+    @Bean(name = "RECOVERED_PLASMA_CARTON_UNPACKED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> recoveredPlasmaCartonUnpackedConsumerTemplate(
+        @Qualifier("RECOVERED_PLASMA_CARTON_UNPACKED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
     @Bean
     @Qualifier("PRODUCT_REMOVE_QUARANTINED")
     ReceiverOptions<String, String> productRemoveQuarantinedReceiverOptions(KafkaProperties kafkaProperties) {
@@ -265,6 +453,13 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> productAddQuarantinedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(addQuarantinedTopic));
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_MODIFIED")
+    ReceiverOptions<String, String> productModifiedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productModifiedTopic));
     }
 
     @AsyncListener(operation = @AsyncOperation(
@@ -299,6 +494,37 @@ class KafkaConfiguration {
     @Bean(name = "PRODUCT_ADD_QUARANTINED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productAddQuarantinedConsumerTemplate(
         @Qualifier("PRODUCT_ADD_QUARANTINED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductModified",
+        description = "Product was modified.",
+        payloadType = ProductModifiedMessage.class
+    ))
+    @Bean(name = "PRODUCT_MODIFIED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productModifiedConsumerTemplate(
+        @Qualifier("PRODUCT_MODIFIED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @Bean
+    @Qualifier("PRODUCTS_IMPORTED")
+    ReceiverOptions<String, String> productsImportedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productsImportedTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductsImported",
+        description = "Products have been imported.",
+        payloadType = ProductsImportedMessage.class
+    ))
+    @Bean(name = "PRODUCTS_IMPORTED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productsImportedConsumerTemplate(
+        @Qualifier("PRODUCTS_IMPORTED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
@@ -345,3 +571,11 @@ class KafkaConfiguration {
     }
 
 }
+
+
+
+
+
+
+
+

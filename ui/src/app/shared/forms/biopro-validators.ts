@@ -1,4 +1,5 @@
-import { AbstractControl, ValidationErrors } from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { commonRegex } from '../utils/utils';
 
 export class BioproValidators {
     static hasAtLeastOne(control: AbstractControl): ValidationErrors | null {
@@ -68,4 +69,14 @@ export class BioproValidators {
             return { eitherOrderNumberOrDates: true }; // Validation fails
         }
     }
+}
+
+export function cartonWeightValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+        if (!control.value) {
+            return null;
+        }
+        const valid = commonRegex.cartonWeightRegex.test(control.value);
+        return valid ? null : { invalidWeight: true };
+    };
 }

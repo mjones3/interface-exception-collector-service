@@ -23,8 +23,8 @@ import {
 } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
-import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
+import { ProgressBarComponent } from 'app/shared/components/progress-bar/progress-bar.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
@@ -33,6 +33,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
+import { ProductCategoryMap } from '../../../shared/models/product-category.model';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
 import {
@@ -113,7 +114,9 @@ export class ShipmentDetailsComponent implements OnInit {
     }
 
     get labelingProductCategory() {
-        return this.shipmentInfo ? this.shipmentInfo?.productCategory : '';
+        return this.shipmentInfo
+            ? ProductCategoryMap[this.shipmentInfo?.productCategory]
+            : '';
     }
 
     get shipmentId(): number {
@@ -321,4 +324,6 @@ export class ShipmentDetailsComponent implements OnInit {
     }
 
     protected readonly ProductFamilyMap = ProductFamilyMap;
+
+    protected readonly ProductCategoryMap = ProductCategoryMap;
 }

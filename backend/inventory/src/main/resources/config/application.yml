@@ -281,12 +281,26 @@ topic:
     wholeblood:
       name: WholeBloodProductCreated
     apheresis:
+      platelet:
+        name: ApheresisPlateletProductCreated
       plasma:
         name: ApheresisPlasmaProductCreated
       rbc:
         name: ApheresisRBCProductCreated
+  product-completed:
+    wholeblood:
+      name: WholeBloodProductCompleted
+    apheresis:
+      platelet:
+        name: ApheresisPlateletProductCompleted
+      plasma:
+        name: ApheresisPlasmaProductCompleted
+      rbc:
+        name: ApheresisRBCProductCompleted
   label-applied:
     name: LabelApplied
+  label-invalidated:
+    name: LabelInvalidated
   shipment-completed:
     name: ShipmentCompleted
   product-stored:
@@ -301,9 +315,23 @@ topic:
     name: QuarantineUpdated
   product-recovered:
     name: ProductRecovered
+  recovered-plasma-carton-packed:
+    name: RecoveredPlasmaCartonPacked
+  recovered-plasma-carton-unpacked:
+    name: RecoveredPlasmaCartonUnpacked
+  recovered-plasma-carton-removed:
+    name: RecoveredPlasmaCartonRemoved
+  recovered-plasma-shipment-closed:
+    name: RecoveredPlasmaShipmentClosed
   inventory-updated:
     name: InventoryUpdated
   product-unsuitable:
     name: ProductUnsuitable
   unit-unsuitable:
     name: UnitUnsuitable
+  product-modified:
+    name: ProductModified
+  products-imported:
+    name: ProductsImported
+
+

@@ -385,5 +385,23 @@
     "Temperature Category": "REFRIGERATED",
     "Product Family": "WHOLEBLOOD",
     "Expiration in Days": "42"
+  },
+  {
+    "Product Code": "APLTAPHP",
+    "Division Code": "",
+    "ISBT Product Description": "APH PLT PARENT",
+    "Product Description": "APH PLT PARENT",
+    "Temperature Category": "ROOM_TEMPERATURE",
+    "Product Family": "APHERESIS_PLATELETS_LEUKOREDUCED",
+    "Expiration in Days": "2"
+  },
+  {
+    "Product Code": "E8340",
+    "Division Code": "00",
+    "ISBT Product Description": "Apheresis PLATELETS|ACD-A>PAS-C/XX/20-24C|ResLeu:<5E6|Psoralen-treated",
+    "Product Description": "PRT APH PASPLT",
+    "Temperature Category": "ROOM_TEMPERATURE",
+    "Product Family": "PRT_APHERESIS_PLATELETS",
+    "Expiration in Days": "2"
   }
 ]

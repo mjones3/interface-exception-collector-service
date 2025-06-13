@@ -38,6 +38,8 @@ public class ExternalTransferPage extends CommonPageFactory {
     private static final By lastAvailableDate = By.xpath("(//mat-calendar//tbody//button[not(contains(@class, 'mat-calendar-body-disabled'))])[last()]");
     private static final By submitButton = By.id("submitBtnId");
     private static final By unitNumberCardsLocator = By.xpath("//biopro-unit-number-card");
+    private static final By cancelButton = By.id("cancelBtnId");
+    private static final By confirmCancellationButton = By.id("confirmation-dialog-confirm-btn");
 
     private By productButtonLocator(String unitNumber, String productCode) {
         return By.xpath(String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]", unitNumber, productCode));
@@ -95,6 +97,15 @@ public class ExternalTransferPage extends CommonPageFactory {
         }
     }
 
+    public void checkCancelButtonEnableDisable(boolean enable) {
+        sharedActions.waitForVisible(cancelButton);
+        if (enable) {
+            assertTrue(sharedActions.isElementEnabled(driver, cancelButton));
+        }else {
+            assertFalse(sharedActions.isElementEnabled(driver, cancelButton));
+        }
+    }
+
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         log.debug("Adding unit {} with product code {}.", unit, productCode);
         sharedActions.sendKeys(this.driver, unitNumberInput, unit);
@@ -113,5 +124,13 @@ public class ExternalTransferPage extends CommonPageFactory {
 
     public void ensureNoProductsAreAdded() {
         sharedActions.waitForNotVisible(unitNumberCardsLocator);
+    }
+
+    public void clickCancelExternalTransfer() {
+        sharedActions.click(cancelButton);
+    }
+
+    public void clickConfirmCancellation() {
+        sharedActions.click(confirmCancellationButton);
     }
 }

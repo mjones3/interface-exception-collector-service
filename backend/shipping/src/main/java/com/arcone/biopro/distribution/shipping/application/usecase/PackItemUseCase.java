@@ -17,6 +17,7 @@ import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualIn
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
+import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
 import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
 import com.arcone.biopro.distribution.shipping.domain.service.PackItemService;
 import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
@@ -56,6 +57,7 @@ public class PackItemUseCase implements PackItemService {
     private final ReasonDomainMapper reasonDomainMapper;
     private final InventoryRsocketClient inventoryRsocketClient;
     private final SecondVerificationService secondVerificationUseCase;
+    private final ShipmentRepository shipmentRepository;
 
     @Override
     @WithSpan("packItem")
@@ -142,27 +144,38 @@ public class PackItemUseCase implements PackItemService {
         return shipmentItemRepository.findById(request.shipmentItemId())
             .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_ITEM_NOT_FOUND_ERROR)))
             .flatMap(shipmentItem -> {
-                if (!shipmentItem.getProductFamily().equals(inventoryResponseDTO.productFamily())) {
-                    log.error("Product Family does not match");
-                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR,List.of(NotificationDTO
-                        .builder()
-                        .notificationType(NotificationType.WARN.name())
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .message(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR)
-                        .name("PRODUCT_CRITERIA_FAMILY_ERROR")
-                        .build())));
+                return shipmentRepository.findById(shipmentItem.getShipmentId()).flatMap(shipment -> {
+                    if (!shipmentItem.getProductFamily().equals(inventoryResponseDTO.productFamily())) {
+                        log.error("Product Family does not match");
+                        return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR,List.of(NotificationDTO
+                            .builder()
+                            .notificationType(NotificationType.WARN.name())
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR)
+                            .name("PRODUCT_CRITERIA_FAMILY_ERROR")
+                            .build())));
 
-                } else if (!BloodType.ANY.equals(shipmentItem.getBloodType()) && !inventoryResponseDTO.aboRh().contains(shipmentItem.getBloodType().name())) {
-                    log.error("Blood Type does not match");
-                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR , List.of(NotificationDTO
-                        .builder()
-                        .name("PRODUCT_CRITERIA_BLOOD_TYPE_ERROR")
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .message(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR)
-                        .notificationType(NotificationType.WARN.name())
-                        .build())));
-                }
-                return Mono.just(shipmentItem);
+                    } else if (!BloodType.ANY.equals(shipmentItem.getBloodType()) && !inventoryResponseDTO.aboRh().contains(shipmentItem.getBloodType().name())) {
+                        log.error("Blood Type does not match");
+                        return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR , List.of(NotificationDTO
+                            .builder()
+                            .name("PRODUCT_CRITERIA_BLOOD_TYPE_ERROR")
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR)
+                            .notificationType(NotificationType.WARN.name())
+                            .build())));
+                    }else if(!shipment.getProductCategory().equals(inventoryResponseDTO.temperatureCategory())){
+                        return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR , List.of(NotificationDTO
+                            .builder()
+                            .name("PRODUCT_CRITERIA_TEMPERATURE_CATEGORY_ERROR")
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message(ShipmentServiceMessages.PRODUCT_CRITERIA_TEMPERATURE_CATEGORY_ERROR)
+                            .notificationType(NotificationType.WARN.name())
+                            .build())));
+                    }
+                    return Mono.just(shipmentItem);
+                })
+                .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)));
             }).zipWith(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(request.unitNumber(), request.productCode()))
             .flatMap(tuple2 -> {
                 if(tuple2.getT2() > 0){

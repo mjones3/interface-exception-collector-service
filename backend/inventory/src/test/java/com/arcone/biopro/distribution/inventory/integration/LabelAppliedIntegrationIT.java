@@ -5,9 +5,7 @@ import com.arcone.biopro.distribution.inventory.application.usecase.LabelApplied
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
-import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,15 +14,12 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -56,12 +51,6 @@ public class LabelAppliedIntegrationIT {
     @MockBean
     private InventoryEntityRepository inventoryEntityRepository;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private LogMonitor logMonitor;
-
     @BeforeEach
     void setUp() {
         when(labelAppliedUseCase.execute(any(InventoryInput.class))).thenReturn(Mono.empty());
@@ -70,7 +59,7 @@ public class LabelAppliedIntegrationIT {
     @Test
     @DisplayName("Should publish, receive, map and call usecase with correct input for label applied")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/label_applied.json", LABEL_APPLIED_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/label_applied.json", LABEL_APPLIED_TOPIC);
         ArgumentCaptor<InventoryInput> captor = ArgumentCaptor.forClass(InventoryInput.class);
         verify(labelAppliedUseCase, times(1)).execute(captor.capture());
         InventoryInput capturedInput = captor.getValue();
@@ -86,16 +75,8 @@ public class LabelAppliedIntegrationIT {
         assertThat(capturedInput.isLicensed().toString()).isEqualTo(payloadJson.path(PAYLOAD).path("isLicensed").asText());
         assertThat(capturedInput.weight()).isEqualTo(payloadJson.path(PAYLOAD).path("weight").asInt());
         assertThat(capturedInput.collectionDate()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionDate").asText());
-        assertThat(capturedInput.location()).isEqualTo(payloadJson.path(PAYLOAD).path("location").asText());
+        assertThat(capturedInput.inventoryLocation()).isEqualTo(payloadJson.path(PAYLOAD).path("location").asText());
         assertThat(capturedInput.productFamily()).isEqualTo(payloadJson.path(PAYLOAD).path("productFamily").asText());
         assertThat(capturedInput.aboRh()).isEqualTo(AboRhType.valueOf(payloadJson.path(PAYLOAD).path("aboRh").asText()));
-    }
-
-    private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
-        var resource = new ClassPathResource(path).getFile().toPath();
-        var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
-        kafkaHelper.sendEvent(topic, topic + "test-key", payloadJson).block();
-        logMonitor.await("Processed message.*");
-        return payloadJson;
     }
 }

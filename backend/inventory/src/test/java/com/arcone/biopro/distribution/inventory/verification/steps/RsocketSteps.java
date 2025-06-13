@@ -1,42 +1,34 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.*;
-import com.arcone.biopro.distribution.inventory.common.TestUtil;
+import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryByUnitNumberAndProductInput;
+import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
-import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
-import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.rsocket.RSocketRequester;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 @Slf4j
 public class RsocketSteps {
 
     @Autowired
     RSocketRequester.Builder builder;
-
-    @Autowired
-    InventoryUtil inventoryUtil;
 
     @Value("${spring.rsocket.server.port}")
     Integer port;
@@ -46,6 +38,11 @@ public class RsocketSteps {
     GetAvailableInventoryResponseDTO getAvailableInventoryResponseDTOResult;
 
     Mono<InventoryValidationResponseDTO> inventoryValidationResponseDTOMonoResult;
+
+    Flux<InventoryOutput> getInventoryByUnitNumberFluxResult;
+
+    Mono<InventoryOutput> getInventoryByUnitNumberAndProductCodeMonoResult;
+
 
     private static RSocketRequester requester;
 
@@ -59,48 +56,25 @@ public class RsocketSteps {
         inventoryCriteriaList = new ArrayList<>();
     }
 
-    @Given("I have {string} products of family {string} with ABORh {string} in location {string} and that will expire in {string} days")
-    public void iHaveOfTheOfTheBloodTypeInThe(String quantity, String productFamily, String aboRh, String location, String days) {
-        createMultipleProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE);
-    }
-
-
-    @Given("I have one product with {string}, {string} and {string} in {string} status")
-    public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status) {
-        int days = "EXPIRED".equals(status) ? -1 : 1;
-        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
-
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
-        inventory.setLocation(location);
-        inventory.setIsLabeled(true);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventoryUtil.saveInventory(inventory);
-    }
-
-    @Given("I have one product with {string}, {string} and {string} in {string} status with reason {string} and comments {string}")
-    public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status, String statusReason, String comments) {
-        int days = "EXPIRED".equals(status) ? -1 : 1;
-        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
-
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
-        inventory.setLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventory.setStatusReason(statusReason);
-        inventory.setComments(comments);
-        inventory.setIsLabeled(true);
-        inventoryUtil.saveInventory(inventory);
-    }
-
     @When("I select {string} of the blood type {string}")
     public void iSelectOfTheOfTheBloodType(String productFamily, String aboRh) {
-        inventoryCriteriaList.add(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh)));
+        inventoryCriteriaList.add(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh), null));
     }
 
-    @When("I request available inventories for family {string} and ABORh {string} in location {string}")
-    public void iRequestOfTheOfTheBloodType(String productFamily, String aboRh, String location) {
+    @When("I request available inventories for family with the following parameters:")
+    public void iRequestOfTheOfTheBloodType(DataTable dataTable) {
+        List<Map<String, String>> parameters = dataTable.asMaps(String.class, String.class);
+        var parameter = parameters.getFirst();
+        var builder = AvailableInventoryCriteriaDTO.builder();
+        builder.productFamily(parameter.get("Product Family"));
+        builder.bloodType(AboRhCriteria.valueOf(parameter.get("Abo Rh Type")));
+        if(parameter.containsKey("Temperature Category")) {
+            builder.temperatureCategory(parameter.get("Temperature Category"));
+        }
+
         getAvailableInventoryResponseDTOMonoResult = requester
             .route("getAvailableInventoryWithShortDatedProducts")
-            .data(new GetAvailableInventoryCommandDTO(location, List.of(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh)))))
+            .data(new GetAvailableInventoryCommandDTO(parameter.get("Location"), List.of(builder.build())))
             .retrieveMono(GetAvailableInventoryResponseDTO.class);
     }
 
@@ -123,14 +97,42 @@ public class RsocketSteps {
             .retrieveMono(InventoryValidationResponseDTO.class);
     }
 
+    @When("I request a inventory with unit number {string}")
+    public void iRequestGetInventoryByUnitNumber(String unitNumber) {
+        getInventoryByUnitNumberFluxResult = requester
+            .route("getInventoryByUnitNumber")
+            .data(unitNumber)
+            .retrieveFlux(InventoryOutput.class);
+    }
+
+    @When("I request a inventory with unit number {string} and product code {string}")
+    public void iRequestGetInventoryByUnitNumberAndProductCode(String unitNumber, String productCode) {
+        getInventoryByUnitNumberAndProductCodeMonoResult = requester
+            .route("getInventoryByUnitNumberAndProductCode")
+            .data(new GetInventoryByUnitNumberAndProductInput(unitNumber, productCode))
+            .retrieveMono(InventoryOutput.class);
+    }
+
     @Then("I receive {string} of total products and {string} of short date")
     public void iReceive(String quantityTotal, String quantityShortDate) {
         StepVerifier
             .create(getAvailableInventoryResponseDTOMonoResult)
             .consumeNextWith(message -> {
-                assertThat(message.inventories().getFirst().shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
-                assertThat(message.inventories().getFirst().quantityAvailable()).isEqualTo(Integer.parseInt(quantityTotal));
-                log.debug("Received message {}", message);
+                var inventories = message.inventories().getFirst();
+
+                int expectedShort = Integer.parseInt(quantityShortDate);
+                int expectedTotal = Integer.parseInt(quantityTotal);
+
+                int actualShort = inventories.shortDateProducts().size();
+                int actualTotal = inventories.quantityAvailable();
+
+                assertThat(actualShort)
+                    .withFailMessage("Expected shortDateProducts size: %d but was %d", expectedShort, actualShort)
+                    .isEqualTo(expectedShort);
+
+                assertThat(actualTotal)
+                    .withFailMessage("Expected quantityAvailable: %d but was %d", expectedTotal, actualTotal)
+                    .isEqualTo(expectedTotal);
             })
             .verifyComplete();
     }
@@ -153,18 +155,49 @@ public class RsocketSteps {
         assertThat(inventory.shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
     }
 
-    @Then("I receive for {string} with {string} in the {string} a {string} message with {string} action and {string} reason and {string} message and details {string}")
-    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType, String action, String reason, String messageError, String details) {
-        Integer errorCode = "".equals(errorType) ? null : MessageType.valueOf(errorType).getCode();
+    @Then("I receive the following:")
+    public void iReceiveTheFollowing(DataTable dataTable) {
+        var row = dataTable.asMaps(String.class, String.class).getFirst();
+        String unitNumber = row.get("Unit Number");
+        String productCode = row.get("Product Code");
+        String temperatureCategory = row.get("Temperature Category");
+        String location = row.get("Location");
+        String errorType = row.get("RESPONSE ERROR");
+        String action = row.get("ACTION");
+        String reason = row.get("REASON");
+        String messageError = row.get("MESSAGE");
+        String details = row.get("DETAILS");
+        Integer errorCode = Objects.isNull(errorType) ? null : MessageType.valueOf(errorType).getCode();
+
         StepVerifier
             .create(inventoryValidationResponseDTOMonoResult)
             .consumeNextWith(message -> {
                 if (!MessageType.INVENTORY_NOT_EXIST.getCode().equals(errorCode)) {
                     assertThat(message.inventoryResponseDTO().unitNumber()).isEqualTo(unitNumber);
                     assertThat(message.inventoryResponseDTO().productCode()).isEqualTo(productCode);
+                    assertThat(message.inventoryResponseDTO().temperatureCategory()).isEqualTo(temperatureCategory);
 
                     if (!MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.getCode().equals(errorCode)) {
                         assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
+                        if (row.get("Collection Location") != null) {
+                            assertThat(message.inventoryResponseDTO().collectionLocation()).isEqualTo(row.get("Collection Location"));
+                        }
+                    }
+
+                    if (row.containsKey("Volumes") && row.get("Volumes") != null) {
+                        var volumes = row.get("Volumes").split(",");
+                        for(String volume: volumes) {
+                            var volumeFields = volume.split("-");
+                            assertTrue( message.inventoryResponseDTO().volumes().stream()
+                                .filter(v -> v.type().equals(volumeFields[0].trim().toUpperCase()))
+                                .findFirst()
+                                .map(v -> Objects.equals(v.value(), Integer.parseInt(volumeFields[1].trim())))
+                                .orElse(false));
+                        }
+                    }
+
+                    if (row.get("Collection TimeZone") != null) {
+                        assertThat(message.inventoryResponseDTO().collectionTimeZone()).isEqualTo(row.get("Collection TimeZone"));
                     }
 
                 } else {
@@ -200,87 +233,90 @@ public class RsocketSteps {
             .verifyComplete();
     }
 
-    @And("I have one product with {string}, {string} and {string} in {string} status with quarantine reasons {string} and comments {string}")
-    public void iHaveOneProductWithAndInStatusWithQuarantineReasonsAndComments(String unitNumber, String productCode, String location, String status, String quarantineReasons, String quarantineComments) {
-        int days = InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status)) ? -1 : 1;
-        List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, quarantineComments)).collect(Collectors.toList());
+    @Then("I receive the following from get inventory by unit number:")
+    public void iReceiveTheFollowingFromGetInventoryByUnitNumber(DataTable dataTable) {
+        var row = dataTable.asMaps(String.class, String.class).getFirst();
 
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, InventoryStatus.valueOf(status));
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventory.setLocation(location);
-        inventory.setQuarantines(quarantines);
-        inventory.setStatusReason("ACTIVE_DEFERRAL");
-        inventory.setComments(null);
-        inventory.setIsLabeled(true);
-        inventoryUtil.saveInventory(inventory);
+        Publisher<? extends InventoryOutput> publisher = getInventoryByUnitNumberFluxResult != null ? getInventoryByUnitNumberFluxResult : getInventoryByUnitNumberAndProductCodeMonoResult;
+
+        StepVerifier
+            .create(publisher)
+            .thenConsumeWhile(message -> {
+                assertInventoryOutput(message, row);
+
+                return true;
+            }).verifyComplete();
     }
 
-    @And("I have one product with {string}, {string} and {string} in {string} status with reason {string}")
-    public void iHaveOneProductWithAndInStatusWithReason(String unitNumber, String productCode, String location, String status, String reason) {
-        int days = "EXPIRED".equals(status) ? -1 : 1;
-        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
+    @Then("I receive the following from get inventory by unit number and Product Code:")
+    public void iReceiveTheFollowingFromGetInventoryByUnitNumberAndProductCode(DataTable dataTable) {
+        var row = dataTable.asMaps(String.class, String.class).getFirst();
 
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
-        inventory.setLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventory.setStatusReason(reason);
-        inventory.setIsLabeled(true);
-        inventoryUtil.saveInventory(inventory);
+        StepVerifier
+            .create(getInventoryByUnitNumberAndProductCodeMonoResult)
+            .assertNext(message -> {
+                assertInventoryOutput(message, row);
+            }).verifyComplete();
     }
 
-    @And("I have one product with {string}, {string} and {string} in {string} status and is unlabeled")
-    public void iHaveOneProductWithAndInStatusAndIsUnlabeled(String unitNumber, String productCode, String location, String status) {
-        int days = "EXPIRED".equals(status) ? -1 : 1;
-        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
+    private static void assertInventoryOutput(InventoryOutput message, Map<String, String> row) {
 
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
-        inventory.setLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventory.setIsLabeled(false);
-        inventoryUtil.saveInventory(inventory);
-    }
+        String unitNumber = row.get("Unit Number");
+        String productCode = row.get("Product Code");
+        assertThat(message.unitNumber()).isEqualTo(unitNumber);
+        assertThat(productCode).contains(message.productCode());
 
+        if (row.containsKey("Temperature Category")) {
+            assertThat(message.temperatureCategory()).isEqualTo(row.get("Temperature Category"));
 
-    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments) {
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
-        inventory.setLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
-        inventory.setProductFamily(productFamily);
-        inventory.setAboRh(aboRhType);
-        inventory.setStatusReason(statusReason);
-        inventory.setComments(comments);
-        inventory.setIsLabeled(true);
-        inventoryUtil.saveInventory(inventory);
-    }
-
-    private void createMultipleProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status) {
-        int qty = Integer.parseInt(quantity);
-        int daysToExpire = Integer.parseInt(days);
-        AboRhType aboRhType = AboRhType.valueOf(aboRh);
-
-        for (int i = 0; i < qty; i++) {
-            InventoryEntity inventory = inventoryUtil.newInventoryEntity(
-                TestUtil.randomString(13),
-                "E0869V00",
-                status
-            );
-            inventory.setLocation(location);
-            inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
-            inventory.setProductFamily(productFamily);
-            inventory.setAboRh(aboRhType);
-            inventory.setIsLabeled(true);
-            inventoryUtil.saveInventory(inventory);
         }
-    }
 
-    @And("I have one product with {string}, {string} and {string} in {string} status with unsuitable reason {string}")
-    public void iHaveOneProductWithAndInStatusWithUnsuitableReason(String unitNumber, String productCode, String location, String status, String reason) {
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, InventoryStatus.valueOf(status));
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(1));
-        inventory.setLocation(location);
-        inventory.setUnsuitableReason(reason);
-        inventory.setComments(null);
-        inventory.setIsLabeled(true);
-        inventoryUtil.saveInventory(inventory);
+        if (row.get("Location") != null) {
+            assertThat(message.location()).isEqualTo(row.get("Location"));
+        }
+
+        if (row.get("Unsuitable Reason") != null) {
+            assertThat(message.unsuitableReason()).isEqualTo(row.get("Unsuitable Reason"));
+        }
+
+        if (row.get("Discard Reason") != null) {
+            assertThat(message.statusReason()).isEqualTo(row.get("Discard Reason"));
+        }
+
+        if (row.get("Quarantine Reasons") != null) {
+
+            assertNotNull(message.quarantines());
+            assertFalse(message.quarantines().isEmpty());
+
+            message.quarantines().forEach(
+                quarantine -> {
+                    assertTrue(row.get("Quarantine Reasons").contains(quarantine.reason()));
+                }
+            );
+        }
+
+        if (row.get("Collection Location") != null) {
+            assertThat(message.collectionLocation()).isEqualTo(row.get("Collection Location"));
+        }
+
+        if (row.containsKey("Volumes") && row.get("Volumes") != null) {
+            var volumes = row.get("Volumes").split(",");
+            for(String volume: volumes) {
+                var volumeFields = volume.split("-");
+                assertTrue( message.volumes().stream()
+                    .filter(v -> v.type().equals(volumeFields[0].trim().toUpperCase()))
+                    .findFirst()
+                    .map(v -> Objects.equals(v.value(), Integer.parseInt(volumeFields[1].trim())))
+                    .orElse(false));
+            }
+        }
+
+        if (row.get("Collection TimeZone") != null) {
+            assertThat(message.collectionTimeZone()).isEqualTo(row.get("Collection TimeZone"));
+        }
+
+        if(row.containsKey("Expired")) {
+            assertThat(message.expired()).isEqualTo(Boolean.valueOf(row.get("Expired").toLowerCase()));
+        }
     }
 }

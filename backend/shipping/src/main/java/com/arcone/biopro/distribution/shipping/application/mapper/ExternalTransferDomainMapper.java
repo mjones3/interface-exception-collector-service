@@ -32,7 +32,7 @@ public class ExternalTransferDomainMapper {
             return Mono.just(new ExternalTransfer(null, externalTransferCommand.customerCode()
                 , null, externalTransferCommand.hospitalTransferId()
                 , externalTransferCommand.transferDate() , externalTransferCommand.createEmployeeId()
-                , ExternalTransferStatus.PENDING, customerService));
+                , ExternalTransferStatus.PENDING , null, customerService));
         }catch (Exception e){
             log.error("Not able to map to domain external transfer {}",e.getMessage());
             return Mono.error(e);

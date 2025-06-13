@@ -1,0 +1,84 @@
+<app-filters
+    [disabled]="!enableApplyFilters()"
+    [appliedTotalFilterCount]="totalFieldsApplied()"
+    (search)="applyFilterSearch()"
+    (resetSearchFilter)="resetFilters()"
+    (showFilterControl)="toggleFilter($event)"
+    [showFilters]="showFilters()"
+>
+    <form
+        [formGroup]="form"
+        class="inline-form flex w-full flex-col"
+        id="searchFormId"
+    >
+        <div class="w-full pt-2">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <mat-form-field class="block">
+                    <mat-label> Shipment Number </mat-label>
+                    <input
+                        id="shipmentNumberId"
+                        matInput
+                        formControlName="shipmentNumber"
+                        placeholder="Enter Shipment Number"
+                        maxlength="50"
+                        autocomplete="off"
+                    />
+                </mat-form-field>
+
+                <app-multiple-select
+                    [formGroup]="form"
+                    [items]="customersOptions()"
+                    controlName="customers"
+                    title="Customer"
+                    matSelectId="customerSelect"
+                />
+
+                <app-multiple-select
+                    [formGroup]="form"
+                    [items]="productTypesOptions()"
+                    controlName="productTypes"
+                    title="Product Type"
+                    matSelectId="productTypeSelect"
+                />
+
+                <app-multiple-select
+                    [formGroup]="form"
+                    [items]="shipmentTypesOptions()"
+                    controlName="shipmentStatus"
+                    title="Shipment Status"
+                    matSelectId="shipmentStatusSelect"
+                />
+
+                <app-date-range-picker
+                    [formGroup]="getDateRangeFormGroup('shipmentDate')"
+                    matDatepickerMinErrorMessage="Date range exceeds two years"
+                    matEndDateInvalidMessage="Initial date should not be greater than final date"
+                    matDatepickerMaxMessage="Final date should not be greater than today"
+                    [minDate]="minShipmentDateCriteria"
+                    title="Shipment Date"
+                    dateRangeId="shipmentDate"
+                />
+
+                <app-multiple-select
+                    [formGroup]="form"
+                    [items]="locationsOptions()"
+                    controlName="locationCode"
+                    title="Location"
+                    matSelectId="locationSelect"
+                />
+
+                <mat-form-field class="block">
+                    <mat-label>Transportation Reference Number</mat-label>
+                    <input
+                        id="transportationReferenceNumberId"
+                        matInput
+                        formControlName="transportationReferenceNumber"
+                        placeholder="Enter Transportation Reference Number"
+                        maxlength="50"
+                        autocomplete="off"
+                    />
+                </mat-form-field>
+            </div>
+        </div>
+    </form>
+</app-filters>

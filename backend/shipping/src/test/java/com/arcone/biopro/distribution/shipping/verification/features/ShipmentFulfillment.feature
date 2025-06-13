@@ -1,9 +1,9 @@
-@api @AOA-6 @AOA-152
+@api @AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240
 Feature: Shipment fulfillment request
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199".
-        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,,W812530107009,,W812530107010".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -80,7 +80,6 @@ Feature: Shipment fulfillment request
 
 
         Rule: Distribution Technicians must be able to process and ship products for “DATE-TIME” delivery type orders.
-        Rule:
         @api @bug @DIS-260 @DIS-285
         Scenario Outline: Receive a shipment fulfillment request based on priority
             Given I have no shipment fulfillment requests.
@@ -95,21 +94,37 @@ Feature: Shipment fulfillment request
                 | 1381         | SCHEDULED | 2025-12-31   |
                 | 2852         | ROUTINE   | NULL_VALUE   |
 
-        Rule: I should be able to fill orders with Whole Blood and Derived Products.
-        @api @DIS-254
+        @api @DIS-377 @rc
+        Scenario Outline: Receive a shipment fulfillment request using a custom shipping method configuration
+            Given I have no shipment fulfillment requests.
+            When I receive a shipment fulfillment request event for the order number "<Order Number>" and shipping method "<Shipping Method>".
+            Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
+            Examples:
+                | Order Number | Shipping Method |
+                | 2853         | DEFAULT         |
+
+    Rule: I should be able to fill orders with Whole Blood and Derived Products.
+        Rule: I should be able to fill orders with Apheresis Platelets (PRT and BacT) Products.
+        Rule: I should be able to fill orders with Frozen RBCs Products.
+        @api @DIS-254 @DIS-336 @DIS-337
         Scenario Outline: Ship Whole Blood and Derived Products.
-            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
+            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>" , Temperature Category "<Category>".
             And The visual inspection configuration is "enabled".
             And I have received a shipment fulfillment request with above details.
             When I fill a product with the unit number "<UN>", product code "<Code>".
             Then The product unit number "<UN>" and product code "<Code>" should be packed in the shipment.
             Examples:
-                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                | UN            | Code     |
-                | 1391         | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE          | W822530106093 | E7648V00 |
-                | 1392         | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | W822530106094 | E0685V00 |
-                | 1393         | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED     | W812530106095 | E0033V00 |
-                | 1394         | 1           | Testing Customer | 5        | AP        | WHOLE_BLOOD                  | W812530107002 | E0023V00 |
-                | 1395         | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS              | W812530106098 | E0167V00 |
+                | Order Number   | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                    | UN            | Code     | Category         |
+                | 1391           | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE              | W822530106093 | E7648V00 | FROZEN           |
+                | 1392           | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W822530106094 | E0685V00 | FROZEN           |
+                | 1393           | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED         | W812530106095 | E0033V00 | FROZEN           |
+                | 1394           | 1           | Testing Customer | 5        | AP        | WHOLE_BLOOD                      | W812530107002 | E0023V00 | FROZEN           |
+                | 1395           | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS                  | W812530106098 | E0167V00 | FROZEN           |
+                | 336001         | 1           | Testing Customer | 10       | A         | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107006 | EA007V00 | ROOM_TEMPERATURE |
+                | 336002         | 1           | Testing Customer | 5        | AB        | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107007 | EA139V00 | ROOM_TEMPERATURE |
+                | 336003         | 1           | Testing Customer | 5        | AP        | PRT_APHERESIS_PLATELETS          | W812530107009 | E8340V00 | ROOM_TEMPERATURE |
+                | 336004         | 1           | Testing Customer | 5        | BP        | PRT_APHERESIS_PLATELETS          | W812530107010 | EB317V00 | REFRIGERATED     |
+                | 337001         | 1           | Testing Customer | 5        | BP        | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530107011 | E5085V00 | FROZEN           |
 
             @api @DIS-261
             Rule: The second verification process should be restarted when a product is added into the shipment.
@@ -127,5 +142,3 @@ Feature: Shipment fulfillment request
                     | 261002       | E0033V00,E0033V00,E0033V00 | W822530103004,W822530103005,W822530103006 | WHOLE_BLOOD_LEUKOREDUCED     | ABP        | W812530106095 | E0033V00     | 5                  |
                     | 261002       | E0167V00,E0167V00,E0167V00 | W822530103004,W822530103005               | RED_BLOOD_CELLS              | ON         | W812530106098 | E0167V00     | 5                  |
                     | 261002       | E0167V00,E0167V00,E0167V00 | W822530103004,W822530103005               | WHOLE_BLOOD                  | AP         | W812530107002 | E0023V00     | 9                  |
-
-
