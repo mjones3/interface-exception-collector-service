@@ -61,11 +61,11 @@ Feature: Cancel Imports Process
             And I am at the Enter Product Information Page.
             And I should see product unit number "<Unit Number>" and product code "<Product Code>" in the list of added products.
             When I choose to cancel the imports process
-            Then I should see a "Cancel Confirmation" message: "Cancelling will remove all products. Are you sure you want to Continue?".
+            Then I should see a "Cancel Confirmation" message: "Cancelling will remove all import details. Are you sure you want to Continue?".
             When I choose cancel the the imports process.
             Then I should see product unit number "<Unit Number>" and product code "<Product Code>" in the list of added products.
             When I choose to cancel the imports process
-            Then I should see a "Cancel Confirmation" message: "Cancelling will remove all products. Are you sure you want to Continue?".
+            Then I should see a "Cancel Confirmation" message: "Cancelling will remove all import details. Are you sure you want to Continue?".
             When I choose confirm the imports process.
             Then I should see a "SUCCESS" message "Import batch cancelled successfully".
             And I should be redirect to the Enter Shipping Information Page.
