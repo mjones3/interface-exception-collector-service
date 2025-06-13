@@ -121,7 +121,7 @@ public class TransitTimeValidatorTest {
         ValidationResult result = TransitTimeValidator.validateTransitTime(command, productConsequenceList);
 
         assertFalse(result.valid());
-        assertEquals("Total Transit Time does not meet thresholds all products will be quarantined", result.message());
+        assertEquals("Total Transit Time does not meet thresholds. All products will be quarantined.", result.message());
     }
 
     @Test

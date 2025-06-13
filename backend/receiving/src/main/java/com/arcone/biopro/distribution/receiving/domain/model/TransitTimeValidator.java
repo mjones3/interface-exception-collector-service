@@ -7,12 +7,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +48,7 @@ public class TransitTimeValidator {
             return ValidationResult.builder()
                 .valid(false)
                 .result(formatTime(duration))
-                .message("Total Transit Time does not meet thresholds all products will be quarantined")
+                .message("Total Transit Time does not meet thresholds. All products will be quarantined.")
                 .build();
         }
     }

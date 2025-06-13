@@ -72,7 +72,7 @@ class TemperatureValidatorTest {
         ValidationResult result = TemperatureValidator.validateTemperature(command, List.of(consequence,consequence2));
 
         assertFalse(result.valid());
-        assertEquals("Temperature does not meet thresholds all products will be quarantined",
+        assertEquals("Temperature does not meet thresholds. All products will be quarantined.",
             result.message());
     }
 

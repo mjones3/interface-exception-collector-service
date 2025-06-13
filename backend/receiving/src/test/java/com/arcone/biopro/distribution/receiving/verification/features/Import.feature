@@ -58,9 +58,9 @@ Feature: Import products
             When I request to validate the temperature of "<Temperature>" for the Temperature Category "<Temperature Category>".
             Then I should receive a "<message_type>" message response "<message>".
             Examples:
-                |Temperature Category | Temperature | message_type | message                                                               |
-                | REFRIGERATED        |  12         | CAUTION      | Temperature does not meet thresholds all products will be quarantined |
-                | ROOM_TEMPERATURE    |  25         | CAUTION      | Temperature does not meet thresholds all products will be quarantined |
+                | Temperature Category | Temperature | message_type | message                                                                 |
+                | REFRIGERATED         | 12          | CAUTION      | Temperature does not meet thresholds. All products will be quarantined. |
+                | ROOM_TEMPERATURE     | 25          | CAUTION      | Temperature does not meet thresholds. All products will be quarantined. |
 
         Rule: I should be able to enter temperature information of the imported products.
         Rule: I should be notified when I enter a temperature that is out of the configured range.
@@ -107,10 +107,10 @@ Feature: Import products
             When I request to validate the total transit time of Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>" and End Time Zone as "<EndTimeZone>"  for the Temperature Category "<Temperature Category>".
             Then I should receive a "<message_type>" message response "<message>".
             Examples:
-                | Temperature Category | StartDateTime            | StartTimeZone    | EndDateTime              | EndTimeZone       | message_type | message                                                                      |
-                | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York  | CAUTION      | Total Transit Time does not meet thresholds all products will be quarantined |
-                | FROZEN               | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York  | SYSTEM       | Not able to validate transit time. Contact Support.                          |
-                | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | INVALID_TIME_ZONE | SYSTEM       | Not able to validate transit time. Contact Support.                          |
+                | Temperature Category | StartDateTime            | StartTimeZone    | EndDateTime              | EndTimeZone       | message_type | message                                                                        |
+                | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York  | CAUTION      | Total Transit Time does not meet thresholds. All products will be quarantined. |
+                | FROZEN               | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York  | SYSTEM       | Not able to validate transit time. Contact Support.                            |
+                | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | INVALID_TIME_ZONE | SYSTEM       | Not able to validate transit time. Contact Support.                            |
 
 
         Rule: I should be able to see the total transit time of the imported products.
@@ -134,7 +134,7 @@ Feature: Import products
             When I choose calculate total transit time.
             Then The continue option should be "<continue_status>".
             And I "<should_should_not_transit>" see the total transit time as "<totalTransitTime>".
-            And  I "<should_should_not_caution>" see a "Caution" alert: "Total Transit Time does not meet thresholds all products will be quarantined".
+            And  I "<should_should_not_caution>" see a "Caution" alert: "Total Transit Time does not meet thresholds. All products will be quarantined.".
             Examples:
                 | Imports Location Code | defaultLocationTimeZone | Temperature Category | StartDateTime       | StartTimeZone    | EndDateTime         | defaultLocationTimeZoneSelected | totalTransitTime | continue_status | should_should_not_transit | should_should_not_caution |
                 | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | America/New_York | 06/08/2025 15:10 AM | ET                              | 1h 10m           | enabled         | should                    | should not                |
