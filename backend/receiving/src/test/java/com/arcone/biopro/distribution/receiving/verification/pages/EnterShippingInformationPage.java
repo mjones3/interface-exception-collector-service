@@ -30,7 +30,7 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     private final By thermometerIdInput = By.xpath("//input[@data-testid='thermometer-id']");
     private final By commentsInput = By.xpath("//textarea[@data-testid='comments']");
     private final By continueButton = By.id("importsEnterShipmentInformationContinueActionButton");
-    private final By totalTransitTimeValueLabel = By.id("total-transit-time-value");
+    private final By totalTransitTimeValueLabel = By.xpath("//span[@data-testid='total-transit-time-value']");
 
     @Autowired
     private SharedContext sharedContext;
