@@ -47,7 +47,7 @@ public class ImportProductsController {
 
         if (response.get("data") != null) {
             boolean isValid = Boolean.parseBoolean(((Map) response.get("data")).get("valid").toString());
-            sharedContext.setTotalTransitTime(((Map) response.get("data")).get("result").toString());
+            sharedContext.setTotalTransitTime(((Map) response.get("data")).get("resultDescription").toString());
             return isValid;
         } else {
             return false;

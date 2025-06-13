@@ -79,7 +79,7 @@ Feature: Import products
             Then The temperature field should be "<Temperature Field Status>".
             When I enter the temperature "<Temperature>".
             Then The continue option should be "<continue_status>".
-            And  I "<should_should_not>" see a "Caution" alert: "Temperature does not meet thresholds all products will be quarantined".
+            And  I "<should_should_not>" see a "Caution" alert: "Temperature does not meet thresholds. All products will be quarantined.".
             Examples:
                 | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category | Temperature Field Status | Temperature | continue_status | should_should_not |
                 | 123456789             | 123456789            | THERM-DST-410  | THERM-DST-410 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 9           | enabled         | should not        |
