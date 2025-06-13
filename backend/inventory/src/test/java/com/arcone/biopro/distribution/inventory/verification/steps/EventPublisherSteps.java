@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
@@ -32,8 +33,13 @@ public class EventPublisherSteps {
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
         String expectedUnitNumber = products.getFirst().get("Unit Number");
         String expectedProductCode = products.getFirst().get("Final Product Code");
-        logMonitor.await("Inventory Updated Message .*" + expectedUnitNumber + ".*" + expectedProductCode + ".*" + updateType);
+        String statusIncluded = products.getFirst().get("Status Included");
+        if (Objects.isNull(statusIncluded)) {
+            logMonitor.await("Inventory Updated Message .*" + expectedUnitNumber + ".*" + expectedProductCode + ".*" + updateType);
+        } else {
+            logMonitor.await("Inventory Updated Message .*" + expectedUnitNumber + ".*" + expectedProductCode + ".*" + updateType + ".*" + statusIncluded);
 
+        }
 
     }
 }

@@ -51,6 +51,9 @@ public interface InventoryUpdatedMapper {
         if (inventory.getIsLabeled()) {
             statusList.add(LABELED);
         }
+        if (inventory.isQuarantined()) {
+            statusList.add(QUARANTINED);
+        }
         return statusList;
     }
 

@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725004000
-@api
+@api @AOA-25
 Feature: Inventory Outbound Interface
     Rule: As an inventory service I want to create an inventory update event every time an inventory is created/updated
         Scenario Outline: Produce an inventory updated event every time an inventory is create/update
@@ -12,10 +12,10 @@ Feature: Inventory Outbound Interface
                 | <Unit Number> | <Final Product Code> | <Is licensed> | <Reason> | <Reason Id> | <Shipment type> | <Device Storage> | <Storage Location> | <Location> | <Expiration Date> | 23:59           | 1FS                   | 02/15/2025        | 250    | 234    | APH LR RBC FRZ C1   | <Product Code>      | RED_BLOOD_CELLS_LEUKOREDUCED | <Abo Rh> |
 
             Then the inventory updated event should be produced with the "<Update Type>" value in the payload for the following units:
-                | Unit Number   | Final Product Code   |
-                | <Unit Number> | <Final Product Code> |
+                | Unit Number   | Final Product Code   | Status Included   |
+                | <Unit Number> | <Final Product Code> | <Status Included> |
 
-            @R20-333 @AOA-25
+            @R20-333
             Examples:
                 | Event              | Unit Number   | Product Code | Final Product Code | Is licensed | Shipment type | Reason            | Reason Id | Device Storage | Storage Location        | Location   | Update Type        | Expiration Date |
                 | Label Applied      | W777725004001 | E162400      | E1624V00           | true        |               |                   |           |                |                         |            | LABEL_APPLIED      | 02/15/2026      |
@@ -40,6 +40,13 @@ Feature: Inventory Outbound Interface
             Examples:
                 | Event            | Unit Number  | Product Code | Final Product Code | Is licensed | Abo Rh | Reason | Reason Id | Device Storage | Storage Location | Location | Update Type   | Expiration Date     |
                 | Product Imported | W777725004010 | E1624V00     | E1624V00           | true        | OP     |        |           |                |                  |          | LABEL_APPLIED | 2011-12-03T09:15:30 |
+
+            @R20-804
+            Examples:
+                | Event             | Unit Number   | Product Code | Final Product Code | Is licensed | Shipment type | Reason            | Reason Id | Device Storage | Storage Location | Location | Expiration Date | Status Included      |
+                | Label Applied     | W777725004051 | E162400      | E1624V00           | true        |               |                   |           |                |                  |          | 02/15/2026      | LABELED              |
+                | Apply Quarantine  | W777725004052 | E1624V00     | E1624V00           |             |               | Quarantine Reason | 1         |                |                  |          | 02/15/2026      | LABELED, QUARANTINED |
+                | Remove Quarantine | W777725004053 | E1624V00     | E1624V00           |             |               | Quarantine Reason | 2         |                |                  |          | 02/15/2026      | LABELED              |
 
 
 
