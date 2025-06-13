@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.receiving.verification.steps;
 import com.arcone.biopro.distribution.receiving.verification.controllers.ImportProductsController;
 import com.arcone.biopro.distribution.receiving.verification.pages.EnterShippingInformationPage;
 import com.arcone.biopro.distribution.receiving.verification.support.TestUtils;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -10,6 +11,7 @@ import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 
@@ -24,6 +26,9 @@ public class ImportProductSteps {
 
     @Autowired
     private EnterShippingInformationPage enterShippingInformationPage;
+
+    @Value("${default.employee.id}")
+    private String employeeId;
 
     private Map apiResponse;
     private boolean isTemperatureValid;
@@ -180,6 +185,50 @@ public class ImportProductSteps {
             enterShippingInformationPage.verifyTotalTransitTimeVisibilityIs(true, totalTransitTime);
         } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
             enterShippingInformationPage.verifyTotalTransitTimeVisibilityIs(false, null);
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
+
+    @And("I have an imported batch created with the following details:")
+    public void iHaveAnImportedBatchCreatedWithTheFollowingDetails(DataTable dataTable) {
+        var data = dataTable.asMap(String.class, String.class);
+        importProductsController.createImportedBatch(
+            data.get("temperatureCategory"),
+            data.get("transitStartDateTime"),
+            data.get("transitStartTimeZone"),
+            data.get("transitEndDateTime"),
+            data.get("transitEndTimeZone"),
+            data.get("temperature"),
+            data.get("thermometerCode"),
+            data.get("locationCode"),
+            data.get("comments"),
+            employeeId
+        );
+    }
+
+    @When("I request to enter the product information with Unit Number as {string} , Product Code as {string}, Blood Type as {string} Expiration date as {string} , License status as {string} and Visual Inspection as {string}.")
+    public void iRequestToEnterTheProductInformationWithUnitNumberAsProductCodeAsBloodTypeAsExpirationDateAsLicenseStatusAsAndVisualInspectionAs(String unitNumber, String productCode, String bloodType, String expirationDate, String licenseStatus, String visualInspection) {
+        importProductsController.createImportItem(unitNumber, productCode, bloodType, expirationDate, licenseStatus, visualInspection);
+    }
+
+    @Then("The product {string} {string} be added into list of added products.")
+    public void theProductShouldBeAddIntoListOfAddedProducts(String unitNumber, String shouldShouldNot) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertTrue(importProductsController.isUnitImported(unitNumber));
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertFalse(importProductsController.isUnitImported(unitNumber));
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
+
+    @And("The product {string} {string} be flagged for quarantine.")
+    public void theProductShouldBeFlaggedForQuarantine(String unitNumber, String shouldShouldNot) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertTrue(importProductsController.isImportedUnitQuarantined(unitNumber));
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertFalse(importProductsController.isImportedUnitQuarantined(unitNumber));
         } else {
             Assert.fail("Invalid value for should/ShouldNot");
         }

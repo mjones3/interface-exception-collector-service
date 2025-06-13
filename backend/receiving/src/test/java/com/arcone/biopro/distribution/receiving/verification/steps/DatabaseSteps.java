@@ -47,4 +47,17 @@ public class DatabaseSteps {
         String sql = DatabaseQueries.UPDATE_LOCATION_TZ(sharedContext.getLocationCode(), tz);
         db.executeSql(sql).block();
     }
+
+    @And("I have removed all imports using thermometer which code contains {string}.")
+    public void iHaveRemovedAllImportsUsingThermometerWhichCodeContains(String thermometerCode) {
+        String removeImportItemPropertySql = DatabaseQueries.DELETE_IMPORT_ITEM_PROPERTY_BY_THERMOMETER_CODE_LIKE(thermometerCode);
+        String removeImportItemConsequenceSql = DatabaseQueries.DELETE_IMPORT_ITEM_CONSEQUENCE_BY_THERMOMETER_CODE_LIKE(thermometerCode);
+        String removeImportItemSql = DatabaseQueries.DELETE_IMPORT_ITEM_BY_THERMOMETER_CODE_LIKE(thermometerCode);
+        String removeImportSql = DatabaseQueries.DELETE_IMPORT_BY_THERMOMETER_CODE_LIKE(thermometerCode);
+
+        db.executeSql(removeImportItemConsequenceSql).block();
+        db.executeSql(removeImportItemPropertySql).block();
+        db.executeSql(removeImportItemSql).block();
+        db.executeSql(removeImportSql).block();
+    }
 }

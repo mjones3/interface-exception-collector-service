@@ -57,6 +57,10 @@ public class SharedContext {
     private Map lastShipmentCloseResponse;
     private String totalTransitTime;
 
+    // Batch data
+    private Map createImportResponse;
+    private Map createImportItemResponse;
+
 
     // RecoveredPlasmaCriteriaConfiguration
     private String recoveredPlasmaCriteriaConfigurationCustomerCode;
