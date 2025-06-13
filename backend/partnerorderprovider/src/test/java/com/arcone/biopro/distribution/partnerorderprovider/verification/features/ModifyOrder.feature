@@ -12,6 +12,7 @@ Feature: Modify order through the third-party application
         When I send a request to the Partner modify order interface to modify the order "<External ID>".
         Then The response status code should be <responseCode>.
         And The response status should be "<status>".
+        And The response should contain a transactionId property.
         Examples:
             | External ID | JsonPayloadName                                                                           | responseCode | status   |
             | EXT123      | inbound-test-files/modify-order-inbound-scenario-happy-path.json                          | 202          | ACCEPTED |
