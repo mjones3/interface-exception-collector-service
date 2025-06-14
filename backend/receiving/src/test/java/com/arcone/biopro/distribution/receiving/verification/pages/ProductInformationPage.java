@@ -31,6 +31,7 @@ public class ProductInformationPage extends CommonPageFactory {
     private final By addProductBtn = By.xpath("//button[@id='btnAdd']");
     private final By resetBtn = By.xpath("//button[@id='btnReset']");
     private final By completeImportBtn = By.xpath("//button[@id='productInformationSubmitActionButton']");
+    private final By cancelBtn = By.xpath("//button[@id='productInformationCancelActionButton']");
 
     private By licenseStatusSelect(String licenseStatus) {
         return By.xpath(String.format("//button[starts-with(@id,'%s')]", licenseStatus));
@@ -118,5 +119,9 @@ public class ProductInformationPage extends CommonPageFactory {
     public void completeImport() {
         sharedActions.waitForEnabled(completeImportBtn);
         sharedActions.click(completeImportBtn);
+    }
+
+    public void cancelImport() {
+        sharedActions.click(cancelBtn);
     }
 }

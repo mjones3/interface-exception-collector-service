@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.receiving.verification.support.SharedConte
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DatabaseSteps {
@@ -65,5 +66,13 @@ public class DatabaseSteps {
     public void theStatusOfTheImportBatchIs(String importStatus) {
         String sql = DatabaseQueries.UPDATE_IMPORT_STATUS_BY_ID( sharedContext.getCreateImportResponse().get("id").toString(), importStatus);
         db.executeSql(sql).block();
+    }
+
+    @And("The products with unit number {string} and product codes {string} should not be imported.")
+    public void theProductsWithUnitNumberAndProductCodesShouldNotBeImported(String unitNumber, String productCode) {
+        String sql = DatabaseQueries.COUNT_IMPORTED_PRODUCT_BY_UNIT_NUMBER_PRODUCT_CODE(unitNumber,productCode);
+        var result = db.fetchData(sql).first().block();
+        assert result != null;
+        Assert.assertEquals(result.get("total").toString(),"0");
     }
 }

@@ -369,4 +369,20 @@ public class ImportProductSteps {
     public void iShouldBeRedirectToTheEnterShippingInformationPage() {
         enterShippingInformationPage.waitForLoad();
     }
+
+    @When("I request to cancel the last import batch created.")
+    public void iRequestToCancelTheLastImportBatchCreated() {
+        var response = importProductsController.cancelImport();
+        Assert.assertNotNull(response);
+    }
+
+    @And("The last import batch created should be removed from the system.")
+    public void theLastImportBatchCreatedShouldBeRemovedFromTheSystem() {
+        Assert.assertNull(importProductsController.getLastImportCreated());
+    }
+
+    @When("I choose to cancel the imports process.")
+    public void iChooseToCancelTheImportsProcess() {
+        productInformationPage.cancelImport();
+    }
 }
