@@ -401,6 +401,7 @@ public class SharedActions {
         waitForEnabled(locator);
         driver.findElement(locator).sendKeys(text);
         driver.findElement(locator).sendKeys(Keys.ENTER);
+        Thread.sleep(500);
     }
 
     public void pressEnter(WebDriver driver) {

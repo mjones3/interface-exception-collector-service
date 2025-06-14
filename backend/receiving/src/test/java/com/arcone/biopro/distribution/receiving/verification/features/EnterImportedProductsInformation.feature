@@ -189,7 +189,7 @@ Feature: Enter Imported Products Information
 
 
         Rule: I should be required to enter unit number, ABO/Rh, product code, expiration date and license status for all the imported products.
-        @ui @DIS-412 @disabled
+        @ui @DIS-412
         Scenario Outline: Successfully entering valid product information - UI
             Given I have a thermometer configured as location "<Device Location Code>", Device ID as "<Device ID>", Category as "<Device Category>" and Device Type as "<Device Type>".
             And The following temperature thresholds are configured:
@@ -227,7 +227,7 @@ Feature: Enter Imported Products Information
         Rule: I should be notified when I enter a product code that doesn’t match the temperature category.
         Rule: I should be notified when I enter an invalid blood type.
         Rule: I should be notified when I enter an invalid expiration date.
-        @ui @DIS-412 @disabled
+        @ui @DIS-412
         Scenario Outline: Validation of invalid product information - UI
             Given I have a thermometer configured as location "<Device Location Code>", Device ID as "<Device ID>", Category as "<Device Category>" and Device Type as "<Device Type>".
             And The following temperature thresholds are configured:
@@ -250,17 +250,17 @@ Feature: Enter Imported Products Information
                 | comments             | comments                 |
             And I am at the Enter Product Information Page.
             And I scan the product information with Unit Number as "<Unit Number>", Product Code as "<Product Code>", Blood Type as "<Blood Type>", and Expiration date as "<Expiration Date>".
-            Then I "should not" see product unit number "<W036898786805>" and product code "<Product Code>" in the list of added products.
+            Then I "should not" see product unit number "<Unit Number>" and product code "<Product Code>" in the list of added products.
             And I should see a "WARNING" message: "<message>".
             And The add product option should be "disabled".
             Examples:
-                | Device Location Code | Device ID     | Device Type | Device Category | Temperature Category | Unit Number      | Product Code | Blood Type | Expiration Date | message                                          |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W036880500      | =<E6170V00   | =%6200     | &>0260422359    | Invalid Unit Number                              |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%0200     | &>0260422359    | Invalid ABO/RH                                   |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%6200     | &>0200002359    | Invalid expiration date                          |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03659878680500 | =<E617       | =%6200     | &>0260422359    | Invalid Product Code                             |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03399878680500 | =<E6170V00   | =%6200     | &>0260422359    | FIN is not associated with a registered facility |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | REFRIGERATED         | =W03659878680500 | =<E0023V00   | =%6200     | &>0260422359    | Product type does not match                      |
+                | Device Location Code | Device ID     | Device Type | Device Category | Unit Number      | Product Code | Blood Type | Expiration Date | message                                          |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W036880500      | =<E6170V00   | =%6200     | &>0260422359    | Invalid Unit Number                              |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%0200     | &>0260422359    | Invalid ABO/RH                                   |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%6200     | &>0200002359    | Invalid expiration date                          |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03659878680500 | =<E617       | =%6200     | &>0260422359    | Invalid Product Code                             |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03399878680500 | =<E6170V00   | =%6200     | &>0260422359    | FIN is not associated with a registered facility |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03659878680500 | =<E0023V00   | =%6200     | &>0260422359    | Product type does not match                      |
 
 
 
