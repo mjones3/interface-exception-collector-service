@@ -71,4 +71,25 @@ public class GraphQLMutationMapper {
             }
             """, importId, unitNumber, productCode, aboRh, expirationDate, visualInspection, licenseStatus, employeeId);
     }
+
+    public static String completeImportMutation(String importId,String employeeId) {
+        return String.format("""
+            mutation completeImport {
+                completeImport(
+                    completeImportRequest: {
+                        importId: %s
+                        completeEmployeeId: "%s"
+                    }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                    }
+                }
+            }
+            """, importId, employeeId);
+    }
 }

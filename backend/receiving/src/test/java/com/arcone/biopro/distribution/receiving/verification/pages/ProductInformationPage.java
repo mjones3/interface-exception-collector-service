@@ -30,6 +30,7 @@ public class ProductInformationPage extends CommonPageFactory {
     private final By expirationDateInput = By.id("expirationDateInput");
     private final By addProductBtn = By.xpath("//button[@id='btnAdd']");
     private final By resetBtn = By.xpath("//button[@id='btnReset']");
+    private final By completeImportBtn = By.xpath("//button[@id='productInformationSubmitActionButton']");
 
     private By licenseStatusSelect(String licenseStatus) {
         return By.xpath(String.format("//button[starts-with(@id,'%s')]", licenseStatus));
@@ -104,5 +105,13 @@ public class ProductInformationPage extends CommonPageFactory {
 
     public boolean isAddProductButtonEnabled() {
         return sharedActions.isElementEnabled(driver, addProductBtn);
+    }
+
+    public boolean isCompleteImportButtonEnabled() {
+        return sharedActions.isElementEnabled(driver, completeImportBtn);
+    }
+
+    public void completeImport() {
+        sharedActions.click(completeImportBtn);
     }
 }

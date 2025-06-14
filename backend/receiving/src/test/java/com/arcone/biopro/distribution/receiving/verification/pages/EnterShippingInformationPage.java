@@ -198,4 +198,8 @@ public class EnterShippingInformationPage extends CommonPageFactory {
             sharedActions.waitForNotVisible(totalTransitTimeValueLabel);
         }
     }
+
+    public void waitForLoad() {
+        sharedActions.waitForVisible(manageCartonHeader);
+    }
 }
