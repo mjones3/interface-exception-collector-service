@@ -13,12 +13,11 @@ import { MatIcon } from '@angular/material/icon';
 import { ReceivingService } from '../../service/receiving.service';
 import { Store } from '@ngrx/store';
 import { getAuthState } from '../../../../core/state/auth/auth.selectors';
-import { catchError, combineLatestWith, map, Observable, tap } from 'rxjs';
+import { catchError, combineLatestWith, EMPTY, first, map, Observable, switchMap, tap } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { ApolloError } from '@apollo/client';
 import {
     ShippingInformationDTO,
-    TemperatureProductCategory,
     TemperatureProductCategoryIconMap
 } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
@@ -30,7 +29,12 @@ import { DeviceIdValidator } from '../../validators/device-id.validator';
 import { ToastrService } from 'ngx-toastr';
 import { GlobalMessageComponent } from '../../../../shared/components/global-message/global-message.component';
 import { UseCaseNotificationDTO } from '../../../../shared/models/use-case-response.dto';
-import { TransitTimeFormGroupValidator } from '../../validators/transit-time-form-group.validator';
+import {
+    TransitTimeFormGroupValidator,
+    TransitTimeValidationModel
+} from '../../validators/transit-time-form-group.validator';
+import { DateTime } from 'luxon';
+import { fromPromise } from 'rxjs/internal/observable/innerFrom';
 
 @Component({
   selector: 'biopro-imports-enter-shipment-information',
@@ -76,12 +80,12 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     temperatureField = viewChild<ElementRef<HTMLInputElement>>('temperature');
 
     form = this.formBuilder.group({
-        productCategory: ['', [ Validators.required ]],
+        temperatureProductCategory: ['', [ Validators.required ]],
         transitTime: this.formBuilder.group({
-            startDate: ['', { updateOn: 'blur' }],
+            startDate: [null as DateTime, { updateOn: 'blur' }],
             startTime: ['', { updateOn: 'blur' }],
             startZone: ['', { updateOn: 'blur' }],
-            endDate: ['', { updateOn: 'blur' }],
+            endDate: [null as DateTime, { updateOn: 'blur' }],
             endTime: ['', { updateOn: 'blur' }],
             endZone: ['', { updateOn: 'blur' }],
         }),
@@ -100,47 +104,53 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     shippingInformationSignal = signal<ShippingInformationDTO>(null);
     availableTimeZonesSignal = computed<LookUpDto[]>(() => this.shippingInformationSignal()?.transitTimeZoneList ?? []);
 
-    thermometerStatusWithValueSignal = toSignal(this.form.controls.temperature.controls.thermometerId.statusChanges
-        .pipe(combineLatestWith(this.form.controls.temperature.controls.thermometerId.valueChanges)));
-    thermometerStatusWithValueChangeEffect = effect(() => {
-        const [ status, value ] = this.thermometerStatusWithValueSignal();
+    transitTimeHumanReadableSignal = signal<string>(null);
+    transitTimeValueSignal = toSignal(this.form.controls.transitTime.valueChanges); // Binding valueChanges once no status is used here
+    transitTimeQuarantineSignal = signal<UseCaseNotificationDTO>(null);
+    transitTimeValueChangeEffect = effect(() => {
+        const transitTime = this.transitTimeValueSignal();
+        if (this.form.controls.transitTime.touched && this.form.controls.transitTime.valid) {
+            this.triggerValidateTransitTime(this.form.controls.temperatureProductCategory.value, transitTime as TransitTimeValidationModel).subscribe();
+        } else {
+            this.transitTimeQuarantineSignal.set(null);
+            this.transitTimeHumanReadableSignal.set(null);
+        }
+    }, { allowSignalWrites: true });
+
+    thermometerIdStatusChangeSignal = toSignal(this.form.controls.temperature.controls.thermometerId.statusChanges); // Binding statusChanges once no changed value is used here
+    thermometerIdStatusChangeEffect = effect(() => {
+        const status = this.thermometerIdStatusChangeSignal();
         this.form.controls.temperature.controls.temperature.reset();
-        if (status === 'VALID' && !!value) {
+        if (this.form.controls.temperature.controls.thermometerId.touched && status === 'VALID') {
             this.form.controls.temperature.controls.temperature.enable();
             this.temperatureField()?.nativeElement?.focus();
         } else {
             this.form.controls.temperature.controls.temperature.disable();
-            this.thermometerField()?.nativeElement?.focus();
+            if (this.form.controls.temperature.controls.thermometerId.touched) {
+                this.thermometerField()?.nativeElement?.focus();
+            }
         }
     });
 
     temperatureValueSignal = toSignal(this.form.controls.temperature.controls.temperature.statusChanges
         .pipe(combineLatestWith(this.form.controls.temperature.controls.temperature.valueChanges)));
-    temperatureQuarantineNotificationSignal = signal<UseCaseNotificationDTO>(null);
+    temperatureQuarantineSignal = signal<UseCaseNotificationDTO>(null);
     temperatureValueChangeEffect = effect(() => {
         const [ status, value ] = this.temperatureValueSignal();
         if (status === 'VALID' && value !== null && value !== undefined && isFinite(value)) {
-            this.loadTemperatureValidation(value, this.form.controls.productCategory.value).subscribe();
+            this.triggerValidateTemperature(this.form.controls.temperatureProductCategory.value, value).subscribe();
         } else if (!value) {
-            this.temperatureQuarantineNotificationSignal.set(null);
-        }
-    }, { allowSignalWrites: true });
-
-    transitTimeHumanReadableSignal = signal<string>(null);
-    transitTimeValueSignal = toSignal(this.form.controls.transitTime.statusChanges
-        .pipe(combineLatestWith(this.form.controls.transitTime.valueChanges)));
-    transitTimeQuarantineNotificationSignal = signal<UseCaseNotificationDTO>(null);
-    transitTimeValueChangeEffect = effect(() => {
-        const [ status, value ] = this.transitTimeValueSignal();
-        if (!value) {
-            this.transitTimeQuarantineNotificationSignal.set(null);
-            this.transitTimeHumanReadableSignal.set(null);
+            this.temperatureQuarantineSignal.set(null);
         }
     }, { allowSignalWrites: true });
 
     ngOnInit() {
         this.form.reset();
         this.fetchLookups().subscribe();
+    }
+
+    createImport(): void {
+        this.triggerCreateImport().subscribe();
     }
 
     cancel(): void {
@@ -159,7 +169,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
             );
     }
 
-    fetchEnterShippingInformation(temperatureProductCategory: keyof typeof TemperatureProductCategory): Observable<ShippingInformationDTO> {
+    triggerQueryEnterShippingInformation(temperatureProductCategory: string): Observable<ShippingInformationDTO> {
         return this.receivingService
             .queryEnterShippingInformation({
                 productCategory: temperatureProductCategory,
@@ -167,6 +177,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
                 locationCode: this.locationCodeComputed()
             })
             .pipe(
+                first(),
                 catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
                 tap(response => consumeUseCaseNotifications(this.toastrService, response.data?.enterShippingInformation?.notifications)),
                 map((response) => {
@@ -177,63 +188,122 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
             );
     }
 
-    loadTemperatureValidation(
-        temperature: number,
-        temperatureCategory: string
-    ) {
+    triggerValidateTransitTime(temperatureProductCategory: string, value: TransitTimeValidationModel) {
+        const startDateTime = this.buildLuxonDateTimeWithParsedTimeField(value.startDate, value.startTime);
+        const endDateTime = this.buildLuxonDateTimeWithParsedTimeField(value.endDate, value.endTime);
+
         return this.receivingService
-            .validateTemperature({ temperature, temperatureCategory })
+            .validateTransitTime({
+                temperatureCategory: temperatureProductCategory,
+                startDateTime: startDateTime.toISO({ includeOffset: false, suppressMilliseconds: true }) + 'Z',
+                startTimeZone: value.startZone,
+                endDateTime: endDateTime.toISO({ includeOffset: false, suppressMilliseconds: true }) + 'Z',
+                endTimeZone: value.endZone,
+            })
             .pipe(
+                first(),
                 catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
                 tap(response => {
-                    const quarantineNotification = response.data?.validateTemperature?.notifications?.filter(n => n.type === 'CAUTION')?.[0];
-                    this.temperatureQuarantineNotificationSignal.set(quarantineNotification);
+                    const quarantineOrNull = response.data?.validateTransitTime?.notifications?.filter(n => n.type === 'CAUTION')?.[0] ?? null;
+                    this.transitTimeQuarantineSignal.set(quarantineOrNull);
+
+                    const otherNotifications = response.data?.validateTransitTime?.notifications?.filter(n => n.type !== 'CAUTION');
+                    consumeUseCaseNotifications(this.toastrService, otherNotifications);
+
+                    this.transitTimeHumanReadableSignal.set(response.data?.validateTransitTime?.data?.resultDescription);
+                }),
+                map(response => response.data?.validateTransitTime)
+            );
+    }
+
+    triggerValidateTemperature(
+        temperatureProductCategory: string,
+        temperature: number,
+    ) {
+        return this.receivingService
+            .validateTemperature({
+                temperature,
+                temperatureCategory: temperatureProductCategory
+            })
+            .pipe(
+                first(),
+                catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
+                tap(response => {
+                    const quarantineOrNull = response.data?.validateTemperature?.notifications?.filter(n => n.type === 'CAUTION')?.[0] ?? null;
+                    this.temperatureQuarantineSignal.set(quarantineOrNull);
 
                     const otherNotifications = response.data?.validateTemperature?.notifications?.filter(n => n.type !== 'CAUTION');
                     consumeUseCaseNotifications(this.toastrService, otherNotifications);
                 }),
+                map(response => response.data?.validateTemperature)
             );
     }
 
-    selectCategoryFromLookup(productCategoryLookup: LookUpDto): void {
-        this.form.reset();
-        this.selectCategory(productCategoryLookup.optionValue as keyof typeof TemperatureProductCategory);
+    triggerCreateImport() {
+        return this.receivingService
+            .createImport({
+                temperatureCategory: this.form.controls?.temperatureProductCategory?.value,
+                transitStartDateTime: this.buildLuxonDateTimeWithParsedTimeField(this.form.controls?.transitTime?.controls?.startDate?.value, this.form.controls?.transitTime?.controls?.startTime?.value)?.toISO(),
+                transitStartTimeZone: this.form.controls?.transitTime?.controls?.startZone?.value,
+                transitEndDateTime: this.buildLuxonDateTimeWithParsedTimeField(this.form.controls?.transitTime?.controls?.endDate?.value, this.form.controls?.transitTime?.controls?.endTime?.value)?.toISO(),
+                transitEndTimeZone: this.form.controls?.transitTime?.controls?.endZone?.value,
+                temperature: this.form.controls?.temperature?.controls?.temperature?.value,
+                thermometerCode: this.form.controls?.temperature?.controls?.thermometerId?.value,
+                locationCode: this.locationCodeComputed(),
+                comments: this.form.controls?.comments?.value,
+                employeeId: this.employeeIdComputed(),
+            })
+            .pipe(
+                first(),
+                catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
+                tap(response => consumeUseCaseNotifications(this.toastrService, response.data?.createImport?.notifications)),
+                map(response => response.data?.createImport),
+                switchMap(response =>
+                    response.notifications?.[0]?.type === 'SYSTEM'
+                        ? fromPromise(this.router.navigateByUrl(response._links.next))
+                        : EMPTY
+                )
+            );
     }
 
-    selectCategory(productCategory: keyof typeof TemperatureProductCategory): void {
-        this.fetchEnterShippingInformation(productCategory)
+    selectCategoryFromLookup(temperatureProductCategoryLookup: LookUpDto): void {
+        this.selectCategory(temperatureProductCategoryLookup.optionValue);
+    }
+
+    selectCategory(temperatureProductCategory: string): void {
+        this.form.reset();
+        this.triggerQueryEnterShippingInformation(temperatureProductCategory)
             .subscribe(shippingInformationDTO => {
-                this.form.reset();
                 this.updateFormValidators(shippingInformationDTO);
-                this.form.controls.productCategory.setValue(productCategory);
+                this.form.controls.temperatureProductCategory.setValue(temperatureProductCategory);
                 this.form.controls.transitTime.controls.endZone.setValue(shippingInformationDTO.defaultTimeZone);
                 this.form.updateValueAndValidity();
             });
     }
 
-    confirmThermometerId() {
-        this.thermometerField().nativeElement.blur();
-    }
-
-    confirmTemperature() {
-        this.temperatureField().nativeElement.blur();
+    triggerElementBlur(event: Event): void {
+        const element = event.target as HTMLElement;
+        element.blur();
     }
 
     updateFormValidators(shippingInformationDTO: ShippingInformationDTO): void {
-        this.updateFormValidationForTransitTime(shippingInformationDTO.productCategory as keyof typeof TemperatureProductCategory, shippingInformationDTO.displayTransitInformation);
+        this.updateFormValidationForTransitTime(shippingInformationDTO.displayTransitInformation);
         this.updateFormValidationForTemperature(shippingInformationDTO.displayTemperature);
     }
 
-    updateFormValidationForTransitTime(temperatureCategory: keyof typeof TemperatureProductCategory, useTransitTime: boolean) {
+    updateFormValidationForTransitTime(useTransitTime: boolean) {
         if (useTransitTime) {
+            this.form.controls.transitTime.enable();
+            this.form.controls.transitTime.setValidators([ TransitTimeFormGroupValidator.validator ])
             this.form.controls.transitTime.controls.startDate.setValidators([ Validators.required ]);
             this.form.controls.transitTime.controls.startTime.setValidators([ Validators.required ]);
             this.form.controls.transitTime.controls.startZone.setValidators([ Validators.required ]);
             this.form.controls.transitTime.controls.endDate.setValidators([ Validators.required ]);
             this.form.controls.transitTime.controls.endTime.setValidators([ Validators.required ]);
             this.form.controls.transitTime.controls.endZone.setValidators([ Validators.required ]);
-            this.form.controls.transitTime.setAsyncValidators([ TransitTimeFormGroupValidator.asyncValidatorUsing(this.toastrService, this.receivingService, temperatureCategory, this.transitTimeQuarantineNotificationSignal, this.transitTimeHumanReadableSignal) ]);
+            this.form.controls.transitTime.setAsyncValidators([]);
         } else {
+            this.form.controls.transitTime.setValidators([])
             this.form.controls.transitTime.controls.startDate.setValidators([]);
             this.form.controls.transitTime.controls.startTime.setValidators([]);
             this.form.controls.transitTime.controls.startZone.setValidators([]);
@@ -241,19 +311,31 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
             this.form.controls.transitTime.controls.endTime.setValidators([]);
             this.form.controls.transitTime.controls.endZone.setValidators([]);
             this.form.controls.transitTime.setAsyncValidators([]);
+            this.form.controls.transitTime.disable();
         }
     }
 
     updateFormValidationForTemperature(useTemperature: boolean) {
         if (useTemperature) {
+            this.form.controls.temperature.enable();
             this.form.controls.temperature.controls.thermometerId.setValidators([ Validators.required ]);
             this.form.controls.temperature.controls.thermometerId.setAsyncValidators([ DeviceIdValidator.asyncValidatorUsing(this.toastrService, this.receivingService, this.locationCodeComputed()) ]);
             this.form.controls.temperature.controls.temperature.setValidators([ Validators.required, Validators.min(-273), Validators.max(99) ]);
+            this.form.controls.temperature.controls.temperature.disable(); // Temperature should start as disabled field
         } else {
             this.form.controls.temperature.controls.thermometerId.setValidators([]);
             this.form.controls.temperature.controls.thermometerId.setAsyncValidators([]);
             this.form.controls.temperature.controls.temperature.setValidators([]);
+            this.form.controls.temperature.disable();
         }
+    }
+
+    buildLuxonDateTimeWithParsedTimeField(date: DateTime, hh24mm60TimeSeparatedByColon: string): DateTime<boolean> {
+        if (!date || !hh24mm60TimeSeparatedByColon) {
+            return null
+        }
+        const [hours, minutes] = hh24mm60TimeSeparatedByColon.split(':');
+        return DateTime.fromISO(date.toISODate()).set({ hour: +hours, minute: +minutes });
     }
 
 }

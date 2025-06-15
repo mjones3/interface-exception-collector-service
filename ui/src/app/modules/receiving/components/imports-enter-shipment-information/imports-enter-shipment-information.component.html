@@ -21,6 +21,7 @@
                 label="Continue"
                 color="primary"
                 icon="heroicons_outline:arrow-right-circle"
+                (clickEvent)="createImport()"
                 [disabled]="!form.valid"
             />
         </div>
@@ -37,7 +38,7 @@
                             mat-fab
                             class="flex flex-row flex-1 justify-start gap-2 m-0 px-4 py-8 overflow-hidden"
                             [attr.data-testid]="'select-temperature-category-' + productCategoryLookup.optionValue"
-                            [class.selected]="form.controls.productCategory?.value === productCategoryLookup.optionValue"
+                            [class.selected]="form.controls.temperatureProductCategory?.value === productCategoryLookup.optionValue"
                             [extended]="true"
                             (click)="selectCategoryFromLookup(productCategoryLookup)"
                     >
@@ -52,20 +53,22 @@
         <!-- PACKING INFORMATION AND CONDITIONS -->
         <fuse-card class="flex flex-col w-full md:w-9/12 h-full">
             <div class="border-b text-lg font-bold p-4">Packing Information</div>
-            @if (!form.controls.productCategory?.value || !shippingInformationSignal()) {
+            @if (!form.controls.temperatureProductCategory?.value || !shippingInformationSignal()) {
             <span data-testid="no-category-selected-message" class="flex flex-col items-center justify-center w-full h-full text-secondary">Select Temperature Category</span>
             } @else {
             <div class="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 md:p-8">
-                @if(temperatureQuarantineNotificationSignal(); as temperatureQuarantineNotification){
-                <div class="md:col-span-6">
-                    <biopro-global-message
-                        [messageType]="NotificationTypeMap[temperatureQuarantineNotification.type].type"
-                        [message]="temperatureQuarantineNotification.message"
-                        [appearance]="'border'"
-                    />
-                </div>
-                }
-                @if(transitTimeQuarantineNotificationSignal(); as transitTimeQuarantineNotification){
+                @if (temperatureQuarantineSignal() || transitTimeQuarantineSignal()) {
+                <div class="grid gap-4 md:col-span-6 md:pb-4">
+                    @if(temperatureQuarantineSignal(); as temperatureQuarantineNotification){
+                    <div class="md:col-span-6">
+                        <biopro-global-message
+                            [messageType]="NotificationTypeMap[temperatureQuarantineNotification.type].type"
+                            [message]="temperatureQuarantineNotification.message"
+                            [appearance]="'border'"
+                        />
+                    </div>
+                    }
+                    @if(transitTimeQuarantineSignal(); as transitTimeQuarantineNotification){
                     <div class="md:col-span-6">
                         <biopro-global-message
                             [messageType]="NotificationTypeMap[transitTimeQuarantineNotification.type].type"
@@ -73,6 +76,8 @@
                             [appearance]="'border'"
                         />
                     </div>
+                    }
+                </div>
                 }
 
                 @if (shippingInformationSignal()?.displayTransitInformation) {
@@ -85,6 +90,7 @@
                            [max]="now"
                            matInput
                            required
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     <mat-hint>MM/DD/YYYY</mat-hint>
                     <mat-datepicker-toggle matIconSuffix [for]="transitTimeStartDatePicker"></mat-datepicker-toggle>
@@ -98,6 +104,7 @@
                            formControlName="startTime"
                            matInput
                            required
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     <mat-icon matIconSuffix>schedule</mat-icon>
                     <mat-hint>HH:MM</mat-hint>
@@ -123,12 +130,15 @@
                            [min]="form.controls.transitTime.controls?.startDate?.value || now"
                            matInput
                            required
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     <mat-hint>MM/DD/YYYY</mat-hint>
                     <mat-datepicker-toggle matIconSuffix [for]="transitTimeEndDatePicker"></mat-datepicker-toggle>
                     <mat-datepicker #transitTimeEndDatePicker></mat-datepicker>
                     @if (form.controls.transitTime.controls.endDate.hasError('required')) { <mat-error>Transit End Date is required</mat-error> }
+                    @if (form.controls.transitTime.controls.endDate.hasError('matDatepickerMin')) { <mat-error>Transit End Date cannot be before the Transit Start Date</mat-error> }
                 </mat-form-field>
+
                 <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
                     <mat-label>Transit End Time</mat-label>
                     <input data-testid="transit-time-end-time"
@@ -136,6 +146,7 @@
                            formControlName="endTime"
                            matInput
                            required
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     <mat-icon matIconSuffix>schedule</mat-icon>
                     <mat-hint>HH:MM</mat-hint>
@@ -155,7 +166,7 @@
                 <!-- Total Transit Time -->
                 @if (transitTimeHumanReadableSignal(); as transitTimeHumanReadable) {
                 <div class="md:col-span-6 rounded-md bg-blue-100 p-6 text-center mb-2">
-                    <b>Total Transit Time:</b> <span data-testid="total-transit-time-value">{{ transitTimeHumanReadable }}</span>
+                    <b>Total Transit Time:</b>&nbsp;<span data-testid="total-transit-time-value">{{ transitTimeHumanReadable }}</span>
                 </div>
                 }
                 }
@@ -170,7 +181,7 @@
                            formControlName="thermometerId"
                            matInput
                            required
-                           (keydown.enter)="this.confirmThermometerId()"
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     @if (form.controls.temperature.controls.thermometerId.valid) { <mat-icon matIconSuffix>check</mat-icon> }
                     @if (form.controls.temperature.controls.thermometerId.hasError('required')) { <mat-error [attr.data-testid]="'required-validation-error'">Thermometer ID is required</mat-error> }
@@ -188,7 +199,7 @@
                            max="99"
                            matInput
                            required
-                           (keydown.enter)="this.confirmTemperature()"
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     <span matTextSuffix>&deg; C</span>
                     @if (form.controls.temperature.controls.temperature.hasError('required')) { <mat-error>Temperature is required</mat-error> }
