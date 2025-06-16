@@ -25,7 +25,6 @@ import {
     VALIDATE_TRANSIT_TIME,
     ValidateTransitTimeRequestDTO
 } from '../graphql/query-definitions/imports-validate-transit-time.graphql';
-import { MutationResult } from 'apollo-angular';
 import {
     CREATE_IMPORT,
     CreateImportRequestDTO,

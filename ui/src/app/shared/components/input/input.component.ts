@@ -35,7 +35,7 @@ implements AfterViewInit {
   @Input() label = '';
   @Input({ required: true }) inputId = '';
   @Input() inputType: InputType = InputType.TEXT;
-  @Input({ transform: booleanAttribute }) upperCase = false; 
+  @Input({ transform: booleanAttribute }) upperCase = false;
   @Input({ transform: numberAttribute }) textareaRows = 5;
   @Input() placeholder = '';
   @Input() regex = '';
@@ -99,8 +99,6 @@ implements AfterViewInit {
               this.setValueAndTriggerOnChanges(normalizedValue);
           }
       );
-      // Adding blur event to the angular component html element
-      //el.nativeElement.addEventListener('blur', () => { });
   }
 
   ngAfterViewInit(): void {
