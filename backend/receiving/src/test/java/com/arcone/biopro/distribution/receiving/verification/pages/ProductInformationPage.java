@@ -108,10 +108,12 @@ public class ProductInformationPage extends CommonPageFactory {
     }
 
     public boolean isCompleteImportButtonEnabled() {
+        sharedActions.waitForEnabled(completeImportBtn);
         return sharedActions.isElementEnabled(driver, completeImportBtn);
     }
 
     public void completeImport() {
+        sharedActions.waitForEnabled(completeImportBtn);
         sharedActions.click(completeImportBtn);
     }
 }
