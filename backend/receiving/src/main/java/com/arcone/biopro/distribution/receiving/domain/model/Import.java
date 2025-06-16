@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -68,7 +69,7 @@ public class Import implements Validatable {
             .transitEndDateTime(createImportCommand.getTransitEndDateTime())
             .transitEndTimeZone(createImportCommand.getTransitEndTimeZone())
             .thermometerCode(createImportCommand.getThermometerCode())
-            .temperature(createImportCommand.getTemperature())
+            .temperature(createImportCommand.getTemperature() != null ? createImportCommand.getTemperature().setScale(2, RoundingMode.HALF_UP) : null)
             .locationCode(createImportCommand.getLocationCode())
             .comments(createImportCommand.getComments())
             .status("PENDING")

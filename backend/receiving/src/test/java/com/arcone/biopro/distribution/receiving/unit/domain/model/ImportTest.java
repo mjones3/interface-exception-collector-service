@@ -121,7 +121,7 @@ class ImportTest {
         assertEquals("PENDING", result.getStatus());
         assertEquals("2", result.getTotalTransitTime());
         assertEquals("UNACCEPTABLE", result.getTransitTimeResult());
-        assertEquals("20.5", result.getTemperature().toString());
+        assertEquals("20.50", result.getTemperature().toString());
         assertEquals("THERM123", result.getThermometerCode());
         assertEquals("UNACCEPTABLE", result.getTemperatureResult());
         assertEquals("LOC123", result.getLocationCode());

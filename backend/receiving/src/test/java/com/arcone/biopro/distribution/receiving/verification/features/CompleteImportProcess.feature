@@ -21,7 +21,7 @@ Feature: Complete Imports Process
             | Field                | Value                    |
             | temperatureCategory  | REFRIGERATED             |
             | locationCode         | 123456789                |
-            | temperature          | 23.00                    |
+            | temperature          | 23.50                    |
             | thermometerCode      | THERM-DST-413            |
         And I have the products added in the batch with Unit Number as "<Unit Number>" , Product Code as "<Product Code>", Blood Type as "<Blood Type>", Expiration date as "<Expiration Date>", License status as "<License Status>" and Visual Inspection as "<Visual Inspection>".
         When I request to complete the last import batch created.
@@ -48,7 +48,7 @@ Feature: Complete Imports Process
                 | Field                | Value                    |
                 | temperatureCategory  | REFRIGERATED             |
                 | locationCode         | 123456789                |
-                | temperature          | 23.00                    |
+                | temperature          | 23.55                    |
                 | thermometerCode      | THERM-DST-413            |
             And I have the products added in the batch with Unit Number as "<Unit Number>" , Product Code as "<Product Code>", Blood Type as "<Blood Type>", Expiration date as "<Expiration Date>", License status as "<License Status>" and Visual Inspection as "<Visual Inspection>".
             And The status of the import batch is "<batch_status>"
@@ -75,7 +75,7 @@ Feature: Complete Imports Process
                 | Field                | Value                    |
                 | temperatureCategory  | REFRIGERATED             |
                 | locationCode         | 123456789                |
-                | temperature          | 23.00                    |
+                | temperature          | 23.15                    |
                 | thermometerCode      | THERM-DST-413            |
             And I have the products added in the batch with Unit Number as "<Unit Number>" , Product Code as "<Product Code>", Blood Type as "<Blood Type>", Expiration date as "<Expiration Date>", License status as "<License Status>" and Visual Inspection as "<Visual Inspection>".
             And I am at the Enter Product Information Page.
