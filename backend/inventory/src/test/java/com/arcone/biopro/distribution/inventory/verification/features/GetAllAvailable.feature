@@ -29,8 +29,8 @@ Feature: Get all available inventories
             | W777725003022 | 1     | PRT_APHERESIS_PLATELETS          | OP    | LOCATION_5 | 2 Days     | ROOM_TEMPERATURE     |                     |                   |
             | W777725003023 | 1     | APHERESIS_PLATELETS_LEUKOREDUCED | OP    | LOCATION_5 | 2 Days     | ROOM_TEMPERATURE     |                     |                   |
             | W777725003038 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9 | 0 Days     | FROZEN               |                     | N                 |
-            | W777725003039 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9 | 1 Hours    | FROZEN               | America/New_York    | Y                 |
-            | W777725003040 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9 | -1 Hours   | FROZEN               | America/New_York    | Y                 |
+            | W777725003039 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9 | 1 Hours    | REFRIGERATED         | America/New_York    | Y                 |
+            | W777725003040 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9 | -1 Hours   | REFRIGERATED         | America/New_York    | Y                 |
 
 
 
