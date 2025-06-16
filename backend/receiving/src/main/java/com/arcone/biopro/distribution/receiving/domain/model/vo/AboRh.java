@@ -19,6 +19,9 @@ public record AboRh(String value, String description) {
     private static final List<String> validAboRh = List.of(ON,OP,AN,AP,BN,BP,ABN,ABP);
 
     public static void validateAboRh(String value) {
+        if (value == null) {
+            throw new TypeNotConfiguredException("ABO/RH is Null");
+        }
         if (!validAboRh.contains(value)) {
             throw new TypeNotConfiguredException("ABO/RH is Invalid");
         }
@@ -64,6 +67,10 @@ public record AboRh(String value, String description) {
                 return ABN();
             case ABP:
                 return ABP();
+            case OP:
+                return OP();
+            case ON:
+                return ON();
             default:
                 return null;
         }
