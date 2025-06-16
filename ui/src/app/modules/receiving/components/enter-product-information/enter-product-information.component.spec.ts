@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { EnterProductInformationComponent } from './enter-product-information.component';
 import { Field } from './enter-product-information.component';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -14,6 +14,8 @@ import { ApolloError } from '@apollo/client/errors';
 import { MutationResult } from 'apollo-angular';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { QueryResult } from '@apollo/client';
+import { FuseConfirmationService } from '@fuse/services/confirmation/public-api';
+import { By } from '@angular/platform-browser';
 
 describe('EnterProductInformationComponent', () => {
   let component: EnterProductInformationComponent;
@@ -22,6 +24,7 @@ describe('EnterProductInformationComponent', () => {
   let router: jest.Mocked<Router>;
   let headerService: jest.Mocked<ProcessHeaderService>;
   let mockReceivingService: jest.Mocked<ReceivingService>
+  let fuseConfirmationService: FuseConfirmationService;
 
   const initialState: AuthState = {
     id: 'mock-user-id',
@@ -45,7 +48,8 @@ describe('EnterProductInformationComponent', () => {
       validateScannedField: jest.fn().mockReturnValue(of()),
       getImportById: jest.fn().mockReturnValue(of()),
       addImportItems: jest.fn().mockReturnValue(of()),
-      completeImport: jest.fn().mockReturnValue(of())
+      completeImport: jest.fn().mockReturnValue(of()),
+      cancelImportProcess: jest.fn().mockReturnValue(of())
     } as Partial<ReceivingService> as jest.Mocked<ReceivingService>;
 
     const headerServiceMock = {
@@ -76,6 +80,7 @@ describe('EnterProductInformationComponent', () => {
     router = TestBed.inject(Router) as jest.Mocked<Router>;
     headerService = TestBed.inject(ProcessHeaderService) as jest.Mocked<ProcessHeaderService>;
     fixture.detectChanges();
+    fuseConfirmationService = TestBed.inject(FuseConfirmationService) as jest.Mocked<FuseConfirmationService>;
   });
 
   it('should create', () => {
@@ -592,6 +597,81 @@ describe('EnterProductInformationComponent', () => {
       component.completeImport();
 
       expect(component.handleNavigation).not.toHaveBeenCalled();
+    });
+  });
+
+
+
+  describe('onClickCancel', () => {
+    let dialogRef;
+    const mockEmployeeId = 'mock-user-id';
+    const mockImportedId = 1;
+
+    beforeEach(() => {
+      component.employeeId = 'mock-user-id'
+      const mockData = component.importData.set({
+        id: 1,
+        maxNumberOfProducts: 11,
+        temperatureCategory: '',
+        transitStartDateTime:'',
+        transitStartTimeZone:'',
+        transitEndDateTime:'',
+        transitEndTimeZone:'',
+        temperature:null,
+        thermometerCode:'',
+        locationCode:'',
+        isQuarantined: true,
+        comments:'',
+        employeeId:'',
+        products: []
+      });
+      dialogRef = {afterClosed: jest.fn()};
+      jest.spyOn(fuseConfirmationService, 'open').mockReturnValue(dialogRef);
+    });
+
+    it('should trigger cancel process when dialog is confirmed', () => {
+      const mockCancelResponse = {
+        data: {
+          cancelImport: {
+            _links: {
+              next: 'receiving/imports-enter-shipment-information' 
+            },
+            data: null,
+            notifications: [
+              {
+                code: 1,
+                type: 'SUCCESS',
+                message: 'Cancelled successfully'
+              },
+            ],
+          },
+        },
+      } as MutationResult;
+      
+      dialogRef.afterClosed.mockReturnValue(of('confirmed'));
+      jest.spyOn(mockReceivingService, 'cancelImportProcess').mockReturnValue(of(mockCancelResponse));
+      jest.spyOn(router, 'navigateByUrl');
+      component.onClickCancel();
+      expect(mockReceivingService.cancelImportProcess).toHaveBeenCalledWith({
+        importId: mockImportedId,
+        cancelEmployeeId: mockEmployeeId
+      });
+      expect(toastrService.show).toHaveBeenCalled();
+      expect(router.navigateByUrl).toHaveBeenCalledWith('receiving/imports-enter-shipment-information');
+    });
+
+    it('should not trigger cancel process when dialog is dismissed', () => {
+      dialogRef.afterClosed.mockReturnValue(of('canceled'));
+      jest.spyOn(mockReceivingService, 'cancelImportProcess');
+      component.onClickCancel();
+      expect(mockReceivingService.cancelImportProcess).not.toHaveBeenCalled();
+    });
+
+    it('should handle cancel button click', () => {
+      const pageCancelButton = fixture.debugElement.query(By.css('#productInformationCancel')).nativeElement as HTMLButtonElement;
+      expect(pageCancelButton.disabled).toBeFalsy();
+      pageCancelButton.click();
+      expect(fuseConfirmationService.open).toHaveBeenCalled();
     });
   });
 });

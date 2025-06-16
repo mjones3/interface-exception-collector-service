@@ -385,4 +385,14 @@ public class ImportProductSteps {
     public void iChooseToCancelTheImportsProcess() {
         productInformationPage.cancelImport();
     }
+
+    @When("I choose to cancel the cancellation of the imports process.")
+    public void iChooseToCancelTheCancellationOfTheImportsProcess() {
+        productInformationPage.cancelCancellationImport();
+    }
+
+    @When("I choose confirm cancellation of the imports process.")
+    public void iChooseConfirmCancellationOfTheImportsProcess() {
+        productInformationPage.confirmCancelImport();
+    }
 }

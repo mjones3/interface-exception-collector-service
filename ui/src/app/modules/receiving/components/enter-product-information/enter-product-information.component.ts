@@ -18,15 +18,14 @@ import { ToastrService } from 'ngx-toastr';
 import {
     AddImportItemRequestDTO,
     CompleteImportRequestDTO,
-    CreateImportResponsetDTO,
-    ImportedItemResponseDTO
+    CreateImportResponsetDTO
 } from '../../models/product-information.dto';
 import { MatIcon } from '@angular/material/icon';
 import { licenseStatusCssMap, quarantinedCssMap, quarantinedValueMap, temperatureProductCategoryCssMap, TemperatureProductCategoryValueMap, visualInspectionCssMap } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import { snakeCase } from 'lodash';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { scannedValidatorStartWithAnd, scannedValidatorStartWithEqual } from 'app/shared/forms/biopro-validators';
-import { catchError, map, Observable, switchMap, take, tap } from 'rxjs';
+import { catchError, filter, map, Observable, take, tap } from 'rxjs';
 import { ReceivingService } from '../../service/receiving.service';
 import { ValidateBarcodeRequestDTO } from '../../graphql/query-definitions/validate-bar-code.graphql';
 import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handling';
@@ -35,6 +34,7 @@ import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ApolloError } from '@apollo/client';
 import handleApolloError from 'app/shared/utils/apollo-error-handling';
 import { UseCaseNotificationDTO } from '../../../../shared/models/use-case-response.dto';
+import { FuseConfirmationService } from '@fuse/services/confirmation/confirmation.service';
 
 export enum Field {
   UNIT_NUMBER = 'unitNumber',
@@ -189,6 +189,7 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     readonly fb: FormBuilder,
     private toastr: ToastrService,
     public header: ProcessHeaderService,
+    private fuseConfirmationService: FuseConfirmationService,
     private service: ReceivingService,
     protected route: ActivatedRoute,
     private router: Router,
@@ -461,5 +462,51 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
 
   handleNavigation(url: string): void {
       this.router.navigateByUrl(url);
+  }
+
+  onClickCancel(){
+    const dialogRef = this.fuseConfirmationService.open({
+        title: 'Cancel Confirmation',
+        message: 'Cancelling will remove all import details. <b>Are you sure you want to continue?</b>',
+        dismissible: false,
+        icon: {
+            show: false,
+        },
+        actions: {
+            confirm: {
+                label: 'Continue',
+                class: 'bg-red-700 text-white',
+            },
+            cancel: {
+                class: 'mat-secondary',
+            },
+        },
+    })
+    dialogRef.afterClosed()
+    .pipe(filter((value) => 'confirmed' === value))
+    .subscribe(() => {
+        this.service
+        .cancelImportProcess({
+            importId: this.importData().id,
+            cancelEmployeeId: this.employeeId,
+        })
+        .pipe(
+            catchError((error: ApolloError) => {
+                handleApolloError(this.toastr, error);
+            }),
+            tap((response) =>
+                consumeUseCaseNotifications(
+                    this.toastr,
+                    response.data.cancelImport.notifications
+                )
+            )
+        )
+        .subscribe((response) => {
+            const linkNext = response?.data?.cancelImport?._links?.next
+            if(linkNext){
+              this.router.navigateByUrl(linkNext);
+            }
+        });
+    })
   }
 }
