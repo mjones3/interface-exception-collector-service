@@ -4,19 +4,10 @@ import com.arcone.biopro.distribution.partnerorderprovider.verification.support.
 import com.arcone.biopro.distribution.partnerorderprovider.verification.support.TestUtils;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.JSONException;
 import org.junit.Assert;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
-import reactor.core.publisher.Mono;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class SharedSteps {
 
