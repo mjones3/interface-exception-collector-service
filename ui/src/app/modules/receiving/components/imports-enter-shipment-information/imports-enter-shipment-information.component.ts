@@ -259,7 +259,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
                 tap(response => consumeUseCaseNotifications(this.toastrService, response.data?.createImport?.notifications)),
                 map(response => response.data?.createImport),
                 switchMap(response =>
-                    response.notifications?.[0]?.type === 'SYSTEM'
+                    response.notifications?.[0]?.type === 'SUCCESS'
                         ? fromPromise(this.router.navigateByUrl(response._links.next))
                         : EMPTY
                 )
