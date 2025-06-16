@@ -16,6 +16,13 @@ import java.util.UUID;
 @Builder
 public record OrderDTO(
     @Schema(
+        title = "Transaction ID",
+        description = "The transaction ID",
+        example = "123e4567-e89b-12d3-a456-426614174000",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    UUID transactionId,
+    @Schema(
         title = "External Order ID",
         description = "The external order ID",
         example = "ABC56865",
