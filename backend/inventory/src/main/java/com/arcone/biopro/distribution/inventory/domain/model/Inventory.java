@@ -142,4 +142,12 @@ public class Inventory {
         return expirationDate != null && expirationDate.isBefore(LocalDateTime.now());
     }
 
+    private <T> List<T> initializeIfNull(List<T> list) {
+        return list == null ? new ArrayList<>() : list;
+    }
+
+    public Boolean isQuarantined() {
+        return !initializeIfNull(quarantines).isEmpty();
+    }
+
 }
