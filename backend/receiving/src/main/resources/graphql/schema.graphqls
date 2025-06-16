@@ -8,10 +8,13 @@ type Query {
     validateDevice(validateDeviceRequest:ValidateDeviceRequestDTO!): UseCaseResponseDTO!
     validateTemperature(validateTemperatureRequest:ValidateTemperatureRequestDTO!): UseCaseResponseDTO!
     validateTransitTime(validateTransitTimeRequest:ValidateTransitTimeRequestDTO!): UseCaseResponseDTO!
+    validateBarcode(validateBarcodeRequest:ValidateBarcodeRequestDTO!): UseCaseResponseDTO!
+    findImportById(importId:ID!): UseCaseResponseDTO!
 }
 
 type Mutation {
     createImport(createImportRequest:CreateImportRequestDTO!): UseCaseResponseDTO!
+    createImportItem(createImportItemRequest:AddImportItemRequestDTO!): UseCaseResponseDTO!
 
 }
 
@@ -62,6 +65,23 @@ input CreateImportRequestDTO {
     thermometerCode:String
     locationCode:String!
     comments:String
+    employeeId:String!
+}
+
+input ValidateBarcodeRequestDTO {
+    temperatureCategory:String!
+    barcodeValue:String!
+    barcodePattern:String!
+}
+
+input AddImportItemRequestDTO {
+    importId:ID!
+    unitNumber:String!
+    productCode:String!
+    aboRh:String!
+    expirationDate:DateTime!
+    visualInspection:String!
+    licenseStatus:String!
     employeeId:String!
 }
 

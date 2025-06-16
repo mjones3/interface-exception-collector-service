@@ -27,7 +27,7 @@ class ImportEntityMapperTest {
         ImportEntity entity = createTestEntity();
 
         // Act
-        Import result = mapper.mapToDomain(entity);
+        Import result = mapper.mapToDomain(entity,10);
 
         // Assert
         assertNotNull(result);
@@ -48,6 +48,7 @@ class ImportEntityMapperTest {
         assertEquals(entity.getEmployeeId(), result.getEmployeeId());
         assertEquals(entity.getCreateDate(), result.getCreateDate());
         assertEquals(entity.getModificationDate(), result.getModificationDate());
+        assertEquals(10, result.getMaxNumberOfProducts());
     }
 
     @Test
@@ -95,7 +96,7 @@ class ImportEntityMapperTest {
 
         // Act
         ImportEntity entity = mapper.toEntity(originalDomain);
-        Import mappedBackDomain = mapper.mapToDomain(entity);
+        Import mappedBackDomain = mapper.mapToDomain(entity,10);
 
         // Assert
         assertEquals(originalDomain.getId(), mappedBackDomain.getId());
@@ -143,7 +144,7 @@ class ImportEntityMapperTest {
             "PENDING",
             "EMP123",
             ZonedDateTime.now(),
-            ZonedDateTime.now());
+            ZonedDateTime.now(),null,10);
     }
 }
 

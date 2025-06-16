@@ -6,21 +6,21 @@ Feature: Import products
         And I have removed all created devices which ID contains "-DST-411".
 
     Rule: I should be able to input shipping details like product category, transit date and time, temperature, thermometer ID and comments as necessary.
-    Rule: The system should show the appropriate fields based on the selected product category.
+        Rule: The system should show the appropriate fields based on the selected product category.
     Rule: The system should define the time zone based on the user location for the “Transit Time Zone to” field.
-    Rule: The system should pre-populate the current user location date and time by default.
-    @api @DIS-406 @DIS-411
-    Scenario Outline: Request to enter shipping information
-        Given I request to enter shipping data for a "<Temperature Category>" product category and location code "<Location Code>".
-        Then I should be able to enter information for the following attributes: "<Attributes to Fill>".
-        Examples:
-            |Location Code | Temperature Category | Attributes to Fill                                                                      |
-            |123456789     | FROZEN               | displayTemperature:false,displayTransitInformation:false                                |
-            |123456789     | ROOM_TEMPERATURE     | displayTemperature:true,displayTransitInformation:true,defaultTimeZone:America/New_York |
-            |123456789     | REFRIGERATED         | displayTemperature:true,displayTransitInformation:false                                 |
-            |DO1           | ROOM_TEMPERATURE     | displayTemperature:true,displayTransitInformation:true,defaultTimeZone:America/Chicago  |
+        Rule: The system should pre-populate the current user location date and time by default.
+        @api @DIS-406 @DIS-411
+        Scenario Outline: Request to enter shipping information
+            Given I request to enter shipping data for a "<Temperature Category>" product category and location code "<Location Code>".
+            Then I should be able to enter information for the following attributes: "<Attributes to Fill>".
+            Examples:
+                |Location Code | Temperature Category | Attributes to Fill                                                                      |
+                |123456789     | FROZEN               | displayTemperature:false,displayTransitInformation:false                                |
+                |123456789     | ROOM_TEMPERATURE     | displayTemperature:true,displayTransitInformation:true,defaultTimeZone:America/New_York |
+                |123456789     | REFRIGERATED         | displayTemperature:true,displayTransitInformation:false                                 |
+                |DO1           | ROOM_TEMPERATURE     | displayTemperature:true,displayTransitInformation:true,defaultTimeZone:America/Chicago  |
 
-        Rule: I should be able to input shipping details like product category, transit date and time, temperature, thermometer ID and comments as necessary.
+    Rule: I should be able to input shipping details like product category, transit date and time, temperature, thermometer ID and comments as necessary.
         Rule: The system should show the appropriate fields based on the selected product category.
         @ui @DIS-406
         Scenario Outline: Enter shipping information
@@ -34,7 +34,7 @@ Feature: Import products
                 | ROOM_TEMPERATURE     | Transit Start Date, Transit Start Time,Start Time Zone,Transit End Date, Transit End Time, End Time Zone , Temperature , Thermometer, Comments |                                                                                                                                      |
                 | REFRIGERATED         | Temperature , Thermometer, Comments                                                                                                            | Transit Start Date, Transit Start Time,Start Time Zone,Transit End Date, Transit End Time, End Time Zone                             |
 
-        Rule: I should be able to enter temperature information of the imported products.
+    Rule: I should be able to enter temperature information of the imported products.
         @api @DIS-410
         Scenario Outline: Successfully record temperature within acceptable range
             Given The following temperature thresholds are configured:
@@ -48,7 +48,7 @@ Feature: Import products
                 | REFRIGERATED        |  9          |
                 | ROOM_TEMPERATURE    |  22         |
 
-        Rule: I should be notified when I enter a temperature that is out of the configured range.
+    Rule: I should be notified when I enter a temperature that is out of the configured range.
         @api @DIS-410
         Scenario Outline: Notification for out-of-range temperatures
             Given The following temperature thresholds are configured:
@@ -62,7 +62,7 @@ Feature: Import products
                 | REFRIGERATED         | 12          | CAUTION      | Temperature does not meet thresholds. All products will be quarantined. |
                 | ROOM_TEMPERATURE     | 25          | CAUTION      | Temperature does not meet thresholds. All products will be quarantined. |
 
-        Rule: I should be able to enter temperature information of the imported products.
+    Rule: I should be able to enter temperature information of the imported products.
         Rule: I should be notified when I enter a temperature that is out of the configured range.
         @ui @DIS-410
         Scenario Outline: Enter temperature within acceptable different ranges
@@ -89,8 +89,8 @@ Feature: Import products
         @api @DIS-411
         Scenario Outline: Successfully record transit time within acceptable range
             Given The following transit time thresholds are configured:
-                  | Temperature Category | Min Transit Time | Max Transit Time |
-                  | ROOM_TEMPERATURE     |    0             |  (24 * 60)              |
+                | Temperature Category | Min Transit Time | Max Transit Time |
+                | ROOM_TEMPERATURE     |    0             |  (24 * 60)              |
             When I request to validate the total transit time of Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>" and End Time Zone as "<EndTimeZone>"  for the Temperature Category "<Temperature Category>".
             Then The system "should" accept the transit time.
             And I should receive the total transit time as "<totalTransitTime>".
@@ -98,7 +98,7 @@ Feature: Import products
                 |Temperature Category | StartDateTime              | StartTimeZone    | EndDateTime              | EndTimeZone      | totalTransitTime |
                 | ROOM_TEMPERATURE    |  2025-06-08T05:22:53.108Z  | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York | 8h 6m            |
 
-        Rule: I should be notified if the transit time is out of configured range.
+    Rule: I should be notified if the transit time is out of configured range.
         @api @DIS-411
         Scenario Outline: Notification for out-of-range transit time
             Given The following transit time thresholds are configured:
@@ -113,9 +113,9 @@ Feature: Import products
                 | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | INVALID_TIME_ZONE | SYSTEM       | Not able to validate transit time. Contact Support.                            |
 
 
-        Rule: I should be able to see the total transit time of the imported products.
+    Rule: I should be able to see the total transit time of the imported products.
         Rule: The system should define the time zone based on the user location for the “Transit Time Zone to” field.
-        Rule: The system should pre-populate the current user location date and time by default.
+    Rule: The system should pre-populate the current user location date and time by default.
         Rule: I should be notified if the transit time is out of configured range.
         @ui @DIS-411
         Scenario Outline: Enter transit time within different ranges
@@ -139,7 +139,3 @@ Feature: Import products
                 | Imports Location Code | defaultLocationTimeZone | Temperature Category | StartDateTime       | StartTimeZone | EndDateTime         | defaultLocationTimeZoneSelected | totalTransitTime |  should_should_not_transit | should_should_not_caution |
                 | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | ET            | 06/08/2025 15:10 AM | ET                              | 1h 10m           |  should                    | should not                |
                 | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | ET            | 06/10/2025 14:00 AM | ET                              | 48h 0m           |  should                    | should                    |
-
-
-
-

@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.receiving.adapter.in.web.dto;
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Builder
 public record ImportDTO(
@@ -23,6 +24,8 @@ public record ImportDTO(
         String employeeId,
         String createDate,
         String modificationDate,
-        boolean isQuarantined
+        boolean isQuarantined,
+        int maxNumberOfProducts,
+        List<ImportItemDTO> products
 ) implements Serializable {
 }

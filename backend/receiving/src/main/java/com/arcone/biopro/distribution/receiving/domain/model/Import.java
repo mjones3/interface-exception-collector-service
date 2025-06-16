@@ -1,6 +1,10 @@
 package com.arcone.biopro.distribution.receiving.domain.model;
 
+import com.arcone.biopro.distribution.receiving.domain.model.vo.ImportItemConsequence;
+import com.arcone.biopro.distribution.receiving.domain.model.vo.VisualInspection;
+import com.arcone.biopro.distribution.receiving.domain.repository.ImportRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
+import com.arcone.biopro.distribution.receiving.domain.service.ConfigurationService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,11 +12,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -40,6 +46,8 @@ public class Import implements Validatable {
     private final String employeeId;
     private ZonedDateTime createDate;
     private ZonedDateTime modificationDate;
+    private List<ImportItem> items;
+    private int maxNumberOfProducts;
 
     private static final String ACCEPTABLE_RESULT = "ACCEPTABLE";
     private static final String UNACCEPTABLE_RESULT = "UNACCEPTABLE";
@@ -77,7 +85,7 @@ public class Import implements Validatable {
 
     public static Import  fromRepository(Long id, String temperatureCategory, LocalDateTime transitStartDateTime, String transitStartTimeZone, LocalDateTime transitEndDateTime
         , String transitEndTimeZone, String totalTransitTime, String transitTimeResult, BigDecimal temperature, String thermometerCode, String temperatureResult, String locationCode
-        , String comments, String status, String employeeId, ZonedDateTime createDate, ZonedDateTime modificationDate) {
+        , String comments, String status, String employeeId, ZonedDateTime createDate, ZonedDateTime modificationDate , List<ImportItem> importItems , int maxNumberOfProducts) {
 
         var existing =  Import.builder()
             .id(id)
@@ -97,6 +105,8 @@ public class Import implements Validatable {
             .employeeId(employeeId)
             .createDate(createDate)
             .modificationDate(modificationDate)
+            .items(importItems)
+            .maxNumberOfProducts(maxNumberOfProducts)
             .build();
 
         existing.checkValid();
@@ -190,6 +200,112 @@ public class Import implements Validatable {
         return productConsequenceRepository.findAllByProductCategoryAndResultProperty(temperatureCategory, property)
             .collectList()
             .block();
+    }
+
+    public ImportItem createImportItem(AddImportItemCommand addImportItemCommand , ConfigurationService configurationService , ProductConsequenceRepository productConsequenceRepository){
+        if(addImportItemCommand == null){
+            throw new IllegalArgumentException("AddImportItemCommand is required");
+        }
+
+        if(configurationService == null){
+            throw new IllegalArgumentException("Configuration Service is required");
+        }
+
+        if(this.items == null){
+            this.items = new ArrayList<>();
+        }
+
+        if(items.size() +1 > maxNumberOfProducts){
+            throw new IllegalArgumentException("Max number of products reached");
+        }
+
+
+        validateFinNumber(addImportItemCommand.getUnitNumber(), configurationService);
+
+        validateProductCode(addImportItemCommand.getProductCode(), configurationService);
+
+
+
+        var importItem = ImportItem.create(addImportItemCommand,  configurationService, getItemConsequences(addImportItemCommand,productConsequenceRepository));
+
+
+
+        this.items.add(importItem);
+
+        return importItem;
+    }
+
+    private void validateFinNumber(String unitNumber , ConfigurationService configurationService){
+
+        if(unitNumber == null || unitNumber.isBlank()){
+            throw new IllegalArgumentException("Unit Number is required");
+        }
+
+        if(configurationService == null){
+            throw new IllegalArgumentException("Configuration Service is required");
+        }
+
+        configurationService.findByFinNumber(unitNumber.substring(0,5))
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("FIN is not associated with a registered facility")))
+            .block();
+    }
+
+    private void validateProductCode(String productCode, ConfigurationService configurationService){
+
+        if(productCode == null || productCode.isBlank()){
+            throw new IllegalArgumentException("Product Code is required");
+        }
+
+        if(configurationService == null){
+            throw new IllegalArgumentException("Configuration Service is required");
+        }
+
+        configurationService.findByCodeAndTemperatureCategory(productCode,this.temperatureCategory)
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("Product type does not match")))
+            .block();
+    }
+
+    private List<ImportItemConsequence> getItemConsequences(AddImportItemCommand addImportItemCommand,ProductConsequenceRepository productConsequenceRepository){
+
+        if(addImportItemCommand == null){
+            throw new IllegalArgumentException("AddImportItemCommand is required");
+        }
+
+        if(productConsequenceRepository == null){
+            throw new IllegalArgumentException("ProductConsequenceRepository is required");
+        }
+        var consequences = new ArrayList<ImportItemConsequence>();
+
+        if(addImportItemCommand.getVisualInspection() != null && VisualInspection.UNSATISFACTORY().equals(addImportItemCommand.getVisualInspection())){
+            consequences.add(getItemConsequence(this.temperatureCategory,"VISUAL_INSPECTION",productConsequenceRepository));
+        }
+        if(UNACCEPTABLE_RESULT.equals(this.temperatureResult)){
+            consequences.add(getItemConsequence(this.temperatureCategory,"TEMPERATURE",productConsequenceRepository));
+        }
+        if(UNACCEPTABLE_RESULT.equals(this.transitTimeResult)){
+            consequences.add(getItemConsequence(this.temperatureCategory, "TRANSIT_TIME", productConsequenceRepository));
+        }
+
+        return consequences;
+
+    }
+
+
+    private ImportItemConsequence getItemConsequence(String temperatureCategory , String resultProperty, ProductConsequenceRepository productConsequenceRepository){
+
+
+        if(productConsequenceRepository == null){
+            throw new IllegalArgumentException("ProductConsequenceRepository is required");
+        }
+
+        return productConsequenceRepository.findAllByProductCategoryAndResultProperty(temperatureCategory, resultProperty)
+            .filter(productConsequence -> !productConsequence.isAcceptable())
+            .map(productConsequence -> ImportItemConsequence.builder()
+                .consequenceType(productConsequence.getConsequenceType())
+                .consequenceReason(productConsequence.getConsequenceReason())
+                .build())
+            .blockFirst();
+
     }
 
 }

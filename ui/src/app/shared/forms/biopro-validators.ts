@@ -80,3 +80,27 @@ export function cartonWeightValidator(): ValidatorFn {
         return valid ? null : { invalidWeight: true };
     };
 }
+
+export const scannedValidatorStartWithEqual: ValidatorFn = 
+    (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (!value) {
+        return null;
+    }
+    const scannedValue = value && !value.startsWith('=');
+    if (scannedValue) {
+        return { scannedValue: { value: control.value } };
+    }
+}
+
+export const scannedValidatorStartWithAnd: ValidatorFn = 
+    (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (!value) {
+        return null;
+    }
+    const scannedValue = value && !value.startsWith('&>');
+    if (scannedValue) {
+        return { scannedValue: { value: control.value } };
+    }
+}

@@ -37,6 +37,7 @@ export class ProcessHeaderComponent implements OnInit, OnChanges, OnDestroy {
 
     @Input() subTitle;
     @Input() buttons: TemplateRef<any>;
+    @Input() label: TemplateRef<any>;
     @Input() mainSubTitle;
     @Input() stickyHeader: false;
 

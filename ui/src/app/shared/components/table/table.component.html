@@ -11,6 +11,11 @@
         >
             @if (configuration().title) {
                 <span class="font-medium">{{ configuration().title }}</span>
+                @if(showCounts()){
+                    <div class="pl-1">
+                        <span class="font-bold">({{dataSource()?.length}}/{{totalCounts()}})</span>
+                    </div>
+                }
             }
             @if (configuration().menus.length) {
                 <biopro-menu [menus]="configuration().menus"></biopro-menu>
@@ -18,7 +23,7 @@
         </div>
     }
 
-    <section class="h-[calc(100vh-470px)] min-h-[300px] overflow-y-auto">
+    <section [ngClass]="tableContainerClass() || 'h-[calc(100vh-470px)] min-h-[300px] overflow-y-auto'">
         <table
             [id]="tableId()"
             mat-table

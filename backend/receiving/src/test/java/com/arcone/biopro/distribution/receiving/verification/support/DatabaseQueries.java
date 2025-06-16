@@ -17,4 +17,20 @@ public class DatabaseQueries {
     public static String UPDATE_LOCATION_TZ(String locationCode, String tz) {
         return String.format("UPDATE lk_location_property SET property_value = '%s' WHERE location_id = (SELECT id FROM lk_location WHERE code = '%s') AND property_key = 'TZ'", tz, locationCode);
     }
+
+    public static String DELETE_IMPORT_ITEM_BY_THERMOMETER_CODE_LIKE(String thermometerCode) {
+        return String.format("DELETE FROM bld_import_item WHERE import_id IN (SELECT id FROM bld_import WHERE thermometer_code LIKE '%%%s%%')", thermometerCode);
+    }
+
+    public static String DELETE_IMPORT_BY_THERMOMETER_CODE_LIKE(String thermometerCode) {
+        return String.format("DELETE FROM bld_import WHERE thermometer_code LIKE '%%%s%%'", thermometerCode);
+    }
+
+    public static String DELETE_IMPORT_ITEM_PROPERTY_BY_THERMOMETER_CODE_LIKE(String thermometerCode) {
+        return String.format("DELETE FROM bld_import_item_property where import_item_id in (select id from bld_import_item WHERE import_id IN (SELECT id FROM bld_import WHERE thermometer_code LIKE '%%%s%%'))", thermometerCode);
+    }
+
+    public static String DELETE_IMPORT_ITEM_CONSEQUENCE_BY_THERMOMETER_CODE_LIKE(String thermometerCode) {
+        return String.format("DELETE FROM bld_import_item_consequence where import_item_id in (select id from bld_import_item WHERE import_id IN (SELECT id FROM bld_import WHERE thermometer_code LIKE '%%%s%%'))", thermometerCode);
+    }
 }

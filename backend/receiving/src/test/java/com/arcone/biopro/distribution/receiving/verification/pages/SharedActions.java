@@ -149,6 +149,7 @@ public class SharedActions {
 
     public void sendKeys(By locator, String text) {
         waitForVisible(locator);
+        waitForEnabled(locator);
         wait.until(e -> {
             log.debug("Sending keys {} to element {}.", text, locator);
             sendKeys(e.findElement(locator), text);
@@ -400,6 +401,7 @@ public class SharedActions {
         waitForEnabled(locator);
         driver.findElement(locator).sendKeys(text);
         driver.findElement(locator).sendKeys(Keys.ENTER);
+        Thread.sleep(700);
     }
 
     public void pressEnter(WebDriver driver) {

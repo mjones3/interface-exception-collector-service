@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Builder
 public record ImportOutput(
@@ -26,6 +27,8 @@ public record ImportOutput(
         String employeeId,
         ZonedDateTime createDate,
         ZonedDateTime modificationDate,
-        boolean isQuarantined
+        boolean isQuarantined,
+        int maxNumberOfProducts,
+        List<ImportItemOutput> products
 ) implements Serializable {
 }

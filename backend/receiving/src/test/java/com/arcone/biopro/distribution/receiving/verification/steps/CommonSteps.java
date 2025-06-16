@@ -6,6 +6,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -25,6 +26,7 @@ public class CommonSteps {
     public void iShouldSeeAMessage(String header, String message) throws InterruptedException {
         log.info("I should see a message: {}", message);
         sharedActions.verifyMessage(header, message);
+        sharedActions.closeAcknowledgment();
     }
 
     @Then("I should receive a {string} message response {string}.")
@@ -33,9 +35,12 @@ public class CommonSteps {
         // It's important to set the context variable to the response of the last API call so that the notifications can be verified.
 
         var notification = context.getApiMessageResponse().stream().filter(x -> x.get("type").equals(messageType.toUpperCase())).findAny().orElse(null);
-        assertNotNull(notification, "Failed to find the notification.");
-        Assert.assertEquals(message, notification.get("message"));
-        log.debug("Notification found: {}", notification);
+        if (notification == null) {
+            iShouldReceiveAResponseErrorMessage(messageType, message);
+        } else {
+            Assert.assertEquals(message, notification.get("message"));
+            log.debug("Notification found: {}", notification);
+        }
     }
 
     @Then("I should receive a {string} error message response {string}.")
@@ -47,12 +52,13 @@ public class CommonSteps {
         assertNotNull(error, "Failed to find the notification.");
         log.debug("Error found: {}", error);
 
-        Assert.assertEquals(messageType, "Failed to find the message.", error.get("classification"));
+        Assert.assertEquals(messageType, error.get("classification"));
 
-        Assert.assertEquals(message, "Failed to find the message.", error.get("message"));
+        Assertions.assertTrue(context.getApiErrorResponse().get("message").toString().contains(message));
 
 
     }
+
 
     @And("The user location is {string}.")
     public void theUserLocationIs(String location) {

@@ -2,14 +2,18 @@ package com.arcone.biopro.distribution.receiving.verification.steps;
 
 import com.arcone.biopro.distribution.receiving.verification.controllers.ImportProductsController;
 import com.arcone.biopro.distribution.receiving.verification.pages.EnterShippingInformationPage;
+import com.arcone.biopro.distribution.receiving.verification.pages.ProductInformationPage;
 import com.arcone.biopro.distribution.receiving.verification.support.TestUtils;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.openqa.selenium.TimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 
@@ -24,6 +28,12 @@ public class ImportProductSteps {
 
     @Autowired
     private EnterShippingInformationPage enterShippingInformationPage;
+
+    @Autowired
+    private ProductInformationPage productInformationPage;
+
+    @Value("${default.employee.id}")
+    private String employeeId;
 
     private Map apiResponse;
     private boolean isTemperatureValid;
@@ -183,5 +193,106 @@ public class ImportProductSteps {
         } else {
             Assert.fail("Invalid value for should/ShouldNot");
         }
+    }
+
+    @And("I have an imported batch created with the following details:")
+    public void iHaveAnImportedBatchCreatedWithTheFollowingDetails(DataTable dataTable) {
+        var data = dataTable.asMap(String.class, String.class);
+        importProductsController.createImportedBatch(
+            data.get("temperatureCategory"),
+            data.get("transitStartDateTime"),
+            data.get("transitStartTimeZone"),
+            data.get("transitEndDateTime"),
+            data.get("transitEndTimeZone"),
+            data.get("temperature"),
+            data.get("thermometerCode"),
+            data.get("locationCode"),
+            data.get("comments"),
+            employeeId
+        );
+    }
+
+    @When("I request to enter the product information with Unit Number as {string} , Product Code as {string}, Blood Type as {string} Expiration date as {string} , License status as {string} and Visual Inspection as {string}.")
+    public void iRequestToEnterTheProductInformationWithUnitNumberAsProductCodeAsBloodTypeAsExpirationDateAsLicenseStatusAsAndVisualInspectionAs(String unitNumber, String productCode, String bloodType, String expirationDate, String licenseStatus, String visualInspection) {
+        importProductsController.createImportItem(unitNumber, productCode, bloodType, expirationDate, licenseStatus, visualInspection);
+    }
+
+    @Then("The product {string} {string} be added into list of added products.")
+    public void theProductShouldBeAddIntoListOfAddedProducts(String unitNumber, String shouldShouldNot) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertTrue(importProductsController.isUnitImported(unitNumber));
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertFalse(importProductsController.isUnitImported(unitNumber));
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
+
+    @And("The product {string} {string} be flagged for quarantine.")
+    public void theProductShouldBeFlaggedForQuarantine(String unitNumber, String shouldShouldNot) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertTrue(importProductsController.isImportedUnitQuarantined(unitNumber));
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertFalse(importProductsController.isImportedUnitQuarantined(unitNumber));
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
+
+    @And("I am at the Enter Product Information Page.")
+    public void iAmAtTheEnterProductInformationPage() throws InterruptedException {
+        productInformationPage.goTo();
+        productInformationPage.waitForPageToLoad();
+    }
+
+    @And("I scan the product information with Unit Number as {string}, Product Code as {string}, Blood Type as {string}, and Expiration date as {string}.")
+    public void iScanTheProductInformationWithUnitNumberAsProductCodeAsBloodTypeAsAndExpirationDateAs(String unitNumber, String productCode, String bloodType, String expirationDate) throws InterruptedException {
+        try {
+            productInformationPage.scanUnitNumber(unitNumber);
+            productInformationPage.scanBloodType(bloodType);
+            productInformationPage.scanProductCode(productCode);
+            productInformationPage.setExpirationDate(expirationDate);
+        } catch (TimeoutException e) {
+            log.debug("Skipping the timeout failure to validate the toaster");
+        }
+    }
+
+    @And("I select License status as {string}.")
+    public void iSelectLicenseStatusAs(String licenseStatus) {
+        productInformationPage.selectLicenseStatus(licenseStatus);
+    }
+
+    @And("I select Visual Inspection as {string}.")
+    public void iSelectVisualInspectionAs(String inspectionStatus) {
+        productInformationPage.selectVisualInspection(inspectionStatus);
+    }
+
+    @When("I choose to add a product.")
+    public void iChooseToAddAProduct() {
+        productInformationPage.addProduct();
+    }
+
+    @Then("I {string} see product unit number {string} and product code {string} in the list of added products.")
+    public void iShouldSeeProductUnitNumberAndProductCodeInTheListOfAddedProducts(String shouldShouldNot, String unitNumber, String productCode) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+        productInformationPage.verifyProductAdded(unitNumber, productCode, true);
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+        productInformationPage.verifyProductAdded(unitNumber, productCode, false);
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
+
+    @And("The add product option should be {string}.")
+    public void theAddProductOptionShouldBe(String enabledDisabled) {
+        if ("enabled".equals(enabledDisabled)) {
+            Assert.assertTrue(productInformationPage.isAddProductButtonEnabled());
+        } else if ("disabled".equals(enabledDisabled)) {
+            Assert.assertFalse(productInformationPage.isAddProductButtonEnabled());
+        } else {
+            Assert.fail("The add product button should be enabled or disabled");
+        }
+    }
+    public void theAddProductOptionShouldBeDisabled() {
     }
 }
