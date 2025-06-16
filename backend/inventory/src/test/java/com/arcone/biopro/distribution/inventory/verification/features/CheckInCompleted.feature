@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725001000
-@api @LAB-256 @AOA-152 @LAB475 @AOA-83
+@api @LAB-256 @AOA-152 @LAB475 @AOA-83 @cleanUpAll
 Feature: CheckIn Completed Event
     Rule: As an inventory service I want to listen to check-in completed event so that I can create the inventory
         Scenario Outline: Create the inventory as AVAILABLE and UNLABELED after receiving a Product Created event.

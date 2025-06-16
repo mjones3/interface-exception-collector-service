@@ -1,5 +1,5 @@
-# Feature Unit Number reference: W777725006000
-@api @LAB-433 @LAB-436 @skipOnPipeline
+# Feature Unit Number reference: W777725114000
+@api @LAB-433 @LAB-436 @skipOnPipeline @cleanUpAll
 Feature: Label Invalidated Event
     Rule: As an inventory service I want to listen to label invalidated event so that I can update the inventory removing label and licensing flag
         Scenario Outline: Update the inventory information about label adn license flags after receiving a Label Invalidated Event.
@@ -17,7 +17,7 @@ Feature: Label Invalidated Event
 
             Examples:
                 | Unit Number   | Product Code Received | Product Code Existing |
-                | W777725006001 | E162400               | E1624V00              |
-                | W777725006002 | E1624V00              | E162400               |
-                | W777725006002 | E162400               | E162400               |
-                | W777725006002 | E1624V00              | E1624V00              |
+                | W777725114001 | E162400               | E1624V00              |
+                | W777725114002 | E1624V00              | E162400               |
+                | W777725114003 | E162400               | E162400               |
+                | W777725114004 | E1624V00              | E1624V00              |

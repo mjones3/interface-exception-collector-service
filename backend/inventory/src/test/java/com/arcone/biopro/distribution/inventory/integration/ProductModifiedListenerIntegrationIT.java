@@ -68,5 +68,6 @@ public class ProductModifiedListenerIntegrationIT {
         assertThat(capturedInput.expirationDate()).isEqualTo(payloadJson.path(PAYLOAD).path("expirationDate").asText());
         assertThat(capturedInput.expirationTime()).isEqualTo(payloadJson.path(PAYLOAD).path("expirationTime").asText());
         assertThat(capturedInput.modificationLocation()).isEqualTo(payloadJson.path(PAYLOAD).path("modificationLocation").asText());
+        assertThat(capturedInput.properties()).containsEntry("TIMEZONE_RELEVANT", "Y");
     }
 }

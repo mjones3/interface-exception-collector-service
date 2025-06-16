@@ -29,4 +29,12 @@ public class CucumberHooks {
             .getBean(TestDataCleanUp.class)
             .cleanUpGetInventoryScenarios();
     }
+
+    @After("@cleanUpAll")
+    public static void cleanUpAll() {
+        log.info("Running @After cleanUpAll");
+        ApplicationContextProvider
+            .getBean(TestDataCleanUp.class)
+            .cleanUpGetInventoryScenarios();
+    }
 }
