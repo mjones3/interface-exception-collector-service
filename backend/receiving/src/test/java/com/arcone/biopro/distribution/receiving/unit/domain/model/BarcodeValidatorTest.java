@@ -173,7 +173,7 @@ class BarcodeValidatorTest {
         assertTrue(result.valid());
         assertNotNull(result.result());
         assertEquals("Feb 11, 2026",result.resultDescription());
-        assertEquals("2026-11-02T23:59:59Z",result.result());
+        assertEquals("2026-02-11T23:59:59Z",result.result());
     }
 
     @Test
