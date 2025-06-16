@@ -22,7 +22,7 @@ public class BarcodeValidator {
 
     private static final DateTimeFormatter JULIAN_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("0yyDDDHHmm", Locale.US);
     private static final DateTimeFormatter EXPIRATION_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.US);
-    private static final DateTimeFormatter EXPIRATION_DATE_RESULT_FORMAT = DateTimeFormatter.ofPattern("yyyy-dd-MM'T'HH:mm:ss'Z'", Locale.US);
+    private static final DateTimeFormatter EXPIRATION_DATE_RESULT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
     private static final String DONATION_TYPE_V = "V";
 
     public static ValidationResult validateBarcode(ValidateBarcodeCommand validateBarcodeCommand , ConfigurationService configurationService) {

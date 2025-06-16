@@ -15,7 +15,7 @@ Feature: Enter Imported Products Information
             | ROOM_TEMPERATURE     |    20           |  24             |
         And The following transit time thresholds are configured:
             | Temperature Category | Min Transit Time | Max Transit Time |
-            | ROOM_TEMPERATURE     |    1             |  24              |
+            | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
         And I have an imported batch created with the following details:
             | Field                | Value                    |
             | temperatureCategory  | ROOM_TEMPERATURE         |
@@ -49,7 +49,7 @@ Feature: Enter Imported Products Information
             | ROOM_TEMPERATURE     |    20           |  24             |
         And The following transit time thresholds are configured:
             | Temperature Category | Min Transit Time | Max Transit Time |
-            | ROOM_TEMPERATURE     |    1             |  24              |
+            | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
         And I have an imported batch created with the following details:
             | Field                | Value                    |
             | temperatureCategory  | ROOM_TEMPERATURE         |
@@ -81,7 +81,7 @@ Feature: Enter Imported Products Information
                 | ROOM_TEMPERATURE     |    20           |  24             |
             And The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     |    1             |  24              |
+                | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
             And I have an imported batch created with the following details:
                 | Field                | Value                    |
                 | temperatureCategory  | ROOM_TEMPERATURE         |
@@ -143,7 +143,7 @@ Feature: Enter Imported Products Information
                 | ROOM_TEMPERATURE     |    20           |  24             |
             And The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     |    1             |  24              |
+                | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
             And I have an imported batch created with the following details:
                 | Field                | Value                    |
                 | temperatureCategory  | ROOM_TEMPERATURE         |
@@ -173,7 +173,7 @@ Feature: Enter Imported Products Information
                 | ROOM_TEMPERATURE     |    20           |  24             |
             And The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     |    1             |  24              |
+                | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
             And I have an imported batch created with the following details:
                 | Field               | Value         |
                 | temperatureCategory | REFRIGERATED  |
@@ -198,7 +198,7 @@ Feature: Enter Imported Products Information
                 | ROOM_TEMPERATURE     |    20           |  24             |
             And The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     |    1             |  24              |
+                | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
             And I have an imported batch created with the following details:
                 | Field                | Value                    |
                 | temperatureCategory  | ROOM_TEMPERATURE         |
@@ -218,6 +218,7 @@ Feature: Enter Imported Products Information
             Examples:
                 | Device Location Code | Device ID     | Device Category | Device Type | Unit Number      | Product Code | Blood Type | Expiration Date | License Status | Visual Inspection |
                 | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | =W03659878680500 | =<E6170V00   | =%6200     | &>0260422359    | LICENSED       | SATISFACTORY      |
+                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | =W03659878680500 | =<E6170V00   | =%6200     | &>0251712359    | LICENSED       | SATISFACTORY      |
 
 
         Rule: I should be notified when I enter an invalid unit number.
