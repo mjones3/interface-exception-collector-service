@@ -12,7 +12,7 @@ Feature: Receive Cancel orders through third party application
         When I send a request to the Partner Cancel Order Inbound Interface.
         Then The response status code should be <responseCode>.
         And The response status should be "<status>".
-        And The response should contain a transactionId property.
+        And It should produce a message with a transactionId property.
         Examples:
             | JsonPayloadName                                                     | responseCode | status   |
             | inbound-test-files/cancel-order-scenario-happy-path.json            | 202          | ACCEPTED |
