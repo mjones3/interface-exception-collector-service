@@ -23,10 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -468,6 +465,7 @@ public class UseCaseSteps {
             String expirationTime = product.get("Expiration Time");
             String modificationLocation = product.get("Modification Location");
             String modificationDateStr = product.get("Modification Date");
+            String modificationTimeZone = product.get("Modification Time Zone");
             Integer volume = null;
             Integer weight = null;
 
@@ -478,7 +476,10 @@ public class UseCaseSteps {
             if (product.containsKey("Weight")) {
                 weight = Integer.valueOf(product.get("Weight"));
             }
-
+            Map<String, String> properties = new HashMap<>();
+            if (product.get("Properties") != null) {
+                properties.put(product.get("Properties").split("=")[0], product.get("Properties").split("=")[1]);
+            }
             // Parse the modification date
             ZonedDateTime modificationDate;
             try {
@@ -507,7 +508,9 @@ public class UseCaseSteps {
                 modificationLocation,
                 modificationDate,
                 volume,
-                weight
+                weight,
+                modificationTimeZone,
+                properties
             );
 
             // Execute the use case

@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725010000
-@api @AOA-106 @LAB-356
+@api @AOA-106 @LAB-356 @cleanUpAll
 Feature: Product Unsuitable Event - API
     As an inventory service I want to update the status of an inventory after receiving an Product Unsuitable event.
 
