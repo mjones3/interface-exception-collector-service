@@ -16,7 +16,7 @@ Feature: Cancel Imports Process
             | ROOM_TEMPERATURE     |    20           |  24             |
         And The following transit time thresholds are configured:
             | Temperature Category | Min Transit Time | Max Transit Time |
-            | ROOM_TEMPERATURE     |    1             |  24              |
+            | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
         And I have an imported batch created with the following details:
             | Field                | Value                    |
             | temperatureCategory  | REFRIGERATED             |
@@ -48,7 +48,7 @@ Feature: Cancel Imports Process
                 | ROOM_TEMPERATURE     |    20           |  24             |
             And The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     |    1             |  24              |
+                | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
             And I have an imported batch created with the following details:
                 | Field                | Value                    |
                 | temperatureCategory  | REFRIGERATED             |
