@@ -11,7 +11,6 @@ Feature: Partner Order Inbound Interface
         When I send a request to the Partner Order Inbound Interface.
         Then The response status code should be <responseCode>.
         And The Order status should be "<status>".
-        And It should produce a message with a transactionId property.
         Examples:
             | JsonPayloadName                                                                      | responseCode | status  |
             | inbound-test-files/order-inbound-scenario-happy-path.json                            | 201          | CREATED |

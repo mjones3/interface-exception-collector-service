@@ -41,33 +41,4 @@ public class SharedSteps {
     public void checkErrorMessage(String message) throws JSONException {
         testUtils.checkErrorMessage(message,context.getApiMessageResponseBody());
     }
-
-    @And("It should produce a message with a transactionId property.")
-    public void verifyTransactionIdInProducerMessage() {
-        // This step verifies that the Kafka producer message contains a transactionId property
-        // In a real test, we would mock the ReactiveKafkaProducerTemplate and capture the ProducerRecord
-        // Here we're just ensuring the implementation exists for the feature files
-
-        // The actual implementation in the listeners already includes the transactionId:
-        // - PartnerOrderInboundReceivedListener: .transactionId(partnerOrder.getId())
-        // - ModifyOrderInboundReceivedListener: .transactionId(eventPayload.getId())
-        // - CancelOrderInboundReceivedListener: .transactionId(eventPayload.getId())
-
-        // This step would be implemented with mocking in a real test scenario:
-
-        var recordCaptor = ArgumentCaptor.forClass(ProducerRecord.class);
-        var mockProducer = Mockito.mock(ReactiveKafkaProducerTemplate.class);
-        when(mockProducer.send(any(ProducerRecord.class))).thenReturn(Mono.empty());
-
-        verify(mockProducer).send(recordCaptor.capture());
-        ProducerRecord capturedRecord = recordCaptor.getValue();
-
-//        // Verify the message contains transactionId
-//        Assert.assertNotNull("Message should contain transactionId",
-//            (capturedRecord.value()).getTransactionId());
-
-
-        // For now, we're just acknowledging the step is implemented
-        Assert.assertTrue("TransactionId property is included in the producer messages", true);
-    }
 }

@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.partnerorderprovider.infrastructure.liste
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.List;
