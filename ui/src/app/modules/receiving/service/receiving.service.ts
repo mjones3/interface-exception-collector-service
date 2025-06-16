@@ -24,6 +24,12 @@ import {
     VALIDATE_TRANSIT_TIME,
     ValidateTransitTimeRequestDTO
 } from '../graphql/query-definitions/imports-validate-transit-time.graphql';
+import { MutationResult } from 'apollo-angular';
+import {
+    CREATE_IMPORT,
+    CreateImportRequestDTO,
+    ImportDTO
+} from '../graphql/mutation-definitions/create-import.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -80,6 +86,16 @@ export class ReceivingService {
             this.servicePath,
             VALIDATE_TRANSIT_TIME,
             validateTransitTimeRequestDTO
+        );
+    }
+
+    public createImport(createImportRequestDTO: CreateImportRequestDTO)
+        : Observable<MutationResult<{ createImport: UseCaseResponseDTO<ImportDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CREATE_IMPORT,
+            createImportRequestDTO
         );
     }
 

@@ -2,7 +2,7 @@ import { gql } from 'apollo-angular';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
 import { LookUpDto } from '@shared';
 
-export enum TemperatureProductCategory {
+enum TemperatureProductCategory {
     FROZEN,
     REFRIGERATED,
     ROOM_TEMPERATURE,
@@ -21,8 +21,8 @@ export interface EnterShippingInformationRequestDTO {
 }
 
 export interface ShippingInformationDTO {
-    productCategory: String;
-    temperatureUnit: String;
+    productCategory: string;
+    temperatureUnit: string;
     displayTransitInformation: boolean;
     displayTemperature: boolean;
     transitTimeZoneList: LookUpDto[];
