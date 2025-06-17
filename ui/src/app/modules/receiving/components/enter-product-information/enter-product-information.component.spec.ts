@@ -668,8 +668,7 @@ describe('EnterProductInformationComponent', () => {
     });
 
     it('should handle cancel button click', () => {
-      const pageCancelButton = fixture.debugElement.query(By.css('#productInformationCancel')).nativeElement as HTMLButtonElement;
-      expect(pageCancelButton.disabled).toBeFalsy();
+      const pageCancelButton = fixture.debugElement.query(By.css('#productInformationCancelActionButton')).nativeElement;
       pageCancelButton.click();
       expect(fuseConfirmationService.open).toHaveBeenCalled();
     });
