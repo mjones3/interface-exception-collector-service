@@ -6,10 +6,12 @@ import com.arcone.biopro.distribution.order.domain.model.Order;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.util.UUID;
+
 @Slf4j
 public abstract class AbstractProcessOrderUseCase {
 
-    public void publishOrderRejectedEvent(ApplicationEventPublisher applicationEventPublisher, String externalId, Throwable error , String operation) {
+    public void publishOrderRejectedEvent(ApplicationEventPublisher applicationEventPublisher, String externalId, UUID transactionId, Throwable error , String operation) {
         log.debug("Publishing OrderRejected {} , ID {}", externalId, error.getMessage());
         var errorMessage = "";
         if(error instanceof DomainException de){
@@ -20,7 +22,7 @@ public abstract class AbstractProcessOrderUseCase {
 
         log.debug("Rejected Reason : {}",errorMessage);
 
-        applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId, errorMessage,operation));
+        applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId, errorMessage,operation, transactionId));
     }
 
     abstract void publishOrderProcessedEvent(Order order);

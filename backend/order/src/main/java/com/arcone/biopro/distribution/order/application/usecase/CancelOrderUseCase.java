@@ -39,7 +39,7 @@ public class CancelOrderUseCase extends AbstractProcessOrderUseCase implements C
             .then()
             .onErrorResume(error -> {
                 log.error("Not able to process order cancel event {}",error.getMessage());
-                publishOrderRejectedEvent(applicationEventPublisher,cancelOrderReceivedDTO.payload().externalId(), error,USE_CASE_OPERATION);
+                publishOrderRejectedEvent(applicationEventPublisher, cancelOrderReceivedDTO.payload().externalId(), cancelOrderReceivedDTO.payload().transactionId(), error, USE_CASE_OPERATION);
                     return Mono.empty();
                 }
             );

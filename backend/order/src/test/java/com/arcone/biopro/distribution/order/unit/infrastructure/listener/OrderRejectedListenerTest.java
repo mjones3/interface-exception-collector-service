@@ -13,6 +13,8 @@ import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.core.publisher.Mono;
 import reactor.kafka.sender.SenderResult;
 
+import java.util.UUID;
+
 class OrderRejectedListenerTest {
 
     private OrderRejectedListener target;
@@ -34,7 +36,7 @@ class OrderRejectedListenerTest {
         Mockito.when(senderResult.recordMetadata()).thenReturn(meta);
         Mockito.when(producerTemplate.send(Mockito.any(ProducerRecord.class))).thenReturn(Mono.just(senderResult));
 
-        target.handleOrderRejectedEvent(new OrderRejectedEvent("TEST_ID","ERROR_MSG","CREATE_ORDER"));
+        target.handleOrderRejectedEvent(new OrderRejectedEvent("TEST_ID","ERROR_MSG","CREATE_ORDER", UUID.randomUUID()));
 
         Mockito.verify(producerTemplate).send(Mockito.any(ProducerRecord.class));
     }
