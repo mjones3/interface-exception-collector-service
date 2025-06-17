@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Schema(
     name = "OrderCancelledPayload",
@@ -175,6 +176,13 @@ public record OrderCancelledDTO(
         example = "4c973896-5761-41fc-8217-07c5d13a004b",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    String cancelReason
+    String cancelReason,
+    @Schema(
+        title = "Transaction ID",
+        description = "The unique transaction identifier",
+        example = "123e4567-e89b-12d3-a456-426614174000",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    UUID transactionId
 ) implements Serializable {
 }
