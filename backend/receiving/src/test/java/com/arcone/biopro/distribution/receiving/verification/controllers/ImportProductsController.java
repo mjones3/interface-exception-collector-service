@@ -126,4 +126,11 @@ public class ImportProductsController {
         log.debug("Is unit quarantined: {}", isImportedUnitQuarantined);
         return isImportedUnitQuarantined;
     }
+
+    public Map validateBarcode(String temperatureCategory,String barcodePattern, String barcodeValue) {
+        String payload = GraphQLQueryMapper.validateBarcodeValue(temperatureCategory,barcodePattern,barcodeValue);
+        var response = apiHelper.graphQlRequest(payload, "validateBarcode");
+        log.debug("validate Barcode response: {}", response);
+        return response;
+    }
 }

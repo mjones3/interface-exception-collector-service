@@ -95,4 +95,21 @@ public class GraphQLQueryMapper {
             """, temperatureCategory, startDateTime, startTimeZone, endDateTime, endTimeZone);
 
     }
+
+    public static String validateBarcodeValue(String temperatureCategory,String barcodePattern, String barcodeValue) {
+        return String.format("""
+            query validateBarcode {
+                validateBarcode(
+                    validateBarcodeRequest: { temperatureCategory: "%s", barcodePattern: "%s", barcodeValue: "%s" }
+                ) {
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                    }
+                }
+            }
+            """, temperatureCategory, barcodePattern,barcodeValue);
+    }
 }

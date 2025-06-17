@@ -295,4 +295,41 @@ public class ImportProductSteps {
     }
     public void theAddProductOptionShouldBeDisabled() {
     }
+
+    @Given("I want to validate the product details printed in the label.")
+    public void iWantToValidateTheProductDetailsPrintedInTheLabel() {
+
+    }
+
+    @When("I request to validate the scanned product information for the Temperature Category as {string} barcode type as {string} and the scanned value as {string}.")
+    public void iScanTheProductInformationForTheTemperatureCategoryAsBarcodeTypeAsAndTheScannedValueAs(String temperatureCategory, String barcodePattern, String barcodeValue) {
+        var response = importProductsController.validateBarcode(temperatureCategory,barcodePattern,barcodeValue);
+        Assert.assertNotNull(response);
+        this.apiResponse = (Map) response.get("data");
+    }
+
+    @Then("I should receive the barcode validation result as {string} and the result value should be {string} and result description as {string}.")
+    public void iShouldReceiveTheBarcodeValidationResultAs(String isValid,String result, String resultDescription) {
+        Assert.assertEquals(this.apiResponse.get("valid").toString(),isValid);
+        if("true".equals(isValid)){
+            Assert.assertEquals(this.apiResponse.get("result").toString(),result);
+            var description = this.apiResponse.get("resultDescription");
+            if(description != null){
+                Assert.assertEquals(description,resultDescription);
+            }
+        }else{
+            Assert.assertNull(this.apiResponse.get("result"));
+            Assert.assertNull(this.apiResponse.get("resultDescription"));
+        }
+    }
+    @And("Then system {string} return the result message as {string}.")
+    public void thenSystemReturnTheResultMessageAs(String shouldShouldNot, String message) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertEquals(this.apiResponse.get("message").toString(),message);
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertNull(this.apiResponse.get("message"));
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
 }
