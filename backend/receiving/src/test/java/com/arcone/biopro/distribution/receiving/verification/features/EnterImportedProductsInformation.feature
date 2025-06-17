@@ -217,8 +217,8 @@ Feature: Enter Imported Products Information
             Then I "should" see product unit number "<Unit Number>" and product code "<Product Code>" in the list of added products.
             Examples:
                 | Device Location Code | Device ID     | Device Category | Device Type | Unit Number      | Product Code | Blood Type | Expiration Date | License Status | Visual Inspection |
-                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | =W03659878680500 | =<E6170V00   | =%6200     | &>0260422359    | LICENSED       | SATISFACTORY      |
-                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | =W03659878680500 | =<E6170V00   | =%6200     | &>0251712359    | LICENSED       | SATISFACTORY      |
+                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | =W03659878680500 | =<E8341V00   | =%6200     | &>0260422359    | LICENSED       | SATISFACTORY      |
+                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | =W03659878680500 | =<E8342V00   | =%6200     | &>0251712359    | LICENSED       | SATISFACTORY      |
 
 
     Rule: I should be notified when I enter an invalid unit number.
@@ -258,7 +258,7 @@ Feature: Enter Imported Products Information
                 | Device Location Code | Device ID     | Device Type | Device Category | Unit Number      | Product Code | Blood Type | Expiration Date | message                                          |
                 | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W036880500      | =<E6170V00   | =%6200     | &>0260422359    | Invalid Unit Number                              |
                 | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%0200     | &>0260422359    | Invalid ABO/RH                                   |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%6200     | &>0200002359    | Invalid expiration date                          |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03659878680500 | =<E8344V00   | =%6200     | &>0200002359    | Invalid expiration date                          |
                 | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03659878680500 | =<E617       | =%6200     | &>0260422359    | Invalid Product Code                             |
                 | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03399878680500 | =<E6170V00   | =%6200     | &>0260422359    | FIN is not associated with a registered facility |
                 | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | =W03659878680500 | =<E0023V00   | =%6200     | &>0260422359    | Product type does not match                      |

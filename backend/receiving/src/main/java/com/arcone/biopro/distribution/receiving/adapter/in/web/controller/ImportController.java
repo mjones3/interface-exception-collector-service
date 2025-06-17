@@ -1,12 +1,14 @@
 package com.arcone.biopro.distribution.receiving.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.AddImportItemRequestDTO;
+import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CancelImportRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CompleteImportRequestDTO;
-import com.arcone.biopro.distribution.receiving.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CreateImportRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ImportDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.UseCaseResponseDTO;
+import com.arcone.biopro.distribution.receiving.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.mapper.UseCaseResponseMapper;
+import com.arcone.biopro.distribution.receiving.domain.service.CancelImportService;
 import com.arcone.biopro.distribution.receiving.domain.service.CompleteImportService;
 import com.arcone.biopro.distribution.receiving.domain.service.FindImportService;
 import com.arcone.biopro.distribution.receiving.domain.service.ImportItemService;
@@ -30,6 +32,7 @@ public class ImportController {
     private final UseCaseResponseMapper useCaseResponseMapper;
     private final FindImportService findImportService;
     private final CompleteImportService completeImportService;
+    private final CancelImportService cancelImportService;
 
     @MutationMapping("createImport")
     public Mono<UseCaseResponseDTO<ImportDTO>> createImport(@Argument("createImportRequest") CreateImportRequestDTO createImportRequest) {
@@ -57,5 +60,12 @@ public class ImportController {
         log.debug("Request to complete a Import : {}", completeImportRequest);
         return completeImportService.completeImport(commandRequestDTOMapper.toCommandInput(completeImportRequest))
             .map(useCaseResponseMapper::toCreateImportUseCaseResponse);
+    }
+
+    @MutationMapping("cancelImport")
+    public Mono<UseCaseResponseDTO<Void>> cancelImport(@Argument("cancelImportRequest") CancelImportRequestDTO cancelImportRequestDTO) {
+        log.debug("Request to cancel a Import : {}", cancelImportRequestDTO);
+        return cancelImportService.cancelImport(commandRequestDTOMapper.toCommandInput(cancelImportRequestDTO))
+            .map(useCaseResponseMapper::toVoidUseCaseResponse);
     }
 }
