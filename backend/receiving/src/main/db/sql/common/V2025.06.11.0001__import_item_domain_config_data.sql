@@ -1,4 +1,3 @@
-DELETE FROM receiving.lk_product_family;
 DELETE FROM receiving.lk_product_family_product;
 DELETE FROM receiving.lk_product_family;
 DELETE FROM receiving.lk_product;
