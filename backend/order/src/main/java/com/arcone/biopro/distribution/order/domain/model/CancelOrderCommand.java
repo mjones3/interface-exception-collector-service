@@ -48,6 +48,10 @@ public class CancelOrderCommand implements Validatable {
             throw new IllegalArgumentException("Cancel Date cannot be null or empty");
         }
 
+        if (this.transactionId == null ) {
+            throw new IllegalArgumentException("Transaction ID cannot be null");
+        }
+
         try{
             LocalDateTime.parse(this.cancelDate,DateTimeFormatter.ofPattern(CANCEL_DATE_FORMAT));
         }catch (Exception e){

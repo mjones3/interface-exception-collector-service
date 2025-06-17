@@ -34,6 +34,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -390,13 +391,16 @@ class OrderTest {
 
         Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
 
+
+
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "CANCELLED", "CANCELLED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "CANCELLED", null, "CANCELLED", "CANCELLED", "CREATE_EMPLOYEE"
             , null, null, null);
 
+
         try{
-            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order));
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()), List.of(order));
             Assertions.fail();
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
@@ -419,8 +423,10 @@ class OrderTest {
             , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
             , null, null, null);
 
+
+
         try{
-            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55") , List.of(order));
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()) , List.of(order));
             Assertions.fail();
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
@@ -443,7 +449,7 @@ class OrderTest {
             , null, null, "COMPLETED", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
             , null, null, null);
 
-        var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order));
+        var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()), List.of(order));
 
         Assertions.assertNotNull(response.getCancelDate());
         Assertions.assertEquals("reason",response.getCancelReason());
@@ -473,7 +479,7 @@ class OrderTest {
         backOrder.setBackOrder(TRUE);
 
         try{
-            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order,backOrder));
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()), List.of(order,backOrder));
             Assertions.fail();
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
@@ -506,7 +512,7 @@ class OrderTest {
         backOrder.setBackOrder(TRUE);
 
         try{
-            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order,backOrder));
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()), List.of(order,backOrder));
             Assertions.fail();
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
@@ -531,7 +537,7 @@ class OrderTest {
             , null, null, null);
 
         try{
-            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), null);
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()), null);
             Assertions.fail();
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
@@ -562,7 +568,7 @@ class OrderTest {
         backOrder.setBackOrder(TRUE);
 
 
-        var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order,backOrder));
+        var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()), List.of(order,backOrder));
 
         Assertions.assertNotNull(response.getCancelDate());
         Assertions.assertEquals("reason",response.getCancelReason());
@@ -600,7 +606,7 @@ class OrderTest {
         backOrder2.setBackOrder(TRUE);
 
 
-        var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order,backOrder1, backOrder2));
+        var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()), List.of(order,backOrder1, backOrder2));
 
         Assertions.assertNotNull(response.getCancelDate());
         Assertions.assertEquals("reason",response.getCancelReason());

@@ -914,10 +914,12 @@ public class OrderSteps {
             Assert.assertNotNull(context.getOrderDetails().get("cancelEmployeeId"));
             Assert.assertNotNull(context.getOrderDetails().get("cancelReason"));
             Assert.assertNotNull(context.getOrderDetails().get("cancelDate"));
+            Assert.assertNotNull(context.getOrderDetails().get("transactionId"));
         } else if (isShould.equalsIgnoreCase("should not")) {
             Assert.assertNull(context.getOrderDetails().get("cancelEmployeeId"));
             Assert.assertNull(context.getOrderDetails().get("cancelReason"));
             Assert.assertNull(context.getOrderDetails().get("cancelDate"));
+            Assert.assertNull(context.getOrderDetails().get("transactionId"));
         } else {
             Assert.fail("Invalid option for cancel details.");
         }
