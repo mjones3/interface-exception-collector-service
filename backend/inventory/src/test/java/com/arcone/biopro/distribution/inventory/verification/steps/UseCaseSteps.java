@@ -190,8 +190,8 @@ public class UseCaseSteps {
             }
 
             Map<String, String> properties = null;
-            if(product.get("Licensed") != null) {
-                properties = Map.of("LICENSED", product.get("Licensed"));
+            if(product.get("Licensed") != null && product.get("Licensed").equals("true")) {
+                properties = Map.of("LICENSE_STATUS", "LICENSED");
             }
 
             ProductsImported.ImportedProduct importedProduct = ProductsImported.ImportedProduct.builder()
