@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,9 +27,9 @@ public class ProductsImported {
     private String createEmployeeId;
     private String temperatureCategory;
     private Instant createDate;
-    private Integer temperature;
+    private BigDecimal temperature;
     private String temperatureUnit;
-    private Integer transitTime;
+    private String transitTime;
     private String thermometerCode;
     private String comments;
     private List<ImportedProduct> products;

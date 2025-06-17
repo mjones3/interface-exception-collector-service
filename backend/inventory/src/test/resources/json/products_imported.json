@@ -8,9 +8,9 @@
     "createEmployeeId": "4c973896-5761-41fc-8217-07c5d13a004b",
     "temperatureCategory": "FROZEN",
     "createDate": "2025-05-13T15:06:38.880074Z",
-    "temperature": 10,
+    "temperature": 10.9,
     "temperatureUnit": "celcius",
-    "transitTime": 15,
+    "transitTime": "15h 40m",
     "thermometerCode": "",
     "comments": "",
     "products": [
@@ -22,7 +22,7 @@
         "aboRh": "AP",
         "expirationDate": "2011-12-03T09:15:30",
         "properties": {
-          "LICENSED": "true",
+          "LICENSE_STATUS": "LICENSED",
           "VISUAL_INSPECTION": "SATISFACTORY",
           "REGISTRATION_NUMBER":"132356-5656"
         },
