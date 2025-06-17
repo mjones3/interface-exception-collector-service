@@ -31,8 +31,16 @@ import {
     ImportDTO
 } from '../graphql/mutation-definitions/create-import.graphql';
 import { vALIDATE_BAR_CODE, ValidateBarcodeRequestDTO } from '../graphql/query-definitions/validate-bar-code.graphql';
-import { AddImportItemRequestDTO, CreateImportResponsetDTO } from '../models/product-information.dto';
-import { CREATE_IMPORT_ITEM, FIND_IMPORT_BY_ID } from '../graphql/mutation-definitions/create-import-item.graphql';
+import {
+    AddImportItemRequestDTO,
+    CompleteImportRequestDTO,
+    CreateImportResponsetDTO
+} from '../models/product-information.dto';
+import {
+    COMPLETE_IMPORT,
+    CREATE_IMPORT_ITEM,
+    FIND_IMPORT_BY_ID
+} from '../graphql/mutation-definitions/create-import-item.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -132,6 +140,18 @@ export class ReceivingService {
             this.servicePath,
             FIND_IMPORT_BY_ID,
             { importId }
+        );
+    }
+
+    public completeImport(completeImportRequest: CompleteImportRequestDTO): Observable<
+        MutationResult<{
+            completeImport: UseCaseResponseDTO<CreateImportResponsetDTO>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            COMPLETE_IMPORT,
+            completeImportRequest
         );
     }
 

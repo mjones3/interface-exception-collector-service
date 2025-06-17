@@ -31,7 +31,7 @@ Feature: Enter Imported Products Information
             Then The product "<Unit Number>" "should" be added into list of added products.
             Examples:
                 | Device Location Code | Device ID     | Device Category | Device Type | Unit Number   | Product Code | Blood Type | Expiration Date          | License Status | Visual Inspection |
-                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | W036598786805 | E6170V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      |
+                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | W036598786805 | EA137V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      |
 
     Rule: I should be notified when I enter an invalid unit number.
         Rule: I should be notified when I enter a unit number with the FIN that is not associated with a registered facility used at the blood center.
@@ -68,7 +68,7 @@ Feature: Enter Imported Products Information
                 | Device Location Code | Device ID     | Device Category | Device Type | Unit Number   | Product Code | Blood Type | Expiration Date          | License Status | Visual Inspection | message_type    | message                     |
                 | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | W036598786805 | E6170V00     | XP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      | WARN            | ABO/RH is Invalid           |
                 | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | W036598786805 | E6170V00     | AP         | 2026-12-33T05:22:53.108Z | LICENSED       | SATISFACTORY      | ValidationError | is not a valid 'DateTime'   |
-                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | W036598786805 | E8696V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      | WARN            | Product type does not match |
+                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | W036598786805 | E4701V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      | WARN            | Product type does not match |
                 | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | W036598786805 | E617         | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      | WARN            | Product type does not match |
 
     Rule: I should be notified if I am importing an already imported product.
@@ -100,7 +100,7 @@ Feature: Enter Imported Products Information
             And I should receive a "BAD_REQUEST" message response "The database returned ROLLBACK".
             Examples:
                 | Device Location Code | Device ID     | Device Category | Device Type | Unit Number   | Product Code | Blood Type | Expiration Date          | License Status | Visual Inspection |
-                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | W036598786805 | E6170V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      |
+                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | W036598786805 | EA138V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      |
 
     Rule: I should be able to identify when a product is flagged for quarantine.
         Rule: The system should apply quarantine for all the products in the batch if the temperature is out of the configured range.
@@ -113,7 +113,7 @@ Feature: Enter Imported Products Information
                 | ROOM_TEMPERATURE     | 20              | 24              |
             And The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     | 1                | 24               |
+                | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
             And I have an imported batch created with the following details:
                 | Field                | Value                    |
                 | temperatureCategory  | ROOM_TEMPERATURE         |
@@ -130,7 +130,7 @@ Feature: Enter Imported Products Information
             And The product "<Unit Number>" "should" be flagged for quarantine.
             Examples:
                 | Unit Number   | Product Code | Blood Type | Expiration Date          | License Status | Visual Inspection |
-                | W036598786805 | E6170V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      |
+                | W036598786805 | EB311V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      |
 
     Rule: I should be able to identify when a product is flagged for quarantine.
         Rule: The system should apply quarantine for all the products in the batch if the transit time is out of the configured range.
@@ -160,7 +160,7 @@ Feature: Enter Imported Products Information
             And The product "<Unit Number>" "should" be flagged for quarantine.
             Examples:
                 | Unit Number   | Product Code | Blood Type | Expiration Date          | License Status | Visual Inspection |
-                | W036598786805 | E6170V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      |
+                | W036598786805 | E2488V00     | AP         | 2026-12-08T05:22:53.108Z | LICENSED       | SATISFACTORY      |
 
     Rule: I should be able to identify when a product is flagged for quarantine.
         Rule: The system should apply quarantine for all the product that failed the visual inspection.
@@ -237,7 +237,7 @@ Feature: Enter Imported Products Information
                 | ROOM_TEMPERATURE     | 20              | 24              |
             And The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     | 1                | 24               |
+                | ROOM_TEMPERATURE     |    (1*60)        |  (24*60)         |
             And I have an imported batch created with the following details:
                 | Field                | Value                    |
                 | temperatureCategory  | ROOM_TEMPERATURE         |

@@ -16,7 +16,8 @@ public enum UseCaseMessageType {
     VALIDATE_TRANSIT_TIME_SYSTEM_ERROR(4,  UseCaseNotificationType.SYSTEM, "Not able to validate transit time. Contact Support."),
     IMPORT_CREATE_SUCCESS(5,  UseCaseNotificationType.SUCCESS, "Import created successfully."),
     VALIDATE_BARCODE_SYSTEM_ERROR(6,  UseCaseNotificationType.SYSTEM, "Not able to validate barcode. Contact Support."),
-    IMPORT_ITEM_CREATE_SUCCESS(7,  UseCaseNotificationType.SUCCESS, "Product added successfully.");
+    IMPORT_ITEM_CREATE_SUCCESS(7,  UseCaseNotificationType.SUCCESS, "Product added successfully."),
+    IMPORT_COMPLETED_SUCCESS(8,  UseCaseNotificationType.SUCCESS, "Import completed successfully.");
 
     Integer code;
     UseCaseNotificationType type;

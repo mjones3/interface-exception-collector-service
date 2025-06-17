@@ -60,4 +60,10 @@ public class DatabaseSteps {
         db.executeSql(removeImportItemSql).block();
         db.executeSql(removeImportSql).block();
     }
+
+    @And("The status of the import batch is {string}")
+    public void theStatusOfTheImportBatchIs(String importStatus) {
+        String sql = DatabaseQueries.UPDATE_IMPORT_STATUS_BY_ID( sharedContext.getCreateImportResponse().get("id").toString(), importStatus);
+        db.executeSql(sql).block();
+    }
 }

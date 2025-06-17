@@ -60,6 +60,7 @@ public class SharedContext {
     // Batch data
     private Map createImportResponse;
     private Map createImportItemResponse;
+    private Map completeImportResponse;
 
 
     // RecoveredPlasmaCriteriaConfiguration
@@ -70,4 +71,6 @@ public class SharedContext {
     private Map lastUnacceptableUnitsReportResponse;
 
     private Map lastShippingSummaryReportResponse;
+
+    private String lastImportId;
 }

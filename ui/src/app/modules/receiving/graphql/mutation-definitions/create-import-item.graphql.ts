@@ -1,6 +1,10 @@
 import { gql } from "apollo-angular";
 import { UseCaseResponseDTO } from "app/shared/models/use-case-response.dto";
-import { AddImportItemRequestDTO, CreateImportResponsetDTO } from "../../models/product-information.dto";
+import {
+    AddImportItemRequestDTO,
+    CompleteImportRequestDTO,
+    CreateImportResponsetDTO
+} from '../../models/product-information.dto';
 import { CartonDTO } from '../../../recovered-plasma-shipment/models/recovered-plasma.dto';
 
 
@@ -59,6 +63,31 @@ export const FIND_IMPORT_BY_ID = gql<
                 type
                 code
             }
+        }
+    }
+`;
+
+export const COMPLETE_IMPORT = gql<
+    { completeImport: UseCaseResponseDTO<CreateImportResponsetDTO> },
+    CompleteImportRequestDTO
+>`
+    mutation completeImport(
+        $importId:ID!
+        $completeEmployeeId:String!
+    ) {
+        completeImport(
+            completeImportRequest: {
+                importId: $importId
+                completeEmployeeId: $completeEmployeeId
+            }
+        ) {
+            data
+            notifications {
+                code
+                type
+                message
+            }
+            _links
         }
     }
 `;

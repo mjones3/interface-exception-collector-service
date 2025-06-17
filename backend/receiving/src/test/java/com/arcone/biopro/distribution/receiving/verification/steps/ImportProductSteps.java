@@ -332,4 +332,41 @@ public class ImportProductSteps {
             Assert.fail("Invalid value for should/ShouldNot");
         }
     }
+
+    @And("I have the products added in the batch with Unit Number as {string} , Product Code as {string}, Blood Type as {string}, Expiration date as {string}, License status as {string} and Visual Inspection as {string}.")
+    public void iHaveTheProductsAddedInTheBatchWithUnitNumberAsProductCodeAsBloodTypeAsExpirationDateAsAndProductCategoryAsLicenseStatusAsAndVisualInspectionAs(String unitNumber, String productCode, String bloodType, String expirationDate, String licenseStatus, String visualInspection) {
+        this.iRequestToEnterTheProductInformationWithUnitNumberAsProductCodeAsBloodTypeAsExpirationDateAsLicenseStatusAsAndVisualInspectionAs(unitNumber, productCode, bloodType, expirationDate, licenseStatus, visualInspection);
+    }
+
+    @When("I request to complete the last import batch created.")
+    public void iRequestToCompleteTheLastImportBatchCreated() {
+        var response = importProductsController.completeImport();
+        Assert.assertNotNull(response);
+    }
+
+    @Then("The status of the import batch should be {string}")
+    public void theStatusOfTheImportBatchShouldBe(String status) {
+        Assert.assertEquals(importProductsController.getCompleteImportStatus(),status);
+    }
+
+    @And("The complete import process option should be {string}")
+    public void theCompleteImportProcessOptionShouldBe(String enabledDisabled) {
+        if ("enabled".equals(enabledDisabled)) {
+            Assert.assertTrue(productInformationPage.isCompleteImportButtonEnabled(true));
+        } else if ("disabled".equals(enabledDisabled)) {
+            Assert.assertFalse(productInformationPage.isCompleteImportButtonEnabled(false));
+        } else {
+            Assert.fail("The completed import should be enabled or disabled");
+        }
+    }
+
+    @When("I choose to complete the import process.")
+    public void iChooseToCompleteTheImportProcess() {
+        productInformationPage.completeImport();
+    }
+
+    @And("I should be redirect to the Enter Shipping Information Page.")
+    public void iShouldBeRedirectToTheEnterShippingInformationPage() {
+        enterShippingInformationPage.waitForLoad();
+    }
 }

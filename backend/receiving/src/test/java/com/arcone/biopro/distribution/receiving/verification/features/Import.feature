@@ -35,6 +35,7 @@ Feature: Import products
                 | REFRIGERATED         | Temperature , Thermometer, Comments                                                                                                            | Transit Start Date, Transit Start Time,Start Time Zone,Transit End Date, Transit End Time, End Time Zone                             |
 
     Rule: I should be able to enter temperature information of the imported products.
+    Rule: I should be able to enter the temperature in decimals.
         @api @DIS-410
         Scenario Outline: Successfully record temperature within acceptable range
             Given The following temperature thresholds are configured:
@@ -45,10 +46,11 @@ Feature: Import products
             Then The system "should" accept the temperature.
             Examples:
                 |Temperature Category | Temperature |
-                | REFRIGERATED        |  9          |
-                | ROOM_TEMPERATURE    |  22         |
+                | REFRIGERATED        |  9.10       |
+                | ROOM_TEMPERATURE    |  22.50      |
 
-    Rule: I should be notified when I enter a temperature that is out of the configured range.
+        Rule: I should be notified when I enter a temperature that is out of the configured range.
+        Rule: I should be able to enter the temperature in decimals.
         @api @DIS-410
         Scenario Outline: Notification for out-of-range temperatures
             Given The following temperature thresholds are configured:
@@ -59,11 +61,12 @@ Feature: Import products
             Then I should receive a "<message_type>" message response "<message>".
             Examples:
                 | Temperature Category | Temperature | message_type | message                                                                 |
-                | REFRIGERATED         | 12          | CAUTION      | Temperature does not meet thresholds. All products will be quarantined. |
-                | ROOM_TEMPERATURE     | 25          | CAUTION      | Temperature does not meet thresholds. All products will be quarantined. |
+                | REFRIGERATED         | 12.50       | CAUTION      | Temperature does not meet thresholds. All products will be quarantined. |
+                | ROOM_TEMPERATURE     | 25.300      | CAUTION      | Temperature does not meet thresholds. All products will be quarantined. |
 
-    Rule: I should be able to enter temperature information of the imported products.
+        Rule: I should be able to enter temperature information of the imported products.
         Rule: I should be notified when I enter a temperature that is out of the configured range.
+        Rule: I should be able to enter the temperature in decimals.
         @ui @DIS-410
         Scenario Outline: Enter temperature within acceptable different ranges
             Given I have a thermometer configured as location "<Device Location Code>", Device ID as "<Device ID>", Category as "<Device Category>" and Device Type as "<Device Type>".
@@ -82,8 +85,8 @@ Feature: Import products
             And  I "<should_should_not>" see a "Caution" alert: "Temperature does not meet thresholds. All products will be quarantined.".
             Examples:
                 | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category | Temperature Field Status | Temperature | continue_status | should_should_not |
-                | 123456789             | 123456789            | THERM-DST-410  | THERM-DST-410 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 9           | enabled         | should not        |
-                | 123456789             | 123456789            | THERM-DST-410  | THERM-DST-410 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 15          | enabled         | should            |
+                | 123456789             | 123456789            | THERM-DST-410  | THERM-DST-410 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 9.10        | enabled         | should not        |
+                | 123456789             | 123456789            | THERM-DST-410  | THERM-DST-410 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 15.25       | enabled         | should            |
 
     Rule: I should be able to see the total transit time of the imported products.
         @api @DIS-411

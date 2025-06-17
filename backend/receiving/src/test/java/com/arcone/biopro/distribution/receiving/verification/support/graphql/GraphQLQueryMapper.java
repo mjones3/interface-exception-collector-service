@@ -112,4 +112,24 @@ public class GraphQLQueryMapper {
             }
             """, temperatureCategory, barcodePattern,barcodeValue);
     }
+
+    public static String getImportById(String importId) {
+        return String.format("""
+            query findImportById {
+                findImportById(
+                   importId:%s
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                    }
+                }
+            }
+
+            """, importId);
+
+    }
 }

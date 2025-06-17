@@ -8,4 +8,5 @@ public interface ImportRepository {
     Mono<Import> create(Import importModel);
     Mono<Import> findOneById(Long id);
     Mono<ImportItem> createImportItem(ImportItem importItemModel);
+    Mono<Import> update(Import importModel);
 }

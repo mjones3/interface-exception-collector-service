@@ -15,6 +15,7 @@ public interface ImportOutputMapper {
 
     @Mapping(expression ="java(importModel.isQuarantined())" , target = "isQuarantined")
     @Mapping(expression ="java(toOutputList(importModel.getItems()))" , target = "products")
+    @Mapping(expression ="java(importModel.canComplete())" , target = "canComplete")
     ImportOutput toOutput(Import importModel);
 
     @Mapping(expression ="java(importItem.getVisualInspection().value())" , target = "visualInspection")

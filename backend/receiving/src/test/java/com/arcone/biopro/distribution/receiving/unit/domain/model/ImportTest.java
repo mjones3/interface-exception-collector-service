@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -119,7 +121,7 @@ class ImportTest {
         assertEquals("PENDING", result.getStatus());
         assertEquals("2", result.getTotalTransitTime());
         assertEquals("UNACCEPTABLE", result.getTransitTimeResult());
-        assertEquals("20.5", result.getTemperature().toString());
+        assertEquals("20.50", result.getTemperature().toString());
         assertEquals("THERM123", result.getThermometerCode());
         assertEquals("UNACCEPTABLE", result.getTemperatureResult());
         assertEquals("LOC123", result.getLocationCode());
@@ -781,6 +783,75 @@ class ImportTest {
         Exception exception = assertThrows(IllegalArgumentException.class,
             () -> importObj.createImportItem(Mockito.mock(AddImportItemCommand.class),configurationService,productConsequenceRepository));
         assertEquals("Max number of products reached", exception.getMessage());
+
+    }
+
+    @Test
+    void shouldNotComplete_WhenIsCompleted() {
+
+        var item = Mockito.mock(ImportItem.class);
+
+        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+            "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
+            "ACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "COMPLETED",
+            "EMP123",
+            zonedNow,
+            zonedNow,List.of(item),1
+        );
+
+        // Assert
+        Exception exception = assertThrows(IllegalArgumentException.class,
+            () -> importObj.completeImport("EMP_1"));
+        assertEquals("Import is already completed", exception.getMessage());
+
+    }
+
+    @Test
+    void shouldNotComplete_WhenItemsIsEmpty() {
+
+        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+            "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
+            "ACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "PENDING",
+            "EMP123",
+            zonedNow,
+            zonedNow, Collections.emptyList(),1
+        );
+
+        // Assert
+        Exception exception = assertThrows(IllegalArgumentException.class,
+            () -> importObj.completeImport("EMP_1"));
+        assertEquals("Import must have at least one product in the batch", exception.getMessage());
+
+    }
+
+    @Test
+    void shouldComplete_WhenIsPending() {
+
+        var item = Mockito.mock(ImportItem.class);
+
+        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+            "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
+            "ACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "PENDING",
+            "EMP123",
+            zonedNow,
+            zonedNow,List.of(item),1
+        );
+
+        // Assert
+        var response = importObj.completeImport("EMP_1");
+        assertNotNull(response);
+        assertEquals("COMPLETED", response.getStatus());
+        assertNotNull(response.getCompleteDate());
+        assertEquals("EMP_1", response.getCompleteEmployeeId());
 
     }
 }

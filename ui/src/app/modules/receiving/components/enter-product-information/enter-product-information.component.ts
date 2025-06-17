@@ -15,7 +15,12 @@ import { InputComponent } from 'app/shared/components/input/input.component';
 import { TableComponent } from 'app/shared/components/table/table.component';
 import { ButtonOption } from 'app/shared/models/custom-button-toggle.model';
 import { ToastrService } from 'ngx-toastr';
-import { AddImportItemRequestDTO, CreateImportResponsetDTO, ImportedItemResponseDTO } from '../../models/product-information.dto';
+import {
+    AddImportItemRequestDTO,
+    CompleteImportRequestDTO,
+    CreateImportResponsetDTO,
+    ImportedItemResponseDTO
+} from '../../models/product-information.dto';
 import { MatIcon } from '@angular/material/icon';
 import { licenseStatusCssMap, quarantinedCssMap, quarantinedValueMap, temperatureProductCategoryCssMap, TemperatureProductCategoryValueMap, visualInspectionCssMap } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import { snakeCase } from 'lodash';
@@ -186,6 +191,7 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     public header: ProcessHeaderService,
     private service: ReceivingService,
     protected route: ActivatedRoute,
+    private router: Router,
     private store: Store,
   ) {
     this.setEmployeeId();
@@ -427,5 +433,33 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     this.addImportItemRequest().employeeId = this.employeeId;
     this.addImportItemRequest().importId = this.importData().id;
     return this.addImportItemRequest();
+  }
+
+  completeImport(){
+      const req = this.completeRequest();
+      this.service.completeImport(req)
+      .pipe(
+          catchError((error: ApolloError) => {
+                handleApolloError(this.toastr, error)
+              }
+          ),
+      ).subscribe((response) => {
+          const url = response.data?.completeImport?._links?.next;
+          consumeUseCaseNotifications(this.toastr, response.data?.completeImport?.notifications)
+          if (url) {
+              this.handleNavigation(url);
+          }
+      });
+  }
+
+  completeRequest(): CompleteImportRequestDTO{
+      return {
+          importId: this.importData().id,
+          completeEmployeeId: this.employeeId
+      }
+  }
+
+  handleNavigation(url: string): void {
+      this.router.navigateByUrl(url);
   }
 }

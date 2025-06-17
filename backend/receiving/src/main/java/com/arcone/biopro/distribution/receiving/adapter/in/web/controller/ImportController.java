@@ -1,11 +1,13 @@
 package com.arcone.biopro.distribution.receiving.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.AddImportItemRequestDTO;
+import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CompleteImportRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CreateImportRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ImportDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.mapper.UseCaseResponseMapper;
+import com.arcone.biopro.distribution.receiving.domain.service.CompleteImportService;
 import com.arcone.biopro.distribution.receiving.domain.service.FindImportService;
 import com.arcone.biopro.distribution.receiving.domain.service.ImportItemService;
 import com.arcone.biopro.distribution.receiving.domain.service.ImportService;
@@ -27,6 +29,7 @@ public class ImportController {
     private final CommandRequestDTOMapper commandRequestDTOMapper;
     private final UseCaseResponseMapper useCaseResponseMapper;
     private final FindImportService findImportService;
+    private final CompleteImportService completeImportService;
 
     @MutationMapping("createImport")
     public Mono<UseCaseResponseDTO<ImportDTO>> createImport(@Argument("createImportRequest") CreateImportRequestDTO createImportRequest) {
@@ -46,6 +49,13 @@ public class ImportController {
     public Mono<UseCaseResponseDTO<ImportDTO>> findImportById(@Argument Long importId) {
         log.debug("Request to find an import by ID : {}", importId);
         return findImportService.findImportBydId(importId)
+            .map(useCaseResponseMapper::toCreateImportUseCaseResponse);
+    }
+
+    @MutationMapping("completeImport")
+    public Mono<UseCaseResponseDTO<ImportDTO>> completeImport(@Argument("completeImportRequest") CompleteImportRequestDTO completeImportRequest) {
+        log.debug("Request to complete a Import : {}", completeImportRequest);
+        return completeImportService.completeImport(commandRequestDTOMapper.toCommandInput(completeImportRequest))
             .map(useCaseResponseMapper::toCreateImportUseCaseResponse);
     }
 }

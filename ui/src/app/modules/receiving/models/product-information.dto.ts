@@ -37,5 +37,11 @@ export interface CreateImportResponsetDTO {
     isQuarantined: boolean,
     comments:string,
     employeeId:string,
-    products: ImportedItemResponseDTO[]
+    products: ImportedItemResponseDTO[],
+    canComplete?:boolean
+}
+
+export interface CompleteImportRequestDTO {
+    importId: number,
+    completeEmployeeId: string
 }

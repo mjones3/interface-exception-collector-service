@@ -29,6 +29,7 @@ public record ImportOutput(
         ZonedDateTime modificationDate,
         boolean isQuarantined,
         int maxNumberOfProducts,
-        List<ImportItemOutput> products
+        List<ImportItemOutput> products,
+        boolean canComplete
 ) implements Serializable {
 }

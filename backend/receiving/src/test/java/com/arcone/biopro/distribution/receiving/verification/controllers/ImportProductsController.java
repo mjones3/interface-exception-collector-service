@@ -65,6 +65,9 @@ public class ImportProductsController {
         var response = apiHelper.graphQlRequest(payload, "createImport");
         log.debug("Create batch response: {}", response);
         sharedContext.setCreateImportResponse((Map) response.get("data"));
+        if(sharedContext.getCreateImportResponse() != null){
+            sharedContext.setLastImportId(sharedContext.getCreateImportResponse().get("id").toString());
+        }
     }
 
     public void createImportItem(String unitNumber, String productCode, String bloodType, String expirationDate, String licenseStatus, String visualInspection) {
@@ -132,5 +135,37 @@ public class ImportProductsController {
         var response = apiHelper.graphQlRequest(payload, "validateBarcode");
         log.debug("validate Barcode response: {}", response);
         return response;
+    }
+
+    public Map completeImport() {
+        String payload = GraphQLMutationMapper.completeImportMutation(
+            sharedContext.getCreateImportResponse().get("id").toString(),
+            employeeId
+        );
+        var response = apiHelper.graphQlRequest(payload, "completeImport");
+        log.debug("Complete import response: {}", response);
+        if (response.get("data") != null) {
+            sharedContext.setCompleteImportResponse((Map) response.get("data"));
+        } else {
+            sharedContext.setCompleteImportResponse(null);
+        }
+
+        return response;
+    }
+
+    public String getCompleteImportStatus(){
+        String payload = GraphQLQueryMapper.getImportById(sharedContext.getLastImportId());
+
+        var response = apiHelper.graphQlRequest(payload, "findImportById");
+        log.debug("Complete Status Response :{}",response);
+        var data = response.get("data");
+        if (data != null) {
+            return ((Map) data).get("status").toString();
+        } else {
+            return null;
+        }
+
+
+
     }
 }
