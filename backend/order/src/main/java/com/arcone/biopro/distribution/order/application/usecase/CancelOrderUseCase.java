@@ -30,7 +30,8 @@ public class CancelOrderUseCase extends AbstractProcessOrderUseCase implements C
             .flatMap(orderList -> {
                 var cancelCommand = new CancelOrderCommand(cancelOrderReceivedDTO.payload().externalId()
                     ,cancelOrderReceivedDTO.payload().cancelEmployeeCode()
-                    , cancelOrderReceivedDTO.payload().cancelReason(), cancelOrderReceivedDTO.payload().cancelDate());
+                    , cancelOrderReceivedDTO.payload().cancelReason(), cancelOrderReceivedDTO.payload().cancelDate()
+                    , cancelOrderReceivedDTO.payload().transactionId());
                 var orderCancelled = orderList.getFirst().cancel(cancelCommand,orderList);
                 return this.orderRepository.update(orderCancelled)
                     .doOnSuccess(this::publishOrderProcessedEvent);
