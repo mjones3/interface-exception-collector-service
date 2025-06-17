@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,6 +61,7 @@ class OrderEntityMapperTest {
             , "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber"
             , "productCategory", "comments", "status"
             , "priority", "createEmployeeId", "2023-04-25 20:09:01", ZonedDateTime.now(), null);
+        order.setTransactionId(java.util.UUID.randomUUID());
 
         var orderEntity = mapper.mapToEntity(order);
 
@@ -83,6 +85,7 @@ class OrderEntityMapperTest {
         assertEquals(order.getCreateDate(), orderEntity.getCreateDate());
         assertEquals(order.getModificationDate(), orderEntity.getModificationDate());
         assertEquals(order.getDeleteDate(), orderEntity.getDeleteDate());
+        assertEquals(order.getTransactionId(), orderEntity.getTransactionId());
     }
 
     @Test
@@ -133,6 +136,7 @@ class OrderEntityMapperTest {
             .createDate(ZonedDateTime.now())
             .modificationDate(ZonedDateTime.now())
             .deleteDate(ZonedDateTime.now())
+            .transactionId(UUID.randomUUID())
             .build();
 
         var domain = mapper.mapToDomain(orderEntity, orderItemEntities);
@@ -158,6 +162,7 @@ class OrderEntityMapperTest {
         assertEquals(orderEntity.getCreateDate(), domain.getCreateDate());
         assertEquals(orderEntity.getModificationDate(), domain.getModificationDate());
         assertEquals(orderEntity.getDeleteDate(), domain.getDeleteDate());
+        assertEquals(orderEntity.getTransactionId(), domain.getTransactionId());
 
         // OrderItem
         assertEquals(orderItemEntities.size(), domain.getOrderItems().size());

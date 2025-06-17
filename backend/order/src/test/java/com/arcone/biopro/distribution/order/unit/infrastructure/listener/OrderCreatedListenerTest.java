@@ -47,6 +47,7 @@ class OrderCreatedListenerTest {
         Mockito.when(order.getShippingMethod()).thenReturn(Mockito.mock(ShippingMethod.class));
         Mockito.when(order.getBillingCustomer()).thenReturn(Mockito.mock(OrderCustomer.class));
         Mockito.when(order.getShippingCustomer()).thenReturn(Mockito.mock(OrderCustomer.class));
+        Mockito.when(order.getTransactionId()).thenReturn(java.util.UUID.randomUUID());
 
         RecordMetadata meta = new RecordMetadata(new TopicPartition("TestTopic", 0), 0L, 0L, 0L, 0L, 0, 2);
         SenderResult senderResult = Mockito.mock(SenderResult.class);
