@@ -316,6 +316,7 @@ public class SharedActions {
 
     public boolean isElementEnabled(WebDriver driver, By element) {
         try {
+            waitForVisible(element);
             return driver.findElement(element).isEnabled();
         } catch (Exception e) {
             log.debug("Element {} not found or is not enabled.", element);

@@ -352,9 +352,9 @@ public class ImportProductSteps {
     @And("The complete import process option should be {string}")
     public void theCompleteImportProcessOptionShouldBe(String enabledDisabled) {
         if ("enabled".equals(enabledDisabled)) {
-            Assert.assertTrue(productInformationPage.isCompleteImportButtonEnabled());
+            Assert.assertTrue(productInformationPage.isCompleteImportButtonEnabled(true));
         } else if ("disabled".equals(enabledDisabled)) {
-            Assert.assertFalse(productInformationPage.isCompleteImportButtonEnabled());
+            Assert.assertFalse(productInformationPage.isCompleteImportButtonEnabled(false));
         } else {
             Assert.fail("The completed import should be enabled or disabled");
         }
