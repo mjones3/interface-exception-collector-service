@@ -341,7 +341,7 @@ public class Import implements Validatable {
         return "PENDING".equals(this.status) && this.items != null && !this.items.isEmpty();
     }
 
-    public Import cancel(){
+    public Import validateCancel(){
         if(STATUS_COMPLETED.equals(this.status)){
             throw new IllegalArgumentException("Import is already completed");
         }

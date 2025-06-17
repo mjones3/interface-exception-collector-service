@@ -42,7 +42,7 @@ class CancelImportUseCaseTest {
         CancelImportCommandInput input = new CancelImportCommandInput(importId,"EmployeeId");
         Import pendingImport = Mockito.mock(Import.class);
         when(pendingImport.getId()).thenReturn(importId);
-        when(pendingImport.cancel()).thenReturn(pendingImport);
+        when(pendingImport.validateCancel()).thenReturn(pendingImport);
 
         when(importRepository.findOneById(importId)).thenReturn(Mono.just(pendingImport));
         when(importRepository.deleteOneById(importId)).thenReturn(Mono.empty());
@@ -106,7 +106,7 @@ class CancelImportUseCaseTest {
         CancelImportCommandInput input = new CancelImportCommandInput(importId,"EmployeeId");
         Import pendingImport = Mockito.mock(Import.class);
         when(pendingImport.getId()).thenReturn(importId);
-        when(pendingImport.cancel()).thenReturn(pendingImport);
+        when(pendingImport.validateCancel()).thenReturn(pendingImport);
 
         when(importRepository.findOneById(importId))
             .thenReturn(Mono.just(pendingImport));

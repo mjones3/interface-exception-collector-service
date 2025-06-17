@@ -31,7 +31,7 @@ public class CancelImportUseCase implements CancelImportService {
     public Mono<UseCaseOutput<Void>> cancelImport(CancelImportCommandInput cancelImportCommandInput) {
         return importRepository.findOneById(cancelImportCommandInput.importId())
             .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", cancelImportCommandInput.importId()))))
-            .flatMap(pendingImport ->  importRepository.deleteOneById(pendingImport.cancel().getId()))
+            .flatMap(pendingImport ->  importRepository.deleteOneById(pendingImport.validateCancel().getId()))
             .then(Mono.fromCallable(() -> new UseCaseOutput<Void>(List.of(UseCaseNotificationOutput
                 .builder()
                 .useCaseMessage(
