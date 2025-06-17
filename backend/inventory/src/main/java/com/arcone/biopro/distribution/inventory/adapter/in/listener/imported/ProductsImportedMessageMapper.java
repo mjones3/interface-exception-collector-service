@@ -59,7 +59,7 @@ public interface ProductsImportedMessageMapper extends MessageMapper<ProductsImp
     }
 
     default Boolean getLicense(ProductsImported.ImportedProduct product) {
-        return Objects.nonNull(product.getProperties()) && "true".equals(product.getProperties().get("LICENSED"));
+        return Objects.nonNull(product.getProperties()) && "LICENSED".equals(product.getProperties().get("LICENSE_STATUS"));
     }
 
     default String extractDate(LocalDateTime date) {
