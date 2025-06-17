@@ -12,6 +12,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Data
 @Builder(toBuilder = true)
@@ -133,5 +134,8 @@ public class OrderEntity {
 
     @Column("modify_by_process")
     private String modifyByProcess;
+
+    @Column("transaction_id")
+    private UUID transactionId;
 
 }

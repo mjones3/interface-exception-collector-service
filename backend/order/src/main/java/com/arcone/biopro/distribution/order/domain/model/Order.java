@@ -33,6 +33,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.BACK_ORDER_CANNOT_BE_MODIFIED;
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.NO_ORDER_TO_BE_CANCELLED;
@@ -111,6 +112,9 @@ public class Order implements Validatable {
     private String modifiedByProcess;
     @Setter
     private String modifyReason;
+    
+    @Setter
+    private UUID transactionId;
 
     public Order(
         CustomerService customerService,
