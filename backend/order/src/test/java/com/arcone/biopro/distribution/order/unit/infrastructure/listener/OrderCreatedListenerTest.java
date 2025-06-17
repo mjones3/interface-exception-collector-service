@@ -38,6 +38,7 @@ class OrderCreatedListenerTest {
     @Test
     public void shouldHandleOrderCreatedEvents(){
         var order = Mockito.mock(Order.class);
+        var uuid = java.util.UUID.randomUUID();
         Mockito.when(order.getOrderStatus()).thenReturn(Mockito.mock(OrderStatus.class));
         Mockito.when(order.getOrderNumber()).thenReturn(Mockito.mock(OrderNumber.class));
         Mockito.when(order.getOrderExternalId()).thenReturn(Mockito.mock(OrderExternalId.class));
@@ -47,7 +48,7 @@ class OrderCreatedListenerTest {
         Mockito.when(order.getShippingMethod()).thenReturn(Mockito.mock(ShippingMethod.class));
         Mockito.when(order.getBillingCustomer()).thenReturn(Mockito.mock(OrderCustomer.class));
         Mockito.when(order.getShippingCustomer()).thenReturn(Mockito.mock(OrderCustomer.class));
-        Mockito.when(order.getTransactionId()).thenReturn(java.util.UUID.randomUUID());
+        Mockito.when(order.getTransactionId()).thenReturn(uuid);
 
         RecordMetadata meta = new RecordMetadata(new TopicPartition("TestTopic", 0), 0L, 0L, 0L, 0L, 0, 2);
         SenderResult senderResult = Mockito.mock(SenderResult.class);
