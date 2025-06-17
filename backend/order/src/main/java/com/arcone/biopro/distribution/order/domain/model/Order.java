@@ -112,7 +112,7 @@ public class Order implements Validatable {
     private String modifiedByProcess;
     @Setter
     private String modifyReason;
-    
+
     @Setter
     private UUID transactionId;
 
@@ -328,6 +328,7 @@ public class Order implements Validatable {
         order.setCancelReason(cancelOrderCommand.getReason());
         order.setModifiedByProcess(ModifyByProcess.USER.name());
         order.setModifyEmployeeId(cancelOrderCommand.getEmployeeId());
+        order.setTransactionId(cancelOrderCommand.getTransactionId());
     }
 
     public Order createBackOrder(String createEmployeeId,CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){
@@ -433,6 +434,7 @@ public class Order implements Validatable {
         updatedOrder.setModifyReason(modifyOrderCommand.getModifyReason());
         updatedOrder.setModifiedByProcess(modifyOrderCommand.getModifyByProcess().name());
         updatedOrder.setModifyEmployeeId(modifyOrderCommand.getModifyEmployeeCode());
+        updatedOrder.setTransactionId(modifyOrderCommand.getTransactionId());
 
         ofNullable(modifyOrderCommand.getOrderItems())
             .filter(orderItems -> !orderItems.isEmpty())
