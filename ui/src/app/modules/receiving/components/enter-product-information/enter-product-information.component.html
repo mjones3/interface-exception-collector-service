@@ -19,10 +19,9 @@
                 id="productInformationCancel"
                 btnId="productInformationCancelActionButton"
                 label="Cancel"
-                [disabled]="false"
                 color="secondary"
                 icon="heroicons_outline:x-circle"
-                (click)="onClickCancel()"
+                (clickEvent)="onClickCancel()"
             />
 
             <biopro-action-button
@@ -31,7 +30,7 @@
                 label="Submit"
                 [disabled]="!importData()?.canComplete"
                 color="primary"
-                (click) = "completeImport()"
+                (clickEvent) = "completeImport()"
                 icon="heroicons_outline:paper-airplane"
             />
         </div>
