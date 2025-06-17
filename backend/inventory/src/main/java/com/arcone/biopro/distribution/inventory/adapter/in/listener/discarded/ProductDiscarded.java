@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
     title = "ProductDiscarded",
     description = "Message for discarded product process"
 )
-public record ProductDiscardedMessage(
+public record ProductDiscarded(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 

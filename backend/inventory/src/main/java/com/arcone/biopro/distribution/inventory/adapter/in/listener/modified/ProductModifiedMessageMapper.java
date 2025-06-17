@@ -6,10 +6,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface ProductModifiedMessageMapper extends MessageMapper<ProductModifiedInput, ProductModifiedMessage> {
+public interface ProductModifiedMessageMapper extends MessageMapper<ProductModifiedInput, ProductModified> {
 
     @Mapping(target = "volume", source = "volume.value")
     @Mapping(target = "weight", source = "weight.value")
     @Mapping(target = "shortDescription", source = "productDescription")
-    ProductModifiedInput toInput(ProductModifiedMessage message);
+    ProductModifiedInput toInput(ProductModified message);
 }

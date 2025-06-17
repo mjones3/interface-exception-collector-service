@@ -1,5 +1,5 @@
 # Feature Unit Number reference:W777725015000
-@api @LAB-503
+@api @LAB-503 @cleanUpAll
 Feature: Product Imported event
     Rule: As an inventory service I want to listen to product imported event so that I can create the inventory and manage its statuses
         Scenario Outline: Create the imported inventory from Product Imported event.

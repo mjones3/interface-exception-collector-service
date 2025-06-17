@@ -31,9 +31,9 @@ spec:
             - name: MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED
               value: 'true'
             - name: SPRING_R2DBC_URL
-              value: 'r2dbc:postgresql://postgresql-service.db.svc.cluster.local:5432/inventory'
+              value: 'r2dbc:postgresql://postgresql-service.db.svc.cluster.local:5432/biopro'
             - name: SPRING_R2DBC_USERNAME
-              value: 'inventory'
+              value: 'biopro'
             - name: SPRING_R2DBC_PASSWORD
               value: 'biopro-password'
             - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI

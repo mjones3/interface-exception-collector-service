@@ -18,6 +18,11 @@
     "expirationDate":"05/07/2035",
     "expirationTime":"23:59",
     "modificationLocation":"1FS",
-    "modificationDate":"2025-05-09T18:30:17.640956Z"
+    "modificationDate":"2025-05-09T18:30:17.640956Z",
+    "modificationTimeZone": "UTC",
+    "properties":
+    {
+      "TIMEZONE_RELEVANT": "Y"
+    }
   }
 }

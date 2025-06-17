@@ -135,11 +135,12 @@ spring:
     graphiql:
       enabled: true
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/inventory?initialSize=20&maxSize=50&poolName=pool&registerJmx=true
-    username: inventory
+    url: r2dbc:postgresql://localhost:5432/biopro?initialSize=20&maxSize=50&poolName=pool&registerJmx=true
+    username: biopro
     password:
     properties:
       # Postgres properties
+      schema: inventory
       lock_timeout: 30000
       statement_timeout: 30000
       idle_in_transaction_session_timeout: 30000

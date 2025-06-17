@@ -10,14 +10,14 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
-public interface LabelAppliedMessageMapper extends MessageMapper<InventoryInput, LabelAppliedMessage> {
+public interface LabelAppliedMessageMapper extends MessageMapper<InventoryInput, LabelApplied> {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     @Mapping(target = "shortDescription", source = "productDescription")
     @Mapping(target = "inventoryLocation", source = "location")
     @Mapping(target = "collectionLocation", ignore = true)
     @Mapping(target = "collectionTimeZone", ignore = true)
-    InventoryInput toInput(LabelAppliedMessage message);
+    InventoryInput toInput(LabelApplied message);
 
     default  LocalDateTime toLocalDateTime(String dateTimeString) {
         if(dateTimeString == null) {

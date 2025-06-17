@@ -21,9 +21,9 @@ spec:
             - info
           env:
             - name: FLYWAY_URL
-              value: 'jdbc:postgresql://postgresql-service.db.svc.cluster.local:5432/inventory'
+              value: 'jdbc:postgresql://postgresql-service.db.svc.cluster.local:5432/biopro'
             - name: FLYWAY_USER
-              value: 'inventory'
+              value: 'biopro'
             - name: FLYWAY_PASSWORD
               value: 'biopro-password'
             - name: FLYWAY_DEFAULT_SCHEMA

@@ -1,5 +1,5 @@
-# Feature Unit Number reference: W036825013000
-@api @LAB-397 @skipOnPipeline
+# Feature Unit Number reference: W777725020000
+@api @LAB-397 @skipOnPipeline @cleanUpAll
 Feature: Recovered Plasma Carton Unpacked Event - API
     As an inventory service I want to update the status of an inventory after receiving an Recovered Plasma Carton Unpacked event.
 
@@ -18,5 +18,5 @@ Feature: Recovered Plasma Carton Unpacked Event - API
             | <Unit Number> | <Second Product Code> | AVAILABLE |
         Examples:
             | Carton Number | Unit Number   |  | First Product Code | Second Product Code |
-            | CN1001        | W036825013001 |  | E4689V00           | E4693V00            |
-            | CN1002        | W036825013002 |  | E1624VA0           | E070100             |
+            | CN1001        | W777725020001 |  | E4689V00           | E4693V00            |
+            | CN1002        | W777725020002 |  | E1624VA0           | E070100             |

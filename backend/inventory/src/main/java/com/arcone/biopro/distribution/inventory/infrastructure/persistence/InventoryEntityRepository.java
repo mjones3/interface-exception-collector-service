@@ -22,41 +22,51 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
     Mono<InventoryEntity> findByUnitNumberAndProductCodeLikeAndInventoryLocation(String unitNumber, String productCode, String inventoryLocation);
 
     @Query("""
-        SELECT COUNT(bld_inventory.id) FROM bld_inventory
-        WHERE bld_inventory.inventory_location = :location
-        AND bld_inventory.product_family = :productFamily
-        AND bld_inventory.abo_rh = ANY(CAST(:aboRh AS text[]))
-        AND bld_inventory.status = :inventoryStatus
-        AND (:temperatureCategory IS NULL OR bld_inventory.temperature_category = :temperatureCategory)
-        AND bld_inventory.expiration_date > :startDateTime
-        AND bld_inventory.is_labeled = true
-        AND bld_inventory.unsuitable_reason is null
-        AND (bld_inventory.quarantines is null OR jsonb_array_length(bld_inventory.quarantines) = 0)
+        SELECT COUNT(i.id) FROM bld_inventory AS i
+        LEFT JOIN bld_inventory_property AS p ON
+            p.inventory_id = i.id
+            AND p.key = 'TIMEZONE_RELEVANT'
+            AND p.value = 'Y'
+        WHERE i.inventory_location = :location
+        AND i.product_family = :productFamily
+        AND i.abo_rh = ANY(CAST(:aboRh AS text[]))
+        AND i.status = :inventoryStatus
+        AND (:temperatureCategory IS NULL OR i.temperature_category = :temperatureCategory)
+        AND ((p.id is null and Date(i.expiration_date) >= Date(now() AT TIME ZONE COALESCE(i.collection_timezone, 'UTC')))
+            OR (p.id is not null and i.expiration_date >= (now() AT TIME ZONE COALESCE(i.expiration_timezone, i.collection_timezone, 'UTC')))
+        )
+        AND i.is_labeled = true
+        AND i.unsuitable_reason is null
+        AND (i.quarantines is null OR jsonb_array_length(i.quarantines) = 0)
         """)
     Mono<Long> countBy(
         @Param("inventoryLocation") String location,
         @Param("productFamily") String productFamily,
         @Param("aboRh") String[] aboRh,
         @Param("inventoryStatus") InventoryStatus inventoryStatus,
-        @Param("temperatureCategory") String temperatureCategory,
-        @Param("startDateTime") LocalDateTime startDateTime
-    );
+        @Param("temperatureCategory") String temperatureCategory);
 
     Flux<InventoryEntity> findByUnitNumber(String unitNumber);
 
     @Query("""
-        SELECT * FROM bld_inventory
-        WHERE inventory_location = :location
-          AND bld_inventory.product_family = :productFamily
-          AND bld_inventory.abo_rh = ANY(CAST(:aboRh AS text[]))
-          AND bld_inventory.status = :inventoryStatus
-          AND (:temperatureCategory IS NULL OR bld_inventory.temperature_category = :temperatureCategory)
-          AND bld_inventory.expiration_date >= :startDateTime
-          AND bld_inventory.expiration_date <= :finalDateTime
-          AND bld_inventory.is_labeled = true
-          AND bld_inventory.unsuitable_reason is null
-          AND (bld_inventory.quarantines is null OR jsonb_array_length(bld_inventory.quarantines) = 0)
-        ORDER BY expiration_date ASC
+        SELECT * FROM bld_inventory AS i
+        LEFT JOIN bld_inventory_property AS p ON
+            p.inventory_id = i.id
+            AND p.key = 'TIMEZONE_RELEVANT'
+            AND p.value = 'Y'
+        WHERE i.inventory_location = :location
+          AND i.product_family = :productFamily
+          AND i.abo_rh = ANY(CAST(:aboRh AS text[]))
+          AND i.status = :inventoryStatus
+          AND (:temperatureCategory IS NULL OR i.temperature_category = :temperatureCategory)
+          AND ((p.id is null and Date(i.expiration_date) >= Date(now() AT TIME ZONE COALESCE(i.collection_timezone, 'UTC')))
+            OR (p.id is not null and i.expiration_date >= (now() AT TIME ZONE COALESCE(i.expiration_timezone, i.collection_timezone, 'UTC')))
+          )
+          AND DATE(i.expiration_date) <= DATE(:finalDateTime)
+          AND i.is_labeled = true
+          AND i.unsuitable_reason is null
+          AND (i.quarantines is null OR jsonb_array_length(i.quarantines) = 0)
+        ORDER BY i.expiration_date ASC
         """)
     Flux<InventoryEntity> findBy(
         @Param("inventoryLocation") String location,
@@ -64,7 +74,6 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
         @Param("aboRh") String[] aboRh,
         @Param("inventoryStatus") InventoryStatus inventoryStatus,
         @Param("temperatureCategory") String temperatureCategory,
-        @Param("startDateTime") LocalDateTime startDateTime,
         @Param("finalDateTime") LocalDateTime finalDateTime
     );
 }
