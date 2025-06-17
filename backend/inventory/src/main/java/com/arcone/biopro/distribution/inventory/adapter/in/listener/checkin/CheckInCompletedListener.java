@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public class CheckInCompletedListener extends AbstractListener<CheckInCompletedInput, InventoryOutput, CheckInCompletedMessage> {
+public class CheckInCompletedListener extends AbstractListener<CheckInCompletedInput, InventoryOutput, CheckInCompleted> {
 
     public CheckInCompletedListener(@Qualifier("CHECK_IN_COMPLETED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                     ObjectMapper objectMapper,
@@ -25,8 +25,8 @@ public class CheckInCompletedListener extends AbstractListener<CheckInCompletedI
     }
 
     @Override
-    protected TypeReference<EventMessage<CheckInCompletedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<CheckInCompletedMessage>>() {
+    protected TypeReference<EventMessage<CheckInCompleted>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<CheckInCompleted>>() {
         };
     }
 }

@@ -4,18 +4,17 @@ import lombok.Builder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(
-    name = "InventoryUpdatedEventPayload",
-    title = "InventoryUpdatedEventPayload",
+    name = "InventoryUpdated",
+    title = "InventoryUpdated",
     description = "Inventory Updated payload"
 )
 @Builder
-public record InventoryUpdatedEvent(
+public record InventoryUpdated(
     @Schema(
         name = "updateType",
         title = "Update Type",

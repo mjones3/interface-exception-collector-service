@@ -37,6 +37,13 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "productDescription", source = "shortDescription")
     public abstract InventoryOutput toOutput(Inventory domain);
 
+    @Mapping(target = "unitNumber", source = "domain.unitNumber.value")
+    @Mapping(target = "productCode", source = "domain.productCode.value")
+    @Mapping(target = "location", source = "domain.inventoryLocation")
+    @Mapping(target = "productDescription", source = "domain.shortDescription")
+    @Mapping(target = "expired", source = "isExpired")
+    public abstract InventoryOutput toOutput(Inventory domain, Boolean isExpired);
+
     @Mapping(target = "productFamily", source = "productFamily")
     @Mapping(target = "aboRh", source = "aboRh")
     @Mapping(target = "quantityAvailable", source = "quantity")
@@ -162,6 +169,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "modificationLocation", source = "productModifiedInput.modificationLocation")
     @Mapping(target = "productFamily", source = "productModifiedInput.productFamily")
     @Mapping(target = "productModificationDate", source = "productModifiedInput.modificationDate")
+    @Mapping(target = "expirationTimeZone", source = "productModifiedInput.modificationTimeZone")
     @Mapping(target = "volumes", expression = "java(buildVolume(productModifiedInput))")
     @Mapping(target = "isLabeled", expression = "java(java.lang.Boolean.FALSE)")
     @Mapping(target = "isLicensed", expression = "java(java.lang.Boolean.FALSE)")

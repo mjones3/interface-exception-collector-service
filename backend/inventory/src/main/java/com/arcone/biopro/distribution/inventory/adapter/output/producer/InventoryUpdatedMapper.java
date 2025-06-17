@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.inventory.adapter.output.producer;
 
-import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
+import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdated;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import org.mapstruct.Mapper;
@@ -31,7 +31,7 @@ public interface InventoryUpdatedMapper {
     @Mapping(target = "updateType", source = "updateType")
     @Mapping(target = "properties", expression = "java(getInventoryProperties(inventory))")
     @Mapping(target = "inputProducts", expression = "java(getInputProducts())")
-    InventoryUpdatedEvent toEvent(Inventory inventory, InventoryUpdateType updateType);
+    InventoryUpdated toEvent(Inventory inventory, InventoryUpdateType updateType);
 
     default String getStorageLocation(Inventory inventory) {
         return Optional.ofNullable(inventory)

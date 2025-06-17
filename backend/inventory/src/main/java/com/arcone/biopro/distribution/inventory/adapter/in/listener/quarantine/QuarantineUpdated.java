@@ -5,11 +5,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 
 @Schema(
-    name = "AddQuarantined",
-    title = "AddQuarantined",
-    description = "Message for adding product to quarantine"
+    name = "QuarantineUpdated",
+    title = "QuarantineUpdated",
+    description = "Message for updating quarantined product"
 )
-public record AddQuarantinedMessage(
+public record QuarantineUpdated(
     @Schema(description = "Quarantine identifier")
     Long id,
 
@@ -19,8 +19,8 @@ public record AddQuarantinedMessage(
     @Schema(description = "Product code")
     String productCode,
 
-    @Schema(description = "Reason for quarantine")
-    String reason,
+    @Schema(description = "New reason for quarantine")
+    String newReason,
 
     @Schema(description = "Additional comments")
     String comments,
@@ -28,10 +28,10 @@ public record AddQuarantinedMessage(
     @Schema(description = "Indicates if quarantine stops manufacturing process")
     Boolean stopsManufacturing,
 
-    @Schema(description = "User who performed the quarantine")
+    @Schema(description = "User who performed the quarantine update")
     String performedBy,
 
-    @Schema(description = "Date and time when quarantine was created")
+    @Schema(description = "Date and time when quarantine update was created")
     ZonedDateTime createDate
 ) {
 }

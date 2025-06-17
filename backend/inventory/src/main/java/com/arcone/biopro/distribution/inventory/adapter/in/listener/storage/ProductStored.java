@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
     title = "ProductStored",
     description = "Message for stored product"
 )
-public record ProductStoredMessage(
+public record ProductStored(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 

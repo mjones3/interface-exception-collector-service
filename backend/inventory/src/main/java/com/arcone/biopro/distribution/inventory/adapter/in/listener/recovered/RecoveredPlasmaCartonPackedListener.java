@@ -14,12 +14,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RecoveredPlasmaCartonPackedListener extends AbstractListener<RecoveredPlasmaCartonPackedInput, InventoryOutput, RecoveredPlasmaCartonPackedMessage> {
+public class RecoveredPlasmaCartonPackedListener extends AbstractListener<RecoveredPlasmaCartonPackedInput, InventoryOutput, RecoveredPlasmaCartonPacked> {
 
     public RecoveredPlasmaCartonPackedListener(
             @Qualifier("RECOVERED_PLASMA_CARTON_PACKED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
@@ -31,7 +30,7 @@ public class RecoveredPlasmaCartonPackedListener extends AbstractListener<Recove
     }
 
     @Override
-    protected TypeReference<EventMessage<RecoveredPlasmaCartonPackedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<RecoveredPlasmaCartonPackedMessage>>() {};
+    protected TypeReference<EventMessage<RecoveredPlasmaCartonPacked>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<RecoveredPlasmaCartonPacked>>() {};
     }
 }

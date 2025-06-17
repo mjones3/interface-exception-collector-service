@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RecoveredPlasmaCartonRemovedListener extends AbstractListener<RecoveredPlasmaCartonRemovedInput, InventoryOutput, RecoveredPlasmaCartonRemovedMessage> {
+public class RecoveredPlasmaCartonRemovedListener extends AbstractListener<RecoveredPlasmaCartonRemovedInput, InventoryOutput, RecoveredPlasmaCartonRemoved> {
 
     public RecoveredPlasmaCartonRemovedListener(
             @Qualifier("RECOVERED_PLASMA_CARTON_REMOVED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
@@ -30,7 +30,7 @@ public class RecoveredPlasmaCartonRemovedListener extends AbstractListener<Recov
     }
 
     @Override
-    protected TypeReference<EventMessage<RecoveredPlasmaCartonRemovedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<RecoveredPlasmaCartonRemovedMessage>>() {};
+    protected TypeReference<EventMessage<RecoveredPlasmaCartonRemoved>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<RecoveredPlasmaCartonRemoved>>() {};
     }
 }

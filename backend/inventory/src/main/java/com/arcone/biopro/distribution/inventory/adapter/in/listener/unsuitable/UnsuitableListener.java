@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public class UnsuitableListener extends AbstractListener<UnsuitableInput, Void, UnsuitableMessage> {
+public class UnsuitableListener extends AbstractListener<UnsuitableInput, Void, UnitUnsuitable> {
 
     public UnsuitableListener(@Qualifier("UNSUITABLE_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                               ObjectMapper objectMapper,
@@ -24,8 +24,8 @@ public class UnsuitableListener extends AbstractListener<UnsuitableInput, Void, 
     }
 
     @Override
-    protected TypeReference<EventMessage<UnsuitableMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<UnsuitableMessage>>() {
+    protected TypeReference<EventMessage<UnitUnsuitable>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<UnitUnsuitable>>() {
         };
     }
 }

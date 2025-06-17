@@ -36,7 +36,9 @@ public class GetInventoryByUnitNumberAndProductCodeUseCaseTest {
 
         when(repository.findByUnitNumberAndProductCode(unitNumber, productCode)).thenReturn(Mono.just(aggregate));
         when(aggregate.getInventory()).thenReturn(inventory);
-        when(mapper.toOutput(inventory)).thenReturn(expectedOutput);
+        when(aggregate.isExpired()).thenReturn(false);
+
+        when(mapper.toOutput(any(), anyBoolean())).thenReturn(expectedOutput);
 
         // Act
         Mono<InventoryOutput> result = useCase.execute(input);
@@ -47,8 +49,7 @@ public class GetInventoryByUnitNumberAndProductCodeUseCaseTest {
             .verifyComplete();
 
         verify(repository).findByUnitNumberAndProductCode(unitNumber, productCode);
-        verify(aggregate).getInventory();
-        verify(mapper).toOutput(inventory);
+        verify(mapper).toOutput(inventory, Boolean.FALSE);
     }
 
 }
