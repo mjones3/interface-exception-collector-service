@@ -17,8 +17,7 @@ import { catchError, combineLatestWith, EMPTY, first, map, Observable, switchMap
 import { CookieService } from 'ngx-cookie-service';
 import { ApolloError } from '@apollo/client';
 import {
-    ShippingInformationDTO,
-    TemperatureProductCategoryIconMap
+    ShippingInformationDTO
 } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
@@ -35,6 +34,7 @@ import {
 } from '../../validators/transit-time-form-group.validator';
 import { DateTime } from 'luxon';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
+import { TemperatureProductCategoryIconMap } from '../../models/product-information.dto';
 
 @Component({
   selector: 'biopro-imports-enter-shipment-information',
@@ -337,5 +337,4 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
         const [hours, minutes] = hh24mm60TimeSeparatedByColon.split(':');
         return DateTime.fromISO(date.toISODate()).set({ hour: +hours, minute: +minutes });
     }
-
 }

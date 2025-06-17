@@ -18,10 +18,15 @@ import { ToastrService } from 'ngx-toastr';
 import {
     AddImportItemRequestDTO,
     CompleteImportRequestDTO,
-    CreateImportResponsetDTO
+    CreateImportResponsetDTO,
+    licenseStatusCssMap,
+    quarantinedCssMap,
+    quarantinedValueMap,
+    temperatureProductCategoryCssMap,
+    TemperatureProductCategoryValueMap,
+    visualInspectionCssMap
 } from '../../models/product-information.dto';
 import { MatIcon } from '@angular/material/icon';
-import { licenseStatusCssMap, quarantinedCssMap, quarantinedValueMap, temperatureProductCategoryCssMap, TemperatureProductCategoryValueMap, visualInspectionCssMap } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import { snakeCase } from 'lodash';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { scannedValidatorStartWithAnd, scannedValidatorStartWithEqual } from 'app/shared/forms/biopro-validators';
