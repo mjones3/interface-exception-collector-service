@@ -111,11 +111,11 @@ export const defaultNavigation: FuseNavigationItem[] = [
         disabled: false,
     },
     {
-        id: 13,
+        id: 14,
         title: 'Imports',
         type: 'basic',
         link: 'receiving/imports-enter-shipment-information',
-        icon: 'local_shipping',
+        icon: 'download',
         disabled: false,
     },
 ];

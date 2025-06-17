@@ -1,0 +1,23 @@
+{
+  "eventId": "40849925-84d9-419e-baf6- 1d176e8701a8",
+  "occurredOn": "2024-09-03T10:36:07.282014483-03:00[America/Sao_Paulo]",
+  "eventType": "DeviceCreated",
+  "eventVersion": "1.0",
+  "payload": {
+    "id": "{DEVICE_ID}",
+    "serialNumber": "{DEVICE_SN}",
+    "name": "My Machine",
+    "deviceCategory": "{DEVICE_CATEGORY}",
+    "device": "{DEVICE_TYPE}",
+    "location": "{LOCATION}",
+    "locationTypes": ["lt13", "lt15"],
+    "deviceUses": ["INITIAL_FREEZER", "FREEZER"],
+    "status": "ACTIVE",
+    "reason": "NEW_DEVICE",
+    "comment": "Enter comment here KjPgO6fGJBjhd0BMTYHQ",
+    "buckets": 2,
+    "performedBy": "temp-user",
+    "createDate": 1725370567.2820551,
+    "requiresReagentsAndControls":false
+  }
+}

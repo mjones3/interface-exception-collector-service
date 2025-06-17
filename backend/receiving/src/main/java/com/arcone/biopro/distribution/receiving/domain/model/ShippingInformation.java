@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.receiving.domain.model;
 
+import com.arcone.biopro.distribution.receiving.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.LookupRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
 import lombok.AccessLevel;
@@ -9,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,8 +29,10 @@ public class ShippingInformation {
    private boolean displayTemperature;
    private List<Lookup> transitTimeZoneList;
    private List<Lookup> visualInspectionList;
+   private String defaultTimeZone;
 
-   public static  ShippingInformation fromNewImportBatch(EnterShippingInformationCommand enterShippingInformationCommand , LookupRepository lookupRepository , ProductConsequenceRepository productConsequenceRepository){
+
+   public static  ShippingInformation fromNewImportBatch(EnterShippingInformationCommand enterShippingInformationCommand , LookupRepository lookupRepository , ProductConsequenceRepository productConsequenceRepository , LocationRepository locationRepository){
 
        validateProductCategory(enterShippingInformationCommand,productConsequenceRepository);
 
@@ -41,6 +45,7 @@ public class ShippingInformation {
                .visualInspectionList(getVisualInspectionList(lookupRepository))
                .displayTransitInformation(requireTransitInformation)
                .displayTemperature(isTemperatureRequired(enterShippingInformationCommand.getProductCategory(), productConsequenceRepository))
+               .defaultTimeZone(getDefaultTimeZone(enterShippingInformationCommand.getLocationCode(),locationRepository,requireTransitInformation))
                .build();
    }
 
@@ -101,6 +106,30 @@ public class ShippingInformation {
 
        return productConsequence != null && !productConsequence.isEmpty();
    }
+
+   private static String getDefaultTimeZone(String locationCode , LocationRepository locationRepository, boolean transitTimeRequired){
+       if(transitTimeRequired){
+           if(locationRepository == null){
+               throw new IllegalArgumentException("LookupRepository is required");
+           }
+
+           var location = getLocation(locationCode,locationRepository);
+
+           return location.getTimeZone();
+       }else{
+           return null;
+       }
+   }
+
+    private static Location getLocation(String locationCode, LocationRepository locationRepository) {
+        if (locationRepository == null) {
+            throw new IllegalArgumentException("LocationRepository is required");
+        }
+
+        return locationRepository.findOneByCode(locationCode)
+            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Location is required")))
+            .block();
+    }
 
 
 }

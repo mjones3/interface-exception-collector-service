@@ -34,6 +34,7 @@ public class SharedContext {
     private List<Map> apiListMessageResponse; // message from the response "notifications"
     private List<Map> apiShipmentListResponse; // list of shipments inside 'data' from the previous response
     private Map findShipmentApiResponse; // response of findById request
+    private List<Map> apiMessageResponse;
 
     private Map apiErrorResponse;
 
@@ -54,6 +55,12 @@ public class SharedContext {
     private String initialShipmentDate;
     private String finalShipmentDate;
     private Map lastShipmentCloseResponse;
+    private String totalTransitTime;
+
+    // Batch data
+    private Map createImportResponse;
+    private Map createImportItemResponse;
+    private Map completeImportResponse;
 
 
     // RecoveredPlasmaCriteriaConfiguration
@@ -64,4 +71,6 @@ public class SharedContext {
     private Map lastUnacceptableUnitsReportResponse;
 
     private Map lastShippingSummaryReportResponse;
+
+    private String lastImportId;
 }
