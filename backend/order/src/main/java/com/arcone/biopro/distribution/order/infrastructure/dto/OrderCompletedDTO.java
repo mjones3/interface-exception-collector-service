@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 public record OrderCompletedDTO(
@@ -34,6 +35,7 @@ public record OrderCompletedDTO(
     String completeEmployeeId,
     ZonedDateTime completeDate,
     String completeComments,
+    UUID transactionId,
     List<OrderItemCompletedDTO> orderItems
 ) implements Serializable {
 }
