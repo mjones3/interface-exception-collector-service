@@ -35,6 +35,7 @@ public interface BioProConstants {
     String PROPERTIES = "properties";
     String LICENSURE = "LICENSURE";
     String LABELED = "LABELED";
+    String QUARANTINED = "QUARANTINED";
     String LICENSED = "LICENSED";
     String UNLICENSED = "UNLICENSED";
     String INVENTORY_STATUS = "inventoryStatus";

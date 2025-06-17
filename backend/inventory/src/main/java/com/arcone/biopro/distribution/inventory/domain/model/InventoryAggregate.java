@@ -87,7 +87,7 @@ public class InventoryAggregate {
     }
 
     public Boolean isQuarantined() {
-        return hasPropertyEquals(PropertyKey.QUARANTINED, "Y") || !inventory.getQuarantines().isEmpty();
+        return hasPropertyEquals(PropertyKey.QUARANTINED, "Y") || inventory.isQuarantined();
     }
 
     private List<NotificationMessage> createNotificationMessage() {
