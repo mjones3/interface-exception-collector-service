@@ -23,8 +23,7 @@ public class GetInventoryByUnitNumberAndProductCodeUseCase implements UseCase<Mo
     @Override
     public Mono<InventoryOutput> execute(GetInventoryByUnitNumberAndProductInput input) {
         return repository.findByUnitNumberAndProductCode(input.unitNumber(), input.productCode())
-            .map(InventoryAggregate::getInventory)
-            .map(mapper::toOutput);
+            .map(ia -> mapper.toOutput(ia.getInventory(), ia.isExpired()));
     }
 
 

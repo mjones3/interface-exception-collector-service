@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.application.dto;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 public record ProductModifiedInput(
     String unitNumber,
@@ -14,6 +14,8 @@ public record ProductModifiedInput(
     String modificationLocation,
     ZonedDateTime modificationDate,
     Integer volume,
-    Integer weight
+    Integer weight,
+    String modificationTimeZone,
+    Map<String, String> properties
     ) {
 }

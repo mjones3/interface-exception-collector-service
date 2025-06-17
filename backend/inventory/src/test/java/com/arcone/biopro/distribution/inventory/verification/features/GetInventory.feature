@@ -72,6 +72,32 @@ Feature: Get Inventory
 
 
 
+    @LAB-538
+    Scenario Outline: Inventory by Unit Number and Product Code is Expired
+        Given I have the following inventories:
+            | Unit Number   | Product Code | Location   | Status    | Collection Location | Collection TimeZone | Is Labeled | Expires In | Volumes                          | Timezone Relevant | Expiration Timezone |
+            | W777725016023 | E0869V00     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | 1 Days     | Anticoagulant - 50, Volume - 500 |                   |                     |
+            | W777725016024 | E0869V00     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | 1 Hours    | Anticoagulant - 50, Volume - 500 | Y                 | America/New_York    |
+            | W777725016025 | E0869V00     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | -1 Hours   | Anticoagulant - 50, Volume - 500 | Y                 | America/New_York    |
+            | W777725016026 | E0869V00     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | 1 Hours    | Anticoagulant - 50, Volume - 500 | Y                 | UTC                 |
+            | W777725016027 | E0869V00     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | -1 Hours   | Anticoagulant - 50, Volume - 500 | Y                 | UTC                 |
+
+
+        When I request a inventory with unit number "<Unit Number>" and product code "<Product Code>"
+        Then I receive the following from get inventory by unit number and Product Code:
+            | Unit Number   | Product Code   | Temperature Category   | Location   | Collection Location   | Collection TimeZone   | Volumes   | Expired   |
+            | <Unit Number> | <Product Code> | <Temperature Category> | <Location> | <Collection Location> | <Collection TimeZone> | <Volumes> | <Expired> |
+        Examples:
+            | Unit Number   | Product Code | Temperature Category | Location   | Volumes                          | Collection Location | Collection TimeZone | Expired |
+            | W777725016023 | E0869V00     | FROZEN               | LOCATION_1 | Anticoagulant - 50, Volume - 500 | LOCATION_1          | America/New_York    | False   |
+            | W777725016024 | E0869V00     | FROZEN               | LOCATION_1 | Anticoagulant - 50, Volume - 500 | LOCATION_1          | America/New_York    | False   |
+            | W777725016025 | E0869V00     | FROZEN               | LOCATION_1 | Anticoagulant - 50, Volume - 500 | LOCATION_1          | America/New_York    | True    |
+            | W777725016026 | E0869V00     | FROZEN               | LOCATION_1 | Anticoagulant - 50, Volume - 500 | LOCATION_1          | America/New_York    | False   |
+            | W777725016027 | E0869V00     | FROZEN               | LOCATION_1 | Anticoagulant - 50, Volume - 500 | LOCATION_1          | America/New_York    | True    |
+
+
+
+
 
 
 

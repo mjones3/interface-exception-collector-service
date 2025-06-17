@@ -7,12 +7,11 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -82,6 +81,8 @@ public class Inventory {
 
     ZonedDateTime productModificationDate;
 
+    String expirationTimeZone;
+
 
     @Builder.Default
     List<Volume> volumes = new ArrayList<>();
@@ -138,8 +139,27 @@ public class Inventory {
         volumes.add(new Volume(type, value, unit));
     }
 
-    public Boolean isExpired() {
-        return expirationDate != null && expirationDate.isBefore(LocalDateTime.now());
+    public Boolean isExpired(Boolean isTimeZone) {
+
+        if(expirationDate == null) {
+            return false;
+        }
+
+        if (isTimeZone) {
+            return expirationDate.isBefore(LocalDateTime.now(getZoneId()));
+        }
+
+        return expirationDate.toLocalDate().isBefore(LocalDate.now(ZoneId.of(collectionTimeZone == null ? "UTC" : collectionTimeZone)));
+    }
+
+    private ZoneId getZoneId() {
+        if (Objects.nonNull(expirationTimeZone)) {
+            return ZoneId.of(expirationTimeZone);
+        }
+        if (Objects.nonNull(collectionTimeZone)) {
+            return ZoneId.of(collectionTimeZone);
+        }
+        return ZoneId.of("UTC");
     }
 
 }

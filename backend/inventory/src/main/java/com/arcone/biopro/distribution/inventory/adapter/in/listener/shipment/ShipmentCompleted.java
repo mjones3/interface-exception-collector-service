@@ -10,7 +10,7 @@ import java.util.List;
     title = "ShipmentCompleted",
     description = "Message for completed shipment"
 )
-public record ShipmentCompletedMessage(
+public record ShipmentCompleted(
     @Schema(description = "Shipment identifier")
     String shipmentId,
 

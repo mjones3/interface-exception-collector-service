@@ -9,7 +9,7 @@ import java.util.List;
     title = "RecoveredPlasmaShipmentClosed",
     description = "Message for closed recovered plasma shipment"
 )
-public record RecoveredPlasmaShipmentClosedMessage(
+public record RecoveredPlasmaShipmentClosed(
     @Schema(description = "Shipment number identifier")
     String shipmentNumber,
 

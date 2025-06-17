@@ -20,9 +20,9 @@ spec:
           image: postgres:16
           env:
             - name: POSTGRES_DB
-              value: inventory
+              value: biopro
             - name: POSTGRES_USER
-              value: inventory
+              value: biopro
             - name: POSTGRES_PASSWORD
               value: biopro-password
             - name: POSTGRES_HOST_AUTH_METHOD

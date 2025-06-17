@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
     title = "CheckInCompleted",
     description = "Message for completed check-in process"
 )
-public record CheckInCompletedMessage(
+public record CheckInCompleted(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 

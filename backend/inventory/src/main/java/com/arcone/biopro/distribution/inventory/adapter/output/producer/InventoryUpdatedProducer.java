@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.adapter.output.producer;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
-import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
+import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdated;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InventoryUpdatedProducer {
 
-    final ReactiveKafkaProducerTemplate<String, EventMessage<InventoryUpdatedEvent>> producerInventoryUpdatedTemplate;
+    final ReactiveKafkaProducerTemplate<String, EventMessage<InventoryUpdated>> producerInventoryUpdatedTemplate;
 
     final InventoryUpdatedMapper mapper;
 

@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class AddQuarantinedListener extends AbstractListener<AddQuarantineInput, InventoryOutput, AddQuarantinedMessage> {
+public class AddQuarantinedListener extends AbstractListener<AddQuarantineInput, InventoryOutput, ProductQuarantined> {
 
     public AddQuarantinedListener(@Qualifier("PRODUCT_ADD_QUARANTINED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                   ObjectMapper objectMapper,
@@ -31,7 +30,7 @@ public class AddQuarantinedListener extends AbstractListener<AddQuarantineInput,
     }
 
     @Override
-    protected TypeReference<EventMessage<AddQuarantinedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<AddQuarantinedMessage>>() {};
+    protected TypeReference<EventMessage<ProductQuarantined>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<ProductQuarantined>>() {};
     }
 }

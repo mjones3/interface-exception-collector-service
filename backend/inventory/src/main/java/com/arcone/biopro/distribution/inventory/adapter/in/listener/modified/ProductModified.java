@@ -5,13 +5,14 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.Valu
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 @Schema(
     name = "ProductModified",
     title = "ProductModified",
     description = "Message for modified product process"
 )
-public record ProductModifiedMessage(
+public record ProductModified(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 
@@ -43,6 +44,12 @@ public record ProductModifiedMessage(
     Volume volume,
 
     @Schema(description = "Weight of the product")
-    ValueUnit weight
+    ValueUnit weight,
+
+    @Schema(description = "Modification Location Time Zone")
+    String modificationTimeZone,
+
+    @Schema(description = "Additional properties for the product")
+    Map<String, String> properties
 ) {
 }

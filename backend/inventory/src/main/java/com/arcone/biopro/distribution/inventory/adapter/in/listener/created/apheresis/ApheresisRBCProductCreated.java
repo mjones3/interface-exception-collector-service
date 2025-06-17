@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.inventory.adapter.in.listener.created.wholeblood;
+package com.arcone.biopro.distribution.inventory.adapter.in.listener.created.apheresis;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
@@ -9,11 +9,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Schema(
-    name = "WholeBloodProductCreated",
-    title = "WholeBloodProductCreated",
-    description = "Whole Blood Product Created Event"
+    name = "ApheresisRBCProductCreated",
+    title = "ApheresisRBCProductCreated",
+    description = "Apheresis RBC Product Created Event"
 )
-public record WholeBloodProductCreatedMessage(
+public record ApheresisRBCProductCreated(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 

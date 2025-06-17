@@ -56,7 +56,7 @@ class GetAllAvailableInventoriesUseCaseTest {
             .thenReturn(Mono.just(1L));
         when(mapper.toOutput(any(), any(), any(), any()))
             .thenReturn(inventoryFamily);
-        when(mapper.toOutput(any(), any())).thenReturn(expectedOutput);
+        when(mapper.toOutput(anyString(), any())).thenReturn(expectedOutput);
 
         Mono<GetAllAvailableInventoriesOutput> result = useCase.execute(input);
 
@@ -72,7 +72,7 @@ class GetAllAvailableInventoriesUseCaseTest {
         GetAllAvailableInventoriesInput input = new GetAllAvailableInventoriesInput(location, Collections.emptyList());
         GetAllAvailableInventoriesOutput expectedOutput = new GetAllAvailableInventoriesOutput(location, Collections.emptyList());
 
-        when(mapper.toOutput(any(), any())).thenReturn(expectedOutput);
+        when(mapper.toOutput(anyString(), any())).thenReturn(expectedOutput);
 
         Mono<GetAllAvailableInventoriesOutput> result = useCase.execute(input);
 
