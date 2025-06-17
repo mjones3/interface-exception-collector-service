@@ -57,6 +57,7 @@ public class OrderRejectedListener {
             .externalId(event.getPayload().externalId())
             .rejectedReason(event.getPayload().errorMessage())
             .operation(event.getPayload().operation())
+            .transactionId(event.getPayload().transactionId())
             .build());
         var producerRecord = new ProducerRecord<>(topicName, String.format("%s", message.getEventId()), message);
         producerTemplate.send(producerRecord)
