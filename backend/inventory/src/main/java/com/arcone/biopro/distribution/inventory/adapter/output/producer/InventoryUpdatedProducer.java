@@ -36,7 +36,7 @@ public class InventoryUpdatedProducer {
                     event.inventory().getUnitNumber().value(),
                     event.inventory().getProductCode().value(),
                     event.inventoryUpdateType().name(),
-                    senderResult.recordMetadata()))
+                    message))
                 .subscribe();
         }
     }
