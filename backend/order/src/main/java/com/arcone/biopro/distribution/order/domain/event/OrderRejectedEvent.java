@@ -12,10 +12,10 @@ public class OrderRejectedEvent implements DomainEvent {
     private final static String eventType = "OrderRejected";
     private OrderRejectedPayload payload;
 
-    public OrderRejectedEvent (String externalId, String errorMessage , String operation){
+    public OrderRejectedEvent (String externalId, String errorMessage , String operation, UUID transactionId){
         this.eventId = UUID.randomUUID();
         this.occurredOn = Instant.now();
-        this.payload = new OrderRejectedPayload(errorMessage,externalId,operation);
+        this.payload = new OrderRejectedPayload(errorMessage,externalId,operation, transactionId);
     }
 
     @Override
@@ -46,7 +46,8 @@ public class OrderRejectedEvent implements DomainEvent {
     public record OrderRejectedPayload(
         String errorMessage,
         String externalId,
-        String operation
+        String operation,
+        UUID transactionId
     ) implements Serializable {
 
     }

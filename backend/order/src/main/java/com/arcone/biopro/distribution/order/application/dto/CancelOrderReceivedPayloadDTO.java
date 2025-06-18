@@ -11,7 +11,8 @@ public record CancelOrderReceivedPayloadDTO(
     String externalId,
     String cancelDate,
     String cancelEmployeeCode,
-    String cancelReason
+    String cancelReason,
+    UUID transactionId
 
 ) implements Serializable {
 }

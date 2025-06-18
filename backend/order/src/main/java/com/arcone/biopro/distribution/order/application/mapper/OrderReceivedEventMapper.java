@@ -50,6 +50,7 @@ public class OrderReceivedEventMapper {
                 orderReceivedEventPayloadDTO.createDate(),
                 null,
                 null);
+            order.setTransactionId(orderReceivedEventPayloadDTO.transactionId());
 
             ofNullable(orderReceivedEventPayloadDTO.orderItems())
                 .filter(orderItems -> !orderItems.isEmpty())

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Schema(
     name = "OrderModifiedPayload",
@@ -174,6 +175,13 @@ public record OrderModifiedDTO(
         example = "Customer Request",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    String modifyReason
+    String modifyReason,
+    @Schema(
+        title = "Transaction ID",
+        description = "The unique transaction identifier",
+        example = "123e4567-e89b-12d3-a456-426614174000",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    UUID transactionId
 ) implements Serializable {
 }

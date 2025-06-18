@@ -79,6 +79,7 @@ public class OrderCancelledListener {
             .cancelDate(order.getCancelDate())
             .cancelEmployeeId(order.getCancelEmployeeId())
             .cancelReason(order.getCancelReason())
+            .transactionId(order.getTransactionId())
             .orderItems(order.getOrderItems().stream().map(orderItem -> OrderItemCancelledDTO.builder()
                 .productFamily(orderItem.getProductFamily().getProductFamily())
                 .quantity(orderItem.getQuantity())

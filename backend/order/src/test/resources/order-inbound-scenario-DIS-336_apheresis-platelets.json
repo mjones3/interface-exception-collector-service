@@ -18,6 +18,7 @@
     "shippingCustomerCode": "A1235",
     "billingCustomerCode": "A1235",
     "comments": "string",
+    "transactionId": "94d9f7b8-95bf-4a56-8922-1111ecd5a353",
     "orderItems": [
       {
         "productFamily": "APHERESIS_PLATELETS_LEUKOREDUCED",

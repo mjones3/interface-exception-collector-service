@@ -33,6 +33,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.BACK_ORDER_CANNOT_BE_MODIFIED;
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.NO_ORDER_TO_BE_CANCELLED;
@@ -111,6 +112,9 @@ public class Order implements Validatable {
     private String modifiedByProcess;
     @Setter
     private String modifyReason;
+
+    @Setter
+    private UUID transactionId;
 
     public Order(
         CustomerService customerService,
@@ -324,6 +328,7 @@ public class Order implements Validatable {
         order.setCancelReason(cancelOrderCommand.getReason());
         order.setModifiedByProcess(ModifyByProcess.USER.name());
         order.setModifyEmployeeId(cancelOrderCommand.getEmployeeId());
+        order.setTransactionId(cancelOrderCommand.getTransactionId());
     }
 
     public Order createBackOrder(String createEmployeeId,CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){
@@ -429,6 +434,7 @@ public class Order implements Validatable {
         updatedOrder.setModifyReason(modifyOrderCommand.getModifyReason());
         updatedOrder.setModifiedByProcess(modifyOrderCommand.getModifyByProcess().name());
         updatedOrder.setModifyEmployeeId(modifyOrderCommand.getModifyEmployeeCode());
+        updatedOrder.setTransactionId(modifyOrderCommand.getTransactionId());
 
         ofNullable(modifyOrderCommand.getOrderItems())
             .filter(orderItems -> !orderItems.isEmpty())

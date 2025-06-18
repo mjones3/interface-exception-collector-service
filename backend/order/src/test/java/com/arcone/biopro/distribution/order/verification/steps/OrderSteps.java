@@ -187,10 +187,12 @@ public class OrderSteps {
 
     @Then("A biopro Order will be available in the Distribution local data store.")
     public void checkOrderExists() {
-        var query = DatabaseQueries.countOrdersByExternalId(context.getExternalId());
-        var data = databaseService.fetchData(query);
-        var records = data.first().block();
-        Assert.assertEquals(1L, records.get("count"));
+        var query = DatabaseQueries.getOrderId(context.getExternalId());
+        var orderIdData = databaseService.fetchData(query);
+        var orderId = Integer.valueOf(orderIdData.first().block().get("id").toString());
+        orderController.getOrderDetails(orderId);
+        var order = context.getOrderDetails();
+        Assert.assertNotNull(order.get("transactionId"));
     }
 
     @Then("A biopro Order {string} be available in the Distribution local data store.")
@@ -914,10 +916,12 @@ public class OrderSteps {
             Assert.assertNotNull(context.getOrderDetails().get("cancelEmployeeId"));
             Assert.assertNotNull(context.getOrderDetails().get("cancelReason"));
             Assert.assertNotNull(context.getOrderDetails().get("cancelDate"));
+            Assert.assertNotNull(context.getOrderDetails().get("transactionId"));
         } else if (isShould.equalsIgnoreCase("should not")) {
             Assert.assertNull(context.getOrderDetails().get("cancelEmployeeId"));
             Assert.assertNull(context.getOrderDetails().get("cancelReason"));
             Assert.assertNull(context.getOrderDetails().get("cancelDate"));
+            Assert.assertNull(context.getOrderDetails().get("transactionId"));
         } else {
             Assert.fail("Invalid option for cancel details.");
         }
@@ -1103,6 +1107,7 @@ public class OrderSteps {
                 productFamilyList,
                 bloodTypeList,
                 quantityList,
+                table.row(i).get(headers.indexOf("Transaction Id")),
                 "modify-order-valid-request.json",
                 "modify-order-item.json"
             );
@@ -1129,6 +1134,7 @@ public class OrderSteps {
             var locationCode = row.get(headers.indexOf("Location Code"));
             var shouldBeFound = row.get(headers.indexOf("Should be Found?"));
             var shouldBeUpdated = row.get(headers.indexOf("Should be Updated?"));
+            var expectedTransactionId = row.get(headers.indexOf("Expected Transaction Id"));
 
             var orderDetails = orderController.getOrderDetailsMap(orderIdMap.get(externalId));
             if (shouldBeFound.equalsIgnoreCase("yes")) {
@@ -1140,6 +1146,7 @@ public class OrderSteps {
                     Assert.assertEquals(orderDetails.get("priority"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Delivery Type")));
                     Assert.assertEquals(orderDetails.get("productCategory"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Category")));
                     Assert.assertEquals(orderDetails.get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
+                    Assert.assertEquals(orderDetails.get("transactionId"), expectedTransactionId);
                     // Validate order items data
                     var productFamilyList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Family")));
                     Arrays.sort(productFamilyList);

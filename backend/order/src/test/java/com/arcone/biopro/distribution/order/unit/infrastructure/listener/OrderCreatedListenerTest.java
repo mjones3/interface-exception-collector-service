@@ -38,6 +38,7 @@ class OrderCreatedListenerTest {
     @Test
     public void shouldHandleOrderCreatedEvents(){
         var order = Mockito.mock(Order.class);
+        var uuid = java.util.UUID.randomUUID();
         Mockito.when(order.getOrderStatus()).thenReturn(Mockito.mock(OrderStatus.class));
         Mockito.when(order.getOrderNumber()).thenReturn(Mockito.mock(OrderNumber.class));
         Mockito.when(order.getOrderExternalId()).thenReturn(Mockito.mock(OrderExternalId.class));
@@ -47,6 +48,7 @@ class OrderCreatedListenerTest {
         Mockito.when(order.getShippingMethod()).thenReturn(Mockito.mock(ShippingMethod.class));
         Mockito.when(order.getBillingCustomer()).thenReturn(Mockito.mock(OrderCustomer.class));
         Mockito.when(order.getShippingCustomer()).thenReturn(Mockito.mock(OrderCustomer.class));
+        Mockito.when(order.getTransactionId()).thenReturn(uuid);
 
         RecordMetadata meta = new RecordMetadata(new TopicPartition("TestTopic", 0), 0L, 0L, 0L, 0L, 0, 2);
         SenderResult senderResult = Mockito.mock(SenderResult.class);
@@ -55,6 +57,11 @@ class OrderCreatedListenerTest {
 
         target.handleOrderCreatedEvent(new OrderCreatedEvent(order));
 
-        Mockito.verify(producerTemplate).send(Mockito.any(ProducerRecord.class));
+        var recordCaptor = org.mockito.ArgumentCaptor.forClass(ProducerRecord.class);
+        Mockito.verify(producerTemplate).send(recordCaptor.capture());
+
+        OrderCreatedDTO capturedValue = (OrderCreatedDTO) recordCaptor.getValue().value();
+        org.junit.jupiter.api.Assertions.assertEquals(uuid, capturedValue.transactionId(),
+            "The transactionId in the produced record should match the original order's transactionId");
     }
 }
