@@ -39,6 +39,5 @@ public class OrderFulfilledDTO implements Serializable {
     private String comments;
     private String departmentName;
     private String departmentCode;
-    private UUID transactionId;
     private List<OrderFulfilledItemDTO> items;
 }
