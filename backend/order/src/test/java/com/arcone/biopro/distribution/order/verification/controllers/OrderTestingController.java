@@ -188,8 +188,10 @@ public class OrderTestingController {
         String[] productFamilyList,
         String[] bloodTypeList,
         String[] quantityList,
+        String transactionId,
         String modifyPayload,
-        String modifyItemsPayload) throws Exception {
+        String modifyItemsPayload
+       ) throws Exception {
 
         // Prepare items string object
         StringBuilder orderItems = new StringBuilder();
@@ -216,7 +218,9 @@ public class OrderTestingController {
             .replace("{MODIFY_REASON}", modifyReason)
             .replace("{MODIFY_DATE}", modifyDate)
             .replace("{ORDER_ITEMS}", orderItems.toString())
-            .replace("{EVENT_ID}", UUID.randomUUID().toString());
+            .replace("{EVENT_ID}", UUID.randomUUID().toString())
+            .replace("{TRANSACTION_ID}", transactionId)
+        ;
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
