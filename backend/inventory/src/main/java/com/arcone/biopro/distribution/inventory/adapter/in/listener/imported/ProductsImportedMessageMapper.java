@@ -14,13 +14,13 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Mapper(componentModel = "spring")
-public interface ProductsImportedMessageMapper extends MessageMapper<ProductsImportedInput, ProductsImportedMessage> {
+public interface ProductsImportedMessageMapper extends MessageMapper<ProductsImportedInput, ProductsImported> {
 
 
     @Mapping(target = "products", expression = "java(toProductCreatedInputList(message))")
-    ProductsImportedInput toInput(ProductsImportedMessage message);
+    ProductsImportedInput toInput(ProductsImported message);
 
-    default List<ProductCreatedInput> toProductCreatedInputList(ProductsImportedMessage message) {
+    default List<ProductCreatedInput> toProductCreatedInputList(ProductsImported message) {
         return message.getProducts().stream().map(p -> this.toProductCreatedInput(message, p))
             .toList();
     }
@@ -42,10 +42,10 @@ public interface ProductsImportedMessageMapper extends MessageMapper<ProductsImp
     @Mapping(target = "inputProducts", ignore = true)
     @Mapping(target = "quarantines", source = "product.consequences")
     @Mapping(target = "licensed", expression = "java(getLicense(product))")
-    ProductCreatedInput toProductCreatedInput(ProductsImportedMessage message, ProductsImportedMessage.ImportedProduct product);
+    ProductCreatedInput toProductCreatedInput(ProductsImported message, ProductsImported.ImportedProduct product);
 
 
-    default List<AddQuarantineInput> toAddQuarantineInput(List<ProductsImportedMessage.ImportedConsequence> consequences) {
+    default List<AddQuarantineInput> toAddQuarantineInput(List<ProductsImported.ImportedConsequence> consequences) {
         if (consequences == null) {
             return null;
         }
@@ -58,8 +58,8 @@ public interface ProductsImportedMessageMapper extends MessageMapper<ProductsImp
             .toList();
     }
 
-    default Boolean getLicense(ProductsImportedMessage.ImportedProduct product) {
-        return Objects.nonNull(product.getProperties()) && "true".equals(product.getProperties().get("LICENSED"));
+    default Boolean getLicense(ProductsImported.ImportedProduct product) {
+        return Objects.nonNull(product.getProperties()) && "LICENSED".equals(product.getProperties().get("LICENSE_STATUS"));
     }
 
     default String extractDate(LocalDateTime date) {

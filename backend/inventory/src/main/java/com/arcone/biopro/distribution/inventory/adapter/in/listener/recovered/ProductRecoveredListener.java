@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ProductRecoveredListener extends AbstractListener<ProductRecoveredInput, InventoryOutput, ProductRecoveredMessage> {
+public class ProductRecoveredListener extends AbstractListener<ProductRecoveredInput, InventoryOutput, ProductRecovered> {
 
 
     public ProductRecoveredListener(@Qualifier("PRODUCT_RECOVERED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
@@ -31,7 +31,7 @@ public class ProductRecoveredListener extends AbstractListener<ProductRecoveredI
     }
 
     @Override
-    protected TypeReference<EventMessage<ProductRecoveredMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<ProductRecoveredMessage>>() {};
+    protected TypeReference<EventMessage<ProductRecovered>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<ProductRecovered>>() {};
     }
 }

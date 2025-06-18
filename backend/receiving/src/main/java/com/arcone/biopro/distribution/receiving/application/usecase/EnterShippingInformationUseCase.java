@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.receiving.application.dto.UseCaseOutput;
 import com.arcone.biopro.distribution.receiving.application.mapper.ShippingInformationOutputMapper;
 import com.arcone.biopro.distribution.receiving.domain.model.EnterShippingInformationCommand;
 import com.arcone.biopro.distribution.receiving.domain.model.ShippingInformation;
+import com.arcone.biopro.distribution.receiving.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.LookupRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
 import com.arcone.biopro.distribution.receiving.domain.service.ShippingInformationService;
@@ -29,11 +30,12 @@ public class EnterShippingInformationUseCase implements ShippingInformationServi
     private final ProductConsequenceRepository productConsequenceRepository;
     private final LookupRepository lookupRepository;
     private final ShippingInformationOutputMapper shippingInformationOutputMapper;
+    private final LocationRepository locationRepository;
 
     @Override
     public Mono<UseCaseOutput<ShippingInformationOutput>> enterShippingInformation(EnterShippingInformationCommandInput enterShippingInformationCommandInput) {
         return Mono.fromCallable(() -> ShippingInformation.fromNewImportBatch(new EnterShippingInformationCommand(enterShippingInformationCommandInput.productCategory()
-                , enterShippingInformationCommandInput.employeeId() , enterShippingInformationCommandInput.locationCode()),lookupRepository,productConsequenceRepository))
+                , enterShippingInformationCommandInput.employeeId() , enterShippingInformationCommandInput.locationCode()),lookupRepository,productConsequenceRepository,locationRepository))
             .subscribeOn(Schedulers.boundedElastic())
             .flatMap(shippingInformation -> Mono.just(new UseCaseOutput<>(Collections.emptyList(), shippingInformationOutputMapper.mapToOutput(shippingInformation), null)))
             .onErrorResume(error -> {

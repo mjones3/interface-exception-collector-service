@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725011000
-@api @LAB-79 @AOA-75 @LAB-254
+@api @LAB-79 @AOA-75 @LAB-254 @cleanUpAll
 Feature: Remove Quarantine Event - API
     As a lab specialist I want the system is able to restore the previous inventory status after receiving a Remove Quarantine event.
 

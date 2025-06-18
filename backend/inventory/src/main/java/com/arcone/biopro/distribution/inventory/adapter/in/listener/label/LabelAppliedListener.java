@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class LabelAppliedListener extends AbstractListener<InventoryInput, InventoryOutput, LabelAppliedMessage> {
+public class LabelAppliedListener extends AbstractListener<InventoryInput, InventoryOutput, LabelApplied> {
 
     public LabelAppliedListener(@Qualifier("LABEL_APPLIED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                 ObjectMapper objectMapper,
@@ -30,7 +30,7 @@ public class LabelAppliedListener extends AbstractListener<InventoryInput, Inven
     }
 
     @Override
-    protected TypeReference<EventMessage<LabelAppliedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<LabelAppliedMessage>>() {};
+    protected TypeReference<EventMessage<LabelApplied>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<LabelApplied>>() {};
     }
 }

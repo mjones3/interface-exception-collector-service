@@ -137,6 +137,9 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @Column("product_modification_date")
     ZonedDateTime productModificationDate;
 
+    @Column("expiration_timezone")
+    String expirationTimeZone;
+
     @Column("volumes")
     List<Volume> volumes;
 

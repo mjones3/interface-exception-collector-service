@@ -1,4 +1,4 @@
-import { CommonModule, formatDate, JsonPipe } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import {
     Component,
     inject,

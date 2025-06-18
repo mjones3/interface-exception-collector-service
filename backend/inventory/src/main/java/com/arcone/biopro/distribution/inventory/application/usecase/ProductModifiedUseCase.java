@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutp
 import com.arcone.biopro.distribution.inventory.application.service.ConfigurationService;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.PropertyKey;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class ProductModifiedUseCase implements UseCase<Mono<InventoryOutput>, Pr
             .flatMap(parentAggregate -> inventoryAggregateRepository.saveInventory(parentAggregate.modifyProduct()))
             .map(parentAggregate -> mapper.toAggregate(input, parentAggregate.getInventory()))
             .flatMap(this::updateTemperatureCategory)
+            .map(aggregate ->  this.updateProperties(input, aggregate))
             .flatMap(inventoryAggregateRepository::saveInventory)
             .map(InventoryAggregate::getInventory)
             .map(mapper::toOutput);
@@ -45,5 +47,16 @@ public class ProductModifiedUseCase implements UseCase<Mono<InventoryOutput>, Pr
         return configurationService.lookUpTemperatureCategory(aggregate.getInventory().getProductCode().value())
             .map(aggregate::updateTemperatureCategory)
             .switchIfEmpty(Mono.just(aggregate));
+    }
+
+    private InventoryAggregate updateProperties(ProductModifiedInput input, InventoryAggregate aggregate) {
+        if (input.properties() != null && input.properties().containsKey(PropertyKey.TIMEZONE_RELEVANT.name())) {
+            String value = input.properties().get(PropertyKey.TIMEZONE_RELEVANT.name());
+            if ("Y".equals(value)) {
+                aggregate.addTimezoneRelevantFlag();
+            }
+        }
+
+        return aggregate;
     }
 }

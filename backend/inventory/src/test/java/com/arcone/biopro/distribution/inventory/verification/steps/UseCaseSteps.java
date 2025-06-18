@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImported;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessageMapper;
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
@@ -23,10 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -183,9 +180,9 @@ public class UseCaseSteps {
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> product : products) {
 
-            List<ProductsImportedMessage.ImportedConsequence> consequences = null;
+            List<ProductsImported.ImportedConsequence> consequences = null;
             if (product.get("Quarantines") != null) {
-                consequences = List.of(ProductsImportedMessage.ImportedConsequence.builder()
+                consequences = List.of(ProductsImported.ImportedConsequence.builder()
                     .consequenceType("QUARANTINE")
                     .consequenceReasons(Arrays.stream(product.get("Quarantines").split(",")).map(String::trim).toList())
                     .build());
@@ -193,11 +190,11 @@ public class UseCaseSteps {
             }
 
             Map<String, String> properties = null;
-            if(product.get("Licensed") != null) {
-                properties = Map.of("LICENSED", product.get("Licensed"));
+            if(product.get("Licensed") != null && product.get("Licensed").equals("true")) {
+                properties = Map.of("LICENSE_STATUS", "LICENSED");
             }
 
-            ProductsImportedMessage.ImportedProduct importedProduct = ProductsImportedMessage.ImportedProduct.builder()
+            ProductsImported.ImportedProduct importedProduct = ProductsImported.ImportedProduct.builder()
                 .unitNumber(product.get("Unit Number"))
                 .productCode(product.get("Product Code"))
                 .aboRh(AboRhType.valueOf(product.get("Abo Rh")))
@@ -207,7 +204,7 @@ public class UseCaseSteps {
                 .consequences(consequences)
                 .properties(properties)
                 .build();
-            ProductsImportedMessage message = ProductsImportedMessage.builder()
+            ProductsImported message = ProductsImported.builder()
                 .products(List.of(importedProduct))
                 .temperatureCategory(product.get("Temperature Category"))
                 .locationCode(product.get("Location"))
@@ -468,6 +465,7 @@ public class UseCaseSteps {
             String expirationTime = product.get("Expiration Time");
             String modificationLocation = product.get("Modification Location");
             String modificationDateStr = product.get("Modification Date");
+            String modificationTimeZone = product.get("Modification Time Zone");
             Integer volume = null;
             Integer weight = null;
 
@@ -478,7 +476,10 @@ public class UseCaseSteps {
             if (product.containsKey("Weight")) {
                 weight = Integer.valueOf(product.get("Weight"));
             }
-
+            Map<String, String> properties = new HashMap<>();
+            if (product.get("Properties") != null) {
+                properties.put(product.get("Properties").split("=")[0], product.get("Properties").split("=")[1]);
+            }
             // Parse the modification date
             ZonedDateTime modificationDate;
             try {
@@ -507,7 +508,9 @@ public class UseCaseSteps {
                 modificationLocation,
                 modificationDate,
                 volume,
-                weight
+                weight,
+                modificationTimeZone,
+                properties
             );
 
             // Execute the use case

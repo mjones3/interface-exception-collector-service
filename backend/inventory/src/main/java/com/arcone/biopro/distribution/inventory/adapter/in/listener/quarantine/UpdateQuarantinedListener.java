@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UpdateQuarantinedListener extends AbstractListener<UpdateQuarantineInput, InventoryOutput, UpdateQuarantinedMessage> {
+public class UpdateQuarantinedListener extends AbstractListener<UpdateQuarantineInput, InventoryOutput, QuarantineUpdated> {
 
     public UpdateQuarantinedListener(@Qualifier("PRODUCT_UPDATE_QUARANTINED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                      ObjectMapper objectMapper,
@@ -30,7 +30,7 @@ public class UpdateQuarantinedListener extends AbstractListener<UpdateQuarantine
     }
 
     @Override
-    protected TypeReference<EventMessage<UpdateQuarantinedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<UpdateQuarantinedMessage>>() {};
+    protected TypeReference<EventMessage<QuarantineUpdated>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<QuarantineUpdated>>() {};
     }
 }

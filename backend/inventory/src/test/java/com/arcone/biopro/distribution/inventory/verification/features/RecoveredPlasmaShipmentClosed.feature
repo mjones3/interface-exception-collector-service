@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725013000
-@api @LAB-470 @skipOnPipeline
+@api @LAB-470 @skipOnPipeline @cleanUpAll
 Feature: Recovered Plasma Shipment Closed Event - API
     As an inventory service I want to update the status of an inventory after receiving an Recovered Plasma Shipment Closed event.
 
