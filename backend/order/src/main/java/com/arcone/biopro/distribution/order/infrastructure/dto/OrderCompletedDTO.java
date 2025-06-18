@@ -35,7 +35,6 @@ public record OrderCompletedDTO(
     String completeEmployeeId,
     ZonedDateTime completeDate,
     String completeComments,
-    UUID transactionId,
     List<OrderItemCompletedDTO> orderItems
 ) implements Serializable {
 }

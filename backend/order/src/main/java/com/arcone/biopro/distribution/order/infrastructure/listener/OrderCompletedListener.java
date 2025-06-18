@@ -79,7 +79,6 @@ public class OrderCompletedListener {
             .completeDate(order.getCompleteDate())
             .completeEmployeeId(order.getCompleteEmployeeId())
             .completeComments(order.getCompleteComments())
-            .transactionId(order.getTransactionId())
             .orderItems(order.getOrderItems().stream().map(orderItem -> OrderItemCompletedDTO.builder()
                 .productFamily(orderItem.getProductFamily().getProductFamily())
                 .quantity(orderItem.getQuantity())

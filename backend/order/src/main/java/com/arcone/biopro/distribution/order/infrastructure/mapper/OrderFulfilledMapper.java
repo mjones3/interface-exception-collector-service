@@ -44,7 +44,6 @@ public class OrderFulfilledMapper {
         orderFulfilledDTO.setPriority(order.getOrderPriority().getDeliveryType());
         orderFulfilledDTO.setProductCategory(order.getProductCategory().getProductCategory());
         orderFulfilledDTO.setShippingMethod(order.getShippingMethod().getShippingMethod());
-        orderFulfilledDTO.setTransactionId(order.getTransactionId());
 
         ofNullable(order.getOrderItems())
             .filter(orderItems -> !orderItems.isEmpty())
