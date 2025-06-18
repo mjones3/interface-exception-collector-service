@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -328,9 +329,11 @@ public class SharedActions {
             log.debug("Clearing and sending keys {} to element {}.", keys, element);
             e.findElement(element).clear();
             if (e.findElement(element).getText() != null) {
-                e.findElement(element).sendKeys(Keys.CONTROL + "a");
-                e.findElement(element).sendKeys(Keys.DELETE);
-                e.findElement(element).sendKeys(Keys.COMMAND + "a");
+                if (SystemUtils.IS_OS_MAC) {
+                    e.findElement(element).sendKeys(Keys.COMMAND + "a");
+                } else {
+                    e.findElement(element).sendKeys(Keys.CONTROL + "a");
+                }
                 e.findElement(element).sendKeys(Keys.DELETE);
             }
             e.findElement(element).sendKeys(keys);
