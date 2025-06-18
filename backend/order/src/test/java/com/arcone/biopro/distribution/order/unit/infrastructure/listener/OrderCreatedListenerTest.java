@@ -59,9 +59,9 @@ class OrderCreatedListenerTest {
 
         var recordCaptor = org.mockito.ArgumentCaptor.forClass(ProducerRecord.class);
         Mockito.verify(producerTemplate).send(recordCaptor.capture());
-        
+
         OrderCreatedDTO capturedValue = (OrderCreatedDTO) recordCaptor.getValue().value();
-        org.junit.jupiter.api.Assertions.assertEquals(uuid, capturedValue.getTransactionId(), 
+        org.junit.jupiter.api.Assertions.assertEquals(uuid, capturedValue.transactionId(),
             "The transactionId in the produced record should match the original order's transactionId");
     }
 }
