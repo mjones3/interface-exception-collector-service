@@ -254,7 +254,7 @@ public class Import implements Validatable {
         }
 
         configurationService.findByFinNumber(unitNumber.substring(0,5))
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("FIN is not associated with a registered facility")))
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("This FIN is not registered in the system")))
             .block();
     }
 
