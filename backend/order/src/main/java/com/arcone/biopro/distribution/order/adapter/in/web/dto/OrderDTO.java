@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 public record OrderDTO(
@@ -44,5 +45,5 @@ public record OrderDTO(
     String modifyEmployeeId,
     String modifyReason,
     String modifyByProcess,
-    boolean displayModificationDetails
+    UUID transactionId
 ) {}
