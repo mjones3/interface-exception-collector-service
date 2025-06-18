@@ -10,7 +10,7 @@ Feature: Modify Order
         Rule: The modified order request must be rejected for a backorder.
         Rule: The modified order date and time and the modified reason are required for the modified order request.
         Rule: The modified order request details must be available in the BioPro application.
-        @DIS-316
+        @DIS-316 @R20-663
         Scenario: Modify a Biopro order from a Modify Order request event.
             Given I have orders with the following details.
                 | External ID   | Status      | Location Code | Delivery Type | Shipping Method | Product Category | Product Family                                             | Blood Type | Quantity | Back Order |
