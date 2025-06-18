@@ -1105,6 +1105,7 @@ public class OrderSteps {
                 productFamilyList,
                 bloodTypeList,
                 quantityList,
+                table.row(i).get(headers.indexOf("Transaction Id")),
                 "modify-order-valid-request.json",
                 "modify-order-item.json"
             );
@@ -1131,6 +1132,7 @@ public class OrderSteps {
             var locationCode = row.get(headers.indexOf("Location Code"));
             var shouldBeFound = row.get(headers.indexOf("Should be Found?"));
             var shouldBeUpdated = row.get(headers.indexOf("Should be Updated?"));
+            var expectedTransactionId = row.get(headers.indexOf("Expected Transaction Id"));
 
             var orderDetails = orderController.getOrderDetailsMap(orderIdMap.get(externalId));
             if (shouldBeFound.equalsIgnoreCase("yes")) {
@@ -1142,6 +1144,7 @@ public class OrderSteps {
                     Assert.assertEquals(orderDetails.get("priority"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Delivery Type")));
                     Assert.assertEquals(orderDetails.get("productCategory"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Category")));
                     Assert.assertEquals(orderDetails.get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
+                    Assert.assertEquals(orderDetails.get("transactionId"), expectedTransactionId);
                     // Validate order items data
                     var productFamilyList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Family")));
                     Arrays.sort(productFamilyList);
