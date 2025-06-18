@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.eventbridge.infrastructure.listener;
 
 import com.arcone.biopro.distribution.eventbridge.domain.event.ShipmentCompletedOutboundEvent;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
-import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.ShipmentCompletedOutboundPayload;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.event.ShipmentCompletedOutboundOutputEvent;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.mapper.ShipmentCompletedOutboundMapper;
 import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
@@ -24,12 +24,12 @@ import static org.springframework.kafka.support.mapping.AbstractJavaTypeMapper.D
 @Profile("prod")
 public class ShipmentCompletedOutboundEventListener {
 
-    private final ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutboundPayload> producerTemplate;
+    private final ReactiveKafkaProducerTemplate<String,ShipmentCompletedOutboundOutputEvent> producerTemplate;
     private final String topicName;
     private final ShipmentCompletedOutboundMapper shipmentCompletedOutboundMapper;
 
     public ShipmentCompletedOutboundEventListener(@Qualifier(KafkaConfiguration.SHIPMENT_COMPLETED_OUTBOUND_PRODUCER)
-                                     ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutboundPayload> producerTemplate,
+                                     ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutboundOutputEvent> producerTemplate,
                                      @Value("${topics.shipment.shipment-completed-outbound.topic-name:ShipmentCompletedOutbound}") String topicName
     ,ShipmentCompletedOutboundMapper shipmentCompletedOutboundMapper) {
         this.producerTemplate = producerTemplate;
@@ -56,7 +56,7 @@ public class ShipmentCompletedOutboundEventListener {
     public void handleShipmentCompletedOutboundEvent(ShipmentCompletedOutboundEvent event) {
         log.debug("Shipment Completed Outbound event trigger Event ID {}", event.getEventId());
 
-        var message = shipmentCompletedOutboundMapper.toDto(event.getPayload());
+        var message = new ShipmentCompletedOutboundOutputEvent(shipmentCompletedOutboundMapper.toDto(event.getPayload()));
 
         var producerRecord = new ProducerRecord<>(topicName, String.format("%s", event.getEventId()), message);
         producerTemplate.send(producerRecord)

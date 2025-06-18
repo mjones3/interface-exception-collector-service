@@ -33,7 +33,6 @@ public class ShipmentLineItemProduct {
         Assert.notNull(this.productCode, "productCode number must not be null");
         Assert.notNull(this.bloodType, "bloodType number must not be null");
         Assert.notNull(this.expirationDate, "expirationDate number must not be null");
-        Assert.notNull(this.collectionDate, "collectionDate number must not be null");
     }
 
     public void addAttribute(String key, String value) {
