@@ -149,6 +149,7 @@ public class SharedActions {
 
     public void sendKeys(By locator, String text) {
         waitForVisible(locator);
+        waitForEnabled(locator);
         wait.until(e -> {
             log.debug("Sending keys {} to element {}.", text, locator);
             sendKeys(e.findElement(locator), text);
@@ -315,6 +316,7 @@ public class SharedActions {
 
     public boolean isElementEnabled(WebDriver driver, By element) {
         try {
+            waitForVisible(element);
             return driver.findElement(element).isEnabled();
         } catch (Exception e) {
             log.debug("Element {} not found or is not enabled.", element);
@@ -379,5 +381,31 @@ public class SharedActions {
         } catch (Exception e) {
             throw new NoSuchElementException("Acknowledgment message not found");
         }
+    }
+
+    public void verifyAlert(String header, String message, boolean expectVisible) {
+        By alertText = By.cssSelector("biopro-global-message");
+        if (expectVisible) {
+            waitForVisible(alertText);
+            String[] alert = getText(alertText).split("\n");
+            Assert.assertEquals(alert[0], header);
+            Assert.assertEquals(alert[1], message);
+        } else {
+            waitForNotVisible(alertText);
+        }
+
+    }
+
+    public void sendKeysAndEnter(WebDriver driver, By locator, String text) throws InterruptedException {
+        Thread.sleep(500);
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        driver.findElement(locator).sendKeys(text);
+        driver.findElement(locator).sendKeys(Keys.ENTER);
+        Thread.sleep(700);
+    }
+
+    public void pressEnter(WebDriver driver) {
+        driver.switchTo().activeElement().sendKeys(Keys.ENTER);
     }
 }

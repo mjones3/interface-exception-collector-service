@@ -13,7 +13,8 @@ public record ShippingInformationOutput(
     boolean displayTransitInformation,
     boolean displayTemperature,
     List<LookupOutput> transitTimeZoneList,
-    List<LookupOutput> visualInspectionList
+    List<LookupOutput> visualInspectionList,
+    String defaultTimeZone
 
 ) implements Serializable {
 }
