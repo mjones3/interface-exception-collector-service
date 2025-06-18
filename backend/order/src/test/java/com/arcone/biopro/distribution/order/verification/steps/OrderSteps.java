@@ -187,10 +187,12 @@ public class OrderSteps {
 
     @Then("A biopro Order will be available in the Distribution local data store.")
     public void checkOrderExists() {
-        var query = DatabaseQueries.countOrdersByExternalId(context.getExternalId());
-        var data = databaseService.fetchData(query);
-        var records = data.first().block();
-        Assert.assertEquals(1L, records.get("count"));
+        var query = DatabaseQueries.getOrderId(context.getExternalId());
+        var orderIdData = databaseService.fetchData(query);
+        var orderId = Integer.valueOf(orderIdData.first().block().get("id").toString());
+        orderController.getOrderDetails(orderId);
+        var order = context.getOrderDetails();
+        Assert.assertNotNull(order.get("transactionId"));
     }
 
     @Then("A biopro Order {string} be available in the Distribution local data store.")
