@@ -9,8 +9,8 @@ import org.mapstruct.Mapping;
 public interface CheckInCompletedMessageMapper extends MessageMapper<CheckInCompletedInput, CheckInCompleted> {
 
     @Mapping(target = "collectionDate", source = "drawTime")
-    @Mapping(target = "inventoryLocation", source = "collectionLocation")
     @Mapping(target = "collectionLocation", source = "collectionLocation")
     @Mapping(target = "collectionTimeZone", source = "collectionTimeZone")
+    @Mapping(target = "checkInLocation", source = "checkInLocation")
     CheckInCompletedInput toInput(CheckInCompleted message);
 }

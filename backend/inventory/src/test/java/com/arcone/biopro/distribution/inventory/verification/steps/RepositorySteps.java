@@ -369,6 +369,9 @@ public class RepositorySteps {
             if(row.containsKey("Collection Location")){
                 assertEquals(row.get("Collection Location"), inventoryEntity.getCollectionLocation());
             }
+            if(row.containsKey("Checkin Location")){
+                assertEquals(row.get("Checkin Location"), inventoryEntity.getInventoryLocation());
+            }
             if(row.containsKey("Collection TimeZone")){
                 assertEquals(row.get("Collection TimeZone"), inventoryEntity.getCollectionTimeZone());
             }

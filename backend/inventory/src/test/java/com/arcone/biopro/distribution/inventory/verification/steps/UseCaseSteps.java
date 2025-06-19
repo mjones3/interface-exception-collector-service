@@ -222,7 +222,8 @@ public class UseCaseSteps {
             String productCode = product.get("Product Code");
             String collectionLocation = product.get("Collection Location");
             String collectionTimeZone = product.get("Collection TimeZone");
-            checkInCompletedUseCase.execute(inventoryUtil.newCheckInCompletedInput(unitNumber, productCode, collectionLocation, collectionTimeZone)).block();
+            String checkinLocation = product.get("Checkin Location");
+            checkInCompletedUseCase.execute(inventoryUtil.newCheckInCompletedInput(unitNumber, productCode, collectionLocation, collectionTimeZone, checkinLocation)).block();
         }
     }
 

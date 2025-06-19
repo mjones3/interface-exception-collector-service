@@ -140,7 +140,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.productCode.value", source = "productCode")
     @Mapping(target = "inventory.shortDescription", source = "productDescription")
     @Mapping(target = "inventory.collectionDate", source = "collectionDate")
-    @Mapping(target = "inventory.inventoryLocation", source = "inventoryLocation")
+    @Mapping(target = "inventory.inventoryLocation", source = "checkInLocation")
     @Mapping(target = "inventory.collectionLocation", source = "collectionLocation")
     @Mapping(target = "inventory.collectionTimeZone", source = "collectionTimeZone")
     @Mapping(target = "inventory.productFamily", source = "productFamily")
