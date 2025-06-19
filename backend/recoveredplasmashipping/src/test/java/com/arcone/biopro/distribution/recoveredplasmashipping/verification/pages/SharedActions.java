@@ -315,7 +315,7 @@ public class SharedActions {
 
     public boolean isElementEnabled(WebDriver driver, By element) {
         try {
-            return driver.findElement(element).isEnabled();
+            return driver.findElement(element).isEnabled() && !hasElementCssClass(element, "mat-form-field-disabled");
         } catch (Exception e) {
             log.debug("Element {} not found or is not enabled.", element);
             return false;
@@ -398,6 +398,16 @@ public class SharedActions {
         } catch (Exception e) {
             log.debug("Element {} does not have CSS class {}.", element, cssClass);
             return false;
+        }
+    }
+
+    public void verifyElementEnabledDisabled(WebDriver driver, By element, String enabledDisabled) {
+        if (enabledDisabled.equalsIgnoreCase("enabled")) {
+            Assert.assertTrue(isElementEnabled(driver, element));
+        } else if (enabledDisabled.equalsIgnoreCase("disabled")){
+            Assert.assertFalse(isElementEnabled(driver, element));
+        } else {
+            throw new IllegalArgumentException("Invalid argument (enabled/disabled): " + enabledDisabled);
         }
     }
 }
