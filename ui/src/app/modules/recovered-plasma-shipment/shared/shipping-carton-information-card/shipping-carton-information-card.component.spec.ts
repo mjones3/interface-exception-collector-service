@@ -54,13 +54,6 @@ describe('ShippingCartonInformationCardComponent', () => {
         expect(cartonNumberValue.textContent).toContain(
             mockCartonData.cartonNumber
         );
-
-        const totalVolumeValue = shippingCartonInfoDescriptions.querySelector(
-            '#informationDetails-Total-Volume-\\(L\\)-value'
-        ) as HTMLSpanElement;
-        expect(totalVolumeValue.textContent).toContain(
-            mockCartonData.totalVolume.toString()
-        );
     });
 
     it('should handle button state correctly', () => {
@@ -89,10 +82,6 @@ describe('ShippingCartonInformationCardComponent', () => {
             {
                 label: 'Carton Number',
                 value: mockCartonData.cartonNumber,
-            },
-            {
-                label: 'Total Volume (L)',
-                value: mockCartonData.totalVolume,
             },
             {
                 label: 'Minimum Products',

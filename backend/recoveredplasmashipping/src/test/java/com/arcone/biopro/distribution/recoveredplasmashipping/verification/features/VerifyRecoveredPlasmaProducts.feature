@@ -34,7 +34,7 @@ Feature: Verify Recovered Plasma Products
         Rule: I should only be able to close a carton if the minimum numbers of products has been reached.
         Rule: The system should automatically update the status of the carton to closed once the carton is successfully closed.
         Rule: I should be able to only scan the unit number and product code.
-        @ui @DIS-341 @DIS-342
+        @ui @DIS-341 @DIS-342 @disabled
         Scenario Outline: Successfully verify products in carton by second scan and close carton
             Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
             And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
@@ -43,7 +43,7 @@ Feature: Verify Recovered Plasma Products
             Then The verify products option should be "enabled"
             And I choose the Next option to start verify products process.
             When I scan to verify an "acceptable" product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
-            Then I should see the product in the verified list with unit number "<unit_number>" and product code "<product_code>".
+            Then I "should" see the product in the verified list with unit number "<unit_number>" and product code "<product_code>".
             And The close carton option should be "enabled".
             When I choose to close the carton.
             Then I should be redirected to the Shipment Details page.

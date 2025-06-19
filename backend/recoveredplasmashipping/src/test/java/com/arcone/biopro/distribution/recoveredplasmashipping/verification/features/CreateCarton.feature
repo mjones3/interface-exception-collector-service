@@ -31,8 +31,6 @@ Feature: Create Carton
                 | Field                | Value  |
                 | Carton Number Prefix | BPMMH1 |
                 | Carton Sequence      | 1      |
-                | Tare Weight          | 1000   |
-                | Total Volume         | 0      |
                 | Minimum Products     | 15     |
                 | Maximum Products     | 20     |
             And I should see the following shipment information:

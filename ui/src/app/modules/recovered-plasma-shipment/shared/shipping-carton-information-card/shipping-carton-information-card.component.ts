@@ -11,7 +11,7 @@ import {
     DescriptionCardComponent,
     WidgetComponent,
 } from '@shared';
-import {CartonDTO, RecoveredPlasmaShipmentResponseDTO} from '../../models/recovered-plasma.dto';
+import {CartonDTO} from '../../models/recovered-plasma.dto';
 
 @Component({
     selector: 'biopro-shipping-carton-information-card',
@@ -30,10 +30,6 @@ export class ShippingCartonInformationCardComponent {
         {
             label: 'Carton Number',
             value: this.cartonInput()?.cartonNumber,
-        },
-        {
-            label: 'Total Volume (L)',
-            value: this.cartonInput()?.totalVolume,
         },
         {
             label: 'Minimum Products',

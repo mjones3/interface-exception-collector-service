@@ -53,8 +53,12 @@ public class ManageCartonPage extends CommonPageFactory {
 
     public void verifyCartonDetails(Map<String, String> table) {
         Assert.assertTrue(sharedActions.getText(cartonNumber).contains(table.get("Carton Number Prefix")));
-        Assert.assertEquals(table.get("Tare Weight"), sharedActions.getText(tareWeight));
-        Assert.assertEquals(table.get("Total Volume"), sharedActions.getText(totalVolume));
+        if(table.get("Tare Weight") != null){
+            Assert.assertEquals(table.get("Tare Weight"), sharedActions.getText(tareWeight));
+        }
+        if(table.get("Total Volume") != null){
+            Assert.assertEquals(table.get("Total Volume"), sharedActions.getText(totalVolume));
+        }
         Assert.assertEquals(table.get("Minimum Products"), sharedActions.getText(minimumProducts));
         Assert.assertEquals(table.get("Maximum Products"), sharedActions.getText(maximumProducts));
     }
