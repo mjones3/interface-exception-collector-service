@@ -45,7 +45,7 @@ public class ModifyOrderUseCase extends AbstractProcessOrderUseCase implements M
             .then()
             .onErrorResume(error -> {
                     log.error("Not able to process order modified event {}",error.getMessage());
-                    this.publishOrderRejectedEvent(applicationEventPublisher,modifyOrderReceivedDTO.payload().externalId(), error , USE_CASE_OPERATION);
+                this.publishOrderRejectedEvent(applicationEventPublisher, modifyOrderReceivedDTO.payload().externalId(), modifyOrderReceivedDTO.payload().transactionId(), error, USE_CASE_OPERATION);
                     return Mono.empty();
                 }
             );

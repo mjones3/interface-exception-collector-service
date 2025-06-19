@@ -7,6 +7,7 @@
     "cancelDate": "{CANCEL_DATE}",
     "cancelEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
     "cancelReason": "Customer no longer need",
-    "externalId": "{EXTERNAL_ID}"
+    "externalId": "{EXTERNAL_ID}",
+    "transactionId": "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"
   }
 }
