@@ -58,6 +58,8 @@ public class ShipmentCompletedOutboundEventListener {
 
         var message = new ShipmentCompletedOutboundOutputEvent(shipmentCompletedOutboundMapper.toDto(event.getPayload()));
 
+        log.debug("Outbound Payload {}",message);
+
         var producerRecord = new ProducerRecord<>(topicName, String.format("%s", event.getEventId()), message);
         producerTemplate.send(producerRecord)
             .log()
