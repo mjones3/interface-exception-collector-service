@@ -45,7 +45,7 @@ public class ShipmentCompletedOutboundSteps {
     private Long orderNumber;
     private String externalId;
 
-    @Given("The shipment completed event is triggered withe the payload as {string}.")
+    @Given("The shipment completed event is triggered with the payload as {string}.")
     public void createShipmentCompletedEvent(String payloadFile) throws Exception {
         shipmentCompletedOutboundContext.resetLatch();
         this.shipmentId = new Random().nextLong();

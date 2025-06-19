@@ -165,5 +165,28 @@ class ShipmentLineItemProductTest {
             product.addAttribute("key", null);
         });
     }
+
+    @Test
+    @DisplayName("Should create ShipmentLineItemProduct with collection date as null")
+    void shouldCreateShipmentLineItemProductWithCollectionDateAsNull() {
+        // Arrange
+        String unitNumber = "UNIT001";
+        String productCode = "PROD001";
+        String bloodType = "A+";
+        LocalDateTime expirationDate = LocalDateTime.now().plusDays(30);
+
+
+        // Act
+        ShipmentLineItemProduct product = new ShipmentLineItemProduct(
+            unitNumber,
+            productCode,
+            bloodType,
+            expirationDate,
+            null
+        );
+
+        // Assert
+        assertNotNull(product);
+    }
 }
 
