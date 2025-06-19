@@ -35,7 +35,7 @@ Feature: Filter Shipments
             Then I should see filtered shipments matching the criteria.
             And I should see "6" filter criteria applied.
             When I select to reset filters.
-            Then I should see "0" filter criteria applied.
+            Then I should not have any filter criteria applied.
             When I am filtering by shipment number.
             Then The other filter fields should be defined as below:
                 | Customer                        | disabled |

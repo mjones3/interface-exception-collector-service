@@ -140,6 +140,11 @@ public class FilterShipmentsSteps {
         createShipmentPage.verifyFilterCriteriaApplied(Integer.parseInt(quantity));
     }
 
+    @And("I should not have any filter criteria applied.")
+    public void iShouldHaveNoFilterCriteriaApplied(String quantity) {
+        iShouldSeeFilterCriteriaApplied("0");
+    }
+
     @When("I requested the list of all shipments from the location above having statuses {string}.")
     public void iRequestedTheListOfAllShipmentsFromTheLocationAbove(String statusList) {
         filterShipmentsController.getAllShipmentsByLocationDateAndStatus(context.getLocationCode(), context.getInitialShipmentDate(), context.getFinalShipmentDate(), statusList);
