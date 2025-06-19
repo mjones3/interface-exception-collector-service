@@ -26,6 +26,9 @@ public record CheckInCompleted(
     @Schema(description = "Collection location")
     String collectionLocation,
 
+    @Schema(description = "Check in location")
+    String checkInLocation,
+
     @Schema(description = "Collection TimeZone")
     String collectionTimeZone,
 
