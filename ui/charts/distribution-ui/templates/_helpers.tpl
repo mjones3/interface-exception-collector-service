@@ -48,8 +48,6 @@ Selector labels
 {{- define "distribution-ui.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "distribution-ui.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: {{ include "distribution-ui.name" . }}
-version: {{ .Values.version }}
 {{- end }}
 
 {{/*

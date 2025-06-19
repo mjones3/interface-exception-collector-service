@@ -1,0 +1,174 @@
+<ng-container>
+    @if(data !== null){
+        <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Edit Shipment</h1>
+    }@else{
+        <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Create Shipment</h1>
+    }
+    <div class="p-4 pb-0">
+        <form [formGroup]="createShipmentForm">
+            <div class="flex w-full flex-col">
+                <div class="flex flex-col space-y-4">
+                    <div class="w-full">
+                        <biopro-search-select
+                        id="customerNameId"
+                        [formGroup]="createShipmentForm"
+                        controlName="customerName"
+                        [placeholder]="'Select Customer Name'"
+                        title="Customer Name"
+                        [items]="customerOptionList"
+                        required="true"
+                        matSelectId="customerSelectId"
+                    >
+                    </biopro-search-select>
+                    </div>
+
+                    <div class="w-full">
+                        <biopro-search-select
+                            id="productTypeId"
+                            [formGroup]="createShipmentForm"
+                            controlName="productType"
+                            [placeholder]="'Select Product Type'"
+                            [items]="productTypeOptions"
+                            title="Product Type"
+                            required="true"
+                            matSelectId="productTypeSelectId"
+                        >
+                        </biopro-search-select>
+                    </div>
+
+                    <div class="flex w-full flex-row gap-4">
+                       @if(showCartonTareWeight){
+                        <div class="w-full flex-row">
+                            <mat-form-field class="block">
+                                <mat-label>Carton Tare Weight (g)</mat-label>
+                                <input
+                                    id="cartonTareWeightId"
+                                    matInput
+                                    formControlName="cartonTareWeight"
+                                    placeholder="Enter Carton Tare Weight"
+                                    autocomplete="off"
+                                />
+                                @if (
+                                    createShipmentForm
+                                        .get('cartonTareWeight')
+                                        .hasError('required')
+                                ) {
+                                    <mat-error
+                                        >Carton Tare Weight is
+                                        required</mat-error
+                                    >
+                                } @else if (
+                                    createShipmentForm
+                                        .get('cartonTareWeight')
+                                        .hasError('invalidWeight')
+                                ) {
+                                    <mat-error
+                                        >Carton Tare Weight is
+                                        invalid</mat-error
+                                    >
+                                }
+                            </mat-form-field>
+                        </div>
+                       }
+
+                        <div class="w-full flex-row">
+                            <mat-form-field class="block">
+                                <mat-label>Shipment Date</mat-label>
+                                <input
+                                    id="shipmentDateId"
+                                    matInput
+                                    formControlName="shipmentDate"
+                                    placeholder="Enter Shipment Date"
+                                    [min]="minDate"
+                                    autocomplete="off"
+                                    [matDatepicker]="shipmentDatePicker"
+                                />
+                                <mat-datepicker-toggle
+                                    matIconSuffix
+                                    [for]="shipmentDatePicker"
+                                ></mat-datepicker-toggle>
+                                <mat-datepicker
+                                    #shipmentDatePicker
+                                ></mat-datepicker>
+                                @if (
+                                    createShipmentForm
+                                        .get('shipmentDate')
+                                        .hasError('matDatepickerMin')
+                                ) {
+                                    <mat-error
+                                        >Shipment Date cannot be in the
+                                        past</mat-error
+                                    >
+                                } @else if (
+                                    createShipmentForm
+                                        .get('shipmentDate')
+                                        .hasError('matDatepickerParse')
+                                ) {
+                                    <mat-error
+                                        >Shipment Date is invalid</mat-error
+                                    >
+                                }
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <mat-form-field class="block">
+                        <mat-label>Transportation Reference Number</mat-label>
+                        <input
+                            id="transportationReferenceNumberId"
+                            matInput
+                            formControlName="transportationReferenceNumber"
+                            placeholder="Enter Transportation Reference Number"
+                            maxlength="50"
+                            autocomplete="off"
+                        />
+                    </mat-form-field>
+
+                    @if(data?.id){
+                        <mat-form-field>
+                            <mat-label>Comments</mat-label>
+                            <textarea
+                                data-testid="edit-shipment-comments"
+                                formControlName="comments"
+                                rows="5"
+                                maxlength="{{ commentsMaxLength }}"
+                                matInput
+                            ></textarea>
+                            <mat-hint align="end">
+                                {{ createShipmentForm.controls['comments'].value?.length }} /
+                                {{ commentsMaxLength }}
+                            </mat-hint>
+
+
+                        @if (
+                            createShipmentForm.controls['comments']
+                                 .hasError('required')
+                         ) {
+                             <mat-error
+                                 >Comments is required</mat-error
+                             >
+                         }
+                        </mat-form-field>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <mat-dialog-actions align="end" class="gap-2 pb-4 pr-4">
+        <biopro-basic-button
+            id="btnCancel"
+            (buttonClicked)="dialogRef.close()"
+            label="Cancel"
+            color="secondary"
+        ></biopro-basic-button>
+        <biopro-basic-button
+            id="btnSubmit"
+            [disabled]="canSubmit()"
+            class="mat-primary-action text-white"
+            color="primary"
+            label="Submit"
+            (buttonClicked)="submit()"
+        ></biopro-basic-button>
+    </mat-dialog-actions>
+</ng-container>

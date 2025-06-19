@@ -1,0 +1,15 @@
+{
+  "eventType": "ProductStored",
+  "eventVersion": "1.0",
+  "payload": {
+    "unitNumber": "W777725005006",
+    "productCode": "E0869VA0",
+    "deviceStored": "Freezer001",
+    "deviceUse": "Initial Freezer",
+    "storageLocation": "Bin001,Shelf002,Tray001",
+    "location": "1FS",
+    "locationType": "Blood Center",
+    "storageTime": "2025-01-08T06:00:00.000Z",
+    "performedBy": "userId"
+  }
+}

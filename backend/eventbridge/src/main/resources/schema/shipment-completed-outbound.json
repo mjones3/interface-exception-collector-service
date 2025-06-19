@@ -1,0 +1,146 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "shipmentNumber": {
+      "type": "integer"
+    },
+    "externalOrderID": {
+      "type": "string"
+    },
+    "shipmentLocationCode": {
+      "type": "string"
+    },
+    "shipmentLocationName": {
+      "type": "string"
+    },
+    "deliveryType": {
+      "type": "string"
+    },
+    "departmentCode": {
+      "type": "string"
+    },
+    "customerCode": {
+      "type": "string"
+    },
+    "customerName": {
+      "type": "string"
+    },
+    "customerType": {
+      "type": ["null","string"]
+    },
+    "shipmentDate": {
+      "type": "string"
+    },
+    "quantityShipped": {
+      "type": "integer"
+    },
+    "lineItems": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "productFamily": {
+              "type": "string"
+            },
+            "qtyOrdered": {
+              "type": "integer"
+            },
+            "qtyFilled": {
+              "type": "integer"
+            },
+            "products": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "unitNumber": {
+                      "type": "string"
+                    },
+                    "productCode": {
+                      "type": "string"
+                    },
+                    "bloodType": {
+                      "type": "string"
+                    },
+                    "collectionDate": {
+                      "type": "string"
+                    },
+                    "expirationDate": {
+                      "type": "string"
+                    },
+                    "attributes": {
+                      "type": ["array","null"],
+                      "items": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "value":{
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "value"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "unitNumber",
+                    "productCode",
+                    "bloodType",
+                    "collectionDate",
+                    "expirationDate"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "productFamily",
+            "qtyOrdered",
+            "qtyFilled",
+            "products"
+          ]
+        }
+      ]
+    },
+    "services": {
+      "type": ["array","null"],
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "serviceItemCode": {
+              "type": "string"
+            },
+            "quantity": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "serviceItemCode",
+            "quantity"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "shipmentNumber",
+    "externalOrderId",
+    "shipmentLocationCode",
+    "shipmentLocationName",
+    "customerCode",
+    "quantityShipped",
+    "shipmentDate",
+    "lineItems"
+  ]
+}

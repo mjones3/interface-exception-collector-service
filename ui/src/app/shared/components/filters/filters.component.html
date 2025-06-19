@@ -1,0 +1,43 @@
+<div class="p-4 pb-0">
+    <button
+        id="filtersButtonId"
+        type="button"
+        class="h-20 bg-white"
+        matBadgeSize="medium"
+        [matBadgeHidden]="appliedTotalFilterCount === 0"
+        matBadge="{{ appliedTotalFilterCount }}"
+        mat-flat-button
+        (click)="toggleFilters()"
+    >
+        <mat-icon [svgIcon]="'heroicons_outline:adjustments-horizontal'"> </mat-icon>
+        <span class="ml-2 font-bold"> Filters </span>
+    </button>
+</div>
+
+<div class="absolute z-10 w-full p-6 pt-2">
+    <fuse-card class="flex-col p-4 shadow-2xl" [hidden]="!showFilters">
+        <ng-content></ng-content>
+        <div class="flex w-full flex-row justify-end space-x-2 p-4 px-8 pt-0">
+            <button
+                id="resetFilterBtn"
+                type="button"
+                class="w-30 border-0 bg-gray-200"
+                mat-flat-button
+                (click)="resetFilters()"
+                [disabled]="resetDisabled"
+            >
+                Reset
+            </button>
+            <button
+                id="applyBtn"
+                type="button"
+                class="w-30 border-0 bg-gray-200"
+                mat-flat-button
+                (click)="applyFilter()"
+                [disabled]="disabled"
+            >
+                Apply
+            </button>
+        </div>
+    </fuse-card>
+</div>

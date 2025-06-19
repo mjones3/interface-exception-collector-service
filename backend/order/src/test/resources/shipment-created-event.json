@@ -1,0 +1,11 @@
+{
+  "eventId": "a0135914-b5fb-4b9c-b7b5-f97b7ad80e5b",
+  "occurredOn": "",
+  "eventVersion": "1.0",
+  "eventType": "ShipmentCreated",
+  "payload": {
+    "shipmentId": 1,
+    "orderNumber": 1,
+    "shipmentStatus": "OPEN"
+  }
+}

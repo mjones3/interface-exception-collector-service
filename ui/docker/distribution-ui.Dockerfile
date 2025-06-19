@@ -1,4 +1,13 @@
-FROM public.ecr.aws/nginx/nginx:alpine
+FROM artifactory.sha.ao.arc-one.com/docker/system/build-cicd/nginx:alpine
+
+ARG BUILD_DATE
+ARG VERSION
+ARG VCS_REF
+ARG VCS_URL
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url=$VCS_URL \
+      org.label-schema.version=$VERSION
 
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY docker/nginx/sites-available /etc/nginx/sites-available
@@ -8,9 +17,10 @@ RUN ln -s /etc/nginx/sites-available /etc/nginx/sites-enabled && \
     # running on localhost:7001 as well and it would conflict with barista
     rm -rf /etc/nginx/conf.d/default.conf
 
-COPY dist/apps/distribution-ui /var/www/ui
 
 EXPOSE 7001
 
+COPY dist/distribution-ui /var/www/ui
+
 ## Run nginx
-CMD ["/bin/sh", "-c", "envsubst < /var/www/ui/assets/settings.template.json > /var/www/ui/assets/settings.json && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "envsubst < /var/www/ui/settings.template.json > /var/www/ui/settings.json && nginx -g 'daemon off;'"]

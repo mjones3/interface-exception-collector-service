@@ -1,0 +1,334 @@
+scalar DateTime
+scalar Date
+scalar JSON
+
+type Query {
+    generatePackingListLabel(shipmentId: ID!):PackingListLabelDTO!
+    generateShippingLabel(shipmentId: ID!):ShippingLabelDTO!
+    listShipments:[ShipmentResponseDTO]
+    getShipmentDetailsById(shipmentId: ID!):ShipmentDetailResponseDTO!
+    getShipmentVerificationDetailsById(shipmentId: ID!):VerifyProductResponseDTO!
+    getNotificationDetailsByShipmentId(shipmentId: ID!):RemoveProductResponseDTO!
+
+    # Unit Number with Check Digit Verification
+    verifyCheckDigit(unitNumber: String!, checkDigit: String!): RuleResponseDTO!
+
+    # Searches over all Customers
+    findAllCustomers: [CustomerDTO]!
+}
+
+type Mutation {
+    packItem(packItemRequest:PackItemRequest!):RuleResponseDTO!
+    completeShipment(completeShipmentRequest:CompleteShipmentRequest!):RuleResponseDTO!
+    verifyItem(verifyItemRequest:VerifyItemRequest!):RuleResponseDTO!
+    removeItem(removeItemRequest:RemoveItemRequest!):RuleResponseDTO!
+    cancelSecondVerification(cancelSecondVerificationRequest:CancelSecondVerificationRequest!):RuleResponseDTO!
+    confirmCancelSecondVerification(confirmCancelSecondVerificationRequest:CancelSecondVerificationRequest!):RuleResponseDTO!
+    unpackItems(unpackItemsRequest:UnpackItemsRequest!):RuleResponseDTO!
+    createExternalTransfer(createExternalTransferRequest:CreateExternalTransferRequestDTO):RuleResponseDTO!
+    addExternalTransferProduct(addProductTransferRequestDTO:AddProductTransferRequestDTO):RuleResponseDTO!
+    completeExternalTransfer(completeExternalTransferRequestDTO:CompleteExternalTransferRequestDTO):RuleResponseDTO!
+    cancelExternalTransfer(cancelExternalTransferRequestDTO:CancelExternalTransferRequestDTO!):RuleResponseDTO!
+    confirmCancelExternalTransfer(cancelExternalTransferRequestDTO:CancelExternalTransferRequestDTO!):RuleResponseDTO!
+}
+
+input CancelExternalTransferRequestDTO {
+    externalTransferId:Int!
+    employeeId:String!
+}
+
+input CompleteExternalTransferRequestDTO {
+    externalTransferId:Int!
+    hospitalTransferId:String
+    employeeId:String!
+}
+
+input AddProductTransferRequestDTO {
+    externalTransferId:Int!
+    unitNumber:String!
+    productCode:String!
+    employeeId:String!
+}
+
+type PackingListLabelDTO {
+
+    shipmentId: ID!
+    orderNumber: Int!
+    orderIdBase64Barcode: String
+    shipmentIdBase64Barcode: String
+    dateTimePacked: DateTime
+    packedBy: String
+    enteredBy: String
+    quantity: Int
+    shipFrom: ShipFromDTO
+    shipTo: ShipToDTO
+    distributionComments: String
+    packedItems:[ShipmentItemPackedDTO]
+}
+
+type ShipFromDTO {
+    bloodCenterCode: String
+    bloodCenterName: String
+    bloodCenterBase64Barcode: String
+    bloodCenterAddressLine1: String
+    bloodCenterAddressLine2: String
+    bloodCenterAddressComplement: String
+    phoneNumber:String
+}
+
+type ShipToDTO {
+
+    customerCode: String
+    customerName: String
+    department: String
+    addressLine1: String
+    addressLine2: String
+    addressComplement: String
+    phoneNumber: String
+
+}
+
+type ShippingLabelDTO {
+    shipmentId: Int
+    orderNumber: Int
+    orderIdBase64Barcode: String
+    shipmentIdBase64Barcode: String
+    shipTo: ShipToDTO
+    shipFrom: ShipFromDTO
+    dateTimePacked: DateTime
+}
+
+type ShipmentResponseDTO {
+    id: ID!
+    orderNumber: Int
+    priority:ShipmentPriority
+    status: ShipmentStatus
+    createDate: DateTime
+}
+
+type ShipmentDetailResponseDTO {
+    id: ID!
+    orderNumber: Int
+    externalId: String
+    priority: ShipmentPriority
+    status: ShipmentStatus
+    createDate: DateTime
+    shippingCustomerCode: String
+    locationCode: String
+    deliveryType: String
+    shippingMethod: String
+    productCategory: String
+    shippingDate: Date
+    shippingCustomerName: String
+    customerPhoneNumber: String
+    customerAddressState: String
+    customerAddressPostalCode: String
+    customerAddressCountry: String
+    customerAddressCountryCode: String
+    customerAddressCity: String
+    customerAddressDistrict: String
+    customerAddressAddressLine1: String
+    customerAddressAddressLine2: String
+    completeDate: DateTime
+    completedByEmployeeId: String
+    comments: String
+    items: [ShipmentItemResponseDTO]
+    checkDigitActive: Boolean!
+    visualInspectionActive: Boolean!
+    secondVerificationActive: Boolean!
+}
+
+type ShipmentItemResponseDTO {
+    id: ID!
+    shipmentId: Int
+    productFamily: String
+    bloodType: BloodType
+    quantity: Int
+    comments: String
+    shortDateProducts:[ShipmentItemShortDateProductResponseDTO]
+    packedItems:[ShipmentItemPackedDTO]
+}
+
+type ShipmentItemShortDateProductResponseDTO {
+    id: ID!
+    shipmentItemId: Int
+    unitNumber: String
+    productCode: String
+    storageLocation: String
+    comments: String
+    createDate: DateTime
+    modificationDate: DateTime
+}
+
+type ShipmentItemPackedDTO {
+    id:ID!
+    shipmentItemId: Int
+    inventoryId: Int
+    unitNumber: String
+    productCode: String
+    aboRh: String
+    productDescription: String
+    productFamily: String
+    expirationDate: String
+    collectionDate: DateTime
+    packedByEmployeeId: String
+    visualInspection:VisualInspection
+    secondVerification:SecondVerification
+    verifiedByEmployeeId:String
+    verifiedDate:DateTime
+    ineligibleStatus:String
+    ineligibleReason:String
+    ineligibleMessage:String
+    ineligibleAction:String
+}
+
+input PackItemRequest {
+      shipmentItemId : Int!
+      unitNumber: String!
+      productCode: String!
+      locationCode: String!
+      employeeId: String!
+      visualInspection:VisualInspection
+}
+
+input CompleteShipmentRequest {
+    shipmentId:Int!
+    employeeId:String!
+}
+
+input CreateExternalTransferRequestDTO {
+    customerCode:String!
+    hospitalTransferId:String
+    transferDate:Date!
+    createEmployeeId:String!
+}
+
+type RuleResponseDTO {
+    ruleCode: String
+    notifications: [NotificationDTO]
+    _links: JSON
+    results: JSON
+}
+
+type NotificationDTO {
+    name:String
+    statusCode:Int
+    notificationType:String
+    code:Int
+    action:String
+    reason:String
+    message:String
+    details:[String]
+}
+
+enum ShipmentPriority {
+    ASAP,
+    ROUTINE ,
+    STAT ,
+    SCHEDULED,
+    DATE_TIME
+}
+enum ShipmentStatus {
+    OPEN,
+    CANCELLED,
+    CLOSED,
+    COMPLETED
+}
+
+enum BloodType {
+    ANY ,
+    A ,
+    B ,
+    O ,
+    AB,
+    AP ,
+    AN ,
+    BP ,
+    BN ,
+    OP ,
+    ON ,
+    ABP ,
+    ABN
+}
+
+enum VisualInspection {
+    SATISFACTORY,
+    UNSATISFACTORY,
+    DISABLED
+}
+
+input VerifyItemRequest {
+    shipmentId : Int!
+    unitNumber: String!
+    productCode: String!
+    employeeId: String!
+}
+
+input RemoveItemRequest {
+    shipmentId : Int!
+    unitNumber: String!
+    productCode: String!
+    employeeId: String!
+}
+
+type VerifyProductResponseDTO {
+    shipmentId: Int!
+    packedItems:[ShipmentItemPackedDTO]
+    verifiedItems:[ShipmentItemPackedDTO]
+}
+
+enum SecondVerification {
+    PENDING,COMPLETED,DISABLED
+}
+
+type ShipmentItemRemovedDTO {
+
+    id:ID!
+    shipmentId: Int
+    unitNumber: String
+    productCode: String
+    productFamily: String
+    removedByEmployeeId: String
+    removedDate:DateTime
+    ineligibleStatus:String
+
+}
+
+type RemoveProductResponseDTO {
+    shipmentId: Int!
+    removedItems:[ShipmentItemRemovedDTO]
+    toBeRemovedItems:[ShipmentItemPackedDTO]
+    removedItem:ShipmentItemPackedDTO
+}
+
+input CancelSecondVerificationRequest {
+    shipmentId: Int!,
+    employeeId: String
+}
+
+input UnpackItemsRequest {
+    shipmentItemId : Int!
+    locationCode: String!
+    employeeId: String!
+    unpackItems:[UnpackItemRequest]
+}
+
+input UnpackItemRequest {
+    unitNumber: String!
+    productCode: String!
+}
+
+type ExternalTransferDTO {
+    id:ID
+    customerTo:CustomerDTO
+    customerFrom:CustomerDTO
+    hospitalTransferId:String
+    transferDate:Date
+    createEmployeeId:String
+    status:String
+}
+
+type CustomerDTO {
+    code:String
+    name:String
+}

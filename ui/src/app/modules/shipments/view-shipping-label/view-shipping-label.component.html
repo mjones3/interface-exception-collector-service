@@ -1,0 +1,78 @@
+<div class="modal-body-width">
+    <div id="viewShippingLabelReport" class="py-0 px-5">
+        @if (model$ | async; as shippingLabel) {
+        <div class="text-gray-700 flex flex-col gap-4" style="font-family: sans;">
+            <header class="border-2 p-5 text-center text-4xl">
+                {{ shippingLabel?.shipFrom?.bloodCenterName }}
+            </header>
+
+            <main class="flex flex-col gap-5">
+                <!-- Ship From Row -->
+                <div class="flex flex-row gap-5">
+                    <div class="w-2/12 text-right">
+                        <span class="border-2 p-5 block" data-testid="ship-from-label">Ship From</span>
+                    </div>
+                    <div class="flex-grow p-5 border-2">
+                        <span class="block" data-testid="ship-from-blood-center-name">{{ shippingLabel?.shipFrom?.bloodCenterName }}</span>
+                        <span class="block" data-testid="ship-from-blood-center-address-line-1">{{ shippingLabel?.shipFrom?.bloodCenterAddressLine1 }}</span>
+                        <span class="block" data-testid="ship-from-blood-center-address-line-2">{{ shippingLabel?.shipFrom?.bloodCenterAddressLine2 }}</span>
+                        <span class="block" data-testid="ship-from-blood-center-address-complement">{{ shippingLabel?.shipFrom?.bloodCenterAddressComplement }}</span>
+                        <span class="block font-bold" data-testid="ship-from-phone-number">{{ shippingLabel?.shipFrom?.phoneNumber }}</span>
+                    </div>
+                    <div class="w-3/12 p-5 border-2 text-center" data-testid="blood-center-barcode">
+                        @if (shippingLabel?.shipFrom?.bloodCenterBase64Barcode) {
+                        <img
+                            [alt]="shippingLabel?.shipFrom?.bloodCenterCode"
+                            [src]="getBase64DataImage(shippingLabel?.shipFrom?.bloodCenterBase64Barcode)"
+                            class="p-2"
+                            style="display: inline-block; aspect-ratio: auto; width: 1.25in;"
+                        />
+                        }
+                    </div>
+                </div>
+
+                <!-- Ship To Row -->
+                <div class="flex flex-row gap-5 font-bold">
+                    <div class="w-2/12 text-right">
+                        <span class="border-2 p-5 block" data-testid="ship-to-label">Ship To</span>
+                    </div>
+                    <div class="flex-grow p-5 border-2">
+                        <span class="block" data-testid="ship-to-customer-code">{{ shippingLabel?.shipTo?.customerCode }}</span>
+                        <span class="block" data-testid="ship-to-department">{{ shippingLabel?.shipTo?.department }}</span>
+                        <span class="block" data-testid="ship-to-customer-name">{{ shippingLabel?.shipTo?.customerName }}</span>
+                        <span class="block" data-testid="ship-to-address-line-1">{{ shippingLabel?.shipTo?.addressLine1 }}</span>
+                        <span class="block" data-testid="ship-to-address-line-2">{{ shippingLabel?.shipTo?.addressLine2 }}</span>
+                        <span class="block" data-testid="ship-to-address-complement">{{ shippingLabel?.shipTo?.addressComplement }}</span>
+                        <span class="block font-bold" data-testid="ship-to-phone-number">{{ shippingLabel?.shipTo?.phoneNumber }}</span>
+                    </div>
+                    <div class="w-3/12 p-5">&nbsp;</div>
+                </div>
+
+                <!-- Shipment Info -->
+                <div class="flex flex-row gap-5">
+                    <div class="w-2/12 p-5 text-right">&nbsp;</div>
+                    <div class="flex-grow p-5 border-2">
+                        <span class="block" data-testid="shipment-barcode">
+                            @if (shippingLabel?.shipmentIdBase64Barcode) {
+                            <img
+                                [alt]="shippingLabel?.shipmentId"
+                                [src]="getBase64DataImage(shippingLabel?.shipmentIdBase64Barcode)"
+                                class="p-2"
+                                style="display: inline-block; aspect-ratio: auto; width: 1.25in;"
+                            />
+                            }
+                        </span>
+                        <span class="block" data-testid="shipment-date-and-time-packed-label">Date & Time Packed</span>
+                        <span class="block" data-testid="shipment-date-and-time-packed-value">
+                            {{ shippingLabel?.dateTimePacked | date: 'MM-dd-yyyy HH:mm:ss aaa' }}
+                            {{ localTimezone }}
+                        </span>
+                        <span class="block" data-testid="shipment-packing-slip-enclosed-label">Packing Slip Enclosed</span>
+                    </div>
+                    <div class="w-3/12 p-5">&nbsp;</div>
+                </div>
+            </main>
+        </div>
+        }
+    </div>
+</div>

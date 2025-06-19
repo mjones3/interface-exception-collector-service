@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "Order management-inbound",
+  "description": "Create customer order",
+  "type": "object",
+  "properties": {
+    "externalId": {
+      "$ref": "#/definitions/externalId"
+    },
+    "orderStatus": {
+      "type": "string",
+      "enum": [
+        "OPEN"
+      ]
+    },
+    "locationCode": {
+      "$ref": "#/definitions/locationCode"
+    },
+    "createDate": {
+      "$ref": "#/definitions/dateTimePattern"
+    },
+    "createEmployeeCode": {
+      "type": ["string","null"],
+      "title": "Modify Employee Code",
+      "maxLength": 50
+    },
+    "shipmentType": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER"
+      ]
+    },
+    "deliveryType": {
+      "type": "string" ,
+      "enum": [
+        "DATE_TIME",
+        "SCHEDULED",
+        "STAT",
+        "ROUTINE",
+        "ASAP"
+      ]
+    },
+    "orderPickType": {
+      "$ref": "#/definitions/orderPickType"
+    },
+    "shippingMethod": {
+      "$ref": "#/definitions/shippingMethod"
+    },
+    "productCategory": {
+      "$ref": "#/definitions/productCategory"
+    },
+    "desiredShippingDate": {
+      "$ref": "#/definitions/datePattern"
+    },
+    "shippingCustomerCode": {
+      "$ref": "#/definitions/shippingCustomerCode"
+    },
+    "billingCustomerCode": {
+      "$ref": "#/definitions/billingCustomerCode"
+    },
+    "comments": {
+      "$ref": "#/definitions/comments"
+    },
+    "orderItems": {
+      "$ref": "#/definitions/orderItems"
+    }
+  },
+  "required": [
+    "externalId",
+    "orderStatus",
+    "locationCode",
+    "shipmentType",
+    "productCategory",
+    "orderItems"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "externalId": {
+      "type": "string",
+      "title": "ExternalId of the order",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "locationCode": {
+      "type": "string",
+      "title": "location code",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "datePattern": {
+      "type": ["string","null"],
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "dateTimePattern": {
+      "type": ["string","null"],
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})$"
+    },
+    "orderPickType": {
+      "type": "object",
+      "title": "Order pickup type",
+      "properties": {
+        "willCallPickUp": {
+          "$ref": "#/definitions/orderPickType.willCallPickUp"
+        },
+        "phoneNumber": {
+          "$ref": "#/definitions/orderPickType.phoneNumber"
+        }
+      },
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "willCallPickUp": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          }
+        }
+      }
+    },
+    "orderPickType.willCallPickUp": {
+      "type": "boolean"
+    },
+    "orderPickType.phoneNumber": {
+      "type": ["null","string"]
+    },
+
+    "productCategory": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Ordered product category"
+
+    },
+    "shippingMethod": {
+      "type": "string",
+      "title": "Shipping method used for shipment"
+
+    },
+    "shippingCustomerCode": {
+      "type": "string",
+      "title": "Shipping Customer Code of ordering hospital"
+    },
+    "billingCustomerCode": {
+      "type": "string",
+      "title": "Billing Customer Code of ordering hospital"
+    },
+    "comments": {
+      "type": "string",
+      "title": "Comment associated to the order"
+    },
+    "orderItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/orderItems.item"
+      }
+    },
+    "orderItems.item": {
+      "type": "object",
+      "properties": {
+        "productFamily": {
+          "$ref": "#/definitions/orderItems.productFamily"
+        },
+        "bloodType": {
+          "$ref": "#/definitions/orderItems.bloodType"
+        },
+        "quantity": {
+          "$ref": "#/definitions/orderItems.quantity"
+        },
+        "comments": {
+          "$ref": "#/definitions/orderItems.comments"
+        }
+      },
+      "required": [
+        "productFamily",
+		    "bloodType",
+        "quantity"
+      ],
+      "additionalProperties": false
+    },
+    "orderItems.productFamily": {
+      "type": "string",
+	  "minLength": 1,
+      "title": "Ordered product family"
+    },
+    "orderItems.bloodType": {
+      "type": "string",
+	  "minLength": 1,
+      "title": "Ordered product blood group description"
+    },
+    "orderItems.quantity": {
+      "type": "integer",
+      "title": "Ordered product quantity"
+    },
+    "orderItems.comments": {
+      "type": "string",
+      "title": "Comments associated with the ordered product, if any"
+    }
+  }
+}

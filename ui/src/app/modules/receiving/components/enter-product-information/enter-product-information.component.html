@@ -1,0 +1,205 @@
+
+<div class="flex flex-auto flex-col">
+    <biopro-process-header
+        [subTitle]="header.subTitle | async"
+        [title]="header.title | async"
+        [buttons]="actionButtonsTpl"
+        [label]="actionLabelTpl"
+    />
+
+    <ng-template #actionLabelTpl>
+        <div class="flex flex-row pb-2">
+            <h1 [class]="getTemperatureProductCategoryClass(importData()?.temperatureCategory)">{{TemperatureProductCategoryValueMap[importData()?.temperatureCategory]}}</h1>
+        </div>
+    </ng-template>
+
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row gap-2">
+            <biopro-action-button
+                id="productInformationCancel"
+                btnId="productInformationCancelActionButton"
+                label="Cancel"
+                [disabled]="true"
+                color="secondary"
+                icon="heroicons_outline:x-circle"
+            />
+
+            <biopro-action-button
+                id="productInformationSubmit"
+                btnId="productInformationSubmitActionButton"
+                label="Submit"
+                [disabled]="!importData()?.canComplete"
+                color="primary"
+                (click) = "completeImport()"
+                icon="heroicons_outline:paper-airplane"
+            />
+        </div>
+    </ng-template>
+
+    <div class="flex flex-col md:flex-row md:gap-4 md:p-4 items-start">
+        <!-- ENTER PRODUCT INFORMATION -->
+        <fuse-card class="flex flex-col w-full md:w-3/12">
+            <div class="border-b text-lg font-bold p-4">Enter Product Information</div>
+                <div class="flex flex-col md:p-4 gap-4 md:gap-4 justify-center">
+                    <form [formGroup]="productInformationForm">
+                        <!--Unit Number-->
+                        <biopro-input
+                            #inputUnitNumber
+                            label="Unit Number"
+                            id="unitNumber"
+                            placeholder="Scan Unit Number"
+                            [required]="true"
+                            [upperCase]="true"
+                            validateOn="blur"
+                            inputId="unitNumberInput"
+                            formControlName="unitNumber"
+                            [inputFocus]="fieldsMap.get(field.UNIT_NUMBER)?.focus"
+                            (tabOrEnterPressed)="onTabEnter(field.UNIT_NUMBER)"
+                            [customErrors]="{
+                                required: 'Unit Number is required',
+                                scannedValue: 'Manual entry is not allowed'
+                            }"
+                            [propagateParentErrors]="true"
+                        ></biopro-input>
+
+                        <!--aboRh-->
+                        <biopro-input
+                            #inputAboRh
+                            label="ABO/Rh"
+                            id="aboRh"
+                            placeholder="Scan aboRh"
+                            [required]="true"
+                            [upperCase]="true"
+                            validateOn="blur"
+                            inputId="aboRhInput"
+                            formControlName="aboRh"
+                            [inputFocus]="fieldsMap.get(field.ABO_RH)?.focus"
+                            (tabOrEnterPressed)="onTabEnter(field.ABO_RH)"
+                            [customErrors]="{
+                            required: 'aboRh is required',
+                            scannedValue: 'Manual entry is not allowed'
+                        }"
+                        [propagateParentErrors]="true"
+                    ></biopro-input>
+
+                        <!--Product Code-->
+                        <biopro-input
+                            #inputProductCode
+                            label="Product Code"
+                            id="productCode"
+                            placeholder="Scan Product Code"
+                            [required]="true"
+                            [upperCase]="true"
+                            validateOn="blur"
+                            inputId="productCodeInput"
+                            formControlName="productCode"
+                            [inputFocus]="fieldsMap.get(field.PRODUCT_CODE)?.focus"
+                            (tabOrEnterPressed)="onTabEnter(field.PRODUCT_CODE)"
+                            [customErrors]="{
+                                required: 'Product Code is required',
+                                scannedValue: 'Manual entry is not allowed'
+                            }"
+                            [propagateParentErrors]="true"
+                        ></biopro-input>
+
+                        <!--Expiration Date-->
+                        <biopro-input
+                            #inputExpirationDate
+                            label="Expiration Date"
+                            id="expirationDate"
+                            placeholder="Scan Expiration Date"
+                            [required]="true"
+                            validateOn="blur"
+                            inputId="expirationDateInput"
+                            formControlName="expirationDate"
+                            [inputFocus]="fieldsMap.get(field.EXPIRATION_DATE)?.focus"
+                            (tabOrEnterPressed)="onTabEnter(field.EXPIRATION_DATE)"
+                            [customErrors]="{
+                                required: 'Expiration Date is required',
+                                scannedValue: 'Manual entry is not allowed'
+                            }"
+                            [propagateParentErrors]="true"
+                        ></biopro-input>
+
+                        <!-- License Status Toggle Button-->
+                        <biopro-custom-button-toggle
+                            [showLabel]="true"
+                            [label]="'License Status'"
+                            [required]="true"
+                            toggleId="licenseStatusId"
+                            [options]="licenseOptions"
+                            [control]="productInformationForm.get('licenseStatus')"
+                        >
+                        </biopro-custom-button-toggle>
+
+                        <!-- Product Visual Inspection Toggle Button-->
+                        <div class="pt-3">
+                            <biopro-custom-button-toggle
+                                [showLabel]="true"
+                                [label]="'Product Visual Inspection'"
+                                [hideSingleSelectionIndicator]="true"
+                                [required]="true"
+                                toggleId="visualInspectionId"
+                                [options]="visualInspectionOptions"
+                                [control]="productInformationForm.get('visualInspection')"
+                            >
+                        </biopro-custom-button-toggle>
+                        </div>
+                    </form>
+
+                    <mat-dialog-actions align="end" class="space-x-4">
+                        <biopro-basic-button
+                            id="btnReset"
+                            label="Reset"
+                            [disabled]="!hasValues()"
+                            (buttonClicked)="resetForm()"
+                            color="secondary"
+                        ></biopro-basic-button>
+                        <biopro-basic-button
+                            id="btnAdd"
+                            class="mat-primary-action text-white"
+                            color="primary"
+                            [disabled]="!isFormValid()"
+                            (buttonClicked)="addImportItems()"
+                            label="Add"
+                        ></biopro-basic-button>
+                    </mat-dialog-actions>
+                </div>
+        </fuse-card>
+
+        <!-- ADDED PRODUCTS -->
+        <div class="flex flex-col w-full md:w-9/12">
+            <biopro-table
+                #importedProductInformationTable
+                tableId="importItemsTableId"
+                [tableContainerClass]="'h-[calc(100vh-350px)] min-h-[300px] overflow-auto'"
+                [totalCounts]="importData()?.maxNumberOfProducts"
+                [showCounts]="true"
+                [dataSource]="importData()?.products"
+                [configuration]="importItemsTableConfigComputed()"
+                [pageIndex]="0"
+                [serverPagination]="false"
+            >
+            </biopro-table>
+
+        <ng-template #expirationDateTemplateRef let-element="element">
+            {{ element?.expirationDate | date: 'MM/dd/yyyy' }}
+        </ng-template>
+        <ng-template #visualInspectionTemplateRef let-element="element">
+            <span [class]="getVisualInspectionClass(element.visualInspection)">
+                {{ element.visualInspection | uppercase}}
+            </span>
+        </ng-template>
+        <ng-template #quarantinedTemplateRef let-element="element">
+            <span [class]="getQuarantinedClass(element.isQuarantined)">
+                {{getQuarantinedValue(element.isQuarantined)}}
+            </span>
+        </ng-template>
+        <ng-template #licenseStatusTemplateRef let-element="element">
+            <span [class]="getLicenseStatusClass(element.licenseStatus)">
+                {{ element.licenseStatus | uppercase}}
+            </span>
+        </ng-template>
+        </div>
+    </div>
+</div>

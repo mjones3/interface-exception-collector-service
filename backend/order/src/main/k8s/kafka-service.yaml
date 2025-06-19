@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service
+  namespace: queue
+spec:
+  selector:
+    app: kafka
+  ports:
+    - name: tcp-interbroker
+      protocol: TCP
+      port: 9092
+    - name: tcp-client
+      protocol: TCP
+      port: 29092

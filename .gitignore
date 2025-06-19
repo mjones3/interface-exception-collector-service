@@ -13,6 +13,7 @@ node_modules/
 npm-debug.log.*
 /.awcache/*
 /.cache-loader/*
+/.devcontainer/*
 
 target/
 
@@ -62,7 +63,6 @@ local.properties
 *.ids
 *.orig
 classes/
-out/
 
 ######################
 # Visual Studio Code
@@ -147,3 +147,23 @@ Desktop.ini
 ######################
 .eslintcache
 /build.sh
+
+######################
+# Angular
+######################
+.angular
+/package-lock.json
+# misc
+/.angular/cache
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+.nx
+ui/.nx-cache
+/**/report/allure-report
+/**/report/allure-results

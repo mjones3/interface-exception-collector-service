@@ -1,0 +1,17 @@
+{
+  "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+  "occurredOn": "2024-08-22T12:34:32.270657005Z",
+  "eventVersion": "1.0",
+  "eventType": "QuarantineUpdated",
+  "payload": {
+    "id": 1,
+    "unitNumber": "W777725005005",
+    "productCode": "E0869A0",
+    "oldReason": "OTHER",
+    "newReason": "UNDER_INVESTIGATION",
+    "comments": "a under investigation comment",
+    "stopsManufacturing": true,
+    "performedBy": "USER_ID",
+    "createDate": "2025-01-08T02:05:45.231Z"
+  }
+}

@@ -1,0 +1,3 @@
+ALTER TABLE recoveredplasmashipping.bld_recovered_plasma_shipment_carton ADD COLUMN repack_employee_id varchar(50) NULL;
+ALTER TABLE recoveredplasmashipping.bld_recovered_plasma_shipment_carton ADD COLUMN repack_date timestamptz NULL;
+ALTER TABLE recoveredplasmashipping.bld_recovered_plasma_shipment_carton ADD COLUMN repack_comments varchar(255) NULL;
