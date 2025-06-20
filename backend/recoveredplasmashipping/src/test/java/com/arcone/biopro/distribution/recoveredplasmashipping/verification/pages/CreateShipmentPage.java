@@ -12,7 +12,7 @@ public class CreateShipmentPage extends CommonPageFactory {
     private HomePage homePage;
 
     @Autowired
-    private TestUtils  testUtils;
+    private TestUtils testUtils;
 
     private final SharedActions sharedActions;
 
@@ -46,12 +46,23 @@ public class CreateShipmentPage extends CommonPageFactory {
     private final By dateFromOnFilter = By.id("shipmentDateFrom");
     private final By dateToOnFilter = By.id("shipmentDateTo");
     private final By filterTransportationRefNumberInput = By.xpath("//form[@id=\"searchFormId\"]//input[@id=\"transportationReferenceNumberId\"]");
-    private final By filtersAppliedCount(int quantity){
+    private final By filtersAppliedBadge = By.xpath("//button[@id='filtersButtonId']/span[starts-with(@id,'mat-badge')]");
+    private final By shipmentNumberFilterInput = By.id("shipmentNumberId");
+
+    //Filter panel form field locators
+    private final By customerSelectFilterFormField = By.id("customerSelect");
+    private final By productTypeSelectFormField = By.id("productTypeSelect");
+    private final By shipmentStatusFormField = By.id("shipmentStatusSelect");
+    private final By shipmentDateFormField = By.id("shipmentDate");
+    private final By locationSelectFormField = By.id("locationSelect");
+    private final By filterTransportationRefNumberFormField = By.id("transportationReferenceNumberInput");
+
+    private final By filtersAppliedCount(int quantity) {
         return By.xpath(String.format("//button[@id='filtersButtonId']//span[text() = '%s']", quantity));
     }
 
     // Shipment table
-    private final By shipmentTableRow(String location, String transportationRefNumber, String customer, String productType, String status){
+    private final By shipmentTableRow(String location, String transportationRefNumber, String customer, String productType, String status) {
         return By.xpath(String.format("//td/span[contains(text(),'%s')]/../../td/span[contains(text(),'%s')]/../../td/span[contains(text(),'%s')]/../../td/span[contains(text(),'%s')]/../../td/span[contains(text(),'%s')]", location, transportationRefNumber, customer, productType, status.toUpperCase()));
 
     }
@@ -112,7 +123,7 @@ public class CreateShipmentPage extends CommonPageFactory {
         return sharedActions.isElementVisible(header);
     }
 
-    public void waitForLoad(){
+    public void waitForLoad() {
         sharedActions.waitForVisible(header);
     }
 
@@ -186,10 +197,47 @@ public class CreateShipmentPage extends CommonPageFactory {
     }
 
     public void verifyFilterCriteriaApplied(int quantity) {
-        sharedActions.waitForVisible(filtersAppliedCount(quantity));
+        if (quantity == 0) {
+            sharedActions.waitForNotVisible(filtersAppliedBadge);
+        } else {
+            sharedActions.waitForVisible(filtersAppliedCount(quantity));
+        }
     }
 
     public void setEditComments(String comments) {
         sharedActions.sendKeys(editCommentsTextArea, comments);
+    }
+
+    public void clickResetFiltersButton() {
+        sharedActions.click(resetFiltersButton);
+    }
+
+    public void setShipmentNumber(String shipmentNumber) {
+        sharedActions.sendKeys(shipmentNumberFilterInput, shipmentNumber);
+    }
+
+    public void verifyFieldEnabledDisabled(String key, String enabledDisabled) {
+        switch (key) {
+            case "Customer":
+                sharedActions.verifyElementEnabledDisabled(driver, customerSelectFilterFormField, enabledDisabled);
+                break;
+            case "Product Type":
+                sharedActions.verifyElementEnabledDisabled(driver, productTypeSelectFormField, enabledDisabled);
+                break;
+            case "Transportation Reference Number":
+                sharedActions.verifyElementEnabledDisabled(driver, filterTransportationRefNumberFormField, enabledDisabled);
+                break;
+            case "Location":
+                sharedActions.verifyElementEnabledDisabled(driver, locationSelectFormField, enabledDisabled);
+                break;
+            case "Shipment Date":
+                sharedActions.verifyElementEnabledDisabled(driver, shipmentDateFormField, enabledDisabled);
+                break;
+            case "Shipment Status":
+                sharedActions.verifyElementEnabledDisabled(driver, shipmentStatusFormField, enabledDisabled);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid key: " + key);
+        }
     }
 }

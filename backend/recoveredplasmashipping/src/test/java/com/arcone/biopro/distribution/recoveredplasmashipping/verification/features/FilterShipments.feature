@@ -9,6 +9,8 @@ Feature: Filter Shipments
 
         Rule: I should be able to filter the shipment lists by specific criteria.
         Rule: The system should not enable the Apply options until at least one filter criteria is chosen.
+        Rule: I should be able to reset the applied filter criteria.
+        Rule: The other filter options must be disabled when filtering by the Shipment Number.
         @ui @DIS-334
         Scenario: Filter shipments through UI with multiple criteria
             Given I request to create a new shipment with the values:
@@ -32,9 +34,19 @@ Feature: Filter Shipments
             When I click the Filter Apply button.
             Then I should see filtered shipments matching the criteria.
             And I should see "6" filter criteria applied.
+            When I select to reset filters.
+            Then I should not have any filter criteria applied.
+            When I am filtering by shipment number.
+            Then The other filter fields should be defined as below:
+                | Customer                        | disabled |
+                | Product Type                    | disabled |
+                | Shipment Status                 | disabled |
+                | Shipment Date                   | disabled |
+                | Location                        | disabled |
+                | Transportation Reference Number | disabled |
 
 
-        Rule: I should be able to search by
+    Rule: I should be able to search by
         Shipment Number, Customer, Product Type, Shipment Status,
         Shipment Date Range, Location and Transportation Reference Number as filter Options.
         Rule: I should be able to multi-select for Customer, Product Type, Shipment Status and Location.
