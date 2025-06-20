@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public class ProductsImportedListener extends AbstractListener<ProductsImportedInput, InventoryOutput, ProductsImportedMessage> {
+public class ProductsImportedListener extends AbstractListener<ProductsImportedInput, InventoryOutput, ProductsImported> {
 
     public ProductsImportedListener(@Qualifier("PRODUCTS_IMPORTED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                   ObjectMapper objectMapper,
@@ -25,7 +25,7 @@ public class ProductsImportedListener extends AbstractListener<ProductsImportedI
     }
 
     @Override
-    protected TypeReference<EventMessage<ProductsImportedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<ProductsImportedMessage>>() {};
+    protected TypeReference<EventMessage<ProductsImported>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<ProductsImported>>() {};
     }
 }

@@ -10,11 +10,11 @@ import org.mapstruct.Mapping;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface RecoveredPlasmaShipmentClosedMessageMapper extends MessageMapper<RecoveredPlasmaShipmentClosedInput, RecoveredPlasmaShipmentClosedMessage> {
+public interface RecoveredPlasmaShipmentClosedMessageMapper extends MessageMapper<RecoveredPlasmaShipmentClosedInput, RecoveredPlasmaShipmentClosed> {
 
     @Override
     @Mapping(target = "cartonList", source = "cartonList")
-    RecoveredPlasmaShipmentClosedInput toInput(RecoveredPlasmaShipmentClosedMessage message);
+    RecoveredPlasmaShipmentClosedInput toInput(RecoveredPlasmaShipmentClosed message);
 
     @Mapping(target = "packedProducts", source = "packedProducts")
     CartonInput toCartonInput(CartonMessage carton);

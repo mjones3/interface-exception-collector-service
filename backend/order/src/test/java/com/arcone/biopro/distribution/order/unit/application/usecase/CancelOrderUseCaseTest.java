@@ -18,6 +18,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.UUID;
+
 @SpringJUnitConfig
 class CancelOrderUseCaseTest {
 
@@ -89,6 +91,7 @@ class CancelOrderUseCaseTest {
                 .cancelDate("2025-01-01 00:00:00")
                 .cancelReason("Reason")
                 .cancelEmployeeCode("employee-id")
+                .transactionId(UUID.randomUUID())
             .build());
 
 

@@ -5,7 +5,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.UnsuitableInput;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface UnsuitableMessageMapper extends MessageMapper<UnsuitableInput, UnsuitableMessage> {
+public interface UnsuitableMessageMapper extends MessageMapper<UnsuitableInput, UnitUnsuitable> {
 
-    UnsuitableInput toInput(UnsuitableMessage message);
+    UnsuitableInput toInput(UnitUnsuitable message);
 }

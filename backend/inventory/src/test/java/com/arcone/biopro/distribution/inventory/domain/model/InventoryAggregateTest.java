@@ -37,7 +37,7 @@ class InventoryAggregateTest {
 
     @Test
     void testIsExpired_ShouldReturnTrue_WhenExpirationDateIsBeforeNow() {
-        when(inventoryMock.isExpired()).thenReturn(true);
+        when(inventoryMock.isExpired(false)).thenReturn(true);
         assertTrue(inventoryAggregate.isExpired(), "Expected inventory to be expired");
     }
 
@@ -51,7 +51,7 @@ class InventoryAggregateTest {
     void testCheckIfIsValidToShip_ShouldAddNotification_WhenInventoryIsExpired() {
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
-        when(inventoryMock.isExpired()).thenReturn(true);
+        when(inventoryMock.isExpired(false)).thenReturn(true);
         when(inventoryMock.getIsLabeled()).thenReturn(Boolean.TRUE);
 
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");

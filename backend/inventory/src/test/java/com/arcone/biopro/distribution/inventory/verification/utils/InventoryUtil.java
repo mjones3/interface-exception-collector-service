@@ -122,11 +122,11 @@ public class InventoryUtil {
         return builder.build();
     }
 
-    public CheckInCompletedInput newCheckInCompletedInput(String unitNumber, String productCode, String collectionLocation, String collectionTimeZone) {
+    public CheckInCompletedInput newCheckInCompletedInput(String unitNumber, String productCode, String collectionLocation, String collectionTimeZone, String checkinLocation) {
         return CheckInCompletedInput.builder()
             .productFamily(ISBTProductUtil.getProductFamily(productCode))
             .aboRh(AboRhType.OP)
-            .inventoryLocation(collectionLocation)
+            .checkInLocation(checkinLocation)
             .collectionLocation(collectionLocation)
             .collectionTimeZone(collectionTimeZone)
             .collectionDate(ZonedDateTime.now())

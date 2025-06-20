@@ -71,14 +71,13 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
                 aboRHArray(aboRh),
                 InventoryStatus.AVAILABLE,
                 temperatureCategory,
-                LocalDateTime.now(),
                 getFinalDateTime(pf)))
             .map(mapper::toAggregate);
     }
 
     @Override
     public Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory) {
-        return inventoryEntityRepository.countBy(location, productFamily, aboRHArray(aboRh), InventoryStatus.AVAILABLE, temperatureCategory, LocalDateTime.now());
+        return inventoryEntityRepository.countBy(location, productFamily, aboRHArray(aboRh), InventoryStatus.AVAILABLE, temperatureCategory);
     }
 
     private static String[] aboRHArray(AboRhCriteria aboRh) {

@@ -59,6 +59,7 @@ public class PartnerOrderInboundReceivedListener {
         var facility = facilityServiceMock.getFacilityByExternalCode(partnerOrder.getLocationCode());
         var message = new OrderReceivedEvent(OrderDTO
             .builder()
+            .transactionId(partnerOrder.getId())
             .orderStatus(partnerOrder.getOrderStatus())
             .createDate(partnerOrder.getCreateDate())
             .externalId(partnerOrder.getExternalId())

@@ -79,6 +79,7 @@ public class OrderModifiedListener {
                 .modifyDate(order.getModificationDate())
                 .modifyEmployeeId(order.getModifyEmployeeId())
                 .modifyReason(order.getModifyReason())
+                .transactionId(order.getTransactionId())
                 .orderItems(order.getOrderItems().stream().map(orderItem -> OrderItemCancelledDTO.builder()
                     .productFamily(orderItem.getProductFamily().getProductFamily())
                     .quantity(orderItem.getQuantity())

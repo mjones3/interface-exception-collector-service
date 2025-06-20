@@ -54,6 +54,7 @@ public class CancelOrderInboundReceivedListener {
         var eventPayload = event.getPayload();
 
         var message = new CancelOrderReceivedEvent(CancelOrderDTO.builder()
+            .transactionId(eventPayload.getId())
             .externalId(eventPayload.getExternalId())
             .cancelReason(eventPayload.getCancelReason())
             .cancelEmployeeCode(eventPayload.getCancelEmployeeCode())

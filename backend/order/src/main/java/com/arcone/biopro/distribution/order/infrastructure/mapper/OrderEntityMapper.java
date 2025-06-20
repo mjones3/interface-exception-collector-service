@@ -59,6 +59,7 @@ public class OrderEntityMapper {
             .modifyByProcess(order.getModifiedByProcess())
             .modifyEmployeeId(order.getModifyEmployeeId())
             .modifyReason(order.getModifyReason())
+            .transactionId(order.getTransactionId())
             .build();
     }
 
@@ -108,6 +109,7 @@ public class OrderEntityMapper {
         order.setModifyEmployeeId(orderEntity.getModifyEmployeeId());
         order.setModifyReason(orderEntity.getModifyReason());
         order.setModifiedByProcess(orderEntity.getModifyByProcess());
+        order.setTransactionId(orderEntity.getTransactionId());
 
         return order;
     }

@@ -63,6 +63,7 @@ public class ModifyOrderInboundReceivedListener {
 
         var message = new ModifyOrderReceivedEvent(ModifyOrderDTO
             .builder()
+                .transactionId(eventPayload.getId())
                 .externalId(eventPayload.getExternalId())
                 .locationCode(facility.code())
                 .modifyReason(eventPayload.getModifyReason())

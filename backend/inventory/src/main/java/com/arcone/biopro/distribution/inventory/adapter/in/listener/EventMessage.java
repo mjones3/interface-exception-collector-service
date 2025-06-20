@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.adapter.in.listener;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.SchemaProperty;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;

@@ -24,6 +24,7 @@ public record OrderReceivedEventPayloadDTO(
     String comments,
     boolean willPickUp,
     String willPickUpPhoneNumber,
-    List<OrderItemEventDTO> orderItems
+    List<OrderItemEventDTO> orderItems,
+    UUID transactionId
 ) implements Serializable {
 }

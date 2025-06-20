@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 
 @Schema(
@@ -33,7 +34,14 @@ public record OrderRejectedDTO(
         example = "CREATE_ORDER",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    String operation
+    String operation,
+    @Schema(
+        title = "Transaction ID",
+        description = "The transaction ID for tracking the request through the system",
+        example = "df7092f3-78a6-4d17-1979-e9de07db6f3c",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    UUID transactionId
 ) implements Serializable {
 
 }

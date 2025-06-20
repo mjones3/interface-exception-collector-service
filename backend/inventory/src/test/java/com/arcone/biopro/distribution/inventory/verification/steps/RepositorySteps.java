@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.PropertyKey;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
@@ -217,6 +218,13 @@ public class RepositorySteps {
                 }
             }
 
+            if(headers.contains("Expiration Timezone")){
+                String timeZone = inventory.get("Expiration Timezone");
+                if(StringUtils.isNotBlank(timeZone)){
+                    inventoryEntity.setExpirationTimeZone(timeZone);
+                }
+            }
+
             if (headers.contains("Is licensed")) {
                 var field = inventory.get("Is licensed");
                 switch (field) {
@@ -263,6 +271,21 @@ public class RepositorySteps {
                 inventoryEntity.setExpirationDate(LocalDateTime.now().plusDays(expiresInDays));
             }
 
+            if(headers.contains("Expires In")) {
+                int expiresIn = Integer.parseInt(inventory.get("Expires In").split(" ")[0]);
+                String type = inventory.get("Expires In").split(" ")[1];
+                if (type.equals("Hours")) {
+                    inventoryEntity.setExpirationDate(LocalDateTime.now().plusDays(expiresIn));
+                } else {
+                    inventoryEntity.setExpirationDate(LocalDateTime.now().plusHours(expiresIn));
+                }
+            }
+
+
+
+
+
+
             inventoryEntity.setVolumes(new ArrayList<>());
             if(headers.contains("Volumes") && inventory.get("Volumes") != null){
                 var volumes = inventory.get("Volumes").split(",");
@@ -275,6 +298,17 @@ public class RepositorySteps {
             inventoryEntity.setTemperatureCategory(headers.contains("Temperature Category") ? inventory.get("Temperature Category") : "FROZEN");
 
             inventoryUtil.saveInventory(inventoryEntity);
+
+            if("Y".equals(inventory.get("Timezone Relevant"))) {
+                PropertyEntity property = PropertyEntity.builder()
+                    .id(UUID.randomUUID())
+                    .key("TIMEZONE_RELEVANT")
+                    .value("Y")
+                    .inventoryId(inventoryEntity.getId())
+                    .build();
+
+                propertyEntityRepository.save(property).block();
+            }
         }
     }
 
@@ -335,6 +369,9 @@ public class RepositorySteps {
             if(row.containsKey("Collection Location")){
                 assertEquals(row.get("Collection Location"), inventoryEntity.getCollectionLocation());
             }
+            if(row.containsKey("Checkin Location")){
+                assertEquals(row.get("Checkin Location"), inventoryEntity.getInventoryLocation());
+            }
             if(row.containsKey("Collection TimeZone")){
                 assertEquals(row.get("Collection TimeZone"), inventoryEntity.getCollectionTimeZone());
             }
@@ -347,6 +384,25 @@ public class RepositorySteps {
 
             if(row.containsKey("Modification Date")) {
                 assertEquals(row.get("Modification Date"),inventoryEntity.getProductModificationDate().withZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+            }
+
+            if(row.containsKey("Expiration Time Zone")) {
+                assertEquals(row.get("Expiration Time Zone"), inventoryEntity.getExpirationTimeZone());
+            }
+
+            if(row.get("Properties") != null) {
+                var key = row.get("Properties").split("=")[0];
+                var value = row.get("Properties").split("=")[1];
+
+                List<PropertyEntity> propertyEntities = propertyEntityRepository.findByInventoryId(inventoryEntity.getId())
+                    .filter(propertyEntity -> propertyEntity.getKey().equals(key))
+                    .collectList()
+                    .block();
+
+                assert propertyEntities != null;
+                assertFalse(propertyEntities.isEmpty());
+                PropertyEntity propertyEntity = propertyEntities.getFirst();
+                assertEquals(value, propertyEntity.getValue());
             }
 
             assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
@@ -363,7 +419,7 @@ public class RepositorySteps {
             String family = product.get("Family");
             String abORh = product.get("ABORh");
             String location = product.get("Location");
-            int expiresInDays = Integer.parseInt(product.get("Expires In Days"));
+            String expiresIn = product.get("Expires In");
 
             String productCode = "E0869V00";
             if(product.containsKey("Product Code")){
@@ -379,29 +435,47 @@ public class RepositorySteps {
                 temperatureCategory = product.get("Temperature Category");
             }
 
-            createMultipleProducts(unitNumber, productCode, units, family, abORh, location, expiresInDays, status, temperatureCategory);
+            createMultipleProducts(unitNumber, productCode, units, family, abORh, location, expiresIn, status, temperatureCategory, product.get("Expiration Timezone"), product.get("Timezone Relevant"));
         }
     }
 
-    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String temperatureCategory, Boolean isLabeled, String statusReason, String comments) {
+    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, String expireIn, InventoryStatus status, String temperatureCategory, Boolean isLabeled, String statusReason, String comments, String expirationTimezone, String timezoneRelevant) {
         var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
+
+        var expirePlus = Integer.parseInt(expireIn.split(" ")[0]);
+        var expireType = expireIn.split(" ")[1];
+        if ("Hours".equals(expireType)) {
+            inventory.setExpirationDate(LocalDateTime.now().plusHours(expirePlus));
+        } else {
+            inventory.setExpirationDate(LocalDateTime.now().plusDays(expirePlus));
+        }
         inventory.setInventoryLocation(location);
         inventory.setCollectionLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
         inventory.setProductFamily(productFamily);
         inventory.setAboRh(aboRhType);
         inventory.setStatusReason(statusReason);
         inventory.setComments(comments);
         inventory.setIsLabeled(isLabeled);
         inventory.setTemperatureCategory(temperatureCategory);
+        inventory.setExpirationTimeZone(expirationTimezone);
         inventoryUtil.saveInventory(inventory);
+        if ("Y".equals(timezoneRelevant)) {
+            propertyEntityRepository.save(
+                PropertyEntity.builder()
+                    .id(UUID.randomUUID())
+                    .key(PropertyKey.TIMEZONE_RELEVANT.name())
+                    .value(timezoneRelevant)
+                    .inventoryId(inventory.getId())
+                    .build()
+            ).block();
+        }
     }
 
-    private void createMultipleProducts(String unitNumber, String productCode, Integer quantity, String productFamily, String aboRh, String location, Integer daysToExpire, InventoryStatus status, String temperatureCategory) {
+    private void createMultipleProducts(String unitNumber, String productCode, Integer quantity, String productFamily, String aboRh, String location, String expireIn, InventoryStatus status, String temperatureCategory, String expirationTimezone, String timezoneRelevant ) {
         AboRhType aboRhType = AboRhType.valueOf(aboRh);
 
         for (int i = 0; i < quantity; i++) {
-            createInventory(unitNumber, productCode, productFamily, aboRhType, location, daysToExpire, status, temperatureCategory, true, null, null);
+            createInventory(unitNumber, productCode, productFamily, aboRhType, location, expireIn, status, temperatureCategory, true, null, null, expirationTimezone, timezoneRelevant);
         }
     }
 

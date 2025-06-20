@@ -35,7 +35,7 @@ public class InventoryAggregate {
     List<NotificationMessage> notificationMessages;
 
     public Boolean isExpired() {
-        return inventory.isExpired();
+        return inventory.isExpired(hasPropertyEquals(PropertyKey.TIMEZONE_RELEVANT, "Y"));
     }
 
     public InventoryAggregate checkIfIsValidToShip(String location) {
@@ -87,7 +87,7 @@ public class InventoryAggregate {
     }
 
     public Boolean isQuarantined() {
-        return hasPropertyEquals(PropertyKey.QUARANTINED, "Y") || !inventory.getQuarantines().isEmpty();
+        return hasPropertyEquals(PropertyKey.QUARANTINED, "Y") || inventory.isQuarantined();
     }
 
     private List<NotificationMessage> createNotificationMessage() {
@@ -291,6 +291,10 @@ public class InventoryAggregate {
     public InventoryAggregate populateProperties(List<Property> properties) {
         this.properties = properties;
         return this;
+    }
+
+    public void addTimezoneRelevantFlag() {
+        addProperty(PropertyKey.TIMEZONE_RELEVANT, "Y");
     }
 }
 

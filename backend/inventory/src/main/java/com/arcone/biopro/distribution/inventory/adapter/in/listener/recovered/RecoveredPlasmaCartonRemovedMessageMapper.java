@@ -9,11 +9,11 @@ import org.mapstruct.Mapping;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface RecoveredPlasmaCartonRemovedMessageMapper extends MessageMapper<RecoveredPlasmaCartonRemovedInput, RecoveredPlasmaCartonRemovedMessage> {
+public interface RecoveredPlasmaCartonRemovedMessageMapper extends MessageMapper<RecoveredPlasmaCartonRemovedInput, RecoveredPlasmaCartonRemoved> {
 
     @Override
     @Mapping(target = "packedProducts", source = "packedProducts")
-    RecoveredPlasmaCartonRemovedInput toInput(RecoveredPlasmaCartonRemovedMessage message);
+    RecoveredPlasmaCartonRemovedInput toInput(RecoveredPlasmaCartonRemoved message);
 
     @Mapping(target = "unitNumber", source = "unitNumber")
     @Mapping(target = "productCode", source = "productCode")

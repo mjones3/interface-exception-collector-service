@@ -8,7 +8,7 @@ Feature: Cancel Order
         Rule: The cancellation reason, date, time, and the employee who cancelled the order must be displayed in the BioPro application for a cancelled order.
         Rule: The cancelled order request must be rejected if the internal BioPro order is in the "In Progress", "Completed" or "Cancelled" status.
         Rule: The cancelled order request must be rejected if the external order ID does not exist.
-        @DIS-315
+        @DIS-315 @R20-663
         Scenario Outline: Cancel an Open Biopro order from a valid Cancel Order request.
             Given I have an order with external ID "<Source External ID>" and status "<Initial Status>".
             And I have received a cancel order request with externalId "<Cancel External ID>", cancel date "<Cancel Date>" and content "cancel-order-valid-request.json".

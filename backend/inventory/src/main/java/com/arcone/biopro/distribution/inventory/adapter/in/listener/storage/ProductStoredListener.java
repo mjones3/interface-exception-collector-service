@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ProductStoredListener extends AbstractListener<ProductStorageInput, InventoryOutput, ProductStoredMessage> {
+public class ProductStoredListener extends AbstractListener<ProductStorageInput, InventoryOutput, ProductStored> {
 
     public ProductStoredListener(@Qualifier("PRODUCT_STORED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                  ObjectMapper objectMapper,
@@ -31,7 +31,7 @@ public class ProductStoredListener extends AbstractListener<ProductStorageInput,
     }
 
     @Override
-    protected TypeReference<EventMessage<ProductStoredMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<ProductStoredMessage>>() {};
+    protected TypeReference<EventMessage<ProductStored>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<ProductStored>>() {};
     }
 }

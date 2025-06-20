@@ -6,11 +6,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface CheckInCompletedMessageMapper extends MessageMapper<CheckInCompletedInput, CheckInCompletedMessage> {
+public interface CheckInCompletedMessageMapper extends MessageMapper<CheckInCompletedInput, CheckInCompleted> {
 
     @Mapping(target = "collectionDate", source = "drawTime")
-    @Mapping(target = "inventoryLocation", source = "collectionLocation")
     @Mapping(target = "collectionLocation", source = "collectionLocation")
     @Mapping(target = "collectionTimeZone", source = "collectionTimeZone")
-    CheckInCompletedInput toInput(CheckInCompletedMessage message);
+    @Mapping(target = "checkInLocation", source = "checkInLocation")
+    CheckInCompletedInput toInput(CheckInCompleted message);
 }
