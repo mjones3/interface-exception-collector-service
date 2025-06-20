@@ -4,6 +4,7 @@ import lombok.Builder;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 public record ModifyOrderReceivedPayloadDTO(
@@ -20,7 +21,8 @@ public record ModifyOrderReceivedPayloadDTO(
     boolean willPickUp,
     String willPickUpPhoneNumber,
     String comments,
-    List<OrderItemEventDTO> orderItems
+    List<OrderItemEventDTO> orderItems,
+    UUID transactionId
 
 ) implements Serializable {
 }

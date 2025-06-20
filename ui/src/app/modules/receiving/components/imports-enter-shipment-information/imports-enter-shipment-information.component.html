@@ -1,7 +1,7 @@
 <div class="flex flex-auto flex-col">
     <biopro-process-header
-        [subTitle]="header.subTitle | async"
-        [title]="header.title | async"
+        [subTitle]="processHeaderService.subTitle | async"
+        [title]="processHeaderService.title | async"
         [buttons]="actionButtonsTpl"
     />
 
@@ -21,28 +21,29 @@
                 label="Continue"
                 color="primary"
                 icon="heroicons_outline:arrow-right-circle"
-                [disabled]="form.invalid"
+                (clickEvent)="createImport()"
+                [disabled]="!form.valid"
             />
         </div>
     </ng-template>
 
-    @if (productCategoriesSignal()?.length) {
+    @if (productCategoryLookupsSignal()?.length) {
     <div class="flex flex-col md:flex-row gap-4 md:gap-6 p-4 md:p-6 items-start min-h-[calc(100vh-240px)]">
         <!-- SELECT TEMPERATURE PRODUCT CATEGORY -->
         <fuse-card class="flex flex-col w-full md:w-3/12">
             <div class="border-b text-lg font-bold p-4">Temperature Product Category</div>
             <div class="flex flex-col p-4 md:p-8 gap-4 md:gap-8 justify-center">
-                @for (productCategory of productCategoriesSignal(); track $index) {
+                @for (productCategoryLookup of productCategoryLookupsSignal(); track $index) {
                     <button type="button"
                             mat-fab
                             class="flex flex-row flex-1 justify-start gap-2 m-0 px-4 py-8 overflow-hidden"
-                            [attr.data-testid]="'select-temperature-category-' + productCategory.optionValue"
-                            [class.selected]="form.controls.productCategory?.value === productCategory.optionValue"
+                            [attr.data-testid]="'select-temperature-category-' + productCategoryLookup.optionValue"
+                            [class.selected]="form.controls.temperatureProductCategory?.value === productCategoryLookup.optionValue"
                             [extended]="true"
-                            (click)="selectCategory(productCategory.optionValue)"
+                            (click)="selectCategoryFromLookup(productCategoryLookup)"
                     >
-                        <mat-icon [svgIcon]="TemperatureProductCategoryIconMap[productCategory.optionValue]" class="!min-w-[48px] !w-[48px] !min-h-[48px] !h-[48px]" />
-                        <span class="whitespace-nowrap">{{ productCategory.descriptionKey }}</span>
+                        <mat-icon [svgIcon]="TemperatureProductCategoryIconMap[productCategoryLookup.optionValue]" class="!min-w-[48px] !w-[48px] !min-h-[48px] !h-[48px]" />
+                        <span class="whitespace-nowrap">{{ productCategoryLookup.descriptionKey }}</span>
                     </button>
                 }
             </div>
@@ -52,10 +53,33 @@
         <!-- PACKING INFORMATION AND CONDITIONS -->
         <fuse-card class="flex flex-col w-full md:w-9/12 h-full">
             <div class="border-b text-lg font-bold p-4">Packing Information</div>
-            @if (!form.controls.productCategory?.value || !shippingInformationSignal()) {
+            @if (!form.controls.temperatureProductCategory?.value || !shippingInformationSignal()) {
             <span data-testid="no-category-selected-message" class="flex flex-col items-center justify-center w-full h-full text-secondary">Select Temperature Category</span>
             } @else {
             <div class="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 md:p-8">
+                @if (temperatureQuarantineSignal() || transitTimeQuarantineSignal()) {
+                <div class="grid gap-4 md:col-span-6 md:pb-4">
+                    @if(temperatureQuarantineSignal(); as temperatureQuarantineNotification){
+                    <div class="md:col-span-6">
+                        <biopro-global-message
+                            [messageType]="NotificationTypeMap[temperatureQuarantineNotification.type].type"
+                            [message]="temperatureQuarantineNotification.message"
+                            [appearance]="'border'"
+                        />
+                    </div>
+                    }
+                    @if(transitTimeQuarantineSignal(); as transitTimeQuarantineNotification){
+                    <div class="md:col-span-6">
+                        <biopro-global-message
+                            [messageType]="NotificationTypeMap[transitTimeQuarantineNotification.type].type"
+                            [message]="transitTimeQuarantineNotification.message"
+                            [appearance]="'border'"
+                        />
+                    </div>
+                    }
+                </div>
+                }
+
                 @if (shippingInformationSignal()?.displayTransitInformation) {
                 <!-- START TRANSIT TIME -->
                 <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
@@ -66,6 +90,7 @@
                            [max]="now"
                            matInput
                            required
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     <mat-hint>MM/DD/YYYY</mat-hint>
                     <mat-datepicker-toggle matIconSuffix [for]="transitTimeStartDatePicker"></mat-datepicker-toggle>
@@ -79,6 +104,7 @@
                            formControlName="startTime"
                            matInput
                            required
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     <mat-icon matIconSuffix>schedule</mat-icon>
                     <mat-hint>HH:MM</mat-hint>
@@ -88,7 +114,7 @@
                     <mat-label>Start Time Zone</mat-label>
                     <mat-select [attr.data-testid]="'transit-time-start-zone'" formControlName="startZone" required>
                         @for (timeZone of availableTimeZonesSignal(); track $index) {
-                            <mat-option [value]="timeZone">{{timeZone}}</mat-option>
+                            <mat-option [value]="timeZone.optionValue">{{timeZone.descriptionKey}}</mat-option>
                         }
                     </mat-select>
                     @if (form.controls.transitTime.controls.startZone.hasError('required')) { <mat-error>Start Time Zone is required</mat-error> }
@@ -104,19 +130,23 @@
                            [min]="form.controls.transitTime.controls?.startDate?.value || now"
                            matInput
                            required
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     <mat-hint>MM/DD/YYYY</mat-hint>
                     <mat-datepicker-toggle matIconSuffix [for]="transitTimeEndDatePicker"></mat-datepicker-toggle>
                     <mat-datepicker #transitTimeEndDatePicker></mat-datepicker>
                     @if (form.controls.transitTime.controls.endDate.hasError('required')) { <mat-error>Transit End Date is required</mat-error> }
+                    @if (form.controls.transitTime.controls.endDate.hasError('matDatepickerMin')) { <mat-error>Transit End Date cannot be before the Transit Start Date</mat-error> }
                 </mat-form-field>
+
                 <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
-                    <mat-label>End Time</mat-label>
+                    <mat-label>Transit End Time</mat-label>
                     <input data-testid="transit-time-end-time"
                            type="time"
                            formControlName="endTime"
                            matInput
                            required
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
                     <mat-icon matIconSuffix>schedule</mat-icon>
                     <mat-hint>HH:MM</mat-hint>
@@ -126,7 +156,7 @@
                     <mat-label>End Time Zone</mat-label>
                     <mat-select [attr.data-testid]="'transit-time-end-zone'" formControlName="endZone" required>
                         @for (timeZone of availableTimeZonesSignal(); track $index) {
-                            <mat-option [value]="timeZone">{{timeZone}}</mat-option>
+                            <mat-option [value]="timeZone.optionValue">{{timeZone.descriptionKey}}</mat-option>
                         }
                     </mat-select>
                     @if (form.controls.transitTime.controls.endZone.hasError('required')) { <mat-error>End Time Zone is required</mat-error> }
@@ -134,41 +164,47 @@
 
 
                 <!-- Total Transit Time -->
-                @if (
-                        form.controls.transitTime.controls.startDate?.value && form.controls.transitTime.controls.endDate?.value &&
-                        form.controls.transitTime.controls.startTime?.value && form.controls.transitTime.controls.endTime?.value &&
-                        form.controls.transitTime.controls.startZone?.value && form.controls.transitTime.controls.endZone?.value
-                ) {
+                @if (transitTimeHumanReadableSignal(); as transitTimeHumanReadable) {
                 <div class="md:col-span-6 rounded-md bg-blue-100 p-6 text-center mb-2">
-                    <b>Total Transit Time:</b> 00h 00m
+                    <b>Total Transit Time:</b>&nbsp;<span data-testid="total-transit-time-value">{{ transitTimeHumanReadable }}</span>
                 </div>
                 }
                 }
 
 
                 @if (shippingInformationSignal()?.displayTemperature) {
-                <!-- Temperature -->
-                <mat-form-field class="md:col-span-3" [formGroup]="form">
-                    <mat-label>Temperature</mat-label>
-                    <input data-testid="temperature"
-                           type="number"
-                           formControlName="temperature"
-                           matInput
-                           required
-                    />
-                    <span matTextSuffix>&deg; C</span>
-                    @if (form.controls.temperature.hasError('required')) { <mat-error>Temperature is required</mat-error> }
-                </mat-form-field>
-                <!-- Thermometer ID -->
-                <mat-form-field class="md:col-span-3" [formGroup]="form">
+                <mat-form-field class="md:col-span-3" [formGroup]="form.controls.temperature">
                     <mat-label>Thermometer ID</mat-label>
-                    <input data-testid="thermometer-id"
+                    <input #thermometerId
+                           data-testid="thermometer-id"
                            type="text"
                            formControlName="thermometerId"
                            matInput
                            required
+                           (keydown.enter)="this.triggerElementBlur($event)"
                     />
-                    @if (form.controls.thermometerId.hasError('required')) { <mat-error>Thermometer ID is required</mat-error> }
+                    @if (form.controls.temperature.controls.thermometerId.valid) { <mat-icon matIconSuffix>check</mat-icon> }
+                    @if (form.controls.temperature.controls.thermometerId.hasError('required')) { <mat-error [attr.data-testid]="'required-validation-error'">Thermometer ID is required</mat-error> }
+                    @if (form.controls.temperature.controls.thermometerId.hasError('deviceIdValidation')) { <mat-error [attr.data-testid]="'device-id-validation-error'">{{ form.controls.temperature.controls.thermometerId.getError('deviceIdValidation') }}</mat-error> }
+                </mat-form-field>
+
+                <!-- Temperature -->
+                <mat-form-field class="md:col-span-3" [formGroup]="form.controls.temperature">
+                    <mat-label>Temperature</mat-label>
+                    <input #temperature
+                           data-testid="temperature"
+                           type="number"
+                           formControlName="temperature"
+                           min="-273"
+                           max="99"
+                           matInput
+                           required
+                           (keydown.enter)="this.triggerElementBlur($event)"
+                    />
+                    <span matTextSuffix>&deg; C</span>
+                    @if (form.controls.temperature.controls.temperature.hasError('required')) { <mat-error>Temperature is required</mat-error> }
+                    @if (form.controls.temperature.controls.temperature.hasError('min')) { <mat-error>Temperature must be greater than -273 &deg; C</mat-error> }
+                    @if (form.controls.temperature.controls.temperature.hasError('max')) { <mat-error>Temperature must be lesser than 99 &deg; C</mat-error> }
                 </mat-form-field>
                 }
 

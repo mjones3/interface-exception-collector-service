@@ -19,6 +19,7 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Inventory {
 
     UUID id;
@@ -160,6 +161,14 @@ public class Inventory {
             return ZoneId.of(collectionTimeZone);
         }
         return ZoneId.of("UTC");
+    }
+
+    private <T> List<T> initializeIfNull(List<T> list) {
+        return list == null ? new ArrayList<>() : list;
+    }
+
+    public Boolean isQuarantined() {
+        return !initializeIfNull(quarantines).isEmpty();
     }
 
 }

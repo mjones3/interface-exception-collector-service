@@ -5,8 +5,10 @@ import com.arcone.biopro.distribution.receiving.application.dto.UseCaseMessageTy
 import com.arcone.biopro.distribution.receiving.application.dto.UseCaseNotificationOutput;
 import com.arcone.biopro.distribution.receiving.application.mapper.ShippingInformationOutputMapper;
 import com.arcone.biopro.distribution.receiving.application.usecase.EnterShippingInformationUseCase;
+import com.arcone.biopro.distribution.receiving.domain.model.Location;
 import com.arcone.biopro.distribution.receiving.domain.model.Lookup;
 import com.arcone.biopro.distribution.receiving.domain.model.ProductConsequence;
+import com.arcone.biopro.distribution.receiving.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.LookupRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
 import org.junit.jupiter.api.Test;
@@ -16,8 +18,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.lang.reflect.AccessFlag;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,6 +47,9 @@ class EnterShippingInformationUseCaseTest {
     @Mock
     private ShippingInformationOutputMapper shippingInformationOutputMapper;
 
+    @Mock
+    private LocationRepository locationRepository;
+
     @InjectMocks
     private EnterShippingInformationUseCase enterShippingInformationUseCase;
 
@@ -54,6 +61,11 @@ class EnterShippingInformationUseCaseTest {
             "EMP123",
             "LOC456"
         );
+
+        var location = Mockito.mock(Location.class);
+        when(location.getTimeZone()).thenReturn("America/New_York");
+
+        when(locationRepository.findOneByCode("LOC456")).thenReturn(Mono.just(location));
 
         when(productConsequenceRepository.findAllByProductCategory(anyString())).thenReturn(Flux.just(Mockito.mock(ProductConsequence.class)));
         when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(anyString(),anyString())).thenReturn(Flux.just(Mockito.mock(ProductConsequence.class)));

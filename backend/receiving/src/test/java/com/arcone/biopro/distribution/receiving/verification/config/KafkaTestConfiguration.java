@@ -9,6 +9,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -19,6 +20,7 @@ import reactor.kafka.sender.SenderOptions;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
+@Profile("AUTOMATION")
 public class KafkaTestConfiguration {
     @Bean
     ReactiveKafkaProducerTemplate<String, Object> producerTemplateOrder(KafkaProperties kafkaProperties, ObjectMapper objectMapper , MeterRegistry meterRegistry) {

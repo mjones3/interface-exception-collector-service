@@ -4,6 +4,7 @@ import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
 import {
     ImportsEnterShipmentInformationComponent
 } from './components/imports-enter-shipment-information/imports-enter-shipment-information.component';
+import { EnterProductInformationComponent } from './components/enter-product-information/enter-product-information.component';
 
 export default [
     {
@@ -19,6 +20,13 @@ export default [
                     subTitle: 'Shipment Information',
                 },
             },
+            {
+                path: ':id/product-information',
+                component: EnterProductInformationComponent,
+                data: {
+                    subTitle: 'Product Information'
+                },
+            }
         ],
     },
 ] as Routes;

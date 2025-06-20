@@ -56,6 +56,7 @@ class ShippingInformationOutputMapperTest {
         Mockito.when(info.getTemperatureUnit()).thenReturn("UNIT");
         Mockito.when(info.isDisplayTransitInformation()).thenReturn(true);
         Mockito.when(info.isDisplayTemperature()).thenReturn(true);
+        Mockito.when(info.getDefaultTimeZone()).thenReturn("TZ");
 
         return info;
     }
@@ -66,6 +67,7 @@ class ShippingInformationOutputMapperTest {
         assertEquals(shippingInformation.getTemperatureUnit(),output.temperatureUnit());
         assertEquals(shippingInformation.isDisplayTransitInformation(),output.displayTransitInformation());
         assertEquals(shippingInformation.isDisplayTemperature(),output.displayTemperature());
+        assertEquals(shippingInformation.getDefaultTimeZone(),output.defaultTimeZone());
     }
 }
 

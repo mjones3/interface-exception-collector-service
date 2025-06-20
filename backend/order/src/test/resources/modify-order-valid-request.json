@@ -16,6 +16,7 @@
     "comments": "string",
     "modifyReason": "{MODIFY_REASON}",
     "modifyDate": "{MODIFY_DATE}",
+    "transactionId": "{TRANSACTION_ID}",
     "orderItems": [
       {ORDER_ITEMS}
     ]

@@ -11,6 +11,7 @@ import graphql.scalars.ExtendedScalars;
 import graphql.schema.DataFetchingEnvironment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
@@ -38,6 +39,7 @@ public class GraphQLConfig {
                     case IllegalArgumentException e -> this.buildGraphQLErrorFor(ErrorType.BAD_REQUEST, e, env);
                     case NoResultsFoundException e -> this.buildGraphQLErrorFor(ErrorType.NOT_FOUND, e, env);
                     case ServiceNotAvailableException e -> this.buildGraphQLErrorFor(ErrorType.INTERNAL_ERROR, e, env);
+                    case PessimisticLockingFailureException e -> this.buildGraphQLErrorFor(ErrorType.BAD_REQUEST, e, env);
                     default -> super.resolveToSingleError(throwable, env);
                 };
             }

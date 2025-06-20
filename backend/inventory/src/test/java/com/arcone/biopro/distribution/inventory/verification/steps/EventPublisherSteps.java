@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -25,8 +26,13 @@ public class EventPublisherSteps {
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
         String expectedUnitNumber = products.getFirst().get("Unit Number");
         String expectedProductCode = products.getFirst().get("Final Product Code");
-        logMonitor.await("Inventory Updated Message .*" + expectedUnitNumber + ".*" + expectedProductCode + ".*" + updateType);
+        String statusIncluded = products.getFirst().get("Status Included");
+        if (Objects.isNull(statusIncluded)) {
+            logMonitor.await("Inventory Updated Message .*" + expectedUnitNumber + ".*" + expectedProductCode + ".*" + updateType);
+        } else {
+            logMonitor.await("Inventory Updated Message .*" + expectedUnitNumber + ".*" + expectedProductCode + ".*" + updateType + ".*" + statusIncluded);
 
+        }
 
     }
 }

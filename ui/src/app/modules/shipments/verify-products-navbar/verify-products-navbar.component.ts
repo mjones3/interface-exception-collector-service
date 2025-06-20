@@ -20,7 +20,6 @@ export class VerifyProductsNavbarComponent {
     constructor(private router: Router) {}
 
     protected async handleNavigation(link: LinkRoute): Promise<boolean> {
-        console.log(link);
         return await this.router.navigateByUrl(link);
     }
 }

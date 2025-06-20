@@ -32,5 +32,4 @@ public class SharedSteps {
     public void checkErrorMessage(String message) throws JSONException {
         testUtils.checkErrorMessage(message,context.getApiMessageResponseBody());
     }
-
 }

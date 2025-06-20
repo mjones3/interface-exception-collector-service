@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -66,31 +67,31 @@ public class OrderUseCase extends AbstractProcessOrderUseCase implements OrderSe
                             .doOnSuccess(this::publishOrderProcessedEvent)
                             .doOnError(error -> {
                                 if(error instanceof DuplicateKeyException) {
-                                    publishOrderRejectedEvent(eventDTO.externalId(),"Order already exists");
+                                    publishOrderRejectedEvent(eventDTO.externalId(), eventDTO.transactionId(), "Order already exists");
                                 }else{
-                                    publishOrderRejectedEvent(eventDTO.externalId(),error.getMessage());
+                                    publishOrderRejectedEvent(eventDTO.externalId(),eventDTO.transactionId(), error.getMessage());
                                 }
                             })
                             .subscribe();
                 })
                 .onErrorResume(error -> {
                         if(error instanceof DuplicateKeyException) {
-                            publishOrderRejectedEvent(eventDTO.externalId(),"Order already exists");
+                            publishOrderRejectedEvent(eventDTO.externalId(), eventDTO.transactionId(), "Order already exists");
                         }else{
-                            publishOrderRejectedEvent(eventDTO.externalId(),error.getMessage());
+                            publishOrderRejectedEvent(eventDTO.externalId(), eventDTO.transactionId(), error.getMessage());
                         }
                         return Mono.error(new RuntimeException("Error processing Order Received Event", error));
                     }
                 );
         }catch (Exception e ){
-            publishOrderRejectedEvent(eventDTO.externalId(),e.getMessage());
+            publishOrderRejectedEvent(eventDTO.externalId(), eventDTO.transactionId(), e.getMessage());
             return Mono.error(new RuntimeException("Error processing Order Received Event", e));
         }
     }
 
-    private void publishOrderRejectedEvent(String externalId,String errorMessage) {
+    private void publishOrderRejectedEvent(String externalId,  UUID transactionId, String errorMessage) {
         log.debug("Publishing OrderRejected {} , ID {}", externalId, errorMessage);
-        applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId,errorMessage,USE_CASE_OPERATION));
+        applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId,errorMessage,USE_CASE_OPERATION, transactionId));
     }
 
     private void setAvailableInventories(UseCaseResponseDTO<Order> useCaseResponseDTO){

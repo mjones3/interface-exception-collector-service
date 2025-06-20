@@ -285,3 +285,12 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: ProductsImported
+  device:
+    device-created:
+      partitions: 1
+      replicas: 1
+      topic-name: DeviceCreated
+    device-updated:
+      partitions: 1
+      replicas: 1
+      topic-name: DeviceUpdated
