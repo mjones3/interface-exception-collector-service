@@ -85,4 +85,4 @@ Feature: Complete Imports Process
             And I should be redirect to the Enter Shipping Information Page.
             Examples:
                 | Device Location Code | Device ID     | Device Category | Device Type | Unit Number   | Product Code | Blood Type | Expiration Date      | License Status | Visual Inspection |
-                | 123456789            | THERM-DST-413 | TEMPERATURE     | THERMOMETER | W036541186805 | E0181V00     | AP         | 2026-12-08T23:59:59Z |  LICENSED      |  SATISFACTORY     |
+                | 123456789            | THERM-DST-413 | TEMPERATURE     | THERMOMETER | W036541186804 | E0181V00     | AP         | 2026-12-08T23:59:59Z | LICENSED       | SATISFACTORY      |
