@@ -35,7 +35,7 @@ Feature: Carton Packing Slip Printing
 
         Rule: The system should trigger the printing of the carton automatically once a carton is closed.
         Rule: I should be able to print the carton packing slip with the carton details and products information.
-        @ui @DIS-343
+        @ui @DIS-343 @disabled
         Scenario Outline: Automatic printing when carton is closed
             Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
             And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".

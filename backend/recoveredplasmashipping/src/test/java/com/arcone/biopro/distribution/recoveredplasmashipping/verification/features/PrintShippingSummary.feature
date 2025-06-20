@@ -58,7 +58,7 @@ Feature: Print Shipment Summary
                 | Shipment Details Shipment Number Prefix          | DIS_346DIS34600                                                                                                                        |
                 | Shipment Closed Date/Time                        | <tomorrow_formatted>                                                                                                                   |
                 | Shipment Details Product Type                    | RP NONINJECTABLE LIQUID RT                                                                                                             |
-                | Shipment Details Product Code                    | E2534V00, E5880V00, E6022V00                                                                                                           |
+                | Shipment Details Product Code                    | E2534V00, E5880V00, E6022V00                                                                                                         |
                 | Shipment Details Total Number of Cartons         | 3                                                                                                                                      |
                 | Shipment Details Total Number of Products        | 3                                                                                                                                      |
                 | Carton Information Carton Number Prefix          | BPMMH1,BPMMH1,BPMMH1                                                                                                                   |

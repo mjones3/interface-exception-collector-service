@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.receiving.infrastructure.listener;
 
 import com.arcone.biopro.distribution.receiving.application.usecase.DeviceService;
 import com.arcone.biopro.distribution.receiving.infrastructure.config.KafkaConfiguration;
-import com.arcone.biopro.distribution.receiving.infrastructure.dto.DeviceCreatedMessage;
 import com.arcone.biopro.distribution.receiving.infrastructure.dto.DeviceUpdatedMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +19,6 @@ import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.ReceiverRecord;
 import reactor.util.retry.Retry;
 
-import java.lang.reflect.ParameterizedType;
 import java.time.Duration;
 
 @Service
@@ -49,7 +47,7 @@ public class DeviceUpdatedListener extends AbstractKafkaListener{
     @AsyncListener(operation = @AsyncOperation(
         channelName = "DeviceUpdated",
         description = "Device Updated received Events", // Optional
-        payloadType = DeviceCreatedMessage.class
+        payloadType = DeviceUpdatedMessage.class
     ))
     @KafkaAsyncOperationBinding
     protected Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {

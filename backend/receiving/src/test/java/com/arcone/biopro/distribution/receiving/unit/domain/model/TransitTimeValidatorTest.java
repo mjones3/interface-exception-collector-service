@@ -73,7 +73,7 @@ public class TransitTimeValidatorTest {
     void validateTransitTime_AcceptableTransitTime_ReturnsValidResult() {
         // Setup consequence for 5 hours transit time
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
-        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME <= (24 * 60)");
+        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME < (24 * 60)");
         Mockito.when(consequence.isAcceptable()).thenReturn(true);
 
         productConsequenceList.add(consequence);
@@ -92,7 +92,7 @@ public class TransitTimeValidatorTest {
 
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
-        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME <= (24 * 60)");
+        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME < (24 * 60)");
         Mockito.when(consequence.isAcceptable()).thenReturn(true);
 
         productConsequenceList.add(consequence);
@@ -106,15 +106,16 @@ public class TransitTimeValidatorTest {
 
     @Test
     void validateTransitTime_UnacceptableTransitTime_ReturnsInvalidResult() {
-        // Setup command with 25 hours transit time
-        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",LocalDateTime.now(),"UTC",LocalDateTime.now().plusHours(25),"UTC");
+        // Setup command with 24 hours transit time
+        var now = LocalDateTime.now();
+        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"UTC",now.plusHours(24),"UTC");
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
-        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME <= (24 * 60)");
+        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME < (23.99 * 60)");
         Mockito.when(consequence.isAcceptable()).thenReturn(true);
 
         ProductConsequence consequence2 = Mockito.mock(ProductConsequence.class);
-        Mockito.when(consequence2.getResultValue()).thenReturn("TRANSIT_TIME > (24 * 60)");
+        Mockito.when(consequence2.getResultValue()).thenReturn("TRANSIT_TIME > (23.99 * 60)");
         Mockito.when(consequence2.isAcceptable()).thenReturn(false);
 
         productConsequenceList.add(consequence);
@@ -133,7 +134,7 @@ public class TransitTimeValidatorTest {
         command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"UTC",now.plusDays(1).plusMinutes(5),"UTC");
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
-        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME <= (24 * 60)");
+        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME < (24 * 60)");
         Mockito.when(consequence.isAcceptable()).thenReturn(true);
 
         ProductConsequence consequence2 = Mockito.mock(ProductConsequence.class);
@@ -155,7 +156,7 @@ public class TransitTimeValidatorTest {
         command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",LocalDateTime.now(),"America/New_York",LocalDateTime.now().plusHours(5),"America/Los_Angeles");
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
-        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME <= (24 * 60)");
+        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME < (24 * 60)");
         Mockito.when(consequence.isAcceptable()).thenReturn(true);
 
         productConsequenceList.add(consequence);
@@ -173,7 +174,7 @@ public class TransitTimeValidatorTest {
         command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",LocalDateTime.now(),"America/New_York",LocalDateTime.now().plusMinutes(30),"America/New_York");
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
-        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME <= (24 * 60)");
+        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME < (24 * 60)");
         Mockito.when(consequence.isAcceptable()).thenReturn(true);
 
         productConsequenceList.add(consequence);

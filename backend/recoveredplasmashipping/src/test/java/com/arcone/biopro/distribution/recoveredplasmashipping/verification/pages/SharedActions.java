@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -314,7 +315,7 @@ public class SharedActions {
 
     public boolean isElementEnabled(WebDriver driver, By element) {
         try {
-            return driver.findElement(element).isEnabled();
+            return driver.findElement(element).isEnabled() && !hasElementCssClass(element, "mat-form-field-disabled");
         } catch (Exception e) {
             log.debug("Element {} not found or is not enabled.", element);
             return false;
@@ -328,9 +329,11 @@ public class SharedActions {
             log.debug("Clearing and sending keys {} to element {}.", keys, element);
             e.findElement(element).clear();
             if (e.findElement(element).getText() != null) {
-                e.findElement(element).sendKeys(Keys.CONTROL + "a");
-                e.findElement(element).sendKeys(Keys.DELETE);
-                e.findElement(element).sendKeys(Keys.COMMAND + "a");
+                if (SystemUtils.IS_OS_MAC) {
+                    e.findElement(element).sendKeys(Keys.COMMAND + "a");
+                } else {
+                    e.findElement(element).sendKeys(Keys.CONTROL + "a");
+                }
                 e.findElement(element).sendKeys(Keys.DELETE);
             }
             e.findElement(element).sendKeys(keys);
@@ -395,6 +398,16 @@ public class SharedActions {
         } catch (Exception e) {
             log.debug("Element {} does not have CSS class {}.", element, cssClass);
             return false;
+        }
+    }
+
+    public void verifyElementEnabledDisabled(WebDriver driver, By element, String enabledDisabled) {
+        if (enabledDisabled.equalsIgnoreCase("enabled")) {
+            Assert.assertTrue(isElementEnabled(driver, element));
+        } else if (enabledDisabled.equalsIgnoreCase("disabled")){
+            Assert.assertFalse(isElementEnabled(driver, element));
+        } else {
+            throw new IllegalArgumentException("Invalid argument (enabled/disabled): " + enabledDisabled);
         }
     }
 }

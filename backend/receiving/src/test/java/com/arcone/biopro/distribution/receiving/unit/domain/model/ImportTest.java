@@ -585,7 +585,7 @@ class ImportTest {
         // Assert
         Exception exception = assertThrows(IllegalArgumentException.class,
             () -> importObj.createImportItem(command,configurationService,productConsequenceRepository));
-        assertEquals("FIN is not associated with a registered facility", exception.getMessage());
+        assertEquals("This FIN is not registered in the system", exception.getMessage());
 
     }
 

@@ -41,6 +41,7 @@ import {
     CREATE_IMPORT_ITEM,
     FIND_IMPORT_BY_ID
 } from '../graphql/mutation-definitions/create-import-item.graphql';
+import { CancelImportRequestDTO, CONFIRM_CANCEL_IMPORT_PROCESS } from '../graphql/mutation-definitions/cancel-import-process.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -152,6 +153,21 @@ export class ReceivingService {
             this.servicePath,
             COMPLETE_IMPORT,
             completeImportRequest
+        );
+    }
+
+
+    public cancelImportProcess(
+        cancelImportRequestDTO: CancelImportRequestDTO
+    ): Observable<
+        MutationResult<{
+            cancelImport: UseCaseResponseDTO<void>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CONFIRM_CANCEL_IMPORT_PROCESS,
+            cancelImportRequestDTO
         );
     }
 

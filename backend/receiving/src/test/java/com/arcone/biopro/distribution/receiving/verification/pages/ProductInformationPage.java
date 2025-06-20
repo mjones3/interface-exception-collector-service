@@ -31,6 +31,10 @@ public class ProductInformationPage extends CommonPageFactory {
     private final By addProductBtn = By.xpath("//button[@id='btnAdd']");
     private final By resetBtn = By.xpath("//button[@id='btnReset']");
     private final By completeImportBtn = By.xpath("//button[@id='productInformationSubmitActionButton']");
+    private final By cancelBtn = By.xpath("//button[@id='productInformationCancelActionButton']");
+    private final By cancelCancellationBtn = By.xpath("//button[@id='confirmation-dialog-cancel-btn']");
+    private final By confirmCancelBtn = By.xpath("//button[@id='confirmation-dialog-confirm-btn']");
+
 
     private By licenseStatusSelect(String licenseStatus) {
         return By.xpath(String.format("//button[starts-with(@id,'%s')]", licenseStatus));
@@ -118,5 +122,17 @@ public class ProductInformationPage extends CommonPageFactory {
     public void completeImport() {
         sharedActions.waitForEnabled(completeImportBtn);
         sharedActions.click(completeImportBtn);
+    }
+
+    public void cancelImport() {
+        sharedActions.click(cancelBtn);
+    }
+
+    public void cancelCancellationImport() {
+        sharedActions.click(cancelCancellationBtn);
+    }
+
+    public void confirmCancelImport() {
+        sharedActions.click(confirmCancelBtn);
     }
 }

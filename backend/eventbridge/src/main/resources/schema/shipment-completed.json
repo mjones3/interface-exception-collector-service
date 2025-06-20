@@ -76,7 +76,7 @@
                           "type": "string"
                         },
                         "collectionDate": {
-                          "type": "string"
+                          "type": ["string","null"]
                         },
                         "expirationDate": {
                           "type": "string"
@@ -110,7 +110,6 @@
                         "productFamily",
                         "productCode",
                         "aboRh",
-                        "collectionDate",
                         "expirationDate",
                         "createDate"
                       ]
