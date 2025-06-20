@@ -114,7 +114,7 @@ class BarcodeValidatorTest {
         ValidationResult result = BarcodeValidator.validateBarcode(command, configurationService);
 
         assertFalse(result.valid());
-        assertEquals("FIN is not associated with a registered facility", result.message());
+        assertEquals("This FIN is not registered in the system", result.message());
     }
 
     @Test

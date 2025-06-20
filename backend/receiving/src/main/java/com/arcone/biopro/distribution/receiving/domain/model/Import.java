@@ -254,7 +254,7 @@ public class Import implements Validatable {
         }
 
         configurationService.findByFinNumber(unitNumber.substring(0,5))
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("FIN is not associated with a registered facility")))
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("This FIN is not registered in the system")))
             .block();
     }
 
@@ -339,6 +339,13 @@ public class Import implements Validatable {
 
     public boolean canComplete(){
         return "PENDING".equals(this.status) && this.items != null && !this.items.isEmpty();
+    }
+
+    public Import validateCancel(){
+        if(STATUS_COMPLETED.equals(this.status)){
+            throw new IllegalArgumentException("Import is already completed");
+        }
+        return this;
     }
 
 }

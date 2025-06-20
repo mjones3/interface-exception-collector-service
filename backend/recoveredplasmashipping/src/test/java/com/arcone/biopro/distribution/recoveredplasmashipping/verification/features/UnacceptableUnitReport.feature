@@ -107,7 +107,7 @@ Feature: Generate the Unacceptable Products Report
                | Carton Status        | CLOSED |
                | Shipment Status      | CLOSED |
            When I request to print the Unacceptable Products Report.
-           Then I should a message "The shipment contains no defective products" indicating there are not unacceptable products in the shipment.
+           Then I should a message "The shipment contains no unacceptable products" indicating there are not unacceptable products in the shipment.
            And The Unacceptable Products Report status should be "COMPLETED"
 
 

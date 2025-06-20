@@ -16,6 +16,7 @@ type Mutation {
     createImport(createImportRequest:CreateImportRequestDTO!): UseCaseResponseDTO!
     createImportItem(createImportItemRequest:AddImportItemRequestDTO!): UseCaseResponseDTO!
     completeImport(completeImportRequest:CompleteImportRequestDTO!): UseCaseResponseDTO!
+    cancelImport(cancelImportRequest:CancelImportRequestDTO!): UseCaseResponseDTO!
 
 }
 
@@ -90,6 +91,11 @@ input CompleteImportRequestDTO {
     importId:ID!
     completeEmployeeId:String!
 
+}
+
+input CancelImportRequestDTO {
+    importId:ID!
+    cancelEmployeeId:String!
 }
 
 type UseCaseNotificationDTO {

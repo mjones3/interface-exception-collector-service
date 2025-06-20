@@ -38,6 +38,7 @@ public class ImportProductSteps {
     private Map apiResponse;
     private boolean isTemperatureValid;
     private boolean isTransitTimeValid;
+    private DataTable validProductDetailsTable;
 
     @Given("I request to enter shipping data for a {string} product category and location code {string}.")
     public void iRequestToEnterShippingDataForAProductCategory(String temperatureCategory , String locationCode) {
@@ -368,5 +369,64 @@ public class ImportProductSteps {
     @And("I should be redirect to the Enter Shipping Information Page.")
     public void iShouldBeRedirectToTheEnterShippingInformationPage() {
         enterShippingInformationPage.waitForLoad();
+    }
+
+    @When("I request to cancel the last import batch created.")
+    public void iRequestToCancelTheLastImportBatchCreated() {
+        var response = importProductsController.cancelImport();
+        Assert.assertNotNull(response);
+    }
+
+    @And("The last import batch created should be removed from the system.")
+    public void theLastImportBatchCreatedShouldBeRemovedFromTheSystem() {
+        Assert.assertNull(importProductsController.getLastImportCreated());
+    }
+
+    @When("I choose to cancel the imports process.")
+    public void iChooseToCancelTheImportsProcess() {
+        productInformationPage.cancelImport();
+    }
+
+    @When("I choose to cancel the cancellation of the imports process.")
+    public void iChooseToCancelTheCancellationOfTheImportsProcess() {
+        productInformationPage.cancelCancellationImport();
+    }
+
+    @When("I choose confirm cancellation of the imports process.")
+    public void iChooseConfirmCancellationOfTheImportsProcess() {
+        productInformationPage.confirmCancelImport();
+    }
+
+    @And("I have the following valid product information:")
+    public void iHaveTheFollowingValidProductInformation(DataTable dataTable) {
+        Assert.assertNotNull(dataTable);
+        this.validProductDetailsTable = dataTable;
+
+    }
+
+    @And("I scan the product information with field {string} as {string}.")
+    public void iScanTheProductInformationWithFieldAsApartFrom(String fieldName, String fieldValue) throws InterruptedException {
+
+        var validData = this.validProductDetailsTable.asMap();
+
+        Assert.assertNotNull(validData);
+
+        if("Unit Number".equalsIgnoreCase(fieldName)){
+            productInformationPage.scanUnitNumber(fieldValue);
+        }else if ("ABO/RH".equalsIgnoreCase(fieldName)){
+            productInformationPage.scanUnitNumber(validData.get("Unit Number"));
+            productInformationPage.scanBloodType(fieldValue);
+        }else if ("Expiration Date".equalsIgnoreCase(fieldName)){
+            productInformationPage.scanUnitNumber(validData.get("Unit Number"));
+            productInformationPage.scanBloodType(validData.get("Blood Type"));
+            productInformationPage.scanProductCode(validData.get("Product Code"));
+            productInformationPage.setExpirationDate(fieldValue);
+        }else if ("Product Code".equalsIgnoreCase(fieldName)){
+            productInformationPage.scanUnitNumber(validData.get("Unit Number"));
+            productInformationPage.scanBloodType(validData.get("Blood Type"));
+            productInformationPage.scanProductCode(fieldValue);
+        }else{
+            Assert.fail("Invalid Field name");
+        }
     }
 }

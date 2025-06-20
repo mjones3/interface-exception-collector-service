@@ -59,6 +59,18 @@ public class ImportRepositoryImpl implements ImportRepository {
             .flatMap(importEntity -> this.findOneById(importEntity.getId()));
     }
 
+    @Override
+    public Mono<Void> deleteOneById(Long id) {
+        return importItemEntityRepository.findAllByImportId(id)
+            .flatMap(importItem -> {
+                return importItemConsequenceEntityRepository.deleteAllByImportItemId(importItem.getId())
+                    .then(importItemPropertyEntityRepository.deleteAllByImportItemId(importItem.getId()));
+            })
+            .collectList()
+            .then(importItemEntityRepository.deleteAllByImportId(id))
+            .then(importEntityRepository.deleteById(id));
+    }
+
     private Flux<ImportItem> findAllByImportId(Long importId) {
         return importItemEntityRepository.findAllByImportId(importId)
             .flatMap(importItem -> {
