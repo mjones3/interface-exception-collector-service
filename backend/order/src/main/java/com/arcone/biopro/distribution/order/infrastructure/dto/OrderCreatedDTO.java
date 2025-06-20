@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 public record OrderCreatedDTO(
@@ -28,6 +29,7 @@ public record OrderCreatedDTO(
     String comments,
     boolean willPickUp,
     String willPickUpPhoneNumber,
+    UUID transactionId,
     List<OrderItemCreatedDTO> orderItems
 ) implements Serializable {
 }

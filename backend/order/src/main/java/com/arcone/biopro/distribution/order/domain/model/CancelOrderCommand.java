@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Getter
 @EqualsAndHashCode
@@ -20,13 +21,15 @@ public class CancelOrderCommand implements Validatable {
     private String employeeId;
     private String reason;
     private String cancelDate;
+    private UUID transactionId;
     private static final String CANCEL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    public CancelOrderCommand(String externalId, String employeeId, String reason , String cancelDate ) {
+    public CancelOrderCommand(String externalId, String employeeId, String reason, String cancelDate, UUID transactionId) {
         this.externalId = externalId;
         this.employeeId = employeeId;
         this.reason = reason;
         this.cancelDate = cancelDate;
+        this.transactionId = transactionId;
         checkValid();
     }
 
@@ -43,6 +46,10 @@ public class CancelOrderCommand implements Validatable {
 
         if (this.cancelDate == null || this.cancelDate.isEmpty()) {
             throw new IllegalArgumentException("Cancel Date cannot be null or empty");
+        }
+
+        if (this.transactionId == null ) {
+            throw new IllegalArgumentException("Transaction ID cannot be null");
         }
 
         try{

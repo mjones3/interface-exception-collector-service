@@ -39,6 +39,7 @@ public class ModifyOrderReceivedEventMapper {
             .willPickUp(modifyOrderReceivedPayloadDTO.willPickUp())
             .orderItems(new ArrayList<>())
             .willPickUpPhoneNumber(modifyOrderReceivedPayloadDTO.willPickUpPhoneNumber())
+            .transactionId(modifyOrderReceivedPayloadDTO.transactionId())
             .build();
 
         ofNullable(modifyOrderReceivedPayloadDTO.orderItems())

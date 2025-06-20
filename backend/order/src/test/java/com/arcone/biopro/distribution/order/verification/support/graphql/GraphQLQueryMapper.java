@@ -208,6 +208,7 @@ public class GraphQLQueryMapper {
                            status
                            priority
                            createEmployeeId
+                           transactionId
                            createDate
                            modificationDate
                            deleteDate

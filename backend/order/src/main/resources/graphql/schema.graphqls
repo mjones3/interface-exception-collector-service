@@ -161,6 +161,7 @@ type Order {
     modifyReason:String
     modifyByProcess:String
     displayModificationDetails:Boolean
+    transactionId: String
 }
 
 type OrderReportDTO {

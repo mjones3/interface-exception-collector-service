@@ -92,7 +92,7 @@ public class OrderMapper {
             .modifyReason(order.getModifyReason())
             .modifyByProcess(order.getModifiedByProcess())
             .modifyEmployeeId(order.getModifyEmployeeId())
-            .displayModificationDetails(order.isModifiedByInterface())
+            .transactionId(order.getTransactionId())
             .build();
     }
 
@@ -119,6 +119,8 @@ public class OrderMapper {
             ofNullable(orderDTO.createDate()).map(dateTime -> DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(dateTime)).orElse(null),
             orderDTO.modificationDate(),
             orderDTO.deleteDate());
+
+        order.setTransactionId(orderDTO.transactionId());
 
         ofNullable(orderDTO.orderItems())
             .filter(orderItems -> !orderItems.isEmpty())
