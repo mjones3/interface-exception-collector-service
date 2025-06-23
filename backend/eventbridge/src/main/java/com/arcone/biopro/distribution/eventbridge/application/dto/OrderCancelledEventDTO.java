@@ -58,6 +58,6 @@ public record OrderCancelledEventDTO(
         description = "The event payload",
         requiredMode = REQUIRED
     )
-    OrderCancelledPayload payload
+    OrderPayload payload
 ) implements Serializable {
 }
