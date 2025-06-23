@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.eventbridge.infrastructure.dto;
 
-import com.arcone.biopro.distribution.eventbridge.application.dto.OrderCancelledPayload;
+import com.arcone.biopro.distribution.eventbridge.application.dto.OrderPayload;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -13,12 +13,12 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 @Schema(
-    name = "OrderCancelledOutboundPayload",
-    title = "OrderCancelledOutboundPayload",
-    description = "Order Cancelled Outbound Event Payload"
+    name = "OrderOutboundPayload",
+    title = "OrderOutboundPayload",
+    description = "Order Outbound Event Payload"
 )
 @Builder
-public record OrderCancelledOutboundPayload(
+public record OrderOutboundPayload(
     @Schema(name = "orderNumber", title = "Order number", description = "The order number", example = "1", requiredMode = REQUIRED)
     Integer orderNumber,
     @Schema(name = "externalId", title = "External ID", description = "The external order ID", example = "EXTDIS3150001", requiredMode = REQUIRED)
@@ -58,14 +58,20 @@ public record OrderCancelledOutboundPayload(
     @Schema(name = "totalProducts", title = "Total products", description = "Total quantity of products", example = "10", requiredMode = NOT_REQUIRED)
     Integer totalProducts,
     @Schema(name = "orderItems", title = "Order items", description = "List of order items", requiredMode = REQUIRED)
-    List<OrderCancelledPayload.OrderItem> orderItems,
-    @Schema(name = "cancelEmployeeId", title = "Cancel employee ID", description = "The employee ID who cancelled the order", example = "ee1bf88e-2137-4a17-835a-d43e7b738374", requiredMode = REQUIRED)
+    List<OrderPayload.OrderItem> orderItems,
+    @Schema(name = "cancelEmployeeId", title = "Cancel employee ID", description = "The employee ID who cancelled the order", requiredMode = NOT_REQUIRED)
     String cancelEmployeeId,
-    @Schema(name = "cancelDate", title = "Cancel date", description = "The order cancellation date", example = "2025-06-23T13:03:28.204237158Z", requiredMode = REQUIRED)
+    @Schema(name = "cancelDate", title = "Cancel date", description = "The order cancellation date", requiredMode = NOT_REQUIRED)
     Instant cancelDate,
-    @Schema(name = "cancelReason", title = "Cancel reason", description = "The reason for cancellation", example = "Customer no longer need", requiredMode = REQUIRED)
+    @Schema(name = "cancelReason", title = "Cancel reason", description = "The reason for cancellation", requiredMode = NOT_REQUIRED)
     String cancelReason,
-    @Schema(name = "transactionId", title = "Transaction ID", description = "The transaction ID", example = "df7092f3-78a6-4d17-ae2c-e9de07db6f3c", requiredMode = NOT_REQUIRED)
+    @Schema(name = "modifyEmployeeId", title = "Modify employee ID", description = "The employee ID who modified the order", requiredMode = NOT_REQUIRED)
+    String modifyEmployeeId,
+    @Schema(name = "modifyDate", title = "Modify date", description = "The order modification date", requiredMode = NOT_REQUIRED)
+    Instant modifyDate,
+    @Schema(name = "modifyReason", title = "Modify reason", description = "The reason for modification", requiredMode = NOT_REQUIRED)
+    String modifyReason,
+    @Schema(name = "transactionId", title = "Transaction ID", description = "The transaction ID", requiredMode = NOT_REQUIRED)
     String transactionId
 ) implements Serializable {
 }

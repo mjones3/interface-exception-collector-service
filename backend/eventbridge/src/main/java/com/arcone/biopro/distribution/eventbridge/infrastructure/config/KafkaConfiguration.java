@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.eventbridge.infrastructure.config;
 
 import com.arcone.biopro.distribution.eventbridge.domain.event.EventMessage;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUpdatedOutboundPayload;
-import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderCancelledOutboundPayload;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.event.RecoveredPlasmaShipmentClosedOutboundEvent;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.event.ShipmentCompletedOutboundOutputEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,10 +33,12 @@ public class KafkaConfiguration {
     public static final String SHIPMENT_COMPLETED_CONSUMER = "shipment-completed";
     public static final String INVENTORY_UPDATED_CONSUMER = "inventory-updated";
     public static final String ORDER_CANCELLED_CONSUMER = "order-cancelled";
+    public static final String ORDER_MODIFIED_CONSUMER = "order-modified";
     public static final String DLQ_PRODUCER = "dlq-producer";
     public static final String SHIPMENT_COMPLETED_OUTBOUND_PRODUCER = "shipment-completed-outbound";
     public static final String INVENTORY_UPDATED_OUTBOUND_PRODUCER = "inventory-updated-outbound";
     public static final String ORDER_CANCELLED_OUTBOUND_PRODUCER = "order-cancelled-outbound";
+    public static final String ORDER_MODIFIED_OUTBOUND_PRODUCER = "order-modified-outbound";
     public static final String RPS_SHIPMENT_CLOSED_CONSUMER = "recovered-plasma-shipment-closed";
     public static final String RPS_SHIPMENT_CLOSED_OUTBOUND_PRODUCER = "recovered-plasma-shipment-closed-outbound";
 
@@ -140,6 +142,30 @@ public class KafkaConfiguration {
         return buildReceiverOptions(kafkaProperties, orderCancelledTopicName);
     }
 
+    @Bean
+    NewTopic orderModifiedTopic(
+        @Value("${topics.order.order-modified.partitions:1}") Integer partitions,
+        @Value("${topics.order.order-modified.replicas:1}") Integer replicas,
+        @Value("${topics.order.order-modified.topic-name:OrderModified}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    NewTopic orderModifiedOutboundTopic(
+        @Value("${topics.order.order-modified-outbound.partitions:1}") Integer partitions,
+        @Value("${topics.order.order-modified-outbound.replicas:1}") Integer replicas,
+        @Value("${topics.order.order-modified-outbound.topic-name:OrderModifiedOutbound}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    ReceiverOptions<String, String> orderModifiedReceiverOptions(KafkaProperties kafkaProperties
+        , @Value("${topics.order.order-modified.topic-name:OrderModified}") String orderModifiedTopicName) {
+        return buildReceiverOptions(kafkaProperties, orderModifiedTopicName);
+    }
+
 
     private ReceiverOptions<String, String> buildReceiverOptions(KafkaProperties kafkaProperties , String topicName){
         var props = kafkaProperties.buildConsumerProperties(null);
@@ -169,6 +195,13 @@ public class KafkaConfiguration {
         ReceiverOptions<String, String> orderCancelledReceiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(orderCancelledReceiverOptions);
+    }
+
+    @Bean(ORDER_MODIFIED_CONSUMER)
+    ReactiveKafkaConsumerTemplate<String, String> orderModifiedConsumerTemplate(
+        ReceiverOptions<String, String> orderModifiedReceiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(orderModifiedReceiverOptions);
     }
 
     @Bean
@@ -202,11 +235,11 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    SenderOptions<String, EventMessage<OrderCancelledOutboundPayload>> senderOptionsOrderCancelledOutbound(
+    SenderOptions<String, EventMessage<OrderOutboundPayload>> senderOptionsOrderOutbound(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper) {
         var props = kafkaProperties.buildProducerProperties(null);
-        return SenderOptions.<String, EventMessage<OrderCancelledOutboundPayload>>create(props)
+        return SenderOptions.<String, EventMessage<OrderOutboundPayload>>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
     }
@@ -230,9 +263,15 @@ public class KafkaConfiguration {
     }
 
     @Bean(name = ORDER_CANCELLED_OUTBOUND_PRODUCER )
-    ReactiveKafkaProducerTemplate<String, EventMessage<OrderCancelledOutboundPayload>> orderCancelledOutboundProducerTemplate(
-        SenderOptions<String, EventMessage<OrderCancelledOutboundPayload>> senderOptionsOrderCancelledOutbound) {
-        return new ReactiveKafkaProducerTemplate<>(senderOptionsOrderCancelledOutbound);
+    ReactiveKafkaProducerTemplate<String, EventMessage<OrderOutboundPayload>> orderCancelledOutboundProducerTemplate(
+        SenderOptions<String, EventMessage<OrderOutboundPayload>> senderOptionsOrderOutbound) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptionsOrderOutbound);
+    }
+
+    @Bean(name = ORDER_MODIFIED_OUTBOUND_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, EventMessage<OrderOutboundPayload>> orderModifiedOutboundProducerTemplate(
+        SenderOptions<String, EventMessage<OrderOutboundPayload>> senderOptionsOrderOutbound) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptionsOrderOutbound);
     }
 
     @Bean(RPS_SHIPMENT_CLOSED_CONSUMER)

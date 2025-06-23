@@ -1,0 +1,49 @@
+{
+  "eventId": "bf6f0fca-5141-4367-9761-38828843147e",
+  "occurredOn": "2025-06-23T17:03:01.211311415Z",
+  "payload": {
+    "orderNumber": 10,
+    "externalId": "EXTDIS3160002",
+    "orderStatus": "OPEN",
+    "locationCode": "DO1",
+    "createDate": "2025-06-23T03:00:00Z",
+    "createEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+    "shipmentType": "CUSTOMER",
+    "priority": "STAT",
+    "shippingMethod": "FEDEX",
+    "productCategory": "REFRIGERATED",
+    "desiredShippingDate": null,
+    "shippingCustomerCode": "A1235",
+    "billingCustomerCode": "A1235",
+    "comments": "string",
+    "willPickUp": true,
+    "willPickUpPhoneNumber": "12333333",
+    "totalShipped": 0,
+    "totalRemaining": 25,
+    "totalProducts": 25,
+    "orderItems": [
+      {
+        "productFamily": "WHOLE_BLOOD",
+        "bloodType": "AP",
+        "quantity": 15,
+        "quantityShipped": 0,
+        "quantityRemaining": 15,
+        "comments": "Comments"
+      },
+      {
+        "productFamily": "WHOLE_BLOOD",
+        "bloodType": "BP",
+        "quantity": 10,
+        "quantityShipped": 0,
+        "quantityRemaining": 10,
+        "comments": "Comments"
+      }
+    ],
+    "modifyEmployeeId": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+    "modifyDate": "2025-06-23T17:03:00.929454456Z",
+    "modifyReason": "Reason  2",
+    "transactionId": "32739960-d64c-4416-beae-a5ea53df9d05"
+  },
+  "eventType": "OrderModified",
+  "eventVersion": "1.0"
+}

@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.eventbridge.domain.model;
 
-import com.arcone.biopro.distribution.eventbridge.application.dto.OrderCancelledPayload;
+import com.arcone.biopro.distribution.eventbridge.application.dto.OrderPayload;
 import lombok.Getter;
 import org.springframework.util.Assert;
 
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-public class OrderCancelledOutbound {
+public class OrderOutbound {
 
     private final Integer orderNumber;
     private final String externalId;
@@ -30,21 +30,25 @@ public class OrderCancelledOutbound {
     private final Integer totalShipped;
     private final Integer totalRemaining;
     private final Integer totalProducts;
-    private final List<OrderCancelledPayload.OrderItem> orderItems;
+    private final List<OrderPayload.OrderItem> orderItems;
     private final String cancelEmployeeId;
     private final Instant cancelDate;
     private final String cancelReason;
+    private final String modifyEmployeeId;
+    private final Instant modifyDate;
+    private final String modifyReason;
     private final String transactionId;
 
-    public OrderCancelledOutbound(Integer orderNumber, String externalId, String orderStatus,
-                                  String locationCode, Instant createDate, String createEmployeeCode,
-                                  String shipmentType, String priority, String shippingMethod,
-                                  String productCategory, LocalDate desiredShippingDate,
-                                  String shippingCustomerCode, String billingCustomerCode,
-                                  String comments, Boolean willPickUp, String willPickUpPhoneNumber,
-                                  Integer totalShipped, Integer totalRemaining, Integer totalProducts,
-                                  List<OrderCancelledPayload.OrderItem> orderItems, String cancelEmployeeId,
-                                  Instant cancelDate, String cancelReason, String transactionId) {
+    public OrderOutbound(Integer orderNumber, String externalId, String orderStatus,
+                         String locationCode, Instant createDate, String createEmployeeCode,
+                         String shipmentType, String priority, String shippingMethod,
+                         String productCategory, LocalDate desiredShippingDate,
+                         String shippingCustomerCode, String billingCustomerCode,
+                         String comments, Boolean willPickUp, String willPickUpPhoneNumber,
+                         Integer totalShipped, Integer totalRemaining, Integer totalProducts,
+                         List<OrderPayload.OrderItem> orderItems, String cancelEmployeeId,
+                         Instant cancelDate, String cancelReason, String modifyEmployeeId,
+                         Instant modifyDate, String modifyReason, String transactionId) {
 
         Assert.notNull(orderNumber, "orderNumber must not be null");
         Assert.notNull(externalId, "externalId must not be null");
@@ -60,9 +64,6 @@ public class OrderCancelledOutbound {
         Assert.notNull(billingCustomerCode, "billingCustomerCode must not be null");
         Assert.notNull(willPickUp, "willPickUp must not be null");
         Assert.notNull(orderItems, "orderItems must not be null");
-        Assert.notNull(cancelEmployeeId, "cancelEmployeeId must not be null");
-        Assert.notNull(cancelDate, "cancelDate must not be null");
-        Assert.notNull(cancelReason, "cancelReason must not be null");
 
         this.orderNumber = orderNumber;
         this.externalId = externalId;
@@ -87,6 +88,9 @@ public class OrderCancelledOutbound {
         this.cancelEmployeeId = cancelEmployeeId;
         this.cancelDate = cancelDate;
         this.cancelReason = cancelReason;
+        this.modifyEmployeeId = modifyEmployeeId;
+        this.modifyDate = modifyDate;
+        this.modifyReason = modifyReason;
         this.transactionId = transactionId;
     }
 }

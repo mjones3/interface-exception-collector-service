@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.eventbridge.infrastructure.listener;
 
-import com.arcone.biopro.distribution.eventbridge.application.dto.OrderCancelledEventDTO;
+import com.arcone.biopro.distribution.eventbridge.application.dto.OrderModifiedEventDTO;
 import com.arcone.biopro.distribution.eventbridge.application.dto.OrderPayload;
 import com.arcone.biopro.distribution.eventbridge.domain.service.OrderService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
@@ -26,19 +26,19 @@ import java.time.Duration;
 @Service
 @Slf4j
 @Profile("prod")
-public class OrderCancelledListener extends AbstractKafkaListener {
+public class OrderModifiedListener extends AbstractKafkaListener {
 
-    private static final String ORDER_CANCELLED_SCHEMA = "schema/order-cancelled-outbound.json";
+    private static final String ORDER_MODIFIED_SCHEMA = "schema/order-modified.json";
     private final ObjectMapper objectMapper;
     private final OrderService orderService;
     private final SchemaValidationService schemaValidationService;
 
-    public OrderCancelledListener(
-            @Qualifier(KafkaConfiguration.ORDER_CANCELLED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer,
+    public OrderModifiedListener(
+            @Qualifier(KafkaConfiguration.ORDER_MODIFIED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer,
             ObjectMapper objectMapper,
             OrderService orderService,
             @Qualifier(KafkaConfiguration.DLQ_PRODUCER) ReactiveKafkaProducerTemplate<String, String> producerTemplate,
-            @Value("${topics.order.order-cancelled.topic-name:OrderCancelled}") String topicName,
+            @Value("${topics.order.order-modified.topic-name:OrderModified}") String topicName,
             SchemaValidationService schemaValidationService) {
 
         super(consumer, objectMapper, producerTemplate, topicName);
@@ -48,18 +48,18 @@ public class OrderCancelledListener extends AbstractKafkaListener {
     }
 
     @AsyncListener(operation = @AsyncOperation(
-        channelName = "OrderCancelled",
-        description = "Order Cancelled received event",
-        payloadType = OrderCancelledEventDTO.class
+        channelName = "OrderModified",
+        description = "Order Modified received event",
+        payloadType = OrderModifiedEventDTO.class
     ))
     @KafkaAsyncOperationBinding
     @Override
     protected Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
-            var message = objectMapper.readValue(event.value(), OrderCancelledEventDTO.class);
-            return schemaValidationService.validateSchema(event.value(), ORDER_CANCELLED_SCHEMA)
+            var message = objectMapper.readValue(event.value(), OrderModifiedEventDTO.class);
+            return schemaValidationService.validateSchema(event.value(), ORDER_MODIFIED_SCHEMA)
                 .then(Mono.defer(() -> orderService
-                            .processOrderCancelledEvent(message.payload())))
+                            .processOrderModifiedEvent(message.payload())))
                 .then(Mono.just(event))
                     .retryWhen(Retry
                             .fixedDelay(3, Duration.ofSeconds(60))
