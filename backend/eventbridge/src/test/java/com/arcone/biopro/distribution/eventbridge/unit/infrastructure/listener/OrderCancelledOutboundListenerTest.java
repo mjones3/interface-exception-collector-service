@@ -22,7 +22,7 @@ import reactor.kafka.receiver.ReceiverRecord;
 import java.util.UUID;
 
 @RunWith(MockitoJUnitRunner.class)
-class OrderCancelledListenerTest {
+class OrderCancelledOutboundListenerTest {
 
     private ReactiveKafkaConsumerTemplate<String, String> consumer;
     private ReactiveKafkaProducerTemplate<String, String> producerTemplate;
