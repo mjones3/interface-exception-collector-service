@@ -25,6 +25,6 @@ public record OrderModifiedEventDTO(
     @Schema(name = "eventType", title = "Event Type", description = "The event type", example = "OrderModified", requiredMode = REQUIRED)
     String eventType,
     @Schema(name = "payload", title = "Payload", description = "The event payload", requiredMode = REQUIRED)
-    OrderPayload payload
+    OrderModifiedPayload payload
 ) implements Serializable {
 }
