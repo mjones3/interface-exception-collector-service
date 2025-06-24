@@ -59,7 +59,7 @@ public class OrderCreatedListener extends AbstractKafkaListener {
             var message = objectMapper.readValue(event.value(), OrderCreatedEventDTO.class);
             return schemaValidationService.validateSchema(event.value(), ORDER_CREATED_SCHEMA)
                 .then(Mono.defer(() -> orderService
-                            .processOrderCreatedEvent(message.payload())))
+                            .processOrderCreatedEvent(message))
                 .then(Mono.just(event))
                     .retryWhen(Retry
                             .fixedDelay(3, Duration.ofSeconds(60))
@@ -76,7 +76,7 @@ public class OrderCreatedListener extends AbstractKafkaListener {
 
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
-                    "with the following json: %s ", OrderCreatedPayload.class.getSimpleName(), event), e);
+                    "with the following json: %s ", OrderCreatedEventDTO.class.getSimpleName(), event), e);
             sendToDlq(event.value(), e.getMessage());
             return Mono.error(new RuntimeException(e));
         }
