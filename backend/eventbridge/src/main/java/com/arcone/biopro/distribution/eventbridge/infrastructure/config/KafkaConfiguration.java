@@ -297,6 +297,12 @@ public class KafkaConfiguration {
         return new ReactiveKafkaProducerTemplate<>(senderOptionsInventoryUpdatedOutbound);
     }
 
+    @Bean(name = ORDER_CREATED_OUTBOUND_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, EventMessage<OrderCreatedOutboundPayload>> orderCreatedOutboundProducerTemplate(
+        SenderOptions<String, EventMessage<OrderCreatedOutboundPayload>> senderOptionsOrderCreatedOutbound) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptionsOrderCreatedOutbound);
+    }
+
     @Bean(RPS_SHIPMENT_CLOSED_CONSUMER)
     ReactiveKafkaConsumerTemplate<String, String> recoveredPlasmaShipmentClosedConsumerTemplate(
         ReceiverOptions<String, String> recoveredPlasmaShipmentClosedReceiverOptions
