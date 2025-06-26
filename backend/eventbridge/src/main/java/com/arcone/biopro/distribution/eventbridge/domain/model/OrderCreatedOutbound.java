@@ -27,7 +27,7 @@ public record OrderCreatedOutbound(
     String willPickUpPhoneNumber,
     UUID transactionId,
     List<OrderItem> orderItems
-) implements Validatable {
+)  {
 
     @Builder
     public record OrderItem(

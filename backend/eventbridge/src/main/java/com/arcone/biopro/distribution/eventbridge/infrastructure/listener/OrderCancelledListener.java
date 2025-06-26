@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.eventbridge.infrastructure.listener;
 
 import com.arcone.biopro.distribution.eventbridge.application.dto.OrderCancelledEventDTO;
-import com.arcone.biopro.distribution.eventbridge.application.dto.OrderPayload;
 import com.arcone.biopro.distribution.eventbridge.domain.service.OrderService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
@@ -76,7 +75,7 @@ public class OrderCancelledListener extends AbstractKafkaListener {
 
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
-                    "with the following json: %s ", OrderPayload.class.getSimpleName(), event), e);
+                    "with the following json: %s ", OrderCancelledEventDTO.class.getSimpleName(), event), e);
             sendToDlq(event.value(), e.getMessage());
             return Mono.error(new RuntimeException(e));
         }
