@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.eventbridge.infrastructure.listener;
 
 import com.arcone.biopro.distribution.eventbridge.application.dto.OrderCreatedEventDTO;
-import com.arcone.biopro.distribution.eventbridge.application.dto.OrderCreatedPayload;
 import com.arcone.biopro.distribution.eventbridge.domain.service.OrderService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
@@ -72,7 +71,7 @@ public class OrderCreatedListener extends AbstractKafkaListener {
                         log.error("Skipping message processing. Reason: {} Message: {}", e.getMessage(), event);
                         sendToDlq(event.value(), e.getMessage());
                         return Mono.empty();
-                    });
+                    }));
 
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
