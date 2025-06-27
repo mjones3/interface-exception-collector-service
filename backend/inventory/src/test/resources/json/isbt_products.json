@@ -403,5 +403,14 @@
     "Temperature Category": "ROOM_TEMPERATURE",
     "Product Family": "PRT_APHERESIS_PLATELETS",
     "Expiration in Days": "2"
+  },
+  {
+    "Product Code": "EA137",
+    "Division Code": "00",
+    "ISBT Product Description": "Apheresis PLATELETS|ACD-A>PAS-C/XX/20-24C|ResLeu:<5E6|Psoralen-treated",
+    "Product Description": "PRT APH PASPLT",
+    "Temperature Category": "ROOM_TEMPERATURE",
+    "Product Family": "PRT_APHERESIS_PLATELETS",
+    "Expiration in Days": "2"
   }
 ]
