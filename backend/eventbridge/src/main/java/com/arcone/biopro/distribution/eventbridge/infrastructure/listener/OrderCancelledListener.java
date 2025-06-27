@@ -27,7 +27,7 @@ import java.time.Duration;
 @Profile("prod")
 public class OrderCancelledListener extends AbstractKafkaListener {
 
-    private static final String ORDER_CANCELLED_SCHEMA = "schema/order-cancelled-outbound.json";
+    private static final String ORDER_CANCELLED_SCHEMA = "schema/order-cancelled.json";
     private final ObjectMapper objectMapper;
     private final OrderService orderService;
     private final SchemaValidationService schemaValidationService;
