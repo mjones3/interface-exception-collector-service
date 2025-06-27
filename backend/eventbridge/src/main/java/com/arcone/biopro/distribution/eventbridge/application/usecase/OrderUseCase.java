@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.eventbridge.application.usecase;
 
 import com.arcone.biopro.distribution.eventbridge.application.dto.OrderCancelledPayload;
 import com.arcone.biopro.distribution.eventbridge.application.dto.OrderCreatedEventDTO;
-import com.arcone.biopro.distribution.eventbridge.application.dto.OrderModifiedPayload;
+import com.arcone.biopro.distribution.eventbridge.application.dto.OrderModifiedEventDTO;
 import com.arcone.biopro.distribution.eventbridge.application.dto.OrderRejectedPayload;
 import com.arcone.biopro.distribution.eventbridge.application.mapper.OrderCancelledMapper;
 import com.arcone.biopro.distribution.eventbridge.application.mapper.OrderCreatedMapper;
@@ -35,8 +35,8 @@ public class OrderUseCase implements OrderService {
     private final OrderRejectedMapper orderRejectedMapper;
 
     @Override
-    public Mono<Void> processOrderCancelledEvent(OrderCancelledPayload orderPayload) {
-        return publishOrderCancelledOutboundEvent(orderCancelledMapper.toDomain(orderPayload));
+    public Mono<Void> processOrderCancelledEvent(OrderCancelledPayload orderEvent) {
+        return publishOrderCancelledOutboundEvent(orderCancelledMapper.toDomain(orderEvent));
     }
 
     @Override
@@ -45,8 +45,8 @@ public class OrderUseCase implements OrderService {
     }
 
     @Override
-    public Mono<Void> processOrderModifiedEvent(OrderModifiedPayload orderPayload) {
-        return publishOrderModifiedOutboundEvent(orderModifiedMapper.toDomain(orderPayload));
+    public Mono<Void> processOrderModifiedEvent(OrderModifiedEventDTO orderEvent) {
+        return publishOrderModifiedOutboundEvent(orderModifiedMapper.toDomain(orderEvent));
     }
 
     @Override

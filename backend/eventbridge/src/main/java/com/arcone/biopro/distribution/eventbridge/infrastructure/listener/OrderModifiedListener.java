@@ -55,6 +55,6 @@ public class OrderModifiedListener extends BaseOrderListener<OrderModifiedEventD
 
     @Override
     protected Mono<Void> processEvent(OrderModifiedEventDTO message) {
-        return orderService.processOrderModifiedEvent(message.payload());
+        return orderService.processOrderModifiedEvent(message);
     }
 }
