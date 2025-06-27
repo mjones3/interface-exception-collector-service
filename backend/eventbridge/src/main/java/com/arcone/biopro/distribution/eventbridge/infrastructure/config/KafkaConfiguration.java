@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUp
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderCancelledOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderCreatedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderModifiedOutboundPayload;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderRejectedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.event.RecoveredPlasmaShipmentClosedOutboundEvent;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.event.ShipmentCompletedOutboundOutputEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,12 +38,14 @@ public class KafkaConfiguration {
     public static final String ORDER_CANCELLED_CONSUMER = "order-cancelled";
     public static final String ORDER_CREATED_CONSUMER = "order-created";
     public static final String ORDER_MODIFIED_CONSUMER = "order-modified";
+    public static final String ORDER_REJECTED_CONSUMER = "order-rejected";
     public static final String DLQ_PRODUCER = "dlq-producer";
     public static final String SHIPMENT_COMPLETED_OUTBOUND_PRODUCER = "shipment-completed-outbound";
     public static final String INVENTORY_UPDATED_OUTBOUND_PRODUCER = "inventory-updated-outbound";
     public static final String ORDER_CANCELLED_OUTBOUND_PRODUCER = "order-cancelled-outbound";
     public static final String ORDER_CREATED_OUTBOUND_PRODUCER = "order-created-outbound";
     public static final String ORDER_MODIFIED_OUTBOUND_PRODUCER = "order-modified-outbound";
+    public static final String ORDER_REJECTED_OUTBOUND_PRODUCER = "order-rejected-outbound";
     public static final String RPS_SHIPMENT_CLOSED_CONSUMER = "recovered-plasma-shipment-closed";
     public static final String RPS_SHIPMENT_CLOSED_OUTBOUND_PRODUCER = "recovered-plasma-shipment-closed-outbound";
 
@@ -194,6 +197,30 @@ public class KafkaConfiguration {
         return buildReceiverOptions(kafkaProperties, orderModifiedTopicName);
     }
 
+    @Bean
+    NewTopic orderRejectedTopic(
+        @Value("${topics.order.order-rejected.partitions:1}") Integer partitions,
+        @Value("${topics.order.order-rejected.replicas:1}") Integer replicas,
+        @Value("${topics.order.order-rejected.topic-name:OrderRejected}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    NewTopic orderRejectedOutboundTopic(
+        @Value("${topics.order.order-rejected-outbound.partitions:1}") Integer partitions,
+        @Value("${topics.order.order-rejected-outbound.replicas:1}") Integer replicas,
+        @Value("${topics.order.order-rejected-outbound.topic-name:OrderRejectedOutbound}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    ReceiverOptions<String, String> orderRejectedReceiverOptions(KafkaProperties kafkaProperties
+        , @Value("${topics.order.order-rejected.topic-name:OrderRejected}") String orderRejectedTopicName) {
+        return buildReceiverOptions(kafkaProperties, orderRejectedTopicName);
+    }
+
 
     private ReceiverOptions<String, String> buildReceiverOptions(KafkaProperties kafkaProperties , String topicName){
         var props = kafkaProperties.buildConsumerProperties(null);
@@ -237,6 +264,13 @@ public class KafkaConfiguration {
         ReceiverOptions<String, String> orderModifiedReceiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(orderModifiedReceiverOptions);
+    }
+
+    @Bean(ORDER_REJECTED_CONSUMER)
+    ReactiveKafkaConsumerTemplate<String, String> orderRejectedConsumerTemplate(
+        ReceiverOptions<String, String> orderRejectedReceiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(orderRejectedReceiverOptions);
     }
 
     @Bean
@@ -301,6 +335,16 @@ public class KafkaConfiguration {
             .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
     }
 
+    @Bean
+    SenderOptions<String, EventMessage<OrderRejectedOutboundPayload>> senderOptionsOrderRejectedOutbound(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        return SenderOptions.<String, EventMessage<OrderRejectedOutboundPayload>>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
+    }
+
     @Bean(name = DLQ_PRODUCER )
     ReactiveKafkaProducerTemplate<String, String> dlqProducerTemplate(
             SenderOptions<String, String> senderOptions) {
@@ -335,6 +379,12 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, EventMessage<OrderModifiedOutboundPayload>> orderModifiedOutboundProducerTemplate(
         SenderOptions<String, EventMessage<OrderModifiedOutboundPayload>> senderOptionsOrderModifiedOutbound) {
         return new ReactiveKafkaProducerTemplate<>(senderOptionsOrderModifiedOutbound);
+    }
+
+    @Bean(name = ORDER_REJECTED_OUTBOUND_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, EventMessage<OrderRejectedOutboundPayload>> orderRejectedOutboundProducerTemplate(
+        SenderOptions<String, EventMessage<OrderRejectedOutboundPayload>> senderOptionsOrderRejectedOutbound) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptionsOrderRejectedOutbound);
     }
 
     @Bean(RPS_SHIPMENT_CLOSED_CONSUMER)

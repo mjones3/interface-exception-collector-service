@@ -9,4 +9,5 @@ public interface Topics {
     String ORDER_CREATED = "OrderCreated";
     String ORDER_CANCELLED = "OrderCancelled";
     String ORDER_MODIFIED = "OrderModified";
+    String ORDER_REJECTED = "OrderRejected";
 }

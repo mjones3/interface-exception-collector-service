@@ -313,3 +313,11 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: OrderModifiedOutbound
+    order-rejected:
+      partitions: 1
+      replicas: 1
+      topic-name: OrderRejected
+    order-rejected-outbound:
+      partitions: 1
+      replicas: 1
+      topic-name: OrderRejectedOutbound
