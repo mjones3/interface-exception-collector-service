@@ -1,13 +1,14 @@
 package com.arcone.biopro.distribution.eventbridge.application.mapper;
 
-import com.arcone.biopro.distribution.eventbridge.application.dto.OrderModifiedPayload;
+import com.arcone.biopro.distribution.eventbridge.application.dto.OrderModifiedEventDTO;
 import com.arcone.biopro.distribution.eventbridge.domain.model.OrderModifiedOutbound;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OrderModifiedMapper {
 
-    public OrderModifiedOutbound toDomain(OrderModifiedPayload payload) {
+    public OrderModifiedOutbound toDomain(OrderModifiedEventDTO eventDTO) {
+        var payload = eventDTO.payload();
         return OrderModifiedOutbound.builder()
             .orderNumber(payload.orderNumber())
             .externalId(payload.externalId())
