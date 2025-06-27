@@ -8,12 +8,6 @@
     "occurredOn": {
       "type": "string"
     },
-    "eventVersion": {
-      "type": "string"
-    },
-    "eventType": {
-      "type": "string"
-    },
     "payload": {
       "type": "object",
       "properties": {
@@ -66,48 +60,46 @@
           "type": ["null","string"]
         },
         "totalShipped": {
-          "type": ["null","integer"]
+          "type": "integer"
         },
         "totalRemaining": {
-          "type": ["null","integer"]
+          "type": "integer"
         },
         "totalProducts": {
-          "type": ["null","integer"]
+          "type": "integer"
         },
         "orderItems": {
           "type": "array",
-          "items": [
-            {
-              "type": "object",
-              "properties": {
-                "productFamily": {
-                  "type": "string"
-                },
-                "bloodType": {
-                  "type": "string"
-                },
-                "quantity": {
-                  "type": "integer"
-                },
-                "quantityShipped": {
-                  "type": "integer"
-                },
-                "quantityRemaining": {
-                  "type": "integer"
-                },
-                "comments": {
-                  "type": ["null","string"]
-                }
+          "items": {
+            "type": "object",
+            "properties": {
+              "productFamily": {
+                "type": "string"
               },
-              "required": [
-                "productFamily",
-                "bloodType",
-                "quantity",
-                "quantityShipped",
-                "quantityRemaining"
-              ]
-            }
-          ]
+              "bloodType": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "quantityShipped": {
+                "type": "integer"
+              },
+              "quantityRemaining": {
+                "type": "integer"
+              },
+              "comments": {
+                "type": ["null","string"]
+              }
+            },
+            "required": [
+              "productFamily",
+              "bloodType",
+              "quantity",
+              "quantityShipped",
+              "quantityRemaining"
+            ]
+          }
         },
         "modifyEmployeeId": {
           "type": "string"
@@ -119,7 +111,7 @@
           "type": "string"
         },
         "transactionId": {
-          "type": ["null","string"]
+          "type": "string"
         }
       },
       "required": [
@@ -136,11 +128,21 @@
         "shippingCustomerCode",
         "billingCustomerCode",
         "willPickUp",
+        "totalShipped",
+        "totalRemaining",
+        "totalProducts",
         "orderItems",
         "modifyEmployeeId",
         "modifyDate",
-        "modifyReason"
+        "modifyReason",
+        "transactionId"
       ]
+    },
+    "eventType": {
+      "type": "string"
+    },
+    "eventVersion": {
+      "type": "string"
     }
   },
   "required": [
