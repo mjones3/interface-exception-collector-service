@@ -297,3 +297,19 @@ topics:
         partitions: 1
         replicas: 1
         topic-name: OrderCreatedOutbound
+      order-cancelled:
+        partitions: 1
+        replicas: 1
+        topic-name: OrderCancelled
+      order-cancelled-outbound:
+        partitions: 1
+        replicas: 1
+        topic-name: OrderCancelledOutbound
+      order-modified:
+        partitions: 1
+        replicas: 1
+        topic-name: OrderModified
+      order-modified-outbound:
+        partitions: 1
+        replicas: 1
+        topic-name: OrderModifiedOutbound

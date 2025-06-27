@@ -8,4 +8,5 @@ public interface Topics {
     String RPS_SHIPMENT_CLOSED = "RecoveredPlasmaShipmentClosed";
     String ORDER_CREATED = "OrderCreated";
     String ORDER_CANCELLED = "OrderCancelled";
+    String ORDER_MODIFIED = "OrderModified";
 }
