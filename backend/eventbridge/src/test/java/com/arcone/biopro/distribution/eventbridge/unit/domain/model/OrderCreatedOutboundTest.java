@@ -1,22 +1,22 @@
 package com.arcone.biopro.distribution.eventbridge.unit.domain.model;
 
-import com.arcone.biopro.distribution.eventbridge.application.dto.OrderCancelledPayload;
-import com.arcone.biopro.distribution.eventbridge.domain.model.OrderCancelledOutbound;
+import com.arcone.biopro.distribution.eventbridge.domain.model.OrderCreatedOutbound;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
-class OrderCancelledOutboundOutboundTest {
+class OrderCreatedOutboundTest {
 
     @Test
     public void shouldCreateDomain(){
-        var target = new OrderCancelledOutbound(
+        var target = new OrderCreatedOutbound(
             1,
             "EXTDIS3150001",
-            "CANCELLED",
+            "CREATED",
             "123456789",
             Instant.now(),
             "ee1bf88e-2137-4a17-835a-d43e7b738374",
@@ -30,24 +30,18 @@ class OrderCancelledOutboundOutboundTest {
             "Comments",
             false,
             null,
-            0,
-            10,
-            10,
-            List.of(),
-            "ee1bf88e-2137-4a17-835a-d43e7b738374",
-            Instant.now(),
-            "Customer no longer need",
-            "df7092f3-78a6-4d17-ae2c-e9de07db6f3c");
+            UUID.randomUUID(),
+            List.of());
         Assertions.assertNotNull(target);
     }
 
     @Test
     public void shouldNotCreateDomain(){
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-            new OrderCancelledOutbound(
+            new OrderCreatedOutbound(
                 null,
                 "EXTDIS3150001",
-                "CANCELLED",
+                "CREATED",
                 "123456789",
                 Instant.now(),
                 "ee1bf88e-2137-4a17-835a-d43e7b738374",
@@ -61,19 +55,13 @@ class OrderCancelledOutboundOutboundTest {
                 "Comments",
                 false,
                 null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                UUID.randomUUID(),
+                List.of()));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-            new OrderCancelledOutbound(
+            new OrderCreatedOutbound(
                 1,
                 null,
-                "CANCELLED",
+                "CREATED",
                 "123456789",
                 Instant.now(),
                 "ee1bf88e-2137-4a17-835a-d43e7b738374",
@@ -87,16 +75,10 @@ class OrderCancelledOutboundOutboundTest {
                 "Comments",
                 false,
                 null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                UUID.randomUUID(),
+                List.of()));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-            new OrderCancelledOutbound(
+            new OrderCreatedOutbound(
                 1,
                 "EXTDIS3150001",
                 null,
@@ -113,19 +95,13 @@ class OrderCancelledOutboundOutboundTest {
                 "Comments",
                 false,
                 null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                UUID.randomUUID(),
+                List.of()));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-            new OrderCancelledOutbound(
+            new OrderCreatedOutbound(
                 1,
                 "EXTDIS3150001",
-                "CANCELLED",
+                "CREATED",
                 null,
                 Instant.now(),
                 "ee1bf88e-2137-4a17-835a-d43e7b738374",
@@ -139,19 +115,13 @@ class OrderCancelledOutboundOutboundTest {
                 "Comments",
                 false,
                 null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                UUID.randomUUID(),
+                List.of()));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-            new OrderCancelledOutbound(
+            new OrderCreatedOutbound(
                 1,
                 "EXTDIS3150001",
-                "CANCELLED",
+                "CREATED",
                 "123456789",
                 null,
                 "ee1bf88e-2137-4a17-835a-d43e7b738374",
@@ -165,13 +135,7 @@ class OrderCancelledOutboundOutboundTest {
                 "Comments",
                 false,
                 null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                UUID.randomUUID(),
+                List.of()));
     }
 }
