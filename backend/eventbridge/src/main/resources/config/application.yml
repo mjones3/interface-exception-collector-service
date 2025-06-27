@@ -288,3 +288,12 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: RecoveredPlasmaShipmentClosedOutbound
+    order:
+      order-created:
+        partitions: 1
+        replicas: 1
+        topic-name: OrderCreated
+      order-created-outbound:
+        partitions: 1
+        replicas: 1
+        topic-name: OrderCreatedOutbound

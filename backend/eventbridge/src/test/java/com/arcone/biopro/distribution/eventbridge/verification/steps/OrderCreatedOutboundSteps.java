@@ -39,7 +39,7 @@ public class OrderCreatedOutboundSteps {
 
     @Given("The Order Created event is triggered.")
     public void createOrderCreatedEvent() throws Exception {
-        
+
         String orderCreatedPayload = """
             {
                 "eventId": "d1509fc0-0d1d-4835-a2fc-c5d066aebabb",
@@ -80,7 +80,7 @@ public class OrderCreatedOutboundSteps {
 
         log.info("JSON PAYLOAD :{}", orderCreatedOutboundContext.getOrderCreated());
         Assert.assertNotNull(orderCreatedOutboundContext.getOrderCreated());
-        
+
         var event = kafkaHelper.sendEvent(orderCreatedJson.getString("eventId"), objectMapper.readTree(orderCreatedPayload), Topics.ORDER_CREATED).block();
         Assert.assertNotNull(event);
     }
@@ -99,7 +99,7 @@ public class OrderCreatedOutboundSteps {
 
     @And("The Order Created outbound event is posted in the outbound events topic.")
     public void theOrderCreatedOutboundEventIsPostedInTheOutboundEventsTopic() throws Exception {
-        
+
         var fileInputStream = new ClassPathResource("schema/order-created-outbound.json").getInputStream();
 
         JsonSchema jsonSchema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
@@ -109,7 +109,7 @@ public class OrderCreatedOutboundSteps {
 
         log.debug("Schema Errors {}", errors.toString());
         Assert.assertTrue(errors.isEmpty());
-        
+
         JSONObject payloadJson = new JSONObject(orderCreatedOutboundContext.getOrderCreatedOutbound().getString("payload"));
         Assert.assertEquals(orderCreatedOutboundContext.getOrderNumber(), String.valueOf(payloadJson.getInt("orderNumber")));
         Assert.assertEquals(orderCreatedOutboundContext.getExternalId(), payloadJson.getString("externalId"));
