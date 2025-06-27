@@ -5,10 +5,9 @@ Feature: Import products
         Given I have removed all created devices which ID contains "-DST-410".
         And I have removed all created devices which ID contains "-DST-411".
 
-    Rule: I should be able to input shipping details like product category, transit date and time, temperature, thermometer ID and comments as necessary.
+        Rule: I should be able to input shipping details like product category, transit date and time, temperature, thermometer ID and comments as necessary.
         Rule: The system should show the appropriate fields based on the selected product category.
-    Rule: The system should define the time zone based on the user location for the “Transit Time Zone to” field.
-        Rule: The system should pre-populate the current user location date and time by default.
+        Rule: The system should define the time zone based on the user location for the “Transit Time Zone to” field.
         @api @DIS-406 @DIS-411
         Scenario Outline: Request to enter shipping information
             Given I request to enter shipping data for a "<Temperature Category>" product category and location code "<Location Code>".
@@ -93,7 +92,7 @@ Feature: Import products
         Scenario Outline: Successfully record transit time within acceptable range
             Given The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     |    0             |  (24 * 60)              |
+                | ROOM_TEMPERATURE     |    0             |  (23.99 * 60)    |
             When I request to validate the total transit time of Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>" and End Time Zone as "<EndTimeZone>"  for the Temperature Category "<Temperature Category>".
             Then The system "should" accept the transit time.
             And I should receive the total transit time as "<totalTransitTime>".
@@ -106,25 +105,24 @@ Feature: Import products
         Scenario Outline: Notification for out-of-range transit time
             Given The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     |    0             |  (24 * 60)              |
+                | ROOM_TEMPERATURE     |    0             |  (23.99 * 60)    |
             When I request to validate the total transit time of Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>" and End Time Zone as "<EndTimeZone>"  for the Temperature Category "<Temperature Category>".
             Then I should receive a "<message_type>" message response "<message>".
             Examples:
                 | Temperature Category | StartDateTime            | StartTimeZone    | EndDateTime              | EndTimeZone       | message_type | message                                                                        |
-                | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York  | CAUTION      | Total Transit Time does not meet thresholds. All products will be quarantined. |
+                | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-03T05:22:53.108Z | America/New_York  | CAUTION      | Total Transit Time does not meet thresholds. All products will be quarantined. |
                 | FROZEN               | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York  | SYSTEM       | Not able to validate transit time. Contact Support.                            |
                 | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | INVALID_TIME_ZONE | SYSTEM       | Not able to validate transit time. Contact Support.                            |
 
 
-    Rule: I should be able to see the total transit time of the imported products.
+        Rule: I should be able to see the total transit time of the imported products.
         Rule: The system should define the time zone based on the user location for the “Transit Time Zone to” field.
-    Rule: The system should pre-populate the current user location date and time by default.
         Rule: I should be notified if the transit time is out of configured range.
         @ui @DIS-411
         Scenario Outline: Enter transit time within different ranges
             Given The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     | 0                | (24 * 60)        |
+                | ROOM_TEMPERATURE     | 0                | (23.99 * 60)     |
             And I have a thermometer configured as location "123456789", Device ID as "THERM-DST-411", Category as "TEMPERATURE" and Device Type as "THERMOMETER".
             And The user location is "<Imports Location Code>".
             And The location default timezone is configured as "<defaultLocationTimeZone>"

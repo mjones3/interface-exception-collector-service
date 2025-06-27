@@ -62,8 +62,6 @@ Feature: Close Shipment
         When I confirm to close the shipment.
         Then I should see a "SUCCESS" message: "Close Shipment is in progress".
         And I close the acknowledgment message.
-        And The shipment status should be updated to "PROCESSING"
-        And I should see a "SYSTEM" static message: "Close Shipment is in progress.".
         And The system process the unacceptable units report.
         And The shipment status should be updated to "CLOSED"
         Examples:

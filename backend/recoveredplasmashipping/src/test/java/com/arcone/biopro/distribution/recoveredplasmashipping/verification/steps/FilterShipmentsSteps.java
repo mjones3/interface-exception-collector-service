@@ -140,6 +140,11 @@ public class FilterShipmentsSteps {
         createShipmentPage.verifyFilterCriteriaApplied(Integer.parseInt(quantity));
     }
 
+    @And("I should not have any filter criteria applied.")
+    public void iShouldHaveNoFilterCriteriaApplied(String quantity) {
+        iShouldSeeFilterCriteriaApplied("0");
+    }
+
     @When("I requested the list of all shipments from the location above having statuses {string}.")
     public void iRequestedTheListOfAllShipmentsFromTheLocationAbove(String statusList) {
         filterShipmentsController.getAllShipmentsByLocationDateAndStatus(context.getLocationCode(), context.getInitialShipmentDate(), context.getFinalShipmentDate(), statusList);
@@ -195,6 +200,28 @@ public class FilterShipmentsSteps {
                 });
 
             }
+        }
+
+    }
+
+    @When("I select to reset filters.")
+    public void iSelectToResetFilters() {
+        createShipmentPage.openFilterPanel();
+        createShipmentPage.clickResetFiltersButton();
+    }
+
+    @When("I am filtering by shipment number.")
+    public void iFilterByShipmentNumber() {
+        createShipmentPage.openFilterPanel();
+        createShipmentPage.setShipmentNumber(context.getShipmentCreateResponse().get("shipmentNumber").toString());
+    }
+
+    @Then("The other filter fields should be defined as below:")
+    public void theOtherFilterFieldsShouldBeDefinedAsBelow(DataTable dataTable) {
+        var filterTable = dataTable.asMap(String.class, String.class);
+
+        for (String key : filterTable.keySet()) {
+            createShipmentPage.verifyFieldEnabledDisabled(key, filterTable.get(key));
         }
 
     }

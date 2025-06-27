@@ -2,8 +2,8 @@ package com.arcone.biopro.distribution.eventbridge.infrastructure.config;
 
 import com.arcone.biopro.distribution.eventbridge.domain.event.EventMessage;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUpdatedOutboundPayload;
-import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.ShipmentCompletedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.event.RecoveredPlasmaShipmentClosedOutboundEvent;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.event.ShipmentCompletedOutboundOutputEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -148,11 +148,11 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    SenderOptions<String, ShipmentCompletedOutboundPayload> senderOptionsShipmentCompletedOutbound(
+    SenderOptions<String, ShipmentCompletedOutboundOutputEvent> senderOptionsShipmentCompletedOutbound(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper) {
         var props = kafkaProperties.buildProducerProperties(null);
-        return SenderOptions.<String, ShipmentCompletedOutboundPayload>create(props)
+        return SenderOptions.<String, ShipmentCompletedOutboundOutputEvent>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
     }
@@ -174,8 +174,8 @@ public class KafkaConfiguration {
     }
 
     @Bean(name = SHIPMENT_COMPLETED_OUTBOUND_PRODUCER )
-    ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutboundPayload> shipmentCompletedOutboundProducerTemplate(
-        SenderOptions<String, ShipmentCompletedOutboundPayload> senderOptionsShipmentCompletedOutbound) {
+    ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutboundOutputEvent> shipmentCompletedOutboundProducerTemplate(
+        SenderOptions<String, ShipmentCompletedOutboundOutputEvent> senderOptionsShipmentCompletedOutbound) {
         return new ReactiveKafkaProducerTemplate<>(senderOptionsShipmentCompletedOutbound);
     }
 
