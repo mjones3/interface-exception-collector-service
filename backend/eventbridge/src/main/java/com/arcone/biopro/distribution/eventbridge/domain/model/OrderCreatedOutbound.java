@@ -28,6 +28,15 @@ public record OrderCreatedOutbound(
     UUID transactionId,
     List<OrderItem> orderItems
 )  {
+    public OrderCreatedOutbound {
+        if (orderNumber == null) throw new IllegalArgumentException("orderNumber cannot be null");
+        if (externalId == null) throw new IllegalArgumentException("externalId cannot be null");
+        if (shipmentType == null) throw new IllegalArgumentException("shipmentType cannot be null");
+        if (desiredShippingDate == null) throw new IllegalArgumentException("desiredShippingDate cannot be null");
+        if (shippingCustomerCode == null) throw new IllegalArgumentException("shippingCustomerCode cannot be null");
+        if (billingCustomerCode == null) throw new IllegalArgumentException("billingCustomerCode cannot be null");
+        if (transactionId == null) throw new IllegalArgumentException("transactionId cannot be null");
+    }
 
     @Builder
     public record OrderItem(

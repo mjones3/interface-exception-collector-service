@@ -32,7 +32,7 @@ class OrderModifiedOutboundTest {
             0,
             10,
             10,
-            List.of(),
+            List.of(new OrderModifiedOutbound.OrderItem("FAMILY", "O+", 1, 0, 1, "test")),
             "ee1bf88e-2137-4a17-835a-d43e7b738374",
             Instant.now(),
             "Order modified",
@@ -42,135 +42,83 @@ class OrderModifiedOutboundTest {
 
     @Test
     public void shouldNotCreateDomain(){
+        // Test null transactionId
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderModifiedOutbound(
-                null,
-                "EXTDIS3150001",
-                "MODIFIED",
-                "123456789",
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Order modified",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                1, "EXTDIS3150001", "MODIFIED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(new OrderModifiedOutbound.OrderItem("FAMILY", "O+", 1, 0, 1, "test")),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(), "Order modified", null));
+        
+        // Test null externalId
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderModifiedOutbound(
-                1,
-                null,
-                "MODIFIED",
-                "123456789",
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Order modified",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                1, null, "MODIFIED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(new OrderModifiedOutbound.OrderItem("FAMILY", "O+", 1, 0, 1, "test")),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(), "Order modified", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test null orderNumber
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderModifiedOutbound(
-                1,
-                "EXTDIS3150001",
-                null,
-                "123456789",
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Order modified",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                null, "EXTDIS3150001", "MODIFIED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(new OrderModifiedOutbound.OrderItem("FAMILY", "O+", 1, 0, 1, "test")),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(), "Order modified", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test null modifyReason
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderModifiedOutbound(
-                1,
-                "EXTDIS3150001",
-                "MODIFIED",
-                null,
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Order modified",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                1, "EXTDIS3150001", "MODIFIED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(new OrderModifiedOutbound.OrderItem("FAMILY", "O+", 1, 0, 1, "test")),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(), null, "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test empty modifyReason
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderModifiedOutbound(
-                1,
-                "EXTDIS3150001",
-                "MODIFIED",
-                "123456789",
-                null,
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Order modified",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                1, "EXTDIS3150001", "MODIFIED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(new OrderModifiedOutbound.OrderItem("FAMILY", "O+", 1, 0, 1, "test")),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(), "", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test null modifyDate
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            new OrderModifiedOutbound(
+                1, "EXTDIS3150001", "MODIFIED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(new OrderModifiedOutbound.OrderItem("FAMILY", "O+", 1, 0, 1, "test")),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", null, "Order modified", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test null orderItems
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            new OrderModifiedOutbound(
+                1, "EXTDIS3150001", "MODIFIED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                null, "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(), "Order modified", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test empty orderItems
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            new OrderModifiedOutbound(
+                1, "EXTDIS3150001", "MODIFIED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(), "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(), "Order modified", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test null desiredShippingDate
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            new OrderModifiedOutbound(
+                1, "EXTDIS3150001", "MODIFIED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                null, "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(new OrderModifiedOutbound.OrderItem("FAMILY", "O+", 1, 0, 1, "test")),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(), "Order modified", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
     }
 }

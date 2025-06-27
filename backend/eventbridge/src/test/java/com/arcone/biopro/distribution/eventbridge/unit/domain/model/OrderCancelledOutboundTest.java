@@ -42,135 +42,58 @@ class OrderCancelledOutboundTest {
 
     @Test
     public void shouldNotCreateDomain(){
+        // Test null orderNumber
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCancelledOutbound(
-                null,
-                "EXTDIS3150001",
-                "CANCELLED",
-                "123456789",
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                null, "EXTDIS3150001", "CANCELLED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(), "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(),
+                "Customer no longer need", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test null externalId
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCancelledOutbound(
-                1,
-                null,
-                "CANCELLED",
-                "123456789",
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                1, null, "CANCELLED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(), "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(),
+                "Customer no longer need", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test null transactionId
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCancelledOutbound(
-                1,
-                "EXTDIS3150001",
-                null,
-                "123456789",
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                1, "EXTDIS3150001", "CANCELLED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(), "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(),
+                "Customer no longer need", null));
+        
+        // Test null cancelEmployeeId
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCancelledOutbound(
-                1,
-                "EXTDIS3150001",
-                "CANCELLED",
-                null,
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                1, "EXTDIS3150001", "CANCELLED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(), null, Instant.now(),
+                "Customer no longer need", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test null cancelDate
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCancelledOutbound(
-                1,
-                "EXTDIS3150001",
-                "CANCELLED",
-                "123456789",
-                null,
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                0,
-                10,
-                10,
-                List.of(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                Instant.now(),
-                "Customer no longer need",
-                "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+                1, "EXTDIS3150001", "CANCELLED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(), "ee1bf88e-2137-4a17-835a-d43e7b738374", null,
+                "Customer no longer need", "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
+        
+        // Test null cancelReason
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            new OrderCancelledOutbound(
+                1, "EXTDIS3150001", "CANCELLED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null, 0, 10, 10,
+                List.of(), "ee1bf88e-2137-4a17-835a-d43e7b738374", Instant.now(),
+                null, "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"));
     }
 }

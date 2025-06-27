@@ -33,6 +33,14 @@ public record OrderCancelledOutbound(
     String cancelReason,
     String transactionId
 ) {
+    public OrderCancelledOutbound {
+        if (orderNumber == null) throw new IllegalArgumentException("orderNumber cannot be null");
+        if (externalId == null) throw new IllegalArgumentException("externalId cannot be null");
+        if (transactionId == null) throw new IllegalArgumentException("transactionId cannot be null");
+        if (cancelEmployeeId == null) throw new IllegalArgumentException("cancelEmployeeId cannot be null");
+        if (cancelDate == null) throw new IllegalArgumentException("cancelDate cannot be null");
+        if (cancelReason == null) throw new IllegalArgumentException("cancelReason cannot be null");
+    }
     @Builder
     public record OrderItem(
         String productFamily,

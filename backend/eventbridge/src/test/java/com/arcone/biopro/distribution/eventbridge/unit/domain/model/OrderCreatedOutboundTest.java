@@ -37,105 +37,60 @@ class OrderCreatedOutboundTest {
 
     @Test
     public void shouldNotCreateDomain(){
+        // Test null orderNumber
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCreatedOutbound(
-                null,
-                "EXTDIS3150001",
-                "CREATED",
-                "123456789",
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                UUID.randomUUID(),
-                List.of()));
+                null, "EXTDIS3150001", "CREATED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null,
+                UUID.randomUUID(), List.of()));
+        
+        // Test null externalId
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCreatedOutbound(
-                1,
-                null,
-                "CREATED",
-                "123456789",
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                UUID.randomUUID(),
-                List.of()));
+                1, null, "CREATED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null,
+                UUID.randomUUID(), List.of()));
+        
+        // Test null shipmentType
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCreatedOutbound(
-                1,
-                "EXTDIS3150001",
-                null,
-                "123456789",
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                UUID.randomUUID(),
-                List.of()));
+                1, "EXTDIS3150001", "CREATED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", null, "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null,
+                UUID.randomUUID(), List.of()));
+        
+        // Test null desiredShippingDate
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCreatedOutbound(
-                1,
-                "EXTDIS3150001",
-                "CREATED",
-                null,
-                Instant.now(),
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                UUID.randomUUID(),
-                List.of()));
+                1, "EXTDIS3150001", "CREATED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                null, "A1235", "A1235", "Comments", false, null,
+                UUID.randomUUID(), List.of()));
+        
+        // Test null shippingCustomerCode
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new OrderCreatedOutbound(
-                1,
-                "EXTDIS3150001",
-                "CREATED",
-                "123456789",
-                null,
-                "ee1bf88e-2137-4a17-835a-d43e7b738374",
-                "CUSTOMER",
-                "SCHEDULED",
-                "FEDEX",
-                "FROZEN",
-                LocalDate.now(),
-                "A1235",
-                "A1235",
-                "Comments",
-                false,
-                null,
-                UUID.randomUUID(),
-                List.of()));
+                1, "EXTDIS3150001", "CREATED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), null, "A1235", "Comments", false, null,
+                UUID.randomUUID(), List.of()));
+        
+        // Test null billingCustomerCode
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            new OrderCreatedOutbound(
+                1, "EXTDIS3150001", "CREATED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", null, "Comments", false, null,
+                UUID.randomUUID(), List.of()));
+        
+        // Test null transactionId
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            new OrderCreatedOutbound(
+                1, "EXTDIS3150001", "CREATED", "123456789", Instant.now(),
+                "ee1bf88e-2137-4a17-835a-d43e7b738374", "CUSTOMER", "SCHEDULED", "FEDEX", "FROZEN",
+                LocalDate.now(), "A1235", "A1235", "Comments", false, null,
+                null, List.of()));
     }
 }
