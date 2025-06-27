@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.eventbridge.infrastructure.config;
 
 import com.arcone.biopro.distribution.eventbridge.domain.event.EventMessage;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUpdatedOutboundPayload;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderCancelledOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderCreatedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.event.RecoveredPlasmaShipmentClosedOutboundEvent;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.event.ShipmentCompletedOutboundOutputEvent;
@@ -270,6 +271,16 @@ public class KafkaConfiguration {
 
 
     @Bean
+    SenderOptions<String, EventMessage<OrderCancelledOutboundPayload>> senderOptionsOrderCancelledOutbound(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        return SenderOptions.<String, EventMessage<OrderCancelledOutboundPayload>>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
+    }
+
+    @Bean
     SenderOptions<String, EventMessage<OrderCreatedOutboundPayload>> senderOptionsOrderCreatedOutbound(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper) {
@@ -295,6 +306,12 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, EventMessage<InventoryUpdatedOutboundPayload>> inventoryUpdatedOutboundProducerTemplate(
         SenderOptions<String, EventMessage<InventoryUpdatedOutboundPayload>> senderOptionsInventoryUpdatedOutbound) {
         return new ReactiveKafkaProducerTemplate<>(senderOptionsInventoryUpdatedOutbound);
+    }
+
+    @Bean(name = ORDER_CANCELLED_OUTBOUND_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, EventMessage<OrderCancelledOutboundPayload>> orderCancelledOutboundProducerTemplate(
+        SenderOptions<String, EventMessage<OrderCancelledOutboundPayload>> senderOptionsOrderCancelledOutbound) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptionsOrderCancelledOutbound);
     }
 
     @Bean(name = ORDER_CREATED_OUTBOUND_PRODUCER )
