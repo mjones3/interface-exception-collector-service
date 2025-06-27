@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.eventbridge.domain.event.EventMessage;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUpdatedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderCancelledOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderCreatedOutboundPayload;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderModifiedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.event.RecoveredPlasmaShipmentClosedOutboundEvent;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.event.ShipmentCompletedOutboundOutputEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -290,6 +291,16 @@ public class KafkaConfiguration {
             .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
     }
 
+    @Bean
+    SenderOptions<String, EventMessage<OrderModifiedOutboundPayload>> senderOptionsOrderModifiedOutbound(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        return SenderOptions.<String, EventMessage<OrderModifiedOutboundPayload>>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
+    }
+
     @Bean(name = DLQ_PRODUCER )
     ReactiveKafkaProducerTemplate<String, String> dlqProducerTemplate(
             SenderOptions<String, String> senderOptions) {
@@ -318,6 +329,12 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, EventMessage<OrderCreatedOutboundPayload>> orderCreatedOutboundProducerTemplate(
         SenderOptions<String, EventMessage<OrderCreatedOutboundPayload>> senderOptionsOrderCreatedOutbound) {
         return new ReactiveKafkaProducerTemplate<>(senderOptionsOrderCreatedOutbound);
+    }
+
+    @Bean(name = ORDER_MODIFIED_OUTBOUND_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, EventMessage<OrderModifiedOutboundPayload>> orderModifiedOutboundProducerTemplate(
+        SenderOptions<String, EventMessage<OrderModifiedOutboundPayload>> senderOptionsOrderModifiedOutbound) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptionsOrderModifiedOutbound);
     }
 
     @Bean(RPS_SHIPMENT_CLOSED_CONSUMER)
