@@ -6,4 +6,5 @@ public interface Topics {
     String INVENTORY_UPDATED = "InventoryUpdated";
     String INVENTORY_UPDATED_OUTBOUND = "InventoryUpdatedOutbound";
     String RPS_SHIPMENT_CLOSED = "RecoveredPlasmaShipmentClosed";
+    String ORDER_CREATED = "OrderCreated";
 }
