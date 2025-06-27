@@ -27,7 +27,7 @@ import java.time.Duration;
 @Profile("prod")
 public class OrderCreatedListener extends AbstractKafkaListener {
 
-    private static final String ORDER_CREATED_SCHEMA = "schema/order-created-outbound.json";
+    private static final String ORDER_CREATED_SCHEMA = "schema/order-created.json";
     private final ObjectMapper objectMapper;
     private final OrderService orderService;
     private final SchemaValidationService schemaValidationService;
