@@ -17,28 +17,19 @@ public class OrderInboundDTO implements Serializable {
     private String createDateTimezone;
     private String createDate;
     private String createEmployeeCode;
-    private String shipToLocation;
-
+    private String shipToLocationCode;
     private String orderStatus;
-
     private String shipmentType;
-
     private String deliveryType;
-
     private String shippingMethod;
-
     private String productCategory;
-
     private String desiredShippingDate;
-
     private String shippingCustomerCode;
-
     private String billingCustomerCode;
-
     private String comments;
-
     private OrderPickTypeDTO orderPickType;
-
     private List<OrderItemDTO> orderItems = new ArrayList<>();
+    private Boolean quarantineProducts;
+    private String labelStatus;
 
 }

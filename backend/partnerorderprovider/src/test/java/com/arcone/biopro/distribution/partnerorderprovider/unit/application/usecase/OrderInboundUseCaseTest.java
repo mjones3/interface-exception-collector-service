@@ -55,4 +55,35 @@ class OrderInboundUseCaseTest {
             .filter(event -> event.getPayload().getExternalId().equals("123"))
             .count());
     }
+
+    @Test
+    public void shouldReceivePartnerInternalTransferOrder(){
+
+        var orderInboundDto = Mockito.mock(OrderInboundDTO.class);
+        Mockito.when(orderInboundDto.getExternalId()).thenReturn("123");
+        Mockito.when(orderInboundDto.getBillingCustomerCode()).thenReturn("1");
+        Mockito.when(orderInboundDto.getShippingCustomerCode()).thenReturn("2");
+        Mockito.when(orderInboundDto.getOrderStatus()).thenReturn("OPEN");
+        Mockito.when(orderInboundDto.getLocationCode()).thenReturn("123");
+        Mockito.when(orderInboundDto.getCreateDate()).thenReturn("date");
+        Mockito.when(orderInboundDto.getCreateEmployeeCode()).thenReturn("emp-test");
+        Mockito.when(orderInboundDto.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+        Mockito.when(orderInboundDto.getDeliveryType()).thenReturn("DeliveryType");
+        Mockito.when(orderInboundDto.getShippingMethod()).thenReturn("ShippingMethod");
+        Mockito.when(orderInboundDto.getProductCategory()).thenReturn("ProductCategory");
+        Mockito.when(orderInboundDto.getDesiredShippingDate()).thenReturn("DesiredShippingDate");
+        Mockito.when(orderInboundDto.getQuarantineProducts()).thenReturn(true);
+        Mockito.when(orderInboundDto.getShipToLocationCode()).thenReturn("SHIP_TO_CODE");
+        Mockito.when(orderInboundDto.getLabelStatus()).thenReturn("LABELED");
+
+        var response = orderInboundService.receiveOrderInbound(orderInboundDto);
+
+        Assertions.assertNotNull(response);
+        assertEquals("CREATED", response.status());
+
+        assertEquals(1, applicationEvents
+            .stream(PartnerOrderInboundReceived.class)
+            .filter(event -> event.getPayload().getExternalId().equals("123"))
+            .count());
+    }
 }

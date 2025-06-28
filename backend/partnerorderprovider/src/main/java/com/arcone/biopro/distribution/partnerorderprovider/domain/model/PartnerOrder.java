@@ -1,10 +1,15 @@
 package com.arcone.biopro.distribution.partnerorderprovider.domain.model;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@ToString
+@Getter
 public class PartnerOrder {
     private UUID id;
     private String externalId;
@@ -22,26 +27,80 @@ public class PartnerOrder {
     private String comments;
     private PartnerOrderPickUpType partnerOrderPickUpType;
     private List<PartnerOrderItem> orderItems;
+    private String labelStatus;
+    private boolean quarantinedProducts;
+    private String shipToLocationCode;
 
     public PartnerOrder(UUID id ,String externalId, String orderStatus, String locationCode, String createDate
         , String createEmployeeCode, String shipmentType, String deliveryType, String shippingMethod
         , String productCategory, String desiredShippingDate, String shippingCustomerCode
-        , String billingCustomerCode, String comments , PartnerOrderPickUpType partnerOrderPickUpType) {
-        this.id = Objects.requireNonNull(id,"ID cannot be null");
-        this.externalId = Objects.requireNonNull(externalId,"External ID cannot be null");
-        this.orderStatus = Objects.requireNonNull(orderStatus,"Status cannot be null");
-        this.locationCode = Objects.requireNonNull(locationCode,"Location Code cannot be null");
+        , String billingCustomerCode, String comments , PartnerOrderPickUpType partnerOrderPickUpType,String labelStatus, Boolean quarantinedProducts, String shipToLocationCode) {
+        this.id = id;
+        this.externalId = externalId;
+        this.orderStatus = orderStatus;
+        this.locationCode = locationCode;
         this.createDate = createDate;
         this.createEmployeeCode = createEmployeeCode;
-        this.shipmentType = Objects.requireNonNull(shipmentType,"Shipment Type cannot be null");
-        this.deliveryType = Objects.requireNonNull(deliveryType,"Delivery Type cannot be null");
-        this.shippingMethod = Objects.requireNonNull(shippingMethod,"Shipping Method cannot be null");
-        this.productCategory = Objects.requireNonNull(productCategory,"Product Category cannot be null");
+        this.shipmentType = shipmentType;
+        this.deliveryType = deliveryType;
+        this.shippingMethod = shippingMethod;
+        this.productCategory = productCategory;
         this.desiredShippingDate = desiredShippingDate;
-        this.shippingCustomerCode = Objects.requireNonNull(shippingCustomerCode,"Shipping Customer code cannot be null");
-        this.billingCustomerCode = Objects.requireNonNull(billingCustomerCode,"Billing Customer Code cannot be null");
+        this.shippingCustomerCode = shippingCustomerCode;
+        this.billingCustomerCode = billingCustomerCode;
         this.comments = comments;
         this.partnerOrderPickUpType = partnerOrderPickUpType;
+        this.quarantinedProducts = quarantinedProducts != null && quarantinedProducts;
+        this.shipToLocationCode = shipToLocationCode;
+        this.labelStatus = labelStatus;
+
+        this.validate();
+    }
+
+    private void validate(){
+
+        if (this.id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+
+        if (this.externalId == null || this.externalId.isBlank()) {
+            throw new IllegalArgumentException("External ID cannot be null");
+        }
+        if (this.orderStatus == null || this.orderStatus.isBlank()) {
+            throw new IllegalArgumentException("Status cannot be null");
+        }
+        if (this.locationCode == null || this.locationCode.isBlank()) {
+            throw new IllegalArgumentException("Location Code cannot be null");
+        }
+        if (this.shipmentType == null || this.shipmentType.isBlank()) {
+            throw new IllegalArgumentException("Shipment Type cannot be null");
+        }
+        if (this.deliveryType == null || this.deliveryType.isBlank()) {
+            throw new IllegalArgumentException("Delivery Type cannot be null");
+        }
+        if (this.shippingMethod == null || this.shippingMethod.isBlank()) {
+            throw new IllegalArgumentException("Shipping Method cannot be null");
+        }
+        if (this.productCategory == null || this.productCategory.isBlank()) {
+            throw new IllegalArgumentException("Product Category cannot be null");
+        }
+        if("INTERNAL_TRANSFER".equals(shipmentType)){
+            if(labelStatus == null || labelStatus.isBlank()){
+                throw new IllegalArgumentException("Label Status cannot be null");
+            }
+            if(shipToLocationCode == null || shipToLocationCode.isBlank()){
+                throw new IllegalArgumentException("Ship To Location Code cannot be null");
+            }
+        }else{
+            if(shippingCustomerCode == null || shippingCustomerCode.isBlank()){
+                throw new IllegalArgumentException("Shipping Customer code cannot be null");
+            }
+            if(billingCustomerCode == null || billingCustomerCode.isBlank()){
+                throw new IllegalArgumentException("Billing Customer Code cannot be null");
+            }
+        }
+
+
     }
 
     public void addItem(PartnerOrderItem orderItem){
@@ -49,69 +108,5 @@ public class PartnerOrder {
             this.orderItems = new ArrayList<>();
         }
         this.orderItems.add(orderItem);
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getExternalId() {
-        return externalId;
-    }
-
-    public String getOrderStatus() {
-        return orderStatus;
-    }
-
-    public String getLocationCode() {
-        return locationCode;
-    }
-
-    public String getCreateDate() {
-        return createDate;
-    }
-
-    public String getCreateEmployeeCode() {
-        return createEmployeeCode;
-    }
-
-    public String getShipmentType() {
-        return shipmentType;
-    }
-
-    public String getDeliveryType() {
-        return deliveryType;
-    }
-
-    public String getShippingMethod() {
-        return shippingMethod;
-    }
-
-    public String getProductCategory() {
-        return productCategory;
-    }
-
-    public String getDesiredShippingDate() {
-        return desiredShippingDate;
-    }
-
-    public String getShippingCustomerCode() {
-        return shippingCustomerCode;
-    }
-
-    public String getBillingCustomerCode() {
-        return billingCustomerCode;
-    }
-
-    public String getComments() {
-        return comments;
-    }
-
-    public PartnerOrderPickUpType getPartnerOrderPickUpType() {
-        return partnerOrderPickUpType;
-    }
-
-    public List<PartnerOrderItem> getOrderItems() {
-        return orderItems;
     }
 }

@@ -132,7 +132,33 @@ public record OrderDTO(
         description = "The order items",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    List<OrderItemDTO> orderItems
+    List<OrderItemDTO> orderItems,
+
+    @Schema(
+        title = "Quarantined Products",
+        description = "The order contains quarantined products",
+        example = "true",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    boolean quarantinedProducts,
+
+    @Schema(
+        title = "Label Status",
+        description = "The label status",
+        example = "LABELED",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    String labelStatus,
+
+    @Schema(
+        title = "Ship To Location Code",
+        description = "The location code to be shipped",
+        example = "565",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    String shipToLocationCode
+
+
 ) implements Serializable {
 
 

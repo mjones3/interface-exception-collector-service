@@ -27,7 +27,9 @@
     "shipmentType": {
       "type": "string",
       "enum": [
-        "CUSTOMER"
+        "CUSTOMER",
+        "INTERNAL_TRANSFER",
+        "RESEARCH_PRODUCTS"
       ]
     },
     "deliveryType": {
@@ -63,15 +65,68 @@
     },
     "orderItems": {
       "$ref": "#/definitions/orderItems"
+    },
+    "shipToLocationCode": {
+      "type": "string",
+      "title": "Ship To Location code."
+    },
+    "labelStatus": {
+      "type": ["string","null"] ,
+      "enum": [
+        "LABELED",
+        "UNLABELED"
+      ]
+    },
+    "quarantinedProducts": {
+      "$ref": "#/definitions/quarantinedProducts"
     }
   },
-  "required": [
-    "externalId",
-    "orderStatus",
-    "locationCode",
-    "shipmentType",
-    "productCategory",
-    "orderItems"
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "shipmentType": {
+            "const": "INTERNAL_TRANSFER"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "shipToLocationCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "quarantinedProducts": {
+            "type": ["boolean"],
+            "title": "Order can be filled with quarantined products"
+          }
+        },
+        "required": [
+          "externalId",
+          "orderStatus",
+          "locationCode",
+          "shipmentType",
+          "productCategory",
+          "orderItems",
+          "shipToLocationCode",
+          "quarantinedProducts",
+          "labelStatus"
+        ]
+      },
+      "else": {
+        "required": [
+          "externalId",
+          "orderStatus",
+          "locationCode",
+          "shipmentType",
+          "productCategory",
+          "orderItems",
+          "billingCustomerCode",
+          "shippingCustomerCode"
+        ]
+      }
+    }
   ],
   "additionalProperties": false,
   "definitions": {
@@ -138,20 +193,20 @@
 
     },
     "shippingMethod": {
-      "type": "string",
+      "type": ["string","null"],
       "title": "Shipping method used for shipment"
 
     },
     "shippingCustomerCode": {
-      "type": "string",
+      "type": ["string","null"],
       "title": "Shipping Customer Code of ordering hospital"
     },
     "billingCustomerCode": {
-      "type": "string",
+      "type": ["string","null"],
       "title": "Billing Customer Code of ordering hospital"
     },
     "comments": {
-      "type": "string",
+      "type": ["string","null"],
       "title": "Comment associated to the order"
     },
     "orderItems": {
@@ -200,6 +255,11 @@
     "orderItems.comments": {
       "type": "string",
       "title": "Comments associated with the ordered product, if any"
+    },
+    "quarantinedProducts": {
+      "type": ["null","boolean"],
+      "title": "Order can be filled with quarantined products"
     }
+
   }
 }

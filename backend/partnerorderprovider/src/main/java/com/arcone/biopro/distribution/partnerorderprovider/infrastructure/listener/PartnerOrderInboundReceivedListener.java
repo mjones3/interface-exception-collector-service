@@ -86,6 +86,9 @@ public class PartnerOrderInboundReceivedListener {
                     .comments(partnerItem.getComments())
                     .build())
                 .collect(Collectors.toList()))
+            .shipToLocationCode(partnerOrder.getShipToLocationCode())
+            .labelStatus(partnerOrder.getLabelStatus())
+            .quarantinedProducts(partnerOrder.isQuarantinedProducts())
             .build());
 
         var producerRecord = new ProducerRecord<>(topicName, String.format("%s", message.getEventId()), message);
