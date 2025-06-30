@@ -13,9 +13,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 @Schema(
-    name = "OrderCreatedOutboundPayload",
-    title = "OrderCreatedOutboundPayload",
-    description = "Order Created Outbound Event Payload"
+    name = "OrderCreatedOutbound",
+    title = "OrderCreatedOutbound",
+    description = "Order Created Outbound Event"
 )
 @Builder
 public record OrderCreatedOutboundPayload(

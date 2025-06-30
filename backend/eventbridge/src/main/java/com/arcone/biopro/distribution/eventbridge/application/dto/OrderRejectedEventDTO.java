@@ -9,8 +9,8 @@ import java.time.Instant;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @Schema(
-    name = "OrderRejectedEventDTO",
-    title = "OrderRejectedEventDTO",
+    name = "OrderRejected",
+    title = "OrderRejected",
     description = "Order Rejected Event DTO"
 )
 @Builder

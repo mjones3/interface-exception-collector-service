@@ -9,9 +9,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 @Schema(
-    name = "OrderRejectedOutboundPayload",
-    title = "OrderRejectedOutboundPayload",
-    description = "Order Rejected Outbound Payload"
+    name = "OrderRejectedOutbound",
+    title = "OrderRejectedOutbound",
+    description = "Order Rejected Outbound Event"
 )
 @Builder
 public record OrderRejectedOutboundPayload(

@@ -12,9 +12,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 @Schema(
-    name = "OrderModifiedOutboundPayload",
-    title = "OrderModifiedOutboundPayload",
-    description = "Order Modified Outbound Event Payload"
+    name = "OrderModifiedOutbound",
+    title = "OrderModifiedOutbound",
+    description = "Order Modified Outbound Event"
 )
 @Builder
 public record OrderModifiedOutboundPayload(
