@@ -30,8 +30,7 @@ import {
     NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
-    RsaValidators,
-    ToastrImplService,
+    RsaValidators
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
@@ -59,6 +58,7 @@ import {
 } from '../../models/external-transfer.dto';
 import { ExternalTransferService } from '../../services/external-transfer.service';
 import { EnterProductsComponent } from '../../shared/enter-products/enter-products.component';
+import { ToastrService } from 'ngx-toastr';
 @Component({
     selector: 'biopro-external-transfers',
     standalone: true,
@@ -101,7 +101,7 @@ export class ExternalTransfersComponent
     constructor(
         public header: ProcessHeaderService,
         private _router: Router,
-        private toaster: ToastrImplService,
+        private toaster: ToastrService,
         private externalTransferService: ExternalTransferService,
         protected fb: FormBuilder,
         private readonly changeDetectorRef: ChangeDetectorRef,
