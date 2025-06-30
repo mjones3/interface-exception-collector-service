@@ -28,8 +28,7 @@
       "type": "string",
       "enum": [
         "CUSTOMER",
-        "INTERNAL_TRANSFER",
-        "RESEARCH_PRODUCTS"
+        "INTERNAL_TRANSFER"
       ]
     },
     "deliveryType": {

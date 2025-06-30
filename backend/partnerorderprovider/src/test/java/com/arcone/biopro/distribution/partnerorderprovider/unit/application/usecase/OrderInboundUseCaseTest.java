@@ -48,7 +48,7 @@ class OrderInboundUseCaseTest {
         var response = orderInboundService.receiveOrderInbound(orderInboundDto);
 
         Assertions.assertNotNull(response);
-        assertEquals("CREATED", response.status());
+        assertEquals("ACCEPTED", response.status());
 
         assertEquals(1, applicationEvents
             .stream(PartnerOrderInboundReceived.class)
@@ -79,7 +79,7 @@ class OrderInboundUseCaseTest {
         var response = orderInboundService.receiveOrderInbound(orderInboundDto);
 
         Assertions.assertNotNull(response);
-        assertEquals("CREATED", response.status());
+        assertEquals("ACCEPTED", response.status());
 
         assertEquals(1, applicationEvents
             .stream(PartnerOrderInboundReceived.class)

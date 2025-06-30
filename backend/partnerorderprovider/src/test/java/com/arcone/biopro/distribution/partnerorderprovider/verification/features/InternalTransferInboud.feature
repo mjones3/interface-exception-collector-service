@@ -25,13 +25,13 @@ Feature: Receive internal transfer orders through a third party application
         Then The response status code should be <responseCode>.
         And The error message should be "<errorMessage>".
         Examples:
-            |LocationCode | ShipmentType      | ShipToLocationCode | LabelStatus      | QuarantineProducts  | responseCode | errorMessage                                                                                               |
-#           |  123456789  | INTERNAL_TRANSFER |  234567891         | <null>           |   false             |   400        |  $.labelStatus: does not have a value in the enumeration [LABELED, UNLABELED]                              |
-#           |  123456789  | INTERNAL_TRANSFER |  234567891         | <empty_string>   |   true              |   400        |  $.labelStatus: does not have a value in the enumeration [LABELED, UNLABELED]                              |
-#           |  123456789  | INVALID           |  234567891         | UNLABELED        |   false             |   400        |  $.shipmentType: does not have a value in the enumeration [CUSTOMER, INTERNAL_TRANSFER, RESEARCH_PRODUCTS] |
-#           |  123456789  | INTERNAL_TRANSFER |  <null>            | LABELED          |   true              |   400        |  $.shipToLocationCode: null found, string expected                                                         |
-           |  123456789  | INTERNAL_TRANSFER |  234567891         | LABELED          |   <null_value>      |   400        |  $.labelStatus: null found, string expected                                                                |
-#           |  <null>     | INTERNAL_TRANSFER |  234567891         | LABELED          |   false             |   400        |  $.locationCode: null found, string expected                                                               |
+            |LocationCode | ShipmentType      | ShipToLocationCode | LabelStatus      | QuarantineProducts  | responseCode | errorMessage                                                                                              |
+           |  123456789  | INTERNAL_TRANSFER |  234567891         | <null>           |   false             |   400        |  $.labelStatus: does not have a value in the enumeration [LABELED, UNLABELED]                              |
+           |  123456789  | INTERNAL_TRANSFER |  234567891         | <empty_string>   |   true              |   400        |  $.labelStatus: does not have a value in the enumeration [LABELED, UNLABELED]                              |
+           |  123456789  | INVALID           |  234567891         | UNLABELED        |   false             |   400        |  $.shipmentType: does not have a value in the enumeration [CUSTOMER, INTERNAL_TRANSFER]                    |
+           |  123456789  | INTERNAL_TRANSFER |  <null>            | LABELED          |   true              |   400        |  $.shipToLocationCode: null found, string expected                                                         |
+           |  123456789  | INTERNAL_TRANSFER |  234567891         | LABELED          |   <null_value>      |   400        |  $.quarantinedProducts: null found, but [boolean] is required                                              |
+           |  <null>     | INTERNAL_TRANSFER |  234567891         | LABELED          |   false             |   400        |  $.locationCode: null found, string expected                                                               |
 
 
 
