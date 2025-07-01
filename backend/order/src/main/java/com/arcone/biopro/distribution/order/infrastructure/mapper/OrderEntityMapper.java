@@ -61,7 +61,6 @@ public class OrderEntityMapper {
             .modifyReason(order.getModifyReason())
             .transactionId(order.getTransactionId())
             .quarantinedProducts(order.getQuarantinedProducts())
-            .shipToLocationCode(order.getShipToLocationCode())
             .labelStatus(order.getLabelStatus().value())
             .build();
     }
@@ -90,7 +89,6 @@ public class OrderEntityMapper {
             ofNullable(orderEntity.getCreateDate()).map(dateTime -> DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(dateTime)).orElse(null),
             orderEntity.getModificationDate(),
             orderEntity.getDeleteDate(),
-            orderEntity.getShipToLocationCode(),
             orderEntity.getQuarantinedProducts(),
             orderEntity.getLabelStatus()
         );

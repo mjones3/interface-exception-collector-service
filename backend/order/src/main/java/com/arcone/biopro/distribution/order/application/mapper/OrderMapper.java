@@ -94,7 +94,6 @@ public class OrderMapper {
             .modifyEmployeeId(order.getModifyEmployeeId())
             .transactionId(order.getTransactionId())
             .quarantinedProducts(order.getQuarantinedProducts())
-            .shipToLocationCode(order.getShipToLocationCode())
             .labelStatus(order.getLabelStatus().value())
             .build();
     }
@@ -122,7 +121,6 @@ public class OrderMapper {
             ofNullable(orderDTO.createDate()).map(dateTime -> DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(dateTime)).orElse(null),
             orderDTO.modificationDate(),
             orderDTO.deleteDate(),
-            orderDTO.shipToLocationCode(),
             orderDTO.quarantinedProducts(),
             orderDTO.labelStatus()
             );

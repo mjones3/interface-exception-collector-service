@@ -50,7 +50,6 @@ public class OrderReceivedEventMapper {
                 orderReceivedEventPayloadDTO.createDate(),
                 null,
                 null,
-                orderReceivedEventPayloadDTO.shipToLocationCode(),
                 orderReceivedEventPayloadDTO.quarantinedProducts(),
                 orderReceivedEventPayloadDTO.labelStatus()
             );

@@ -118,7 +118,6 @@ public class Order implements Validatable {
     @Setter
     private UUID transactionId;
 
-    private String shipToLocationCode;
     private Boolean quarantinedProducts;
     private LabelStatus labelStatus;
 
@@ -144,7 +143,6 @@ public class Order implements Validatable {
         String createDate,
         ZonedDateTime modificationDate,
         ZonedDateTime deleteDate,
-        String shipToLocationCode,
         Boolean quarantinedProducts,
         String labelStatus
     ) {
@@ -177,7 +175,6 @@ public class Order implements Validatable {
         this.deleteDate = deleteDate;
         this.backOrder = false;
         this.quarantinedProducts = quarantinedProducts;
-        this.shipToLocationCode = shipToLocationCode;
         this.labelStatus = LabelStatus.getInstance(labelStatus);
         this.checkValid();
     }
@@ -214,22 +211,9 @@ public class Order implements Validatable {
             this.checkDateTimeIsInPast(this.createDate,"Create Date");
         }
 
-        if(INTERNAL_TRANSFER_TYPE.equals(shipmentType.getShipmentType())){
-            if (this.shipToLocationCode == null || shipToLocationCode.isBlank()) {
-                throw new IllegalArgumentException("Ship To Location Code cannot be null");
-            }
-            if(quarantinedProducts == null){
-                throw new IllegalArgumentException("Quarantined Products cannot be null");
-            }
-        }else{
-            if (this.shippingCustomer == null) {
-                throw new IllegalArgumentException("shippingCustomer could not be found or it is null");
-            }
-            if (this.billingCustomer == null) {
-                throw new IllegalArgumentException("billingCustomer could not be found or it is null");
-            }
+        if (this.shippingCustomer == null) {
+            throw new IllegalArgumentException("shippingCustomer could not be found or it is null");
         }
-
     }
 
     public void addItem(Long id, String productFamily, String bloodType, Integer quantity, Integer quantityShipped, String comments
@@ -390,7 +374,6 @@ public class Order implements Validatable {
             null,
             null,
             null,
-            this.getShipToLocationCode(),
             this.getQuarantinedProducts(),
             this.getLabelStatus().value()
         );
@@ -461,7 +444,7 @@ public class Order implements Validatable {
             , modifyOrderCommand.getDesiredShippingDate()
             , modifyOrderCommand.isWillPickUp() , modifyOrderCommand.getWillPickUpPhoneNumber() , modifyOrderCommand.getProductCategory() , modifyOrderCommand.getComments()
             , orderToBeUpdated.getOrderStatus().getOrderStatus() , modifyOrderCommand.getDeliveryType(),  orderToBeUpdated.getCreateEmployeeId()
-            , createDateFormat , ZonedDateTime.now(),null, modifyOrderCommand.getShipToLocationCode(), modifyOrderCommand.getQuarantinedProducts(), modifyOrderCommand.getLabelStatus()
+            , createDateFormat , ZonedDateTime.now(),null, modifyOrderCommand.getQuarantinedProducts(), modifyOrderCommand.getLabelStatus()
 
         );
 

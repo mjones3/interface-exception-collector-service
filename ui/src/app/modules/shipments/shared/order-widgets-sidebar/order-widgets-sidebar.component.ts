@@ -50,7 +50,6 @@ export class OrderWidgetsSidebarComponent {
             modifyDate: string;
             modifyReason: string;
             displayModificationDetails: boolean;
-            shipToLocationCode?:string;
             quarantinedProducts?:boolean;
             labelStatus?:string;
             shipmentType?:string;
@@ -242,14 +241,6 @@ export class OrderWidgetsSidebarComponent {
                       value: this.shippingInput()?.method,
                   },
               ]
-            : []),
-        ...(this.shippingInput()?.method
-            ? [
-                {
-                    label: 'Ship To Location',
-                    value: this.shippingInput()?.shipToLocation,
-                },
-            ]
             : []),
     ]);
 

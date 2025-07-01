@@ -98,8 +98,8 @@ class OrderMapperTest {
             "2023-04-25 20:09:01",
             ZonedDateTime.now(),
             ZonedDateTime.now(),
-            "SHIP_TO_LOCATION_CODE",
-            false,"LABELED"
+            false
+            ,"LABELED"
         );
         order.addItem(
                 1L,
@@ -154,7 +154,6 @@ class OrderMapperTest {
         });
         assertFalse(result.canBeCompleted());
         assertFalse(result.backOrderCreationActive());
-        assertEquals(order.getShipToLocationCode(), result.shipToLocationCode());
         assertEquals(order.getQuarantinedProducts(), result.quarantinedProducts());
         assertEquals(order.getLabelStatus().value(), result.labelStatus());
     }
@@ -208,7 +207,6 @@ class OrderMapperTest {
                         .build()
                 )
             )
-            .shipToLocationCode("SHIP_TO_LOCATION_CODE")
             .quarantinedProducts(true)
             .labelStatus("LABELED")
             .build();
@@ -252,7 +250,6 @@ class OrderMapperTest {
             assertEquals(orderItemDTO.createDate(), orderItem.getCreateDate());
             assertEquals(orderItemDTO.modificationDate(), orderItem.getModificationDate());
         });
-        assertEquals(orderDTO.shipToLocationCode(), result.getShipToLocationCode());
         assertEquals(orderDTO.quarantinedProducts(), result.getQuarantinedProducts());
         assertEquals(orderDTO.labelStatus(), result.getLabelStatus().value());
     }

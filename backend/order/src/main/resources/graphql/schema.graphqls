@@ -162,7 +162,6 @@ type Order {
     modifyByProcess:String
     displayModificationDetails:Boolean
     transactionId: String
-    shipToLocationCode:String
     quarantinedProducts:Boolean
     labelStatus:String
 }

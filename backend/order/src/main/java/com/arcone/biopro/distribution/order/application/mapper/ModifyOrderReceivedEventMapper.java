@@ -41,7 +41,6 @@ public class ModifyOrderReceivedEventMapper {
             .willPickUpPhoneNumber(modifyOrderReceivedPayloadDTO.willPickUpPhoneNumber())
             .transactionId(modifyOrderReceivedPayloadDTO.transactionId())
             .quarantinedProducts(modifyOrderReceivedPayloadDTO.quarantinedProducts())
-            .shipToLocationCode(modifyOrderReceivedPayloadDTO.shipToLocationCode())
             .build();
 
         ofNullable(modifyOrderReceivedPayloadDTO.orderItems())

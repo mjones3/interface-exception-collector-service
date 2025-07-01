@@ -56,8 +56,6 @@ export interface OrderDto {
     orderItems?: OrderItemDto[];
     orderServiceFees: OrderServiceFeeDto[];
     employeeId?: string;
-    shippingLocationId?: number;
-    shipToLocationCode?:string;
     quarantinedProducts?:boolean;
 }
 

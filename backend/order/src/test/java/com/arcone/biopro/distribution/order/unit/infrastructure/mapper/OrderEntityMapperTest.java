@@ -60,7 +60,7 @@ class OrderEntityMapperTest {
             , "shipmentType", "shippingMethod"
             , "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber"
             , "productCategory", "comments", "status"
-            , "priority", "createEmployeeId", "2023-04-25 20:09:01", ZonedDateTime.now(), null,null,null,"LABELED");
+            , "priority", "createEmployeeId", "2023-04-25 20:09:01", ZonedDateTime.now(), null,null,"LABELED");
         order.setTransactionId(java.util.UUID.randomUUID());
 
         var orderEntity = mapper.mapToEntity(order);

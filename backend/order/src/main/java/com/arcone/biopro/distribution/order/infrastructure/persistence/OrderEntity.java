@@ -134,9 +134,6 @@ public class OrderEntity {
     @Column("transaction_id")
     private UUID transactionId;
 
-    @Column("ship_to_location_code")
-    private String shipToLocationCode;
-
     @Column("quarantined_products")
     private Boolean quarantinedProducts;
 
