@@ -20,7 +20,7 @@ class PartnerOrderTest {
 
         PartnerOrder order = new PartnerOrder(id, "EXT123", "PENDING", "LOC001", "2024-01-01",
             "EMP001", "STANDARD", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-            "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false, null);
+            "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false);
 
         assertEquals(id, order.getId());
         assertEquals("EXT123", order.getExternalId());
@@ -35,11 +35,10 @@ class PartnerOrderTest {
 
         PartnerOrder order = new PartnerOrder(id, "EXT123", "PENDING", "LOC001", "2024-01-01",
             "EMP001", "INTERNAL_TRANSFER", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-            null, null, "Test comments", pickUpType, "PRINTED", false, "SHIP001");
+            "CUST001", null, "Test comments", pickUpType, "PRINTED", false);
 
         assertEquals("INTERNAL_TRANSFER", order.getShipmentType());
         assertEquals("PRINTED", order.getLabelStatus());
-        assertEquals("SHIP001", order.getShipToLocationCode());
     }
 
     @Test
@@ -49,7 +48,7 @@ class PartnerOrderTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
             new PartnerOrder(null, "EXT123", "PENDING", "LOC001", "2024-01-01",
                 "EMP001", "STANDARD", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-                "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false, null)
+                "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false)
         );
 
         assertEquals("ID cannot be null", exception.getMessage());
@@ -63,7 +62,7 @@ class PartnerOrderTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
             new PartnerOrder(id, null, "PENDING", "LOC001", "2024-01-01",
                 "EMP001", "STANDARD", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-                "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false, null)
+                "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false)
         );
 
         assertEquals("External ID cannot be null", exception.getMessage());
@@ -77,7 +76,7 @@ class PartnerOrderTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
             new PartnerOrder(id, "EXT123", "", "LOC001", "2024-01-01",
                 "EMP001", "STANDARD", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-                "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false, null)
+                "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false)
         );
 
         assertEquals("Status cannot be null", exception.getMessage());
@@ -91,24 +90,10 @@ class PartnerOrderTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
             new PartnerOrder(id, "EXT123", "PENDING", "LOC001", "2024-01-01",
                 "EMP001", "INTERNAL_TRANSFER", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-                null, null, "Test comments", pickUpType, null, false, "SHIP001")
+                "CUST001", null, "Test comments", pickUpType, null, false)
         );
 
         assertEquals("Label Status cannot be null", exception.getMessage());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenInternalTransferMissingShipToLocation() {
-        UUID id = UUID.randomUUID();
-        PartnerOrderPickUpType pickUpType = new PartnerOrderPickUpType(false, null);
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-            new PartnerOrder(id, "EXT123", "PENDING", "LOC001", "2024-01-01",
-                "EMP001", "INTERNAL_TRANSFER", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-                null, null, "Test comments", pickUpType, "PRINTED", false, null)
-        );
-
-        assertEquals("Ship To Location Code cannot be null", exception.getMessage());
     }
 
     @Test
@@ -119,24 +104,10 @@ class PartnerOrderTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
             new PartnerOrder(id, "EXT123", "PENDING", "LOC001", "2024-01-01",
                 "EMP001", "STANDARD", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-                null, "BILL001", "Test comments", pickUpType, "PRINTED", false, null)
+                null, "BILL001", "Test comments", pickUpType, "PRINTED", false)
         );
 
         assertEquals("Shipping Customer code cannot be null", exception.getMessage());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenStandardOrderMissingBillingCustomer() {
-        UUID id = UUID.randomUUID();
-        PartnerOrderPickUpType pickUpType = new PartnerOrderPickUpType(false, null);
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-            new PartnerOrder(id, "EXT123", "PENDING", "LOC001", "2024-01-01",
-                "EMP001", "STANDARD", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-                "CUST001", null, "Test comments", pickUpType, "PRINTED", false, null)
-        );
-
-        assertEquals("Billing Customer Code cannot be null", exception.getMessage());
     }
 
     @Test
@@ -145,7 +116,7 @@ class PartnerOrderTest {
         PartnerOrderPickUpType pickUpType = new PartnerOrderPickUpType(false, null);
         PartnerOrder order = new PartnerOrder(id, "EXT123", "PENDING", "LOC001", "2024-01-01",
             "EMP001", "STANDARD", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-            "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false, null);
+            "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false);
 
         PartnerOrderItem item = new PartnerOrderItem("BLOOD", "O+", 2, "Item comment");
         order.addItem(item);
@@ -161,7 +132,7 @@ class PartnerOrderTest {
         PartnerOrderPickUpType pickUpType = new PartnerOrderPickUpType(false, null);
         PartnerOrder order = new PartnerOrder(id, "EXT123", "PENDING", "LOC001", "2024-01-01",
             "EMP001", "STANDARD", "DELIVERY", "GROUND", "MEDICAL", "2024-01-05",
-            "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false, null);
+            "CUST001", "BILL001", "Test comments", pickUpType, "PRINTED", false);
 
         PartnerOrderItem item1 = new PartnerOrderItem("BLOOD", "O+", 2, "Item 1");
         PartnerOrderItem item2 = new PartnerOrderItem("PLASMA", "AB", 1, "Item 2");

@@ -29,12 +29,11 @@ public class PartnerOrder {
     private List<PartnerOrderItem> orderItems;
     private String labelStatus;
     private boolean quarantinedProducts;
-    private String shipToLocationCode;
 
     public PartnerOrder(UUID id ,String externalId, String orderStatus, String locationCode, String createDate
         , String createEmployeeCode, String shipmentType, String deliveryType, String shippingMethod
         , String productCategory, String desiredShippingDate, String shippingCustomerCode
-        , String billingCustomerCode, String comments , PartnerOrderPickUpType partnerOrderPickUpType,String labelStatus, Boolean quarantinedProducts, String shipToLocationCode) {
+        , String billingCustomerCode, String comments , PartnerOrderPickUpType partnerOrderPickUpType,String labelStatus, Boolean quarantinedProducts) {
         this.id = id;
         this.externalId = externalId;
         this.orderStatus = orderStatus;
@@ -51,7 +50,6 @@ public class PartnerOrder {
         this.comments = comments;
         this.partnerOrderPickUpType = partnerOrderPickUpType;
         this.quarantinedProducts = quarantinedProducts != null && quarantinedProducts;
-        this.shipToLocationCode = shipToLocationCode;
         this.labelStatus = labelStatus;
 
         this.validate();
@@ -84,23 +82,13 @@ public class PartnerOrder {
         if (this.productCategory == null || this.productCategory.isBlank()) {
             throw new IllegalArgumentException("Product Category cannot be null");
         }
-        if("INTERNAL_TRANSFER".equals(shipmentType)){
-            if(labelStatus == null || labelStatus.isBlank()){
-                throw new IllegalArgumentException("Label Status cannot be null");
-            }
-            if(shipToLocationCode == null || shipToLocationCode.isBlank()){
-                throw new IllegalArgumentException("Ship To Location Code cannot be null");
-            }
-        }else{
-            if(shippingCustomerCode == null || shippingCustomerCode.isBlank()){
-                throw new IllegalArgumentException("Shipping Customer code cannot be null");
-            }
-            if(billingCustomerCode == null || billingCustomerCode.isBlank()){
-                throw new IllegalArgumentException("Billing Customer Code cannot be null");
-            }
+        if(shippingCustomerCode == null || shippingCustomerCode.isBlank()){
+            throw new IllegalArgumentException("Shipping Customer code cannot be null");
         }
 
-
+        if("INTERNAL_TRANSFER".equals(shipmentType) && (labelStatus == null || labelStatus.isBlank()) ){
+            throw new IllegalArgumentException("Label Status cannot be null");
+        }
     }
 
     public void addItem(PartnerOrderItem orderItem){

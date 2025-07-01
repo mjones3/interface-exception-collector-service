@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   description: "Order Management API to accept inbound requests for creation, modification and cancellation of an order from a customers."
-  version: "BioPro PI4.6"
+  version: "BioPro PI6.1"
   title: "Order Management Interface API"
 tags:
 - name: "order"
@@ -23,8 +23,8 @@ paths:
                 $ref: "#/components/schemas/Order"
         required: true
       responses:
-        "200":
-          description: "successful operation"
+        "202":
+          description: "ACCEPTED"
           content:
             "application/json":
               schema:

@@ -110,7 +110,7 @@ public record OrderDTO(
         title = "Will Pick Up",
         description = "The will pick up",
         example = "true",
-        requiredMode = Schema.RequiredMode.REQUIRED
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     boolean willPickUp,
     @Schema(
@@ -148,17 +148,7 @@ public record OrderDTO(
         example = "LABELED",
         requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    String labelStatus,
-
-    @Schema(
-        title = "Ship To Location Code",
-        description = "The location code to be shipped",
-        example = "565",
-        requiredMode = Schema.RequiredMode.NOT_REQUIRED
-    )
-    String shipToLocationCode
-
-
+    String labelStatus
 ) implements Serializable {
 
 

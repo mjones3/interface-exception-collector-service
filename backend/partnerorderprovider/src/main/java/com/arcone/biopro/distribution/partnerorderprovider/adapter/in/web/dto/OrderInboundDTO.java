@@ -17,7 +17,6 @@ public class OrderInboundDTO implements Serializable {
     private String createDateTimezone;
     private String createDate;
     private String createEmployeeCode;
-    private String shipToLocationCode;
     private String orderStatus;
     private String shipmentType;
     private String deliveryType;

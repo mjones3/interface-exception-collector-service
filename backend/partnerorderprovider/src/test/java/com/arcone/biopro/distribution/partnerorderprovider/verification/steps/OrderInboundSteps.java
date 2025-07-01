@@ -53,7 +53,7 @@ public class OrderInboundSteps {
         var jsonContent = testUtils.getResource("inbound-test-files/internal-transfer-order-inbound-scenario-0001.json");
         jsonContent = replaceValueInJson(jsonContent,"{LOCATION_CODE}",locationCode);
         jsonContent = replaceValueInJson(jsonContent,"{SHIPMENT_TYPE}",shipmentType);
-        jsonContent = replaceValueInJson(jsonContent,"{SHIP_TO_LOCATION_CODE}",shipToLocation);
+        jsonContent = replaceValueInJson(jsonContent,"{SHIPPING_CUSTOMER_CODE}",shipToLocation);
         jsonContent = replaceValueInJson(jsonContent,"{LABEL_STATUS}",labelStatus);
         jsonContent = replaceValueInJson(jsonContent,"{QUARANTINED_PRODUCTS}",quarantineProducts);
 

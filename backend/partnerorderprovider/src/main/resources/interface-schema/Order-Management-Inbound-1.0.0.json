@@ -65,10 +65,6 @@
     "orderItems": {
       "$ref": "#/definitions/orderItems"
     },
-    "shipToLocationCode": {
-      "type": "string",
-      "title": "Ship To Location code."
-    },
     "labelStatus": {
       "type": ["string","null"] ,
       "enum": [
@@ -91,11 +87,6 @@
       },
       "then": {
         "properties": {
-          "shipToLocationCode": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 50
-          },
           "quarantinedProducts": {
             "type": ["boolean"],
             "title": "Order can be filled with quarantined products"
@@ -108,9 +99,9 @@
           "shipmentType",
           "productCategory",
           "orderItems",
-          "shipToLocationCode",
           "quarantinedProducts",
-          "labelStatus"
+          "labelStatus",
+          "shippingCustomerCode"
         ]
       },
       "else": {
@@ -197,7 +188,7 @@
 
     },
     "shippingCustomerCode": {
-      "type": ["string","null"],
+      "type": ["string"],
       "title": "Shipping Customer Code of ordering hospital"
     },
     "billingCustomerCode": {

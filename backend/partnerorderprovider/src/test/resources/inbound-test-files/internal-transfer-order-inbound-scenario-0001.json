@@ -6,7 +6,6 @@
   "createEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
   "shipmentType": "{SHIPMENT_TYPE}",
   "labelStatus": "{LABEL_STATUS}",
-  "shipToLocationCode": "{SHIP_TO_LOCATION_CODE}",
   "quarantinedProducts":{QUARANTINED_PRODUCTS},
   "deliveryType": "SCHEDULED",
   "orderPickType": {
@@ -16,8 +15,7 @@
   "shippingMethod": "FEDEX",
   "productCategory": "FROZEN",
   "desiredShippingDate": "2020-04-25",
-  "shippingCustomerCode": "99741",
-  "billingCustomerCode": "99741",
+  "shippingCustomerCode": "{SHIPPING_CUSTOMER_CODE}",
   "comments": "string",
   "orderItems": [
     {
