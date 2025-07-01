@@ -15,10 +15,10 @@ public class OrderReportMapper {
             orderReport.getOrderNumber(),
             orderReport.getExternalId(),
             orderReport.getOrderStatus(),
-            OrderCustomerReportDTO.builder()
+            orderReport.getOrderCustomerReport() != null ? OrderCustomerReportDTO.builder()
                 .code(orderReport.getOrderCustomerReport().getCode())
                 .name(orderReport.getOrderCustomerReport().getName())
-                .build(),
+                .build() : null,
             OrderPriorityReportDTO.builder()
                 .priority(orderReport.getOrderPriorityReport().getPriority())
                 .priorityColor(orderReport.getOrderPriorityReport().getPriorityColor())

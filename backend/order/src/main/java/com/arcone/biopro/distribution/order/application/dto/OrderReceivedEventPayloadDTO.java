@@ -25,6 +25,9 @@ public record OrderReceivedEventPayloadDTO(
     boolean willPickUp,
     String willPickUpPhoneNumber,
     List<OrderItemEventDTO> orderItems,
-    UUID transactionId
+    UUID transactionId,
+    String shipToLocationCode,
+    Boolean quarantinedProducts,
+    String labelStatus
 ) implements Serializable {
 }

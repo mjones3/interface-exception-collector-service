@@ -28,5 +28,8 @@ public class ModifyOrderCommand {
     private String comments;
     private List<ModifyOrderItem> orderItems;
     private UUID transactionId;
+    private String shipToLocationCode;
+    private Boolean quarantinedProducts;
+    private String labelStatus;
 
 }

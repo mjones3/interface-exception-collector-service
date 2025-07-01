@@ -9,6 +9,7 @@ import {
 } from '@shared';
 import { PriorityMap } from 'app/shared/models/product-family.model';
 import { OrderStatusMap } from '../../../../shared/models/order-status.model';
+import { ShipmentTypeMap } from '../../../../shared/models/shipment-type.model';
 
 @Component({
     standalone: true,
@@ -49,6 +50,10 @@ export class OrderWidgetsSidebarComponent {
             modifyDate: string;
             modifyReason: string;
             displayModificationDetails: boolean;
+            shipToLocationCode?:string;
+            quarantinedProducts?:boolean;
+            labelStatus?:string;
+            shipmentType?:string;
         }>
     >();
 
@@ -61,6 +66,7 @@ export class OrderWidgetsSidebarComponent {
             customerName: string;
             status: string;
             method: string;
+            shipToLocation?:string;
         }>
     >();
 
@@ -115,6 +121,33 @@ export class OrderWidgetsSidebarComponent {
                       value: this.orderInput()?.labelingProductCategory,
                   },
               ]
+            : []),
+        ...(this.orderInput()?.shipmentType
+            ? [
+                {
+                    label: 'Shipment Type',
+                    value:
+                        ShipmentTypeMap?.[this.orderInput()?.shipmentType] ??
+                        'Unknown',
+
+                },
+            ]
+            : []),
+        ...(this.orderInput()?.labelStatus
+            ? [
+                {
+                    label: 'Label Status',
+                    value: this.orderInput()?.labelStatus,
+                },
+            ]
+            : []),
+        ...(this.orderInput()?.quarantinedProducts
+            ? [
+                {
+                    label: 'Quarantined Products',
+                    value: this.orderInput()?.quarantinedProducts ? 'YES' : 'NO' ,
+                },
+            ]
             : []),
     ]);
 
@@ -209,6 +242,14 @@ export class OrderWidgetsSidebarComponent {
                       value: this.shippingInput()?.method,
                   },
               ]
+            : []),
+        ...(this.shippingInput()?.method
+            ? [
+                {
+                    label: 'Ship To Location',
+                    value: this.shippingInput()?.shipToLocation,
+                },
+            ]
             : []),
     ]);
 

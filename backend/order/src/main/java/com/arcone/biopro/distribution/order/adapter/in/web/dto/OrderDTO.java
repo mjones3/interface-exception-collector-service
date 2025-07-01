@@ -45,5 +45,8 @@ public record OrderDTO(
     String modifyEmployeeId,
     String modifyReason,
     String modifyByProcess,
-    UUID transactionId
+    UUID transactionId,
+    String shipToLocationCode,
+    Boolean quarantinedProducts,
+    String labelStatus
 ) {}

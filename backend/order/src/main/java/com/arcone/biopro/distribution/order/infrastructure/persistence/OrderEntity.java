@@ -44,19 +44,15 @@ public class OrderEntity {
     @Column("shipping_method")
     private String shippingMethod;
 
-    @NotNull
     @Column("shipping_customer_name")
     private String shippingCustomerName;
 
-    @NotNull
     @Column("shipping_customer_code")
     private String shippingCustomerCode;
 
-    @NotNull
     @Column("billing_customer_name")
     private String billingCustomerName;
 
-    @NotNull
     @Column("billing_customer_code")
     private String billingCustomerCode;
 
@@ -137,5 +133,14 @@ public class OrderEntity {
 
     @Column("transaction_id")
     private UUID transactionId;
+
+    @Column("ship_to_location_code")
+    private String shipToLocationCode;
+
+    @Column("quarantined_products")
+    private Boolean quarantinedProducts;
+
+    @Column("label_status")
+    private String labelStatus;
 
 }

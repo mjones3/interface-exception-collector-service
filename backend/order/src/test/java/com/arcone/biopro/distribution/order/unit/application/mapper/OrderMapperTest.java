@@ -6,7 +6,6 @@ import com.arcone.biopro.distribution.order.application.mapper.OrderItemMapper;
 import com.arcone.biopro.distribution.order.application.mapper.OrderMapper;
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.Order;
-import com.arcone.biopro.distribution.order.domain.model.OrderItem;
 import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
@@ -14,7 +13,6 @@ import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,6 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
@@ -100,7 +97,9 @@ class OrderMapperTest {
             "createEmployeeId",
             "2023-04-25 20:09:01",
             ZonedDateTime.now(),
-            ZonedDateTime.now()
+            ZonedDateTime.now(),
+            "SHIP_TO_LOCATION_CODE",
+            false,"LABELED"
         );
         order.addItem(
                 1L,
@@ -155,6 +154,9 @@ class OrderMapperTest {
         });
         assertFalse(result.canBeCompleted());
         assertFalse(result.backOrderCreationActive());
+        assertEquals(order.getShipToLocationCode(), result.shipToLocationCode());
+        assertEquals(order.getQuarantinedProducts(), result.quarantinedProducts());
+        assertEquals(order.getLabelStatus().value(), result.labelStatus());
     }
 
     @Test
@@ -206,6 +208,9 @@ class OrderMapperTest {
                         .build()
                 )
             )
+            .shipToLocationCode("SHIP_TO_LOCATION_CODE")
+            .quarantinedProducts(true)
+            .labelStatus("LABELED")
             .build();
 
         // Execute
@@ -247,6 +252,9 @@ class OrderMapperTest {
             assertEquals(orderItemDTO.createDate(), orderItem.getCreateDate());
             assertEquals(orderItemDTO.modificationDate(), orderItem.getModificationDate());
         });
+        assertEquals(orderDTO.shipToLocationCode(), result.getShipToLocationCode());
+        assertEquals(orderDTO.quarantinedProducts(), result.getQuarantinedProducts());
+        assertEquals(orderDTO.labelStatus(), result.getLabelStatus().value());
     }
 
 }

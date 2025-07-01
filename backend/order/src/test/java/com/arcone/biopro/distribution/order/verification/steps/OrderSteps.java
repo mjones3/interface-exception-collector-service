@@ -66,6 +66,8 @@ public class OrderSteps {
     private String[] bloodTypes;
     private String[] quantityList;
     private String[] commentsList;
+    private String shipToLocatioCode;
+    private Boolean quarantinedProducts;
 
     private JSONObject partnerOrder;
 
@@ -289,8 +291,8 @@ public class OrderSteps {
         }
     }
 
-    @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string}, Status {string}, shipment type {string}, delivery type {string}, shipping method {string}, product category {string}, desired ship date {string}, shipping customer code and name as {string} and {string}, billing customer code and name as {string} and {string}, and comments {string}.")
-    public void createBioproOrderWithDetails(String externalId, String locationCode, String priority, String status, String shipmentType, String deliveryType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments) {
+    @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string}, Status {string}, shipment type {string}, delivery type {string}, shipping method {string}, product category {string}, desired ship date {string}, shipping customer code and name as {string} and {string}, billing customer code and name as {string} and {string}, and comments {string}, and Ship To Location code as {string} and Quarantined Products as {string}.")
+    public void createBioproOrderWithDetails(String externalId, String locationCode, String priority, String status, String shipmentType, String deliveryType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments , String shipToLocationCode, String quarantinedProducts) {
         context.setExternalId(externalId);
         context.setLocationCode(locationCode);
         this.priority = priority;
@@ -301,7 +303,14 @@ public class OrderSteps {
         this.shippingMethod = shippingMethod;
         this.billCustomerCode = billingCustomerCode;
         this.billCustomerName = billingCustomerName;
-        var query = DatabaseQueries.insertBioProOrderWithDetails(context.getExternalId(), locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments);
+        this.shipToLocatioCode = shipToLocationCode;
+        if("<null>".equals(quarantinedProducts)){
+            this.quarantinedProducts = null;
+        }else{
+            this.quarantinedProducts = Boolean.parseBoolean(quarantinedProducts);
+        }
+
+        var query = DatabaseQueries.insertBioProOrderWithDetails(context.getExternalId(), locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments, shipToLocationCode, this.quarantinedProducts);
         databaseService.executeSql(query).block();
 
         context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString()));

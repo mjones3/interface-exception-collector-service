@@ -55,10 +55,10 @@ public class OrderMapper {
             .locationCode(order.getLocationCode())
             .shipmentType(order.getShipmentType().getShipmentType())
             .shippingMethod(order.getShippingMethod().getShippingMethod())
-            .shippingCustomerName(order.getShippingCustomer().getName())
-            .shippingCustomerCode(order.getShippingCustomer().getCode())
-            .billingCustomerName(order.getBillingCustomer().getName())
-            .billingCustomerCode(order.getBillingCustomer().getCode())
+            .shippingCustomerName(order.getShippingCustomer() != null ? order.getShippingCustomer().getName() : null)
+            .shippingCustomerCode(order.getShippingCustomer() != null ? order.getShippingCustomer().getCode() : null)
+            .billingCustomerName(order.getBillingCustomer() != null ? order.getBillingCustomer().getName() : null)
+            .billingCustomerCode(order.getBillingCustomer() != null ? order.getBillingCustomer().getCode() : null)
             .desiredShippingDate(order.getDesiredShippingDate())
             .willCallPickup(order.getWillCallPickup())
             .phoneNumber(order.getPhoneNumber())
@@ -93,6 +93,9 @@ public class OrderMapper {
             .modifyByProcess(order.getModifiedByProcess())
             .modifyEmployeeId(order.getModifyEmployeeId())
             .transactionId(order.getTransactionId())
+            .quarantinedProducts(order.getQuarantinedProducts())
+            .shipToLocationCode(order.getShipToLocationCode())
+            .labelStatus(order.getLabelStatus().value())
             .build();
     }
 
@@ -118,7 +121,11 @@ public class OrderMapper {
             orderDTO.createEmployeeId(),
             ofNullable(orderDTO.createDate()).map(dateTime -> DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(dateTime)).orElse(null),
             orderDTO.modificationDate(),
-            orderDTO.deleteDate());
+            orderDTO.deleteDate(),
+            orderDTO.shipToLocationCode(),
+            orderDTO.quarantinedProducts(),
+            orderDTO.labelStatus()
+            );
 
         order.setTransactionId(orderDTO.transactionId());
 

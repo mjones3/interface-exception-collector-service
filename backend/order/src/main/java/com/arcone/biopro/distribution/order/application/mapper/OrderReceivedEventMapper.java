@@ -49,7 +49,11 @@ public class OrderReceivedEventMapper {
                 orderReceivedEventPayloadDTO.createEmployeeCode(),
                 orderReceivedEventPayloadDTO.createDate(),
                 null,
-                null);
+                null,
+                orderReceivedEventPayloadDTO.shipToLocationCode(),
+                orderReceivedEventPayloadDTO.quarantinedProducts(),
+                orderReceivedEventPayloadDTO.labelStatus()
+            );
             order.setTransactionId(orderReceivedEventPayloadDTO.transactionId());
 
             ofNullable(orderReceivedEventPayloadDTO.orderItems())

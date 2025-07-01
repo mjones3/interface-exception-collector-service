@@ -80,26 +80,27 @@ class OrderTest {
         ));
 
 
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null), "orderNumber cannot be null");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null), "locationCode cannot be null or blank");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null), "shipmentType cannot be null");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", null, null, null, null, null, null, null, null, null, null, null, null, null), "shippingCustomer could not be found or it is null");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", null, null, null, null, null, null, null, null, null, null, null, null), "billingCustomer could not be found or it is null");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.parse("2025-01-01").toString(), null, null, null, null, null, null, null, null, null, null), "desiredShippingDate cannot be in the past");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", null, null, null, null, null, null, null, null), "productCategory cannot be null");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", null, null, null, null, null, null), "orderStatus cannot be null");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", null, null, null, null, null), "orderPriority cannot be null");
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,"LABELED"), "orderNumber cannot be null");
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,"LABELED"), "locationCode cannot be null or blank");
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,"LABELED"), "shipmentType cannot be null");
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", null, null, null, null, null, null, null, null, null, null, null, null, null,null,null,"LABELED"), "shippingCustomer could not be found or it is null");
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", null, null, null, null, null, null, null, null, null, null, null, null,null,null,"LABELED"), "billingCustomer could not be found or it is null");
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.parse("2025-01-01").toString(), null, null, null, null, null, null, null, null, null, null,null,null,"LABELED"), "desiredShippingDate cannot be in the past");
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", null, null, null, null, null, null, null, null,null,null,"LABELED"), "productCategory cannot be null");
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", null, null, null, null, null, null,null,null,"LABELED"), "orderStatus cannot be null");
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", null, null, null, null, null,null,null,"LABELED"), "orderPriority cannot be null");
 
+        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, null, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", null, TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null,null,null,"INVALID"), "orderPriority cannot be null");
 
-        assertDoesNotThrow(() -> new Order(customerService,lookupService, null, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", null, TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null));
+        assertDoesNotThrow(() -> new Order(customerService,lookupService, null, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", null, TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null,null,null,"LABELED"));
 
-        assertDoesNotThrow(() -> new Order(customerService,lookupService, null, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null));
+        assertDoesNotThrow(() -> new Order(customerService,lookupService, null, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null,null,null,"LABELED"));
     }
 
     @Test
     @Disabled("Disabled until Manual Order Creation is implemented")
     void testExists() {
-        var order = new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null);
+        var order = new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null,null,null,"LABELED");
 
         given(orderRepository.existsById(order.getId(), TRUE))
             .willReturn(Mono.just(true));
@@ -121,7 +122,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "TYPE", "TYPE", "123", "123","2025-01-31"
             , null, null, "TYPE", null, "TYPE", "TYPE", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         Assertions.assertFalse(order.canBeCompleted(orderShipmentServiceMock));
 
@@ -132,7 +133,7 @@ class OrderTest {
         var order2 = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "TYPE", "TYPE", "123", "123","2025-01-31"
             , null, null, "TYPE", null, "IN_PROGRESS", "TYPE", "CREATE_EMPLOYEE"
-            , null, null,null);
+            , null, null,null,null,null,"LABELED");
 
         order2.addItem(1L,"TYPE","TYPE",10,1,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
 
@@ -171,7 +172,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "COMPLETED", "COMPLETED", "123", "123","2025-01-31"
             , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         assertThrows(DomainException.class, () -> order.completeOrder(new CompleteOrderCommand(1L,"employeeid","comments",Boolean.FALSE),lookupService,orderShipmentServiceMock) , "Order is already closed");
     }
@@ -185,7 +186,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "IN_PROGRESS", "IN_PROGRESS", "123", "123","2025-01-31"
             , null, null, "IN_PROGRESS", null, "IN_PROGRESS", "IN_PROGRESS", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         var orderShipmentServiceMock = Mockito.mock(OrderShipmentService.class);
 
@@ -216,7 +217,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123","2025-01-31"
             , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         assertThrows(IllegalArgumentException.class, () -> order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService) , "Back Order cannot be created, configuration is not active");
     }
@@ -232,7 +233,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123","2025-01-31"
             , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
         Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
@@ -257,7 +258,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
         Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
@@ -299,7 +300,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "CATEGORY", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.eq("CATEGORY"),Mockito.eq("FAMILY"))).thenReturn(Mono.just("TYPE"));
         Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.eq("FAMILY"),Mockito.eq("TYPE"))).thenReturn(Mono.just("TYPE"));
@@ -342,7 +343,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
         Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
@@ -368,7 +369,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
         Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
@@ -396,7 +397,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "CANCELLED", "CANCELLED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "CANCELLED", null, "CANCELLED", "CANCELLED", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         try{
@@ -421,7 +422,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "COMPLETED", "COMPLETED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
 
@@ -447,7 +448,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()), List.of(order));
 
@@ -469,12 +470,12 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "COMPLETED", "COMPLETED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         var backOrder = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "CANCELLED", "CANCELLED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "CANCELLED", null, "CANCELLED", "CANCELLED", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         backOrder.setBackOrder(TRUE);
 
@@ -502,12 +503,12 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "COMPLETED", "COMPLETED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         var backOrder = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "IN_PROGRESS", "CANCELLED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "CANCELLED", null, "IN_PROGRESS", "IN_PROGRESS", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         backOrder.setBackOrder(TRUE);
 
@@ -534,7 +535,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "COMPLETED", "COMPLETED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         try{
             order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55", UUID.randomUUID()), null);
@@ -557,13 +558,13 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         var backOrder = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         backOrder.setBackOrder(TRUE);
 
@@ -589,18 +590,18 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         var backOrder1 = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         var backOrder2 = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         backOrder1.setBackOrder(TRUE);
         backOrder2.setBackOrder(TRUE);
@@ -627,7 +628,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         try{
@@ -651,7 +652,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         try{
@@ -676,7 +677,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         try{
@@ -702,7 +703,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         try{
@@ -728,7 +729,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         try{
@@ -754,7 +755,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         try{
@@ -780,7 +781,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
         try{
             order.modify(ModifyOrderCommand.builder()
@@ -804,7 +805,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         var orderMock = Mockito.mock(Order.class);
@@ -844,7 +845,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         var orderModified =     order.modify(ModifyOrderCommand.builder()
@@ -855,6 +856,9 @@ class OrderTest {
                 .locationCode("new_location")
                 .deliveryType("ASAP")
                 .modifyByProcess(ModifyByProcess.INTERFACE)
+                .labelStatus("LABELED")
+                .shipToLocationCode("CODE")
+                .quarantinedProducts(false)
                 .orderItems(List.of(ModifyOrderItem
                     .builder()
                         .bloodType("TYPE")
@@ -886,7 +890,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         try{
@@ -914,7 +918,7 @@ class OrderTest {
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null, null,null,null,"LABELED");
 
 
         try{
@@ -941,7 +945,7 @@ class OrderTest {
             new Order(customerService, lookupService, null, 123L, "EXT", "123"
                 , "OPEN", "OPEN", "123", "123",LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
                 , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-                , "2023-31-25 20:09:01", null, null);
+                , "2023-31-25 20:09:01", null, null,null,null,"LABELED");
             Assertions.fail();
         }catch (IllegalArgumentException e){
             Assertions.assertEquals("Create Date is not a valid date",e.getMessage());
@@ -960,11 +964,75 @@ class OrderTest {
             new Order(customerService, lookupService, null, 123L, "EXT", "123"
                 , "OPEN", "OPEN", "123", "123",LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
                 , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
-                , LocalDateTime.now().plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), null, null);
+                , LocalDateTime.now().plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), null, null,null,null,"LABELED");
             Assertions.fail();
         }catch (IllegalArgumentException e){
             Assertions.assertEquals("Create Date cannot be in the future",e.getMessage());
         }
+
+    }
+
+    @Test
+    public void shouldNotCreateWhenInternalTransferMissingShipToLocation(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)
+            , new Lookup(new LookupId("INTERNAL_TRANSFER","INTERNAL_TRANSFER"),"description",3,true)
+            )
+        );
+
+        try{
+
+            new Order(customerService, lookupService, null, 123L, "EXT", "123"
+                , "INTERNAL_TRANSFER", "OPEN", "123", "123",LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+                , LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), null, null,null,null,"LABELED");
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Ship To Location Code cannot be null",e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldNotCreateWhenInternalTransferMissingQuarantinedProducts(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+                , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)
+                , new Lookup(new LookupId("INTERNAL_TRANSFER","INTERNAL_TRANSFER"),"description",3,true)
+            )
+        );
+
+        try{
+
+            new Order(customerService, lookupService, null, 123L, "EXT", "123"
+                , "INTERNAL_TRANSFER", "OPEN", "123", "123",LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+                , LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), null, null,"LOCATION_TO_CODE",null,"LABELED");
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Quarantined Products cannot be null",e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldCreateWhenInternalTransfer(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+                , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)
+                , new Lookup(new LookupId("INTERNAL_TRANSFER","INTERNAL_TRANSFER"),"description",3,true)
+            )
+        );
+
+
+
+        var order =  new Order(customerService, lookupService, null, 123L, "EXT", "123"
+                , "INTERNAL_TRANSFER", "OPEN", null, null,LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+                , LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), null, null,"SHIP_TO_LOCATION",false,"LABELED");
+
+        Assertions.assertNotNull(order);
 
     }
 }

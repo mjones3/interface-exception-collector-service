@@ -33,10 +33,10 @@ public class OrderEntityMapper {
             .locationCode(order.getLocationCode())
             .shipmentType(order.getShipmentType().getShipmentType())
             .shippingMethod(order.getShippingMethod().getShippingMethod())
-            .shippingCustomerName(order.getShippingCustomer().getName())
-            .shippingCustomerCode(order.getShippingCustomer().getCode())
-            .billingCustomerName(order.getBillingCustomer().getName())
-            .billingCustomerCode(order.getBillingCustomer().getCode())
+            .shippingCustomerName( order.getShippingCustomer() != null ? order.getShippingCustomer().getName() : null)
+            .shippingCustomerCode(order.getShippingCustomer() != null ? order.getShippingCustomer().getCode() : null)
+            .billingCustomerName(order.getBillingCustomer() != null ? order.getBillingCustomer().getName() : null)
+            .billingCustomerCode(order.getBillingCustomer() != null ? order.getBillingCustomer().getCode() : null)
             .desiredShippingDate(order.getDesiredShippingDate())
             .willCallPickup(order.getWillCallPickup())
             .phoneNumber(order.getPhoneNumber())
@@ -60,6 +60,9 @@ public class OrderEntityMapper {
             .modifyEmployeeId(order.getModifyEmployeeId())
             .modifyReason(order.getModifyReason())
             .transactionId(order.getTransactionId())
+            .quarantinedProducts(order.getQuarantinedProducts())
+            .shipToLocationCode(order.getShipToLocationCode())
+            .labelStatus(order.getLabelStatus().value())
             .build();
     }
 
@@ -86,7 +89,10 @@ public class OrderEntityMapper {
             orderEntity.getCreateEmployeeId(),
             ofNullable(orderEntity.getCreateDate()).map(dateTime -> DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(dateTime)).orElse(null),
             orderEntity.getModificationDate(),
-            orderEntity.getDeleteDate()
+            orderEntity.getDeleteDate(),
+            orderEntity.getShipToLocationCode(),
+            orderEntity.getQuarantinedProducts(),
+            orderEntity.getLabelStatus()
         );
 
         ofNullable(orderItemEntities)
