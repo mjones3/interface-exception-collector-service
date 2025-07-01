@@ -5,10 +5,10 @@ import com.arcone.biopro.distribution.eventbridge.domain.event.OrderModifiedOutb
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.OrderModifiedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.mapper.OrderModifiedOutboundMapper;
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
 import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
-import io.github.springwolf.plugins.kafka.asyncapi.annotations.KafkaAsyncOperationBinding;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Qualifier;
