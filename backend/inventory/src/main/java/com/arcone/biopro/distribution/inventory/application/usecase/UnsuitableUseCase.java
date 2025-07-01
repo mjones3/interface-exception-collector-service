@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
@@ -22,7 +21,6 @@ public class UnsuitableUseCase implements UseCase<Mono<Void>, UnsuitableInput> {
     InventoryAggregateRepository inventoryAggregateRepository;
 
     @Override
-    @Transactional
     public Mono<Void> execute(UnsuitableInput input) {
         if (Objects.isNull(input.productCode())) {
             return inventoryAggregateRepository.findByUnitNumber(input.unitNumber())
