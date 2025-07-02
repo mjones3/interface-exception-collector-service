@@ -3,8 +3,6 @@ package com.arcone.biopro.distribution.inventory.integration;
 import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonUnpackedInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.RecoveredPlasmaCartonUnpackedUseCase;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
-import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -22,7 +20,6 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.PAYLOAD;
-import static com.arcone.biopro.distribution.inventory.BioProConstants.RECOVER_PLASMA_CARTON_UNPACKED_TOPIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -43,7 +40,7 @@ public class RecoveredPlasmaCartonUnpackedIntegrationIT {
     @Autowired
     private KafkaHelper kafkaHelper;
 
-    @MockBean
+    @MockitoBean
     private RecoveredPlasmaCartonUnpackedUseCase useCase;
 
     @Value("${topic.recovered-plasma-carton-unpacked.name}")
