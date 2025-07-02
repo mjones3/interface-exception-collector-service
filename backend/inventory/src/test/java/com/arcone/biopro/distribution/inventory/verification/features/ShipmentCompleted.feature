@@ -30,14 +30,14 @@ Feature: Shipment Completed Event - API
             | W777725012007 | PLASMA       | AVAILABLE |
             | W777725012008 | PLASAPHP     | AVAILABLE |
         When I received a Shipment Completed event with shipment type "INTERNAL_TRANSFER" for the following units:
-            | Unit Number   | Product Code |
-            | W777725012005 | WHOLEBLOOD   |
-            | W777725012006 | RBC          |
-            | W777725012007 | PLASMA       |
+            | Unit Number   | Product Code | Shipment Location |
+            | W777725012005 | WHOLEBLOOD   | 1FS               |
+            | W777725012006 | RBC          | 1FS               |
+            | W777725012007 | PLASMA       | 1FS               |
         Then the inventory statuses should be updated as follows:
-            | Unit Number   | Product Code | Status     |
-            | W777725012005 | WHOLEBLOOD   | IN_TRANSIT |
-            | W777725012006 | RBC          | IN_TRANSIT |
-            | W777725012007 | PLASMA       | IN_TRANSIT |
-            | W777725012008 | PLASAPHP     | AVAILABLE  |
+            | Unit Number   | Product Code | Status     | Shipment Location |
+            | W777725012005 | WHOLEBLOOD   | IN_TRANSIT | 1FS               |
+            | W777725012006 | RBC          | IN_TRANSIT | 1FS               |
+            | W777725012007 | PLASMA       | IN_TRANSIT | 1FS               |
+            | W777725012008 | PLASAPHP     | AVAILABLE  | 1FS               |
 
