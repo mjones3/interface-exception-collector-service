@@ -94,7 +94,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     isBackOrderCreationActive: boolean;
 
     orderDetails: OrderDetailsDTO;
-    private notifications: Notification[] = [];
+    notifications: Notification[] = [];
 
     shipments: OrderShipmentDTO[] = [];
     pollingSubscription: Subscription;

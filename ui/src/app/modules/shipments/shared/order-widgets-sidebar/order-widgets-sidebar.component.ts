@@ -52,7 +52,7 @@ export class OrderWidgetsSidebarComponent {
             displayModificationDetails: boolean;
             quarantinedProducts?:boolean;
             labelStatus?:string;
-            shipmentType?:string;
+            shipmentType?: string;
         }>
     >();
 
@@ -65,6 +65,7 @@ export class OrderWidgetsSidebarComponent {
             customerName: string;
             status: string;
             method: string;
+            shipmentType: string;
             shipToLocation?:string;
         }>
     >();
@@ -121,18 +122,7 @@ export class OrderWidgetsSidebarComponent {
                   },
               ]
             : []),
-        ...(this.orderInput()?.shipmentType
-            ? [
-                {
-                    label: 'Shipment Type',
-                    value:
-                        ShipmentTypeMap?.[this.orderInput()?.shipmentType] ??
-                        'Unknown',
-
-                },
-            ]
-            : []),
-        ...(this.orderInput()?.labelStatus
+        ...(this.orderInput()?.shipmentType === 'INTERNAL_TRANSFER' && this.orderInput()?.labelStatus 
             ? [
                 {
                     label: 'Label Status',
@@ -140,7 +130,7 @@ export class OrderWidgetsSidebarComponent {
                 },
             ]
             : []),
-        ...(this.orderInput()?.quarantinedProducts
+        ...(this.orderInput()?.shipmentType === 'INTERNAL_TRANSFER' && this.orderInput()?.quarantinedProducts 
             ? [
                 {
                     label: 'Quarantined Products',
@@ -209,6 +199,17 @@ export class OrderWidgetsSidebarComponent {
                       value: this.shippingInput()?.id.toString(),
                   },
               ]
+            : []),
+            ...(this.shippingInput()?.shipmentType
+            ? [
+                {
+                    label: 'Shipment Type',
+                    value:
+                        ShipmentTypeMap?.[this.shippingInput()?.shipmentType] ??
+                        'Unknown',
+
+                },
+            ]
             : []),
         ...(this.shippingInput()?.customerCode
             ? [
