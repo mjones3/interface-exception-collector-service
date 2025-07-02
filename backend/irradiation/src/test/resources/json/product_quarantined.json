@@ -1,0 +1,16 @@
+{
+  "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+  "occurredOn": "2024-08-22T12:34:32.270657005Z",
+  "eventVersion": "1.0",
+  "eventType": "ProductQuarantined",
+  "payload": {
+    "id": 1,
+    "unitNumber": "W777725005004",
+    "productCode": "E0869A0",
+    "reason": "OTHER",
+    "comments": "a comment",
+    "stopsManufacturing": false,
+    "performedBy": "USER_ID",
+    "createDate": "2025-01-08T02:05:45.231Z"
+  }
+}

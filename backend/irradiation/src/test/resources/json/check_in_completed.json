@@ -1,0 +1,58 @@
+{
+  "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+  "occurredOn": "2024-08-22T12:34:32.270657005Z",
+  "eventType":"CheckInCompleted",
+  "eventVersion":"1.0",
+  "payload":{
+    "id": 13,
+    "unitNumber": "W123424138901",
+    "productCode": "PLASAPHP",
+    "productDescription": "APH_PLASMA_PARENT",
+    "productFamily": "PLASMA_TRANSFUSABLE",
+    "drawTime": "2024-09-03T10:21:31.317068-03:00",
+    "withdrawalTime": "2024-09-03T10:21:31.317068-03:00",
+    "bagType": "R45730",
+    "machineType": "ALYX",
+    "machineSerialNumber": "FA19K12345",
+    "donationType": "ALLOGENEIC",
+    "procedureType": "APHERESIS_PLASMA",
+    "collectionLocation": "123456789",
+    "collectionTimeZone": "America/New_York",
+    "checkInLocation": "123456789",
+    "aboRh": "AP",
+    "consequences": [
+      {
+        "consequenceType": "QUARANTINE",
+        "consequenceReasons": [
+          "OTHER",
+          "HEMOLYSIS"
+        ]
+      }
+    ],
+    "packingCondition": {
+      "packingType": "ON_ICE",
+      "visualInspection": "SATISFACTORY"
+    },
+    "performedBy": "084ac917-cba4-48f5-aaac-bdcb32ca0eef",
+    "createdDate": "2024-09-03T14:49:45.683276-03:00",
+    "donationProperties": {
+      "TAG_MEASURE_RBC": "Y",
+      "EQUAL": "Y",
+      "TAG_EVALUATION": "Y",
+      "TAG_MEASURE_WBC": "Y",
+      "TAG_TCHGB_EVALUATION": "Y"
+    },
+    "volumes": [
+      {
+        "type": "PLASMA",
+        "amount": 100,
+        "excludeInCalculation": false
+      },
+      {
+        "type": "PLASMA_ANTICOAGULANT",
+        "amount": 100,
+        "excludeInCalculation": false
+      }
+    ]
+  }
+}

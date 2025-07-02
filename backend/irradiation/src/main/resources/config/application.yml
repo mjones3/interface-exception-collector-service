@@ -1,0 +1,335 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overridden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+---
+# Conditionally disable springdoc on missing api-docs profile
+spring:
+  config:
+    activate:
+      on-profile: '!api-docs'
+springdoc:
+  api-docs:
+    enabled: false
+---
+# Conditionally disable telemetry on missing telemetry profile
+spring:
+  config:
+    activate:
+      on-profile: '!telemetry'
+  rsocket:
+    server:
+      port: 7002
+otel:
+    sdk:
+        disabled: true
+---
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure:
+        include:
+          - configprops
+          - env
+          - health
+          - info
+          - logfile
+          - loggers
+          - prometheus
+          - threaddump
+  endpoint:
+    health:
+      show-details: when_authorized
+      roles: 'ROLE_ADMIN'
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState
+  info:
+    git:
+      mode: full
+    env:
+      enabled: true
+  health:
+    mail:
+      enabled: false # When using the MailService, configure an SMTP server and set this to true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        step: 60
+  observations:
+    key-values:
+      application: ${spring.application.name}
+  metrics:
+    enable:
+      http: true
+      jvm: true
+      logback: true
+      process: true
+      system: true
+    distribution:
+      percentiles-histogram:
+        all: true
+      percentiles:
+        all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
+    data:
+      repository:
+        autotime:
+          enabled: true
+
+logging:
+  level:
+    ROOT: INFO
+    # for debugging R2DBC
+    # org.springframework.data.r2dbc: DEBUG
+    # io.r2dbc.postgresql.QUERY: DEBUG # includes BEGIN/COMMIT/ROLLBACK, DDL
+    # set the 4 lines to warn to suppress large config list output on startup
+    org.apache.kafka.common.config.AbstractConfig: WARN
+    org.apache.kafka.clients.admin.AdminClientConfig: WARN
+    org.apache.kafka.clients.producer.ProducerConfig: WARN
+    org.apache.kafka.clients.consumer.ConsumerConfig: WARN
+    org.springframework.messaging: DEBUG
+    org.apache.kafka: WARN
+    com.arcone.biopro: DEBUG
+
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration
+  application:
+    name: inventory
+  profiles:
+    # The commented value for `active` can be replaced with valid Spring profiles to load.
+    # Otherwise, it will be filled in by maven when building the JAR file
+    # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
+    active: #spring.profiles.active#
+    group:
+      dev:
+        - prod
+        - api-docs
+        # Uncomment to activate TLS for the dev profile
+        #- tls
+  jackson:
+    serialization:
+      indent-output: true
+      write_dates_as_timestamps: false
+    time-zone: UTC
+  jmx:
+    enabled: false
+  messages:
+    basename: i18n/messages
+  graphql:
+    graphiql:
+      enabled: true
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/biopro?initialSize=20&maxSize=50&poolName=pool&registerJmx=true
+    username: biopro
+    password:
+    properties:
+      # Postgres properties
+      schema: inventory
+      lock_timeout: 30000
+      statement_timeout: 30000
+      idle_in_transaction_session_timeout: 30000
+      # R2DBC properties
+      connectTimeout: PT60S
+  main:
+    allow-bean-definition-overriding: true
+    web-application-type: REACTIVE
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: ${spring.application.name}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: 'com.arcone.biopro.*' # Allow serialization of our domain objects
+  webflux:
+    problemdetails:
+      enabled: true
+  task:
+    execution:
+      thread-name-prefix: inventory-task-
+      pool:
+        core-size: 2
+        max-size: 50
+        queue-capacity: 10000
+    scheduling:
+      thread-name-prefix: inventory-scheduling-
+      pool:
+        size: 2
+  output:
+    ansi:
+      console-available: true
+  security:
+    oauth2:
+      client:
+        provider:
+          oidc:
+            issuer-uri: http://id.local.gd/realms/biopro
+        registration:
+          oidc:
+            client-id: web_app
+            client-secret: web_app
+            scope: openid, profile, email, offline_access # last one for refresh tokens
+
+otel:
+  service:
+    name: ${spring.application.name}
+  instrumentation:
+    micrometer:
+      enabled: true
+  exporter:
+    otlp:
+      endpoint: http://localhost:6666
+  propagators:
+    - tracecontext
+    - b3
+  resource:
+    attributes:
+      deployment.environment: dev
+      service:
+        namespace: api
+        version: 0.0.1
+
+server:
+  port: 8080
+  shutdown: graceful # see https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-graceful-shutdown
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,application/javascript,application/json,image/svg+xml
+    min-response-size: 1024
+  servlet:
+    session:
+      cookie:
+        http-only: true
+
+springdoc:
+  show-actuator: true
+
+springwolf:
+  docket:
+    base-package: com.arcone.biopro
+    info:
+      title: ${spring.application.name}
+      version: 0.0.1
+    servers:
+      kafka:
+        protocol: kafka
+        host: ${kafka.bootstrap.servers:localhost:29092}
+
+# ===================================================================
+# BioPro specific properties
+# ===================================================================
+
+application:
+  http:
+    cache: # Used by the CachingHttpHeadersFilter
+      timeToLiveInDays: 1461
+  logging:
+    use-json-format: false # By default, logs are not in Json format
+    logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
+      enabled: false
+      host: localhost
+      port: 5000
+      ring-buffer-size: 512
+  mail:
+    from: inventory@localhost
+  api-docs:
+    default-include-pattern: /api/**
+    management-include-pattern: /management/**
+    title: Inventory API
+    description: Inventory API documentation
+    version: 0.0.1
+    terms-of-service-url:
+    contact-name:
+    contact-url:
+    contact-email:
+    license: unlicensed
+    license-url:
+  security:
+    content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"
+    oauth2:
+      audience:
+        - account
+        - api://default
+
+topic:
+  check-in:
+    completed:
+      name: CheckInCompleted
+  product-created:
+    wholeblood:
+      name: WholeBloodProductCreated
+    apheresis:
+      platelet:
+        name: ApheresisPlateletProductCreated
+      plasma:
+        name: ApheresisPlasmaProductCreated
+      rbc:
+        name: ApheresisRBCProductCreated
+  product-completed:
+    wholeblood:
+      name: WholeBloodProductCompleted
+    apheresis:
+      platelet:
+        name: ApheresisPlateletProductCompleted
+      plasma:
+        name: ApheresisPlasmaProductCompleted
+      rbc:
+        name: ApheresisRBCProductCompleted
+  label-applied:
+    name: LabelApplied
+  label-invalidated:
+    name: LabelInvalidated
+  shipment-completed:
+    name: ShipmentCompleted
+  product-stored:
+    name: ProductStored
+  product-discarded:
+    name: ProductDiscarded
+  product-quarantined:
+    name: ProductQuarantined
+  product-remove-quarantined:
+    name: QuarantineRemoved
+  product-update-quarantined:
+    name: QuarantineUpdated
+  product-recovered:
+    name: ProductRecovered
+  recovered-plasma-carton-packed:
+    name: RecoveredPlasmaCartonPacked
+  recovered-plasma-carton-unpacked:
+    name: RecoveredPlasmaCartonUnpacked
+  recovered-plasma-carton-removed:
+    name: RecoveredPlasmaCartonRemoved
+  recovered-plasma-shipment-closed:
+    name: RecoveredPlasmaShipmentClosed
+  inventory-updated:
+    name: InventoryUpdated
+  product-unsuitable:
+    name: ProductUnsuitable
+  unit-unsuitable:
+    name: UnitUnsuitable
+  product-modified:
+    name: ProductModified
+  products-imported:
+    name: ProductsImported
+
+

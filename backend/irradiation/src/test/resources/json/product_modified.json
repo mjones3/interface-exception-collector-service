@@ -1,0 +1,28 @@
+{
+  "eventId":"30d0dfe8-f7fd-40ac-bf98-ac4d187605a6",
+  "occurredOn":"2025-05-09T18:30:17.640956Z",
+  "eventType":"ProductModified",
+  "eventVersion":"1.0",
+  "payload":{
+    "unitNumber":"W999906291038",
+    "productCode":"E508500",
+    "productDescription":"LR RBC FRZ",
+    "parentProductCode":"E0336V00",
+    "productFamily":"RED_BLOOD_CELLS_LEUKOREDUCED",
+    "weight":{
+      "value":1
+    },
+    "volume":{
+      "value":300
+    },
+    "expirationDate":"05/07/2035",
+    "expirationTime":"23:59",
+    "modificationLocation":"1FS",
+    "modificationDate":"2025-05-09T18:30:17.640956Z",
+    "modificationTimeZone": "UTC",
+    "properties":
+    {
+      "TIMEZONE_RELEVANT": "Y"
+    }
+  }
+}
