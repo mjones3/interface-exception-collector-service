@@ -93,7 +93,7 @@ class PartnerOrderTest {
                 "CUST001", null, "Test comments", pickUpType, null, false)
         );
 
-        assertEquals("Label Status cannot be null", exception.getMessage());
+        assertEquals("Label Status cannot be null for Internal Transfers", exception.getMessage());
     }
 
     @Test

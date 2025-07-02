@@ -87,7 +87,7 @@ public class PartnerOrder {
         }
 
         if("INTERNAL_TRANSFER".equals(shipmentType) && (labelStatus == null || labelStatus.isBlank()) ){
-            throw new IllegalArgumentException("Label Status cannot be null");
+            throw new IllegalArgumentException("Label Status cannot be null for Internal Transfers");
         }
     }
 
