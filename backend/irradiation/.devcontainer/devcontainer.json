@@ -2,7 +2,6 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/java
 {
   "name": "Irradiation",
-  "name": "Irradiation",
   "build": {
     "dockerfile": "Dockerfile",
     "args": {
