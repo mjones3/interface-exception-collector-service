@@ -110,7 +110,7 @@ public record OrderDTO(
         title = "Will Pick Up",
         description = "The will pick up",
         example = "true",
-        requiredMode = Schema.RequiredMode.REQUIRED
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     boolean willPickUp,
     @Schema(
@@ -132,7 +132,23 @@ public record OrderDTO(
         description = "The order items",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    List<OrderItemDTO> orderItems
+    List<OrderItemDTO> orderItems,
+
+    @Schema(
+        title = "Quarantined Products",
+        description = "The order contains quarantined products",
+        example = "true",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    boolean quarantinedProducts,
+
+    @Schema(
+        title = "Label Status",
+        description = "The label status",
+        example = "LABELED",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    String labelStatus
 ) implements Serializable {
 
 

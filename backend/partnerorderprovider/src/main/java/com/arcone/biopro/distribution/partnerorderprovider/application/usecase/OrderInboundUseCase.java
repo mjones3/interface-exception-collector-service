@@ -41,7 +41,9 @@ public class OrderInboundUseCase implements OrderInboundService {
             , orderInboundDTO.getShippingCustomerCode()
             ,orderInboundDTO.getBillingCustomerCode()
             , orderInboundDTO.getComments()
-            , Objects.nonNull(orderInboundDTO.getOrderPickType()) ? new PartnerOrderPickUpType(orderInboundDTO.getOrderPickType().getWillCallPickUp(),orderInboundDTO.getOrderPickType().getPhoneNumber()): null);
+            , Objects.nonNull(orderInboundDTO.getOrderPickType()) ? new PartnerOrderPickUpType(orderInboundDTO.getOrderPickType().getWillCallPickUp(),orderInboundDTO.getOrderPickType().getPhoneNumber()): null
+            ,orderInboundDTO.getLabelStatus()
+            , orderInboundDTO.getQuarantineProducts());
         if(orderInboundDTO.getOrderItems() != null && !orderInboundDTO.getOrderItems().isEmpty()){
             orderInboundDTO.getOrderItems().forEach(orderItemDTO -> {
                 partnerOrder.addItem(new PartnerOrderItem(orderItemDTO.getProductFamily(), orderItemDTO.getBloodType() , orderItemDTO.getQuantity(), orderItemDTO.getComments()));
@@ -52,7 +54,7 @@ public class OrderInboundUseCase implements OrderInboundService {
         return ValidationResponseDTO
             .builder()
             .id(uuid)
-            .status("CREATED")
+            .status("ACCEPTED")
             .timestamp(ZonedDateTime.now())
             .build();
     }
