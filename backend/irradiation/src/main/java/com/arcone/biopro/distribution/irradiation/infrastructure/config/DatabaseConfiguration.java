@@ -1,13 +1,7 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.config;
 
-import com.arcone.biopro.distribution.irradiation.domain.model.vo.History;
-import com.arcone.biopro.distribution.irradiation.domain.model.vo.Quarantine;
-import com.arcone.biopro.distribution.irradiation.domain.model.vo.Volume;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.r2dbc.postgresql.codec.Json;
 import io.r2dbc.spi.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -52,12 +46,6 @@ public class DatabaseConfiguration {
         converters.add(BitSetReadConverter.INSTANCE);
         converters.add(DurationWriteConverter.INSTANCE);
         converters.add(DurationReadConverter.INSTANCE);
-        converters.add(JsonToQuarantineListConverter.INSTANCE);
-        converters.add(JsonToVolumeListConverter.INSTANCE);
-        converters.add(QuarantineListToJsonConverter.INSTANCE);
-        converters.add(VolumeListToJsonConverter.INSTANCE);
-        converters.add(JsonToHistoryListConverter.INSTANCE);
-        converters.add(HistoryListToJsonConverter.INSTANCE);
         return R2dbcCustomConversions.of(dialect, converters);
     }
 
@@ -144,93 +132,6 @@ public class DatabaseConfiguration {
         @Override
         public Duration convert(Long source) {
             return source != null ? Duration.ofMillis(source) : null;
-        }
-    }
-
-    @ReadingConverter
-    public enum JsonToQuarantineListConverter implements Converter<Json, List<Quarantine>> {
-        INSTANCE;
-
-        @Override
-        public List<Quarantine> convert(Json source) {
-            try {
-                return OBJECT_MAPPER.readValue(source.asString(), new TypeReference<List<Quarantine>>() {
-                });
-            } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Failed to convert Json to List<Quarantine>", e);
-            }
-        }
-    }
-
-    @WritingConverter
-    public enum QuarantineListToJsonConverter implements Converter<List<Quarantine>, Json> {
-        INSTANCE;
-
-        @Override
-        public Json convert(List<Quarantine> source) {
-            try {
-                return Json.of(OBJECT_MAPPER.writeValueAsString(source));
-            } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Failed to convert List<Quarantine> to Json", e);
-            }
-        }
-    }
-
-    @ReadingConverter
-    public enum JsonToVolumeListConverter implements Converter<Json, List<Volume>> {
-        INSTANCE;
-
-        @Override
-        public List<Volume> convert(Json source) {
-            try {
-                return OBJECT_MAPPER.readValue(source.asString(), new TypeReference<>() {
-                });
-            } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Failed to convert Json to List<Volume>", e);
-            }
-        }
-    }
-
-    @WritingConverter
-    public enum VolumeListToJsonConverter implements Converter<List<Volume>, Json> {
-        INSTANCE;
-
-        @Override
-        public Json convert(List<Volume> source) {
-            try {
-                return Json.of(OBJECT_MAPPER.writeValueAsString(source));
-            } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Failed to convert List<Volume> to Json", e);
-            }
-        }
-    }
-
-    @ReadingConverter
-    public enum JsonToHistoryListConverter implements Converter<Json, List<History>> {
-        INSTANCE;
-
-        @Override
-        public List<History> convert(Json source) {
-            try {
-                return OBJECT_MAPPER.readValue(source.asString(), new TypeReference<List<History>>() {
-                });
-            } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Failed to convert Json to List<History>", e);
-            }
-        }
-    }
-
-    @WritingConverter
-    public enum HistoryListToJsonConverter implements Converter<List<History>, Json> {
-        INSTANCE;
-
-        @Override
-        public Json convert(List<History> source) {
-            try {
-                return Json.of(OBJECT_MAPPER.writeValueAsString(source));
-            } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Failed to convert List<History> to Json", e);
-            }
         }
     }
 }

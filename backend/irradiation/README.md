@@ -1,7 +1,5 @@
-# Reactive Microservice POC 
+# Irradiation Service
 
-This project is a proof of concept for a reactive microservice using Spring Boot, PostgreSQL, and Kafka. It includes
-setup instructions for Rancher Desktop, Tilt, Kubectl, and Helm.
 
 ## Project Setup
 
@@ -40,14 +38,7 @@ the [official website](https://helm.sh/).
 
 ### Rsocket
 Download the rsocket client (rsc) from https://github.com/making/rsc/releases
-- getAvailableInventoryWithShortDatedProducts
-  run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"locationCode\":\"LOCATION_1\",\"availableInventoryCriteriaDTOS\": [{\"productFamily\":\"PLASMA_TRANSFUSABLE\", \"bloodType\":\"O\"}]}" --route getAvailableInventoryWithShortDatedProducts tcp://api.local.gd:7002
-- validateInventory
-  run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"unitNumber\":\"W012345678903\", \"productCode\":\"E0869V02\", \"locationCode\":\"LOCATION_2\"}" --route validateInventory tcp://api.local.gd:7002
-- getInventoryByUnitNumber
-  run the command: java -jar rsc-0.9.1.jar --debug --stream --data "W036825016017" --route getInventoryByUnitNumber tcp://api.local.gd:7002
-- getInventoryByUnitNumberAndProductCode
-  run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"unitNumber\":\"W036825016017\", \"productCode\":\"E1624V00\"}" --route getInventoryByUnitNumberAndProductCode tcp://api.local.gd:7002
+
 
 ## Running Tests
 
@@ -91,12 +82,12 @@ In the test suite, each unit number is structured as follows:
 Structure:
 <Donation FIN (5 characters)> + <Year (2 digits)> + <Feature File Identifier (3 digits)> + <Scenario Identifier (3 digits)>
 
-Example: W036825001001
+Example: W777725001001
 
 ## How to Assign Unit Numbers
 
 ### 1. Start with the Donation FIN and Year:
-Example: W036825.
+Example: W777725.
 
 Note: In the near future, we will change the donation FIN to use a new one specifically created for test automation purposes.
 
@@ -104,7 +95,7 @@ Note: In the near future, we will change the donation FIN to use a new one speci
 
 Each feature file has a unique 3-digit ID.
 
-Example for a random feature file: W036825001.
+Example for a random feature file: W777725001.
 
 ### 3. Add the Scenario ID:
 
@@ -112,33 +103,19 @@ Within the feature file, each scenario gets a unique 3-digit ID.
 
 Example:
 
-- First scenario: W036825001001
+- First scenario: W777725001001
 
-- Second scenario: W036825001002
+- Second scenario: W777725001002
 
-- Third scenario: W036825001003
+- Third scenario: W777725001003
 
 Document the Base Unit Number in the Feature File:
 Add a comment at the top of each feature file to indicate its base unit number format.
 Example:
 
-``` Feature Unit Number Reference: W036825001000 ```
+``` Feature Unit Number Reference: W777725001000 ```
 
 ## List of current Unit Number Reference per Feature file
-| **UN reference** | **Feature file**          |
-|------------------|---------------------------|
-| W036825001000    | CheckInCompleted.feature  |
-| W036825002000    | DiscardReceived.feature   |
-| W036825003000    | GetAllAvailable.feature   |
-| W036825004000    | InventoryOutbound.feature |
-| W036825005000    | KafkaListeners.feature    |  
-| W036825006000    | LabelApplied.feature      |
-| W036825007000    | ProductCompleted.feature  |
-| W036825008000    | ProductCreated.feature    |
-| W036825009000    | ProductRecovered.feature  |
-| W036825010000    | ProductUnsuitable.feature |
-| W036825011000    | RemoveQuarantine.feature  |
-| W036825012000    | ShipmentCompleted.feature |
-| W036825013000    | UnitUnsuitable.feature    |
-| W036825014000    | ValidateProduct.feature   |
-| W036825015000    | ***<== available***       |
+| **UN reference** | **Feature file** |
+|------------------|------------------|
+| W777725001000    | example.feature  |

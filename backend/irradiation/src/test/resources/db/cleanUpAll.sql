@@ -1,2 +1,2 @@
-DELETE FROM inventory.bld_inventory
-WHERE inventory.bld_inventory.unit_number like 'W7777%';
+-- DELETE FROM irradiation.bld_donation
+-- WHERE irradiation.bld_donation.unit_number like 'W7777%';
