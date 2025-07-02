@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -68,11 +69,27 @@ public class InventoryUtil {
 
         var expirePlus = Integer.parseInt(expireIn.split(" ")[0]);
         var expireType = expireIn.split(" ")[1];
-        if ("Hours".equals(expireType)) {
-            inventory.setExpirationDate(LocalDateTime.now().plusHours(expirePlus));
+        
+        LocalDateTime expirationDate;
+        if ("Y".equals(timezoneRelevant) && expirationTimezone != null) {
+            // For timezone-relevant products, calculate expiration in the specified timezone
+            ZonedDateTime zonedExpiration = ZonedDateTime.now(ZoneId.of(expirationTimezone));
+            if ("Hours".equals(expireType)) {
+                zonedExpiration = zonedExpiration.plusHours(expirePlus);
+            } else {
+                zonedExpiration = zonedExpiration.plusDays(expirePlus);
+            }
+            expirationDate = zonedExpiration.toLocalDateTime();
         } else {
-            inventory.setExpirationDate(LocalDateTime.now().plusDays(expirePlus));
+            // For non-timezone-relevant products, use local time
+            if ("Hours".equals(expireType)) {
+                expirationDate = LocalDateTime.now().plusHours(expirePlus);
+            } else {
+                expirationDate = LocalDateTime.now().plusDays(expirePlus);
+            }
         }
+        
+        inventory.setExpirationDate(expirationDate);
         inventory.setInventoryLocation(location);
         inventory.setCollectionLocation(location);
         inventory.setProductFamily(productFamily);

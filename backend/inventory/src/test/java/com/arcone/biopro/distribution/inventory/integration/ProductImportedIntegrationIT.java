@@ -11,7 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -43,7 +43,7 @@ public class ProductImportedIntegrationIT {
     @Value("${topic.products-imported.name}")
     private String productsImportedTopic;
 
-    @MockBean
+    @MockitoBean
     private ProductsImportedUseCase productsImportedUseCase;
 
     @BeforeEach
