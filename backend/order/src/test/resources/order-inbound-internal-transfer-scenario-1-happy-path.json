@@ -15,7 +15,7 @@
     "shippingMethod": "FEDEX",
     "productCategory": "FROZEN",
     "desiredShippingDate": null,
-    "shippingCustomerCode": "234567891",
+    "shippingCustomerCode": "DO1",
     "billingCustomerCode": null,
     "comments": "string",
     "transactionId": "f906f9bc-d570-4a04-85a8-02c4d28e1da7",
