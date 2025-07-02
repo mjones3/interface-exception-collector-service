@@ -48,14 +48,16 @@ public class OrderInboundSteps {
         Assert.assertEquals(status, partnerOrderResponse.getString("status"));
     }
 
-    @Given("I have a Partner Internal Transfer order with Location Code as {string}, Shipment Type as {string}, Ship To Location code as {string}, Label Status as {string} and Quarantine Products as {string}.")
-    public void iHaveAPartnerInternalTransferOrderWithLocationCodeAsShipmentTypeAsShipToLocationCodeAsLabelStatusAsAndQuarantineProductsAs(String locationCode, String shipmentType, String shipToLocation, String labelStatus, String quarantineProducts) throws Exception {
+    @Given("I have a Partner Internal Transfer order with Location Code as {string}, Shipment Type as {string}, Ship To Location code as {string}, Label Status as {string}, Quarantine Products as {string} and Billing Customer Code as {string}.")
+    public void iHaveAPartnerInternalTransferOrderWithLocationCodeAsShipmentTypeAsShipToLocationCodeAsLabelStatusAsAndQuarantineProductsAs(String locationCode, String shipmentType, String shipToLocation
+        , String labelStatus, String quarantineProducts , String billingCustomerCode) throws Exception {
         var jsonContent = testUtils.getResource("inbound-test-files/internal-transfer-order-inbound-scenario-0001.json");
         jsonContent = replaceValueInJson(jsonContent,"{LOCATION_CODE}",locationCode);
         jsonContent = replaceValueInJson(jsonContent,"{SHIPMENT_TYPE}",shipmentType);
         jsonContent = replaceValueInJson(jsonContent,"{SHIPPING_CUSTOMER_CODE}",shipToLocation);
         jsonContent = replaceValueInJson(jsonContent,"{LABEL_STATUS}",labelStatus);
         jsonContent = replaceValueInJson(jsonContent,"{QUARANTINED_PRODUCTS}",quarantineProducts);
+        jsonContent = replaceValueInJson(jsonContent,"{BILLING_CUSTOMER_CODE}",billingCustomerCode);
 
         partnerOrder = new JSONObject(jsonContent);
     }

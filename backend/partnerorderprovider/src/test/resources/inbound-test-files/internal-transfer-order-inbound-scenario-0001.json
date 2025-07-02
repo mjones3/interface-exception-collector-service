@@ -16,6 +16,7 @@
   "productCategory": "FROZEN",
   "desiredShippingDate": "2020-04-25",
   "shippingCustomerCode": "{SHIPPING_CUSTOMER_CODE}",
+  "billingCustomerCode": "{BILLING_CUSTOMER_CODE}",
   "comments": "string",
   "orderItems": [
     {
