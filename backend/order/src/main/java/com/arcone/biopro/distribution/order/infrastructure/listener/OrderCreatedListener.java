@@ -62,7 +62,7 @@ public class OrderCreatedListener {
             .orderNumber(event.getPayload().getOrderNumber().getOrderNumber())
             .willPickUp(event.getPayload().getWillCallPickup())
             .willPickUpPhoneNumber(event.getPayload().getPhoneNumber())
-            .locationCode(event.getPayload().getLocationCode())
+            .locationCode(event.getPayload().getLocationFrom().getCode())
             .externalId(event.getPayload().getOrderExternalId().getOrderExternalId())
             .transactionId(event.getPayload().getTransactionId())
             .priority(event.getPayload().getOrderPriority().getDeliveryType())

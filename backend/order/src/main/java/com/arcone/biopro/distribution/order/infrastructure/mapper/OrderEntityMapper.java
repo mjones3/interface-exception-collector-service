@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.infrastructure.mapper;
 
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
@@ -24,13 +25,14 @@ public class OrderEntityMapper {
     private final LookupService lookupService;
     private final OrderConfigService orderConfigService;
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private final LocationRepository locationRepository;
 
     public OrderEntity mapToEntity(final Order order) {
         return OrderEntity.builder()
             .id(order.getId())
             .orderNumber(order.getOrderNumber().getOrderNumber())
             .externalId(order.getOrderExternalId().getOrderExternalId())
-            .locationCode(order.getLocationCode())
+            .locationCode(order.getLocationFrom().getCode())
             .shipmentType(order.getShipmentType().getShipmentType())
             .shippingMethod(order.getShippingMethod().getShippingMethod())
             .shippingCustomerName( order.getShippingCustomer() != null ? order.getShippingCustomer().getName() : null)
@@ -90,7 +92,8 @@ public class OrderEntityMapper {
             orderEntity.getModificationDate(),
             orderEntity.getDeleteDate(),
             orderEntity.getQuarantinedProducts(),
-            orderEntity.getLabelStatus()
+            orderEntity.getLabelStatus(),
+            locationRepository
         );
 
         ofNullable(orderItemEntities)

@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.order.domain.event.OrderCreatedEvent;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderLocation;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
@@ -37,7 +38,12 @@ class OrderCreatedListenerTest {
 
     @Test
     public void shouldHandleOrderCreatedEvents(){
+
+        var orderLocation = Mockito.mock(OrderLocation.class);
+        Mockito.when(orderLocation.getCode()).thenReturn("LOCATION_CODE");
+
         var order = Mockito.mock(Order.class);
+        Mockito.when(order.getLocationFrom()).thenReturn(orderLocation);
         var uuid = java.util.UUID.randomUUID();
         Mockito.when(order.getOrderStatus()).thenReturn(Mockito.mock(OrderStatus.class));
         Mockito.when(order.getOrderNumber()).thenReturn(Mockito.mock(OrderNumber.class));

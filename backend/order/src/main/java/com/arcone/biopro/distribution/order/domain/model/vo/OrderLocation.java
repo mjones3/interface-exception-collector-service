@@ -1,54 +1,50 @@
 package com.arcone.biopro.distribution.order.domain.model.vo;
 
 import com.arcone.biopro.distribution.order.domain.model.Validatable;
-import com.arcone.biopro.distribution.order.domain.service.CustomerService;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.infrastructure.controller.error.DataNotFoundException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
+
 @Getter
 @EqualsAndHashCode
 @ToString
 @Slf4j
-public class OrderCustomer implements Validatable {
+public class OrderLocation implements Validatable {
 
     private String code;
     private String name;
-    private CustomerService customerService;
+    private LocationRepository locationRepository;
 
-    public OrderCustomer(String code, CustomerService customerService) {
+    public OrderLocation(String code,LocationRepository locationRepository) {
         this.code = code;
-        this.customerService = customerService;
-        this.checkValid();
-    }
-
-    public OrderCustomer(String code, String name ) {
-        this.code = code;
-        this.name = name;
+        this.locationRepository = locationRepository;
+        checkValid();
     }
 
     @Override
     public void checkValid() {
+
         if (this.code == null || this.code.isBlank()) {
             throw new IllegalArgumentException("code cannot be null or blank");
         }
 
         try{
-            var customer = customerService.getCustomerByCode(code).block();
-            if(customer == null) {
-                throw new IllegalArgumentException("Customer not found for code: " + this.code);
+            var location = locationRepository.findOneByCode(code).block();
+            if(location == null) {
+                throw new IllegalArgumentException("Location not found for code: " + this.code);
             }
-            this.name = customer.name();
+            this.name = location.getName();
         }catch (DataNotFoundException ex){
             log.error("Could not find customer with code {}", code, ex);
-            throw new IllegalArgumentException("Customer not found for code: " + this.code);
+            throw new IllegalArgumentException("Location not found for code: " + this.code);
         }
 
         if (this.name == null || this.name.isBlank()) {
             throw new IllegalArgumentException("name cannot be null or blank");
         }
     }
-
 }

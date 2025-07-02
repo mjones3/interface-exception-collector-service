@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.order.application.mapper;
 
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO;
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
@@ -24,6 +25,7 @@ public class OrderReceivedEventMapper {
     private final CustomerService customerService;
     private final LookupService lookupService;
     private final OrderConfigService orderConfigService;
+    private final LocationRepository locationRepository;
 
     public Mono<Order> mapToDomain(final OrderReceivedEventPayloadDTO orderReceivedEventPayloadDTO) {
         return Mono.fromCallable(() -> {
@@ -51,7 +53,8 @@ public class OrderReceivedEventMapper {
                 null,
                 null,
                 orderReceivedEventPayloadDTO.quarantinedProducts(),
-                orderReceivedEventPayloadDTO.labelStatus()
+                orderReceivedEventPayloadDTO.labelStatus(),
+                locationRepository
             );
             order.setTransactionId(orderReceivedEventPayloadDTO.transactionId());
 

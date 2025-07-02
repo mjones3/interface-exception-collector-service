@@ -4,9 +4,11 @@ import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderDTO;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderItemDTO;
 import com.arcone.biopro.distribution.order.application.mapper.OrderItemMapper;
 import com.arcone.biopro.distribution.order.application.mapper.OrderMapper;
+import com.arcone.biopro.distribution.order.domain.model.Location;
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
@@ -14,6 +16,7 @@ import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -45,6 +48,8 @@ class OrderMapperTest {
     LookupService lookupService;
     @MockBean
     OrderShipmentService orderShipmentService;
+    @MockBean
+    LocationRepository locationRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -55,6 +60,12 @@ class OrderMapperTest {
                     .name("name")
                     .build()
             ));
+
+        var locationMock = Mockito.mock(Location.class);
+        Mockito.when(locationMock.getCode()).thenReturn("LOCATION_CODE");
+        Mockito.when(locationMock.getName()).thenReturn("name");
+        given(locationRepository.findOneByCode(anyString()))
+            .willReturn(Mono.just(locationMock));
 
         Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("shipmentType","shipmentType"),"description",1,true)
                 , new Lookup(new LookupId("shippingMethod","shippingMethod"),"description",2,true)
@@ -99,7 +110,7 @@ class OrderMapperTest {
             ZonedDateTime.now(),
             ZonedDateTime.now(),
             false
-            ,"LABELED"
+            ,"LABELED",locationRepository
         );
         order.addItem(
                 1L,
@@ -120,7 +131,7 @@ class OrderMapperTest {
         assertEquals(order.getId(), result.id());
         assertEquals(order.getOrderNumber().getOrderNumber(), result.orderNumber());
         assertEquals(order.getOrderExternalId().getOrderExternalId(), result.externalId());
-        assertEquals(order.getLocationCode(), result.locationCode());
+        assertEquals(order.getLocationFrom().getCode(), result.locationCode());
         assertEquals(order.getShipmentType().getShipmentType(), result.shipmentType());
         assertEquals(order.getShippingMethod().getShippingMethod(), result.shippingMethod());
         assertEquals(order.getShippingCustomer().getCode(), result.shippingCustomerCode());
@@ -218,7 +229,7 @@ class OrderMapperTest {
         assertEquals(orderDTO.id(), result.getId());
         assertEquals(orderDTO.orderNumber(), result.getOrderNumber().getOrderNumber());
         assertEquals(orderDTO.externalId(), result.getOrderExternalId().getOrderExternalId());
-        assertEquals(orderDTO.locationCode(), result.getLocationCode());
+        assertEquals(orderDTO.locationCode(), result.getLocationFrom().getCode());
         assertEquals(orderDTO.shipmentType(), result.getShipmentType().getShipmentType());
         assertEquals(orderDTO.shippingMethod(), result.getShippingMethod().getShippingMethod());
         assertEquals(orderDTO.shippingCustomerCode(), result.getShippingCustomer().getCode());

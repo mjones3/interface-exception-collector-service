@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.order.domain.event.OrderCreatedEvent;
 import com.arcone.biopro.distribution.order.domain.exception.DomainException;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.*;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class CompleteOrderUseCase implements CompleteOrderService {
     private final LookupService lookupService;
     private final CustomerService customerService;
     private final OrderConfigService orderConfigService;
+    private final LocationRepository locationRepository;
 
     @Override
     @Transactional
@@ -77,7 +79,7 @@ public class CompleteOrderUseCase implements CompleteOrderService {
 
     private void createBackOrder(UseCaseResponseDTO<Order> useCaseResponseDTO,CompleteOrderCommand completeOrderCommand){
         if(Boolean.TRUE.equals(completeOrderCommand.getCreateBackOrder())){
-            var backOrder = useCaseResponseDTO.data().createBackOrder(completeOrderCommand.getEmployeeId(),customerService,lookupService,orderConfigService);
+            var backOrder = useCaseResponseDTO.data().createBackOrder(completeOrderCommand.getEmployeeId(),customerService,lookupService,orderConfigService,locationRepository);
             this.orderRepository.insert(backOrder)
                 .doOnSuccess(this::publishOrderCreatedEvent)
                 .subscribe();

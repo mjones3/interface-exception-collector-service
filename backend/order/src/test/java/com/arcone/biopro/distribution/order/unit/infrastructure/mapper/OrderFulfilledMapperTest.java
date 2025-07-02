@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderItemOrderId;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderLocation;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
@@ -70,7 +71,10 @@ class OrderFulfilledMapperTest {
         Mockito.when(orderMock.getShippingCustomer()).thenReturn(customer);
         Mockito.when(orderMock.getOrderStatus()).thenReturn(orderStatus);
         Mockito.when(orderMock.getOrderPriority()).thenReturn(deliveryType);
-        Mockito.when(orderMock.getLocationCode()).thenReturn("LOCATION_CODE");
+
+        var oderLocation = Mockito.mock(OrderLocation.class);
+        Mockito.when(oderLocation.getCode()).thenReturn("LOCATION_CODE");
+        Mockito.when(orderMock.getLocationFrom()).thenReturn(oderLocation);
         Mockito.when(orderMock.getDesiredShippingDate()).thenReturn(LocalDate.now());
         Mockito.when(orderMock.getShippingMethod()).thenReturn(shippingMethod);
         Mockito.when(orderMock.getProductCategory()).thenReturn(productCategory);
