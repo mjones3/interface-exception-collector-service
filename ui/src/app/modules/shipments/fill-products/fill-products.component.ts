@@ -23,8 +23,7 @@ import {
     NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
-    ProcessProductModel,
-    ToastrImplService,
+    ProcessProductModel
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
@@ -59,6 +58,7 @@ import {
 import { ShipmentService } from '../services/shipment.service';
 import { EnterUnitNumberProductCodeComponent } from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-fill-products',
@@ -105,7 +105,7 @@ export class FillProductsComponent implements OnInit {
 
     constructor(
         public header: ProcessHeaderService,
-        private toaster: ToastrImplService,
+        private toaster: ToastrService,
         protected fb: FormBuilder,
         private route: ActivatedRoute,
         private shipmentService: ShipmentService,
