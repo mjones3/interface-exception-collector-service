@@ -138,6 +138,15 @@ public class InventoryAggregate {
         return this;
     }
 
+    public InventoryAggregate productReceived(String inventoryLocation, Boolean hasQuarantine) {
+        transitionStatus(InventoryStatus.AVAILABLE, null);
+        if (hasQuarantine) {
+            addQuarantineFlag();
+        }
+        inventory.setInventoryLocation(inventoryLocation);
+        return this;
+    }
+
     public InventoryAggregate updateStorage(String deviceStored, String storageLocation) {
         inventory.setDeviceStored(deviceStored);
         inventory.setStorageLocation(storageLocation);

@@ -22,6 +22,7 @@ Feature: Shipment Completed Event - API
             | W777725012003 | E1624V00     | SHIPPED   |
             | W777725012004 | E1624V00     | AVAILABLE |
 
+    @LAB-289
     Scenario: Update the inventory status of multiple inventories after receiving a Shipment Completed event for internal transfer shipment type.
         Given I have the following inventories:
             | Unit Number   | Product Code | Status    |

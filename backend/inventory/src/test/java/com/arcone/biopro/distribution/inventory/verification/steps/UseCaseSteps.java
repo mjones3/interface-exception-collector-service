@@ -63,6 +63,8 @@ public class UseCaseSteps {
 
     private final ProductCompletedUseCase productCompletedUseCase;
 
+    private final ProductsReceivedUseCase productsReceivedUseCase;
+
     private final ProductModifiedUseCase productModifiedUseCase;
 
     private final ScenarioContext scenarioContext;
@@ -522,5 +524,26 @@ public class UseCaseSteps {
             locationCode,
             lines);
         shipmentCompletedUseCase.execute(input).block();
+    }
+
+    @When("I received a Product Completed event with location code {string} for the following units:")
+    public void iReceivedAProductCompletedEventWithStatusAsAndLocationCodeForTheFollowingUnits(String location, DataTable dataTable) {
+        List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
+        List<ProductReceivedInput> products = new ArrayList<>();
+        for (Map<String, String> inventory : inventories) {
+            String unitNumber = inventory.get("Unit Number");
+            String productCode = inventory.get("Product Code");
+            products.add(ProductReceivedInput.builder()
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .inventoryLocation(location)
+                .quarantines("")
+                .build());
+        }
+        ProductsReceivedInput input = ProductsReceivedInput.builder()
+            .locationCode(location)
+            .products(products)
+            .build();
+        productsReceivedUseCase.execute(input).block();
     }
 }
