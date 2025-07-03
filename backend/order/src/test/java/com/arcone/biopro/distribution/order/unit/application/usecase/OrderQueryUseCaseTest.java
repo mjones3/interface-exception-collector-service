@@ -41,7 +41,7 @@ class OrderQueryUseCaseTest {
     void shouldSearchIfMinimalValuesFound() {
         var locationCode = "99999999";
         var totalRecords = 50;
-        var command = new OrderQueryCommand(locationCode, null, null, null, null, null, null, null, null, null, null, null);
+        var command = new OrderQueryCommand(locationCode, null, null, null, null, null, null, null, null, null, null, null,null);
         var contents = createContents(command.getPageSize());
 
         given(orderRepository.search(eq(command)))
@@ -80,7 +80,7 @@ class OrderQueryUseCaseTest {
     @Test
     void shouldThrowExceptionWhenNoResultsFound() {
         var locationCode = "99999999";
-        var command = new OrderQueryCommand(locationCode, null, null, null, null, null, null, null, null, null, null, null);
+        var command = new OrderQueryCommand(locationCode, null, null, null, null, null, null, null, null, null, null, null,null);
 
         given(orderRepository.search(eq(command)))
             .willReturn(Mono.just(
@@ -117,7 +117,7 @@ class OrderQueryUseCaseTest {
             new OrderCustomerReport(randomAlphanumeric(16), randomAlphanumeric(16)),
             new OrderPriorityReport(randomAlphanumeric(16), randomAlphanumeric(16)),
             ZonedDateTime.now(),
-            LocalDate.now().plusDays(nextInt(0, 10))
+            LocalDate.now().plusDays(nextInt(0, 10)),"INTERNAL_TRANSFER"
         );
     }
 

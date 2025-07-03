@@ -199,6 +199,7 @@ input OrderQueryCommandDTO {
     createDateTo: Date
     desireShipDateFrom: Date
     desireShipDateTo: Date
+    shipmentType:String
     querySort: InputQuerySortDTO
     pageSize: Int
     pageNumber: Int

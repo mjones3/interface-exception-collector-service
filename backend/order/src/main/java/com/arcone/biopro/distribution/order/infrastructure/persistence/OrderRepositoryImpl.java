@@ -208,6 +208,10 @@ public class OrderRepositoryImpl implements OrderRepository, FilterAndSortReposi
             );
         }
 
+        if (Objects.nonNull(orderQueryCommand.getShipmentType()) && !orderQueryCommand.getShipmentType().isEmpty()) {
+            criteria = criteria.and(where("shipmentType").is(orderQueryCommand.getShipmentType()));
+        }
+
         var filter = this.filter(OrderEntity.class, entityTemplate, criteria, orderQueryCommand);
         var count = this.count(OrderEntity.class, entityTemplate, criteria);
         var colorMapByPriority = this.fetchOrderColorsMappedByPriority();

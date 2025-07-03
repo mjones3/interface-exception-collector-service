@@ -40,6 +40,7 @@ public class OrderQueryCommand implements Validatable, FilterAndSortCommand {
     private final QuerySort querySort;
     private final Integer pageNumber;
     private final Integer pageSize;
+    private final String shipmentType;
 
     public OrderQueryCommand(
         String locationCode,
@@ -53,7 +54,8 @@ public class OrderQueryCommand implements Validatable, FilterAndSortCommand {
         LocalDate desireShipDateTo,
         QuerySort querySort,
         Integer pageNumber,
-        Integer pageSize
+        Integer pageSize,
+        String shipmentType
     ) {
         this.locationCode = locationCode;
 
@@ -79,6 +81,7 @@ public class OrderQueryCommand implements Validatable, FilterAndSortCommand {
         this.querySort = ofNullable(querySort).orElseGet(() -> new QuerySort(DEFAULT_SORTING));
         this.pageNumber = ofNullable(pageNumber).orElse(DEFAULT_PAGE_NUMBER_FIRST_PAGE);
         this.pageSize = ofNullable(pageSize).orElse(DEFAULT_PAGE_SIZE);
+        this.shipmentType = shipmentType;
 
         checkValid();
     }

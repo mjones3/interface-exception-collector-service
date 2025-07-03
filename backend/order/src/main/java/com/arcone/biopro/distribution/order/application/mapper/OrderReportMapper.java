@@ -24,7 +24,8 @@ public class OrderReportMapper {
                 .priorityColor(orderReport.getOrderPriorityReport().getPriorityColor())
                 .build(),
             orderReport.getCreateDate(),
-            orderReport.getDesireShipDate()
+            orderReport.getDesireShipDate(),
+            orderReport.getShipmentType()
         );
     }
 
