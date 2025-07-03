@@ -16,6 +16,7 @@ type Query {
     searchOrders(orderQueryCommandDTO: OrderQueryCommandDTO!): PageDTO
     findOrderShipmentByOrderId(orderId:ID!):OrderShipmentDTO
     searchOrderCriteria: SearchOrderCriteriaDTO
+    findAllLocations:[LocationDTO]!
 }
 
 type Mutation {
@@ -301,3 +302,15 @@ type SearchOrderCriteriaDTO {
     customers:[OrderCustomerReportDTO]
 }
 
+type LocationDTO {
+    id:ID!
+    name:String!
+    code:String!
+    externalId:String
+    addressLine1:String
+    addressLine2:String
+    postalCode:String
+    city:String
+    state:String
+    properties:JSON
+}
