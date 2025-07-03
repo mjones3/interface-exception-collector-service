@@ -273,11 +273,28 @@ public class RepositorySteps {
             if(headers.contains("Expires In")) {
                 int expiresIn = Integer.parseInt(inventory.get("Expires In").split(" ")[0]);
                 String type = inventory.get("Expires In").split(" ")[1];
-                if (type.equals("Hours")) {
-                    inventoryEntity.setExpirationDate(LocalDateTime.now().plusDays(expiresIn));
+                String expirationTimezone = inventory.get("Expiration Timezone");
+                String timezoneRelevant = inventory.get("Timezone Relevant");
+                
+                LocalDateTime expirationDate;
+                if ("Y".equals(timezoneRelevant) && StringUtils.isNotBlank(expirationTimezone)) {
+                    // For timezone-relevant products, calculate expiration in the specified timezone
+                    java.time.ZonedDateTime zonedExpiration = java.time.ZonedDateTime.now(java.time.ZoneId.of(expirationTimezone));
+                    if (type.equals("Hours")) {
+                        zonedExpiration = zonedExpiration.plusHours(expiresIn);
+                    } else {
+                        zonedExpiration = zonedExpiration.plusDays(expiresIn);
+                    }
+                    expirationDate = zonedExpiration.toLocalDateTime();
                 } else {
-                    inventoryEntity.setExpirationDate(LocalDateTime.now().plusHours(expiresIn));
+                    // For non-timezone-relevant products, use local time
+                    if (type.equals("Hours")) {
+                        expirationDate = LocalDateTime.now().plusHours(expiresIn);
+                    } else {
+                        expirationDate = LocalDateTime.now().plusDays(expiresIn);
+                    }
                 }
+                inventoryEntity.setExpirationDate(expirationDate);
             }
 
 

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
@@ -35,10 +35,10 @@ class GetInventoryByUnitNumberSocketServerIT {
     @Autowired
     private RSocketRequester.Builder requesterBuilder;
 
-    @MockBean
+    @MockitoBean
     private GetInventoryByUnitNumberUseCase getByUnitNumberUseCase;
 
-    @MockBean
+    @MockitoBean
     private GetInventoryByUnitNumberAndProductCodeUseCase getByUnitNumberAndProductCodeUseCase;
 
     private RSocketRequester requester;
