@@ -30,7 +30,7 @@ public class PickListCommandMapper {
     }
 
     public GeneratePickListCommand mapToDomain(Order order){
-        return new GeneratePickListCommand(order.getLocationCode(),mapCriteriaList(order));
+        return new GeneratePickListCommand(order.getLocationFrom().getCode(),mapCriteriaList(order));
     }
 
     private List<GeneratePickListProductCriteria> mapCriteriaList(Order order) {

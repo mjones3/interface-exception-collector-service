@@ -22,7 +22,9 @@ public record ModifyOrderReceivedPayloadDTO(
     String willPickUpPhoneNumber,
     String comments,
     List<OrderItemEventDTO> orderItems,
-    UUID transactionId
+    UUID transactionId,
+    String shipToLocationCode,
+    Boolean quarantinedProducts
 
 ) implements Serializable {
 }

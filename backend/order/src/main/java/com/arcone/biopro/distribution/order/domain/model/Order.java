@@ -2,15 +2,18 @@ package com.arcone.biopro.distribution.order.domain.model;
 
 
 import com.arcone.biopro.distribution.order.domain.exception.DomainException;
+import com.arcone.biopro.distribution.order.domain.model.vo.LabelStatus;
 import com.arcone.biopro.distribution.order.domain.model.vo.ModifyByProcess;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderLocation;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory;
 import com.arcone.biopro.distribution.order.domain.model.vo.ShipmentType;
 import com.arcone.biopro.distribution.order.domain.model.vo.ShippingMethod;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
@@ -56,7 +59,8 @@ public class Order implements Validatable {
     private Long id;
     private OrderNumber orderNumber;
     private OrderExternalId orderExternalId;
-    private String locationCode;
+    private OrderLocation locationFrom;
+    private OrderLocation locationTo;
     private ShipmentType shipmentType;
     private ShippingMethod shippingMethod;
     private OrderCustomer shippingCustomer;
@@ -98,6 +102,7 @@ public class Order implements Validatable {
     private static final String ORDER_OPEN_STATUS = "OPEN";
     private static final String ORDER_CANCELLED_STATUS = "CANCELLED";
     private static final String MODIFY_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String INTERNAL_TRANSFER_TYPE = "INTERNAL_TRANSFER";
 
     @Setter
     private String cancelEmployeeId;
@@ -115,6 +120,9 @@ public class Order implements Validatable {
 
     @Setter
     private UUID transactionId;
+
+    private Boolean quarantinedProducts;
+    private LabelStatus labelStatus;
 
     public Order(
         CustomerService customerService,
@@ -137,16 +145,29 @@ public class Order implements Validatable {
         String createEmployeeId,
         String createDate,
         ZonedDateTime modificationDate,
-        ZonedDateTime deleteDate
+        ZonedDateTime deleteDate,
+        Boolean quarantinedProducts,
+        String labelStatus,
+        LocationRepository locationRepository
     ) {
         this.id = id;
         this.orderNumber = new OrderNumber(orderNumber);
         this.orderExternalId = new OrderExternalId(externalId);
-        this.locationCode = locationCode;
+        this.locationFrom = new OrderLocation(locationCode,locationRepository);
         this.shipmentType = new ShipmentType(shipmentType, lookupService);
         this.shippingMethod = new ShippingMethod(shippingMethod, lookupService);
-        this.shippingCustomer = new OrderCustomer(shippingCustomerCode, customerService);
-        this.billingCustomer = new OrderCustomer(billingCustomerCode, customerService);
+
+        if(INTERNAL_TRANSFER_TYPE.equals(this.shipmentType.getShipmentType())){
+            this.locationTo = new OrderLocation(shippingCustomerCode,locationRepository);
+            this.shippingCustomer = new OrderCustomer(this.locationTo.getCode(),this.locationTo.getName());
+        }else{
+            this.shippingCustomer = new OrderCustomer(shippingCustomerCode, customerService);
+        }
+
+        if(billingCustomerCode != null){
+            this.billingCustomer = new OrderCustomer(billingCustomerCode, customerService);
+        }
+
         this.desiredShippingDate = checkDateIsValid(desiredShippingDate);
         this.willCallPickup = willCallPickup;
         this.phoneNumber = phoneNumber;
@@ -162,7 +183,10 @@ public class Order implements Validatable {
         this.modificationDate = modificationDate;
         this.deleteDate = deleteDate;
         this.backOrder = false;
-
+        this.quarantinedProducts = quarantinedProducts;
+        if(labelStatus != null){
+            this.labelStatus = LabelStatus.getInstance(labelStatus);
+        }
         this.checkValid();
     }
 
@@ -171,8 +195,8 @@ public class Order implements Validatable {
         if (this.orderNumber == null) {
             throw new IllegalArgumentException("orderNumber cannot be null");
         }
-        if (this.locationCode == null || this.locationCode.isBlank()) {
-            throw new IllegalArgumentException("locationCode cannot be null or blank");
+        if (this.locationFrom == null) {
+            throw new IllegalArgumentException("Location from cannot be null");
         }
         if (this.shipmentType == null) {
             throw new IllegalArgumentException("shipmentType cannot be null");
@@ -180,12 +204,7 @@ public class Order implements Validatable {
         if (this.shippingMethod == null) {
             throw new IllegalArgumentException("shippingMethod cannot be null");
         }
-        if (this.shippingCustomer == null) {
-            throw new IllegalArgumentException("shippingCustomer could not be found or it is null");
-        }
-        if (this.billingCustomer == null) {
-            throw new IllegalArgumentException("billingCustomer could not be found or it is null");
-        }
+
         if (this.desiredShippingDate != null && this.id == null) {
             this.checkDateIsInPast(this.desiredShippingDate);
         }
@@ -201,6 +220,13 @@ public class Order implements Validatable {
 
         if (this.createDate != null && this.id == null) {
             this.checkDateTimeIsInPast(this.createDate,"Create Date");
+        }
+
+        if (this.shippingCustomer == null) {
+            throw new IllegalArgumentException("shippingCustomer could not be found or it is null");
+        }
+        if(INTERNAL_TRANSFER_TYPE.equals(shipmentType.getShipmentType()) && this.labelStatus == null){
+            throw new IllegalArgumentException("Label Status cannot be null for Internal Transfer");
         }
     }
 
@@ -331,7 +357,7 @@ public class Order implements Validatable {
         order.setTransactionId(cancelOrderCommand.getTransactionId());
     }
 
-    public Order createBackOrder(String createEmployeeId,CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){
+    public Order createBackOrder(String createEmployeeId,CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService , LocationRepository locationRepository){
 
         if(!canCreateBackOrders(orderConfigService)){
             throw new IllegalArgumentException("Back Order cannot be created, configuration is not active");
@@ -346,11 +372,11 @@ public class Order implements Validatable {
             null,
             null,
             this.getOrderExternalId().getOrderExternalId(),
-            this.getLocationCode(),
+            this.locationFrom.getCode(),
             this.getShipmentType().getShipmentType(),
             this.getShippingMethod().getShippingMethod(),
-            this.getShippingCustomer().getCode(),
-            this.getBillingCustomer().getCode(),
+            this.getShippingCustomer() != null ? this.getShippingCustomer().getCode() : null,
+            this.getBillingCustomer() != null ? this.getBillingCustomer().getCode() : null,
             desireShipDate,
             this.getWillCallPickup() == null ? FALSE : this.getWillCallPickup(),
             this.getPhoneNumber(),
@@ -361,7 +387,11 @@ public class Order implements Validatable {
            createEmployeeId,
             null,
             null,
-            null);
+            null,
+            this.getQuarantinedProducts(),
+            this.getLabelStatus().value(),
+            locationRepository
+        );
 
         backOrder.setBackOrder(TRUE);
 
@@ -379,7 +409,7 @@ public class Order implements Validatable {
 
     }
 
-    public Order modify(ModifyOrderCommand modifyOrderCommand,List<Order> orderList, CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){
+    public Order modify(ModifyOrderCommand modifyOrderCommand,List<Order> orderList, CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService , LocationRepository locationRepository){
 
         if (modifyOrderCommand.getModifyReason() == null || modifyOrderCommand.getModifyReason().isEmpty()) {
             throw new IllegalArgumentException("Modify Reason cannot be null or empty");
@@ -424,10 +454,12 @@ public class Order implements Validatable {
 
         var updatedOrder = new Order(customerService,lookupService,orderToBeUpdated.getId(), orderToBeUpdated.getOrderNumber().getOrderNumber(), orderToBeUpdated.getOrderExternalId().getOrderExternalId()
             , modifyOrderCommand.getLocationCode() , orderToBeUpdated.getShipmentType().getShipmentType() , modifyOrderCommand.getShippingMethod()
-            , orderToBeUpdated.getShippingCustomer().getCode() , orderToBeUpdated.getBillingCustomer().getCode() , modifyOrderCommand.getDesiredShippingDate()
+            ,  orderToBeUpdated.getShippingCustomer() != null ? orderToBeUpdated.getShippingCustomer().getCode() : null
+            , orderToBeUpdated.getBillingCustomer() !=null ? orderToBeUpdated.getBillingCustomer().getCode() : null
+            , modifyOrderCommand.getDesiredShippingDate()
             , modifyOrderCommand.isWillPickUp() , modifyOrderCommand.getWillPickUpPhoneNumber() , modifyOrderCommand.getProductCategory() , modifyOrderCommand.getComments()
             , orderToBeUpdated.getOrderStatus().getOrderStatus() , modifyOrderCommand.getDeliveryType(),  orderToBeUpdated.getCreateEmployeeId()
-            , createDateFormat , ZonedDateTime.now(), null
+            , createDateFormat , ZonedDateTime.now(),null, modifyOrderCommand.getQuarantinedProducts(), modifyOrderCommand.getLabelStatus(), locationRepository
 
         );
 

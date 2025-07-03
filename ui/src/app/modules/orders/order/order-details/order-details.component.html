@@ -63,11 +63,15 @@
                     modifyEmployeeId: orderDetails?.modifyEmployeeId,
                     modifyDate: orderDetails?.modificationDate,
                     modifyReason: orderDetails?.modifyReason,
+                    shipmentType:orderDetails?.shipmentType,
                     displayModificationDetails:
                         orderDetails?.displayModificationDetails,
+                    labelStatus:orderDetails?.labelStatus,
+                    quarantinedProducts:orderDetails?.quarantinedProducts,
                 }"
                 [comments]="orderDetails?.comments"
                 [shippingInput]="{
+                    shipmentType:orderDetails?.shipmentType,
                     customerCode: orderDetails?.shippingCustomerCode,
                     customerName: orderDetails?.shippingCustomerName,
                     method: orderDetails?.shippingMethod,
@@ -261,7 +265,7 @@
                                         {{ product?.quantity }}
                                     </td>
                                     <td>
-                                        @if (
+                                        @if (orderDetails?.shipmentType === "INTERNAL_TRANSFER" ||
                                             inventoryServiceIsDownNotification;
                                             as notification
                                         ) {

@@ -20,7 +20,7 @@ public class OrderReportEntityMapper {
             orderEntity.getOrderNumber(),
             orderEntity.getExternalId(),
             orderEntity.getStatus(),
-            new OrderCustomerReport(orderEntity.getShippingCustomerCode(), orderEntity.getShippingCustomerName()),
+            orderEntity.getShippingCustomerCode() != null ? new OrderCustomerReport(orderEntity.getShippingCustomerCode(), orderEntity.getShippingCustomerName()) : null,
             new OrderPriorityReport(orderEntity.getDeliveryType(), colorPriority),
             orderEntity.getCreateDate(),
             orderEntity.getDesiredShippingDate()

@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.order.application.usecase.CompleteOrderUse
 import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
@@ -32,6 +33,7 @@ class CompleteOrderUseCaseTest {
     private CustomerService customerService;
     private OrderConfigService orderConfigService;
     private CompleteOrderUseCase useCase;
+    private LocationRepository locationRepository;
 
     @BeforeEach
     public void setup() {
@@ -40,7 +42,7 @@ class CompleteOrderUseCaseTest {
         customerService = Mockito.mock(CustomerService.class);
         lookupService = Mockito.mock(LookupService.class);
         orderConfigService = Mockito.mock(OrderConfigService.class);
-        useCase = new CompleteOrderUseCase(orderRepository, applicationEventPublisher ,orderShipmentService,lookupService,customerService,orderConfigService);
+        useCase = new CompleteOrderUseCase(orderRepository, applicationEventPublisher ,orderShipmentService,lookupService,customerService,orderConfigService,locationRepository);
     }
 
     @Test

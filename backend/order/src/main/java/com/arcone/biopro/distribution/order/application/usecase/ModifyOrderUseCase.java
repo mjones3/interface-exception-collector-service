@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.order.application.mapper.ModifyOrderReceiv
 import com.arcone.biopro.distribution.order.domain.event.OrderModifiedEvent;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.vo.ModifyByProcess;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
@@ -29,6 +30,7 @@ public class ModifyOrderUseCase extends AbstractProcessOrderUseCase implements M
     private final LookupService lookupService;
     private final OrderConfigService orderConfigService;
     private final static String USE_CASE_OPERATION = "MODIFY_ORDER";
+    private final LocationRepository locationRepository;
 
 
     @Override
@@ -38,7 +40,7 @@ public class ModifyOrderUseCase extends AbstractProcessOrderUseCase implements M
             .collectList()
             .flatMap(orderList -> {
                 var orderModified = orderList.getFirst().modify(modifyOrderReceivedEventMapper.mapToCommand(modifyOrderReceivedDTO.payload(), ModifyByProcess.INTERFACE),orderList
-                    , customerService , lookupService , orderConfigService);
+                    , customerService , lookupService , orderConfigService,locationRepository);
                 return this.orderRepository.reset(orderModified)
                     .doOnSuccess(this::publishOrderProcessedEvent);
             })

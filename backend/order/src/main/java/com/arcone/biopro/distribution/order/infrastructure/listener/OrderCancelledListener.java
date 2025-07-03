@@ -63,7 +63,7 @@ public class OrderCancelledListener {
             .orderNumber(order.getOrderNumber().getOrderNumber())
             .willPickUp(order.getWillCallPickup() == null ? Boolean.FALSE : Boolean.TRUE)
             .willPickUpPhoneNumber(order.getPhoneNumber())
-            .locationCode(order.getLocationCode())
+            .locationCode(order.getLocationFrom().getCode())
             .externalId(order.getOrderExternalId().getOrderExternalId())
             .priority(order.getOrderPriority().getDeliveryType())
             .shipmentType(order.getShipmentType().getShipmentType())

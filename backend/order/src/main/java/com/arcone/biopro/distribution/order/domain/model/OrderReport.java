@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.order.domain.model;
 
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomerReport;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriorityReport;
+import com.arcone.biopro.distribution.order.domain.model.vo.ShipmentType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -33,7 +34,6 @@ public class OrderReport implements Validatable {
         this.orderPriorityReport = orderPriorityReport;
         this.createDate = createDate;
         this.desireShipDate = desireShipDate;
-
         checkValid();
     }
 
@@ -42,7 +42,6 @@ public class OrderReport implements Validatable {
         Assert.notNull(orderId, "orderId must not be null");
         Assert.notNull(orderNumber, "orderNumber must not be null");
         Assert.notNull(externalId, "externalId must not be null");
-        Assert.notNull(orderCustomerReport, "orderCustomerReport must not be null");
         Assert.notNull(orderPriorityReport, "orderPriorityReport must not be null");
         Assert.notNull(createDate, "createDate must not be null");
         Assert.notNull(orderStatus, "orderStatus must not be null");
