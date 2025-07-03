@@ -14,7 +14,7 @@ export interface CheckDigitResponseDTO {
 export interface ValidationDataDTO {
     unitNumber: string;
     productCode: string;
-    productName: string;
+    productDescription: string;
     productFamily?: string;
     icon?: string;
     consequence?: ConsequenceDTO;
@@ -48,7 +48,7 @@ export interface CentrifugationProcessDTO {
 export interface IrradiationProductDTO {
     unitNumber: string;
     productCode: string;
-    productName: string;
+    productDescription: string;
     productFamily: string;
     status: string;
     icon?: string;

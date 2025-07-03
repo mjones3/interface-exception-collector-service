@@ -20,14 +20,12 @@ import {
     ScanUnitNumberCheckDigitComponent
 } from "@shared";
 import {InputComponent} from "../../../../shared/components/input/input.component";
-import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {
     IrradiationProductDTO,
-    MessageType, ProductDataDTO,
-    UnitNumberResponseDTO,
-    ValidateUnitEvent, ValidationDataDTO
+    MessageType, ValidateUnitEvent, ValidationDataDTO
 } from "../../models/model";
 import {ProductIconsService} from "../../../../shared/services/product-icon.service";
 import {FuseConfirmationService} from "../../../../../@fuse/services/confirmation";
@@ -100,7 +98,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         });
 
         this.form = this.formBuilder.group({
-            irradiationId: [null, []],
+            irradiationId: [null, [Validators.required]],
+            lotNumber: [null, [Validators.required]]
         });
     }
     ngOnInit() {
@@ -110,18 +109,22 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        setTimeout(() => this.unitNumberComponent.form.disable());
+        setTimeout(() => this.unitNumberComponent.form.enable());
     }
 
     get irradiation() {
         return this.form.get('irradiationId');
     }
 
+    get lotNumber() {
+        return this.form.get('lotNumber');
+    }
+
     openCancelConfirmationDialog(): void {
         const dialogRef = this.confirmationService.open({
             title: 'Confirmation',
             message:
-                'Products added will be removed from the list without finishing the Centrifugation process. Are you sure you want to continue?',
+                'Products added will be removed from the list without finishing the Irradiation process. Are you sure you want to continue?',
             dismissible: false,
             icon: {
                 name: 'heroicons_outline:question-mark-circle',
@@ -159,11 +162,12 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     isSubmitEnabled(): boolean {
-        return this.numberOfUnits > 0;
+        return this.form.valid && this.numberOfUnits > 0;
     }
 
     get disableCancelButton() {
-        return !this.deviceId;
+        //return !this.deviceId;
+        return false;
     }
 
     submit() {
@@ -181,7 +185,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                 } else {
                     this.showMessage(
                         MessageType.SUCCESS,
-                        'Centrifugation complete.'
+                        'Irradiation started.'
                     );
                     this.redirect();
                 }
@@ -190,37 +194,62 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
     validateUnit(event: ValidateUnitEvent) {
        console.log('validateUnit', event);
-        this.matDialog.open(IrradiationSelectProductModal, {
-            data: {
-                acknowledgeDetailDTO: {}
-            }
-        });
-    }
 
-
-
-    private populateCentrifugationBatch(productData: UnitNumberResponseDTO) {
-        const product =
-            productData.enterUnitNumberForCentrifugation as ProductDataDTO;
-        const centrifugationProducts: IrradiationProductDTO[] = [
+        const irradiationProducts: IrradiationProductDTO[] = [
             {
-                unitNumber: product.unitNumber,
-                productCode: product.productCode,
-                productName: product.productName,
-                status: product.status,
-                productFamily: product.productFamily,
-                icon: this.findIconsByProductFamily(product.productFamily),
+                unitNumber: "W036825314134",
+                productCode: 'E468900',
+                productDescription: 'WHOLE BLOOD|CPD/500mL/refg|ResLeu:<5E6',
+                status: 'AVAILABLE',
+                productFamily: 'WHOLE_BLOOD',
+                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
                 statuses: [
                     {
-                        value: product.status,
-                        classes: this.statusToColorClass(product.status),
+                        value: 'AVAILABLE',
+                        classes: this.statusToColorClass('AVAILABLE'),
+                    },
+                ],
+            },
+            {
+                unitNumber: "W036825314134",
+                productCode: 'E468800',
+                productDescription: 'FRESH FROZEN PLASMA|CPD/XX/<=-18C',
+                status: 'QUARANTINED',
+                productFamily: 'WHOLE_BLOOD',
+                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
+                order: 1,
+                statuses: [
+                    {
+                        value: 'QUARANTINED',
+                        classes: this.statusToColorClass('QUARANTINED'),
                     },
                 ],
             },
         ];
 
-        const notAddedProducts = centrifugationProducts.filter((p) =>
+        const defaults = {
+            height: 'auto',
+            data: {
+                options: irradiationProducts,
+                optionsLabel: 'productDescription'
+            }
+        };
+
+        this.matDialog.open(IrradiationSelectProductModal, {
+            ...defaults
+        }).afterClosed()
+            .subscribe((selectedOption) => {
+                if (selectedOption) {
+                    this.populateCentrifugationBatch(selectedOption);
+                }
+        });
+
+    }
+
+    private populateCentrifugationBatch(irradiationProductDTO: IrradiationProductDTO) {
+        const irradiationProducts: IrradiationProductDTO[] = [irradiationProductDTO];
+        const notAddedProducts = irradiationProducts.filter((p) =>
             this.notInProductList(p)
         );
 
@@ -232,7 +261,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
             return;
         }
 
-        centrifugationProducts.forEach((product) => {
+        irradiationProducts.forEach((product) => {
             this.addProductToList(product);
         });
     }
@@ -302,7 +331,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         const dialogRef = this.confirmationService.open({
             title: 'Confirmation',
             message:
-                'All changes will be removed without finishing the centrifugation process. Are you sure you want to continue?',
+                'All changes will be removed without finishing the irradiation process. Are you sure you want to continue?',
             dismissible: false,
             icon: {
                 name: 'heroicons_outline:question-mark-circle',
@@ -360,7 +389,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     redirect() {
-        this.router.navigateByUrl('whole-blood/centrifugation');
+        this.router.navigateByUrl('irradiation');
     }
 
     private showMessage(messageType: MessageType, message: string) {

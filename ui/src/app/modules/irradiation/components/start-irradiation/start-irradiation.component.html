@@ -38,6 +38,7 @@
                     label="Irradiation Id"
                     [inputFocus]="true"
                     [inputId]="'irradiationIdInput'"
+                    formControlName="irradiationId"
                     (tabOrEnterPressed)="
                         irradiation.valid && loadIrradiationId($event)
                     "
@@ -48,8 +49,8 @@
                     [inputWidth]="'w-90'"
                     id="lotNumber"
                     label="Lot Number"
-                    [inputFocus]="true"
-                    [inputId]="'irradiationIdInput'"
+                    [inputId]="'lotNumberInput'"
+                    formControlName="lotNumber"
                     required
                     [customErrors]="{ required: 'Lot number is required.' }"
                 ></biopro-input>
@@ -57,7 +58,7 @@
                     <biopro-scan-unit-number-check-digit
                         #unitnumber
                         (validate)="validateUnit($event)"
-                        [showCheckDigit]="showCheckDigit"
+                        [showCheckDigit]="true"
                     >
                     </biopro-scan-unit-number-check-digit>
                 </div>
@@ -126,9 +127,11 @@
                                 }"
                                 [id]="'unit-' + $index"
                                 [unitNumber]="option.unitNumber"
-                                [productName]="option.productName"
+                                [productName]="option.productDescription"
+                                [statuses]="option.statuses"
                                 [active]="selectedProducts.includes(option)"
                                 [iconName]="option.icon"
+                                (clickEvent)="toggleProduct(option)"
                             ></biopro-unit-number-card>
                         }
                     }

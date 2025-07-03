@@ -1,6 +1,6 @@
 import {
     Component,
-    inject
+    inject, OnInit
 } from '@angular/core';
 import {
     MAT_DIALOG_DATA, MatDialogModule,
@@ -11,7 +11,7 @@ import {ActionButtonComponent} from "../../../../../shared/components/buttons/ac
 import {OptionsPickerComponent} from "../../../../../shared/components/options-picker/options-picker.component";
 
 @Component({
-    selector: 'biopro-mark-as-unlicensed-select-product',
+    selector: 'biopro-irradiation-select-product',
     templateUrl: './select-product-modal.component.html',
     standalone: true,
     imports: [
