@@ -72,6 +72,7 @@ public class OrderDetailsPage extends CommonPageFactory {
     private static final By completeOrderSubmitBtn = By.id("completeOrderSubmitBtn");
     private static final By createBackOrderTrueBtn = By.id("createBackOrderTrue-button");
     private static final By createBackOrderFalseBtn = By.id("createBackOrderFalse-button");
+    private static final By billInformation = By.id("billInfoDescriptions");
 
 
     //Dynamic locators
@@ -173,6 +174,11 @@ public class OrderDetailsPage extends CommonPageFactory {
     public void verifyBillingInformationCard(String billingCustomerCode, String customerName) {
         sharedActions.waitForVisible(By.xpath(billInformationDetail(billingCustomerCode)));
         sharedActions.waitForVisible(By.xpath(billInformationDetail(customerName.toUpperCase())));
+    }
+
+    public void verifyBillingInformationCardIsNotPresent() {
+        sharedActions.waitForNotVisible(billInformation);
+
     }
 
     public void verifyProductDetailsSection(String productFamily, String bloodType, Integer quantity, String comments) {
@@ -360,5 +366,9 @@ public class OrderDetailsPage extends CommonPageFactory {
         } else {
             sharedActions.click(createBackOrderFalseBtn);
         }
+    }
+
+    public void verifyShipmentType(String shipmentType) {
+        sharedActions.waitForVisible(By.xpath(shippingInformationDetail(shipmentType)));
     }
 }

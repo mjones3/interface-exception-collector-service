@@ -67,7 +67,8 @@ public class OrderSteps {
     private String[] quantityList;
     private String[] commentsList;
     private String shipToLocatioCode;
-    private Boolean quarantinedProducts;
+    private String quarantinedProducts;
+    private String labelStatus;
 
     private JSONObject partnerOrder;
 
@@ -291,8 +292,8 @@ public class OrderSteps {
         }
     }
 
-    @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string}, Status {string}, shipment type {string}, delivery type {string}, shipping method {string}, product category {string}, desired ship date {string}, shipping customer code and name as {string} and {string}, billing customer code and name as {string} and {string}, and comments {string}, and Ship To Location code as {string} and Quarantined Products as {string}.")
-    public void createBioproOrderWithDetails(String externalId, String locationCode, String priority, String status, String shipmentType, String deliveryType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments , String shipToLocationCode, String quarantinedProducts) {
+    @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string}, Status {string}, shipment type {string}, delivery type {string}, shipping method {string}, product category {string}, desired ship date {string}, shipping customer code and name as {string} and {string}, billing customer code and name as {string} and {string}, and comments {string}, and Quarantined Products as {string}, and Label Status as {string}.")
+    public void createBioproOrderWithDetails(String externalId, String locationCode, String priority, String status, String shipmentType, String deliveryType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments, String quarantinedProducts, String labelStatus) {
         context.setExternalId(externalId);
         context.setLocationCode(locationCode);
         this.priority = priority;
@@ -303,14 +304,18 @@ public class OrderSteps {
         this.shippingMethod = shippingMethod;
         this.billCustomerCode = billingCustomerCode;
         this.billCustomerName = billingCustomerName;
-        this.shipToLocatioCode = shipToLocationCode;
         if("<null>".equals(quarantinedProducts)){
             this.quarantinedProducts = null;
         }else{
-            this.quarantinedProducts = Boolean.parseBoolean(quarantinedProducts);
+            this.quarantinedProducts = quarantinedProducts;
+        }
+        if("<null>".equalsIgnoreCase(labelStatus)){
+            this.labelStatus = "LABELED";
+        }else{
+            this.labelStatus = labelStatus;
         }
 
-        var query = DatabaseQueries.insertBioProOrderWithDetails(context.getExternalId(), locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments, shipToLocationCode, this.quarantinedProducts);
+        var query = DatabaseQueries.insertBioProOrderWithDetails(context.getExternalId(), locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments, this.quarantinedProducts, this.labelStatus);
         databaseService.executeSql(query).block();
 
         context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString()));
@@ -412,9 +417,13 @@ public class OrderSteps {
         orderDetailsPage.verifyShippingInformationCard(this.shippingCustomerCode, this.shippingCustomerName, this.shippingMethod);
     }
 
-    @And("I can see the billing information card filled with the billing information.")
-    public void checkBillingInformationCard() {
-        orderDetailsPage.verifyBillingInformationCard(this.billCustomerCode, this.billCustomerName);
+    @And("I {string} see the billing information card filled with the billing information.")
+    public void checkBillingInformationCard(String canCannot) {
+        if (canCannot.equalsIgnoreCase("can")) {
+            orderDetailsPage.verifyBillingInformationCard(this.billCustomerCode, this.billCustomerName);
+        } else {
+            orderDetailsPage.verifyBillingInformationCardIsNotPresent();
+        }
     }
 
     @And("I can see the Product Details section filled with the product details.")
@@ -1326,5 +1335,10 @@ public class OrderSteps {
         if (option.equalsIgnoreCase("should")){
             Assert.assertEquals(context.getOrderDetails().get("desiredShippingDate").toString(), originalOrder.get("desireShipDate").toString().replace("\"", ""));
         }
+    }
+
+    @And("I can see the Shipment Type as {string}.")
+    public void iCanSeeTheShipmentTypeAs(String shipmentType) {
+        orderDetailsPage.verifyShipmentType(shipmentType);
     }
 }
