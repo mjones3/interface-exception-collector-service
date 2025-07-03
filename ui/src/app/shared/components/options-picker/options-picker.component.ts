@@ -21,8 +21,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { FuseCardComponent } from '@fuse/components/card';
 import { OptionPicker, OptionStatus } from 'app/shared/models';
-import { Orientation } from 'app/shared/types';
 import { BaseControlValueAccessor } from '../../forms/base-control-value-accessor';
+import {Orientation} from "../../types/orientation.enum";
 
 @Component({
     selector: 'biopro-options-picker',
