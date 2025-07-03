@@ -185,7 +185,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                 } else {
                     this.showMessage(
                         MessageType.SUCCESS,
-                        'Irradiation started.'
+                        'Start irradiation successfully completed'
                     );
                     this.redirect();
                 }
