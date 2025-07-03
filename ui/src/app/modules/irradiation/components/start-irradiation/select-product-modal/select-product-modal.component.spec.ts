@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { createTestContext } from '@testing';
-import { MarkAsUnlicensedSelectProductModal } from './select-product-modal.component';
+import { IrradiationSelectProductModal } from './select-product-modal.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('MarkAsUnlicensedSelectProductModal', () => {
-    let component: MarkAsUnlicensedSelectProductModal;
-    let fixture: ComponentFixture<MarkAsUnlicensedSelectProductModal>;
-    let dialog: jest.Mocked<MatDialogRef<MarkAsUnlicensedSelectProductModal>>;
+    let component: IrradiationSelectProductModal;
+    let fixture: ComponentFixture<IrradiationSelectProductModal>;
+    let dialog: jest.Mocked<MatDialogRef<IrradiationSelectProductModal>>;
 
     beforeEach(async () => {
         dialog = { close: jest.fn() } as any;
 
         await TestBed.configureTestingModule({
             imports: [
-                MarkAsUnlicensedSelectProductModal,
+                IrradiationSelectProductModal,
                 MatIconTestingModule
             ],
             providers: [
@@ -30,8 +30,8 @@ describe('MarkAsUnlicensedSelectProductModal', () => {
         }).compileComponents();
 
         const testContext =
-            createTestContext<MarkAsUnlicensedSelectProductModal>(
-                MarkAsUnlicensedSelectProductModal
+            createTestContext<IrradiationSelectProductModal>(
+                IrradiationSelectProductModal
             );
         fixture = testContext.fixture;
         component = testContext.component;

@@ -33,6 +33,8 @@ import {ProductIconsService} from "../../../../shared/services/product-icon.serv
 import {FuseConfirmationService} from "../../../../../@fuse/services/confirmation";
 import {IrradiationService} from "../../services/irradiation.service";
 import {NgStyle} from "@angular/common";
+import {MatDialog} from "@angular/material/dialog";
+import {IrradiationSelectProductModal} from "./select-product-modal/select-product-modal.component";
 
 const AVAILABLE = 'AVAILABLE';
 const DISCARDED = 'DISCARDED';
@@ -90,7 +92,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         private readonly confirmationService: FuseConfirmationService,
         private readonly toaster: ToastrService,
         private readonly facilityService: FacilityService,
-        private readonly activatedRoute: ActivatedRoute
+        private readonly activatedRoute: ActivatedRoute,
+        private readonly matDialog: MatDialog
     ) {
         effect(() => {
             this.processHeaderService.setActions(this.buttons);
@@ -187,6 +190,11 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
     validateUnit(event: ValidateUnitEvent) {
        console.log('validateUnit', event);
+        this.matDialog.open(IrradiationSelectProductModal, {
+            data: {
+                acknowledgeDetailDTO: {}
+            }
+        });
     }
 
 

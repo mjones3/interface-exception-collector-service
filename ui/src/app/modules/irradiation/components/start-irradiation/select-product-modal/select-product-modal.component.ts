@@ -17,11 +17,12 @@ import {OptionsPickerComponent} from "../../../../../shared/components/options-p
     imports: [
         ActionButtonComponent,
         OptionsPickerComponent,
-        MatDialogModule
+        MatDialogModule,
+        OptionsPickerComponent
     ]
 })
-export class MarkAsUnlicensedSelectProductModal {
-    private dialogRef = inject(MatDialogRef<MarkAsUnlicensedSelectProductModal>);
+export class IrradiationSelectProductModal {
+    private dialogRef = inject(MatDialogRef<IrradiationSelectProductModal>);
     protected readonly data = inject(MAT_DIALOG_DATA) as {
         dialogTitle: string,
         options: [],
