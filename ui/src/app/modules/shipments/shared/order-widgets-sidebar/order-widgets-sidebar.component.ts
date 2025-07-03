@@ -122,7 +122,7 @@ export class OrderWidgetsSidebarComponent {
                   },
               ]
             : []),
-        ...(this.orderInput()?.shipmentType === 'INTERNAL_TRANSFER' && this.orderInput()?.labelStatus 
+        ...(this.orderInput()?.shipmentType === 'INTERNAL_TRANSFER' && this.orderInput()?.labelStatus
             ? [
                 {
                     label: 'Label Status',
@@ -130,7 +130,7 @@ export class OrderWidgetsSidebarComponent {
                 },
             ]
             : []),
-        ...(this.orderInput()?.shipmentType === 'INTERNAL_TRANSFER' && this.orderInput()?.quarantinedProducts 
+        ...(this.orderInput()?.shipmentType === 'INTERNAL_TRANSFER'
             ? [
                 {
                     label: 'Quarantined Products',

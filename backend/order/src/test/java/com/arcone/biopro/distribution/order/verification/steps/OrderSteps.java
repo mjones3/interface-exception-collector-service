@@ -302,20 +302,28 @@ public class OrderSteps {
         this.shippingCustomerCode = shippingCustomerCode;
         this.shippingCustomerName = shippingCustomerName;
         this.shippingMethod = shippingMethod;
-        this.billCustomerCode = billingCustomerCode;
-        this.billCustomerName = billingCustomerName;
-        if("<null>".equals(quarantinedProducts)){
+        if ("<null>".equalsIgnoreCase(billingCustomerCode)) {
+            this.billCustomerCode = null;
+        } else {
+            this.billCustomerCode = "'" + billingCustomerCode + "'";
+        }
+        if ("<null>".equalsIgnoreCase(billingCustomerName)) {
+            this.billCustomerName = null;
+        } else {
+            this.billCustomerName = "'" + billingCustomerName + "'";
+        }
+        if ("<null>".equals(quarantinedProducts)) {
             this.quarantinedProducts = null;
-        }else{
+        } else {
             this.quarantinedProducts = quarantinedProducts;
         }
-        if("<null>".equalsIgnoreCase(labelStatus)){
+        if ("<null>".equalsIgnoreCase(labelStatus)) {
             this.labelStatus = "LABELED";
-        }else{
+        } else {
             this.labelStatus = labelStatus;
         }
 
-        var query = DatabaseQueries.insertBioProOrderWithDetails(context.getExternalId(), locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments, this.quarantinedProducts, this.labelStatus);
+        var query = DatabaseQueries.insertBioProOrderWithDetails(context.getExternalId(), locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, this.shippingCustomerCode, this.shippingCustomerName, this.billCustomerCode, this.billCustomerName, comments, this.quarantinedProducts, this.labelStatus);
         databaseService.executeSql(query).block();
 
         context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString()));
@@ -440,9 +448,13 @@ public class OrderSteps {
         }
     }
 
-    @And("I can see the number of Available Inventories for each line item.")
-    public void checkAvailableInventory() {
+    @And("I {string} see the number of Available Inventories for each line item.")
+    public void checkAvailableInventory(String canCannot) {
+        if ("can".equalsIgnoreCase(canCannot)) {
         orderDetailsPage.checkAvailableInventory(this.productFamilies, this.bloodTypes, this.quantityList);
+        } else {
+            orderDetailsPage.checkInventoryUnavailable(this.productFamilies, this.bloodTypes, this.quantityList);
+        }
     }
 
     @When("I choose to generate the Pick List.")
@@ -978,6 +990,7 @@ public class OrderSteps {
             Assert.fail("Invalid Option of has / has not");
         }
     }
+
     @And("I confirm that the page {int} {string} a minimum of {int} orders.")
     public void iConfirmThatThePageHasOrders(int page, String hasHasNot, int totalElements) {
         var pageIndex = page - 1;
@@ -1332,13 +1345,36 @@ public class OrderSteps {
 
     @And("I {string} have the back order created with the same desired shipping date as the original order.")
     public void iHaveTheBackOrderCreatedWithTheSameDesiredShippingDateAsTheOriginalOrder(String option) {
-        if (option.equalsIgnoreCase("should")){
+        if (option.equalsIgnoreCase("should")) {
             Assert.assertEquals(context.getOrderDetails().get("desiredShippingDate").toString(), originalOrder.get("desireShipDate").toString().replace("\"", ""));
         }
     }
 
     @And("I can see the Shipment Type as {string}.")
     public void iCanSeeTheShipmentTypeAs(String shipmentType) {
-        orderDetailsPage.verifyShipmentType(shipmentType);
+        orderDetailsPage.verifyShipmentType(shipmentType.replace("_", " "));
+    }
+
+    @And("I {string} see the Label Status as {string}.")
+    public void iSeeTheLabelStatusAs(String canCannot, String labelStatus) {
+        if (canCannot.equalsIgnoreCase("can")) {
+            orderDetailsPage.verifyLabelStatus(labelStatus, true);
+        } else if (canCannot.equalsIgnoreCase("cannot")) {
+            orderDetailsPage.verifyLabelStatus(labelStatus, false);
+        } else {
+            Assert.fail("Invalid option for can/cannot");
+        }
+    }
+
+    @And("I {string} see the Quarantined Products as {string}.")
+    public void iSeeTheQuarantinedProductsAs(String canCannot, String quarantineProducts) {
+        String isQuarantine = "true".equalsIgnoreCase(quarantineProducts) ? "YES" : "NO";
+        if (canCannot.equalsIgnoreCase("can")) {
+            orderDetailsPage.verifyQuarantineProducts(isQuarantine, true);
+        } else if (canCannot.equalsIgnoreCase("cannot")) {
+            orderDetailsPage.verifyQuarantineProducts(isQuarantine, false);
+        } else {
+            Assert.fail("Invalid option for can/cannot");
+        }
     }
 }
