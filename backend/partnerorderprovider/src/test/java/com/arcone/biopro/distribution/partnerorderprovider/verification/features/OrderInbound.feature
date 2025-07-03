@@ -40,3 +40,5 @@ Feature: Partner Order Inbound Interface
             | inbound-test-files/order-inbound-scenario-0003.json                               | 400          | $.orderItems[0].quantity: string found, integer expected                                             |
             | inbound-test-files/order-inbound-scenario-0004.json                               | 400          | $.desiredShippingDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2})$                     |
             | inbound-test-files/order-inbound-scenario-dis-325-will_pick_up_true_no_phone.json | 400          | $.orderPickType.phoneNumber: null found, string expected                                             |
+            | inbound-test-files/order-inbound-scenario-0006.json                               | 400          | $.billingCustomerCode: null found, but [string] is required                                          |
+            | inbound-test-files/order-inbound-scenario-0007.json                               | 400          | $.billingCustomerCode: must be at least 1 characters long                                            |
