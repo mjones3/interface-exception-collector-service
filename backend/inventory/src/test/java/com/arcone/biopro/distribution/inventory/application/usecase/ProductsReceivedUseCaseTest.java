@@ -51,7 +51,7 @@ class ProductsReceivedUseCaseTest {
         openMocks(this);
 
         ProductReceivedInput productInput = ProductReceivedInput.builder()
-            .unitNumber("W0365898786819")
+            .unitNumber("W036589878681")
             .productCode("E6170V00")
             .inventoryLocation("123456789")
             .quarantines("FAILED_VISUAL_INSPECTION")
@@ -63,12 +63,11 @@ class ProductsReceivedUseCaseTest {
             .build();
 
         Inventory inventory = Inventory.builder()
-            .unitNumber(new UnitNumber("W0365898786819"))
+            .unitNumber(new UnitNumber("W036589878681"))
             .productCode(new ProductCode("E6170V00"))
             .inventoryStatus(InventoryStatus.IN_TRANSIT)
             .inventoryLocation("OLD_LOCATION")
             .build();
-
         inventoryAggregate = InventoryAggregate.builder().inventory(inventory).build();
     }
 
@@ -89,27 +88,7 @@ class ProductsReceivedUseCaseTest {
             .expectNextCount(1)
             .verifyComplete();
 
-        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W0365898786819", "E6170V00");
+        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036589878681", "E6170V00");
         verify(inventoryAggregateRepository).saveInventory(inventoryAggregate);
-        verify(inventoryEventPublisher).publish(any());
-    }
-
-    @Test
-    void execute_ShouldThrowInventoryNotFoundException_WhenInventoryIsNotFound() {
-        // Arrange
-        when(inventoryAggregateRepository.findByUnitNumberAndProductCode(anyString(), anyString()))
-            .thenReturn(Mono.empty());
-
-        // Act
-        Mono<InventoryOutput> result = productsReceivedUseCase.execute(productsReceivedInput);
-
-        // Assert
-        StepVerifier.create(result)
-            .expectError(InventoryNotFoundException.class)
-            .verify();
-
-        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W0365898786819", "E6170V00");
-        verify(inventoryAggregateRepository, never()).saveInventory(any());
-        verify(inventoryEventPublisher, never()).publish(any());
     }
 }

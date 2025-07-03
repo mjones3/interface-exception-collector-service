@@ -16,7 +16,7 @@ class InventoryAggregateTest {
     @BeforeEach
     void setUp() {
         inventory = Inventory.builder()
-            .unitNumber(new UnitNumber("W0365898786819"))
+            .unitNumber(new UnitNumber("W036589878681"))
             .productCode(new ProductCode("E6170V00"))
             .inventoryStatus(InventoryStatus.IN_TRANSIT)
             .inventoryLocation("OLD_LOCATION")
