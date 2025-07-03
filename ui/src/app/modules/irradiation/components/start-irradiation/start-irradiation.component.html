@@ -22,13 +22,14 @@
 
     <biopro-process-header
         [title]="'Irradiation'"
-        [subTitle]="'Start irradiation'"
+        [subTitle]="'Start Irradiation'"
         [buttons]="buttons"
     ></biopro-process-header>
 
     <div class="flex w-full flex-col gap-4 p-4">
         <div class="w-full flex flex-row gap-4">
             <fuse-card
+                [formGroup]="form"
                 class="w-full flex flex-row gap-4 justify-center p-4"
             >
                 <biopro-input
@@ -36,9 +37,9 @@
                     id="irradiationId"
                     label="Irradiation Id"
                     [inputFocus]="true"
-                    [inputId]="'centrifugationIdInput'"
+                    [inputId]="'irradiationIdInput'"
                     (tabOrEnterPressed)="
-                        centrifugation.valid && loadCentrifugationId($event)
+                        irradiation.valid && loadIrradiationId($event)
                     "
                     required
                     [customErrors]="{ required: 'Irradiation is required.' }"
@@ -48,10 +49,7 @@
                     id="lotNumber"
                     label="Lot Number"
                     [inputFocus]="true"
-                    [inputId]="'centrifugationIdInput'"
-                    (tabOrEnterPressed)="
-                        centrifugation.valid && loadCentrifugationId($event)
-                    "
+                    [inputId]="'irradiationIdInput'"
                     required
                     [customErrors]="{ required: 'Lot number is required.' }"
                 ></biopro-input>
@@ -59,7 +57,7 @@
                     <biopro-scan-unit-number-check-digit
                         #unitnumber
                         (validate)="validateUnit($event)"
-                        [showCheckDigit]="false"
+                        [showCheckDigit]="showCheckDigit"
                     >
                     </biopro-scan-unit-number-check-digit>
                 </div>

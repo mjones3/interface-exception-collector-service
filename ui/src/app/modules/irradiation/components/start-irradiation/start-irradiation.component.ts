@@ -1,6 +1,16 @@
-import {AfterViewInit, Component, effect, inject, OnInit, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    effect,
+    inject,
+    Input,
+    OnInit,
+    TemplateRef,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
 import {ActionButtonComponent} from "../../../../shared/components/buttons/action-button.component";
-import {FuseAlertType, FuseCardComponent} from "../../../../../@fuse";
+import {FuseCardComponent} from "../../../../../@fuse";
 import {MatDivider} from "@angular/material/divider";
 import {UnitNumberCardComponent} from "../../../../shared/components/unit-number-card/unit-number-card.component";
 import {
@@ -10,29 +20,25 @@ import {
     ScanUnitNumberCheckDigitComponent
 } from "@shared";
 import {InputComponent} from "../../../../shared/components/input/input.component";
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {
-    CentrifugationProductDTO,
-    CheckDigitResponseDTO, DeviceDTO,
+    IrradiationProductDTO,
     MessageType, ProductDataDTO,
     UnitNumberResponseDTO,
     ValidateUnitEvent, ValidationDataDTO
 } from "../../models/model";
-import {of} from "rxjs";
-import { switchMap } from 'rxjs/operators';
 import {ProductIconsService} from "../../../../shared/services/product-icon.service";
 import {FuseConfirmationService} from "../../../../../@fuse/services/confirmation";
 import {IrradiationService} from "../../services/irradiation.service";
-import {AsyncPipe, NgStyle} from "@angular/common";
+import {NgStyle} from "@angular/common";
 
 const AVAILABLE = 'AVAILABLE';
 const DISCARDED = 'DISCARDED';
 const QUARANTINED = 'QUARANTINED';
 const UNSUITABLE = 'UNSUITABLE';
 const EXPIRED = 'EXPIRED';
-const CENTRIFUGE = 'CENTRIFUGE';
 
 @Component({
   host: {
@@ -48,8 +54,8 @@ const CENTRIFUGE = 'CENTRIFUGE';
         ScanUnitNumberCheckDigitComponent,
         InputComponent,
         NgStyle,
-        AsyncPipe,
-        ProcessHeaderComponent
+        ProcessHeaderComponent,
+        ReactiveFormsModule
     ],
   templateUrl: './start-irradiation.component.html',
   styleUrl: './start-irradiation.component.scss',
@@ -57,15 +63,16 @@ const CENTRIFUGE = 'CENTRIFUGE';
 })
 export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
-    protected readonly messageType: FuseAlertType = 'warning';
     private readonly _productIconService = inject(ProductIconsService);
     isCheckDigitVisible = true;
     numOfMaxUnits = 0;
-    selectedProducts: CentrifugationProductDTO[] = [];
-    products: CentrifugationProductDTO[] = [];
-    initialProductsState: CentrifugationProductDTO[] = [];
-    allProducts: CentrifugationProductDTO[] = [];
+    selectedProducts: IrradiationProductDTO[] = [];
+    products: IrradiationProductDTO[] = [];
+    initialProductsState: IrradiationProductDTO[] = [];
+    allProducts: IrradiationProductDTO[] = [];
     deviceId: string;
+
+    @Input() showCheckDigit = true;
 
     @ViewChild('buttons')
     buttons: TemplateRef<Element>;
@@ -90,7 +97,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         });
 
         this.form = this.formBuilder.group({
-            centrifugationId: [null, []],
+            irradiationId: [null, []],
         });
     }
     ngOnInit() {
@@ -103,8 +110,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         setTimeout(() => this.unitNumberComponent.form.disable());
     }
 
-    get centrifugation() {
-        return this.form.get('centrifugationId');
+    get irradiation() {
+        return this.form.get('irradiationId');
     }
 
     openCancelConfirmationDialog(): void {
@@ -179,143 +186,15 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     validateUnit(event: ValidateUnitEvent) {
-        const location = this.facilityService.getFacilityCode();
-        const { unitNumber, checkDigit, scanner } = event;
-        if (this.products.length >= this.numOfMaxUnits) {
-            this.showMessage(
-                MessageType.ERROR,
-                'Maximum number of units reached'
-            );
-
-            return;
-        }
-
-        // const $checkDigitVerification =
-        //     this.isCheckDigitVisible && !scanner
-        //         ? this.wholeBloodService.validateCheckDigit(
-        //             unitNumber,
-        //             checkDigit
-        //         )
-        //         : of(null);
-
-        // $checkDigitVerification
-        //     .pipe(
-        //         switchMap((response) => {
-        //             const skipCheckDigit = !response;
-        //             if (!skipCheckDigit) {
-        //                 return this.checkDigitFieldError(response.data).pipe(
-        //                     switchMap((res) => {
-        //                         this.wholeBloodService.handleErrors(response);
-        //                         if (res) {
-        //                             return this.irradiationService.scanOrEnterUnitNumber(
-        //                                 { unitNumber, location }
-        //                             );
-        //                         }
-        //                         return of(null);
-        //                     })
-        //                 );
-        //             }
-        //             return this.irradiationService.scanOrEnterUnitNumber({
-        //                 unitNumber,
-        //                 location,
-        //             });
-        //         }),
-        //         switchMap((response) => {
-        //             const discardError = response?.errors?.find(
-        //                 (error) => error.extensions?.isMarkedForDiscard
-        //             );
-        //             if (discardError) {
-        //                 this.discardProduct(unitNumber, discardError.message);
-        //                 this.unitNumberComponent.reset();
-        //                 return of(null);
-        //             }
-        //             if (response.errors && response.errors.length > 0) {
-        //                 this.unitNumberComponent.reset();
-        //                 this.irradiationService.handleErrors(response);
-        //                 return of(null);
-        //             } else {
-        //                 return of(response.data);
-        //             }
-        //         })
-        //     )
-        //     .subscribe((productData) => {
-        //         if (productData) {
-        //             this.populateCentrifugationBatch(productData);
-        //         }
-        //     });
+       console.log('validateUnit', event);
     }
 
-    private discardProduct(unitNumber: string, discardMessage: string) {
-        // this.wholeBloodService
-        //     .donationInformation(unitNumber, null)
-        //     .pipe(
-        //         switchMap((donationResponse) => {
-        //             this.wholeBloodService.handleErrors(donationResponse);
-        //             const { inventory, donation } =
-        //                 donationResponse.data.donationInformation;
-        //             const discardRequestDTO = {
-        //                 unitNumber: donation.unitNumber,
-        //                 productCode: inventory.productCode,
-        //                 productShortDescription: inventory.productCode,
-        //                 productFamily: inventory.productFamily,
-        //                 locationCode: inventory.currentLocation,
-        //                 reasonDescriptionKey: inventory.discardReason,
-        //                 employeeId: '4c973896-5761-41fc-8217-07c5d13a004b', // TODO get employeeId
-        //                 triggeredBy: 'WHOLE_BLOOD',
-        //                 comments: '',
-        //             };
-        //             return this.discardService.discardProduct(
-        //                 discardRequestDTO
-        //             );
-        //         })
-        //     )
-        //     .subscribe((response) => {
-        //         this.discardService.handleErrors(response);
-        //         if (response) {
-        //             this.openDiscardDialog(discardMessage);
-        //         }
-        //     });
-    }
 
-    openDiscardDialog(message: string): void {
-        this.confirmationService.open({
-            title: 'Discarded',
-            message,
-            dismissible: false,
-            icon: {
-                name: 'heroicons_outline:question-mark-circle',
-                show: true,
-                color: 'primary',
-            },
-            actions: {
-                confirm: {
-                    label: 'Confirm',
-                    show: true,
-                },
-                cancel: {
-                    label: 'Cancel',
-                    show: false,
-                },
-            },
-        });
-    }
-
-    private checkDigitFieldError(response: CheckDigitResponseDTO) {
-        if (response && !response.checkDigit.isValid) {
-            //this.unitNumberComponent.setErrorCheckDigit({ invalid: true });
-            this.unitNumberComponent.form.controls['checkDigit']?.setErrors({
-                invalid: true,
-            });
-            this.unitNumberComponent.focusOnCheckDigit();
-            return of(null);
-        }
-        return of('valid');
-    }
 
     private populateCentrifugationBatch(productData: UnitNumberResponseDTO) {
         const product =
             productData.enterUnitNumberForCentrifugation as ProductDataDTO;
-        const centrifugationProducts: CentrifugationProductDTO[] = [
+        const centrifugationProducts: IrradiationProductDTO[] = [
             {
                 unitNumber: product.unitNumber,
                 productCode: product.productCode,
@@ -367,7 +246,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         }
     }
 
-    private addProductToList(newProduct: CentrifugationProductDTO) {
+    private addProductToList(newProduct: IrradiationProductDTO) {
         this.initialProductsState.push({ ...newProduct });
         this.products.push(newProduct);
         this.products = this.products.sort((productA, productB) => {
@@ -455,7 +334,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         this.selectedProducts = [];
     }
 
-    toggleProduct(product: CentrifugationProductDTO) {
+    toggleProduct(product: IrradiationProductDTO) {
         if (this.selectedProducts.includes(product)) {
             const index = this.selectedProducts.findIndex(
                 (filterProduct) =>
@@ -468,31 +347,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         }
     }
 
-    loadCentrifugationId(centrifugeId: string) {
-        const deviceDtoRequest: DeviceDTO = {
-            location: this.facilityService.getFacilityCode(),
-            bloodCenterId: centrifugeId,
-            deviceType: CENTRIFUGE,
-        };
-
-        this.irradiationService
-            .loadDeviceById(deviceDtoRequest)
-            .subscribe((result) => {
-                if (result.errors && result.errors.length > 0) {
-                    this.showMessage(
-                        MessageType.ERROR,
-                        result.errors[0].message
-                    );
-                } else {
-                    this.numOfMaxUnits = result.data.enterDeviceId.maxProducts
-                        ? result.data.enterDeviceId.maxProducts
-                        : 0;
-                    this.deviceId = result.data.enterDeviceId.bloodCenterId;
-                    this.centrifugation.disable();
-                    this.unitNumberComponent.controlUnitNumber.enable();
-                    this.unitNumberComponent.focusOnUnitNumber();
-                }
-            });
+    loadIrradiationId(irradiationId: string) {
+        console.log('irradiationId', irradiationId);
     }
 
     redirect() {

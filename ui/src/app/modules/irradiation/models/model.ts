@@ -45,7 +45,7 @@ export interface CentrifugationProcessDTO {
     icon?: string;
 }
 
-export interface CentrifugationProductDTO {
+export interface IrradiationProductDTO {
     unitNumber: string;
     productCode: string;
     productName: string;
@@ -81,7 +81,7 @@ export interface DeviceDTO {
     location: string;
 }
 
-export interface CentrifugationDeviceResponseDTO {
+export interface IrradiationDeviceResponseDTO {
     type: string;
     bloodCenterId: string;
     location: string;
@@ -90,7 +90,7 @@ export interface CentrifugationDeviceResponseDTO {
 }
 
 export interface DeviceResponseDTO {
-    enterDeviceId: CentrifugationDeviceResponseDTO;
+    enterDeviceId: IrradiationDeviceResponseDTO;
 }
 
 export interface UnitNumberRequestDTO {
@@ -98,7 +98,7 @@ export interface UnitNumberRequestDTO {
     location: string;
 }
 
-export interface SubmitCentrifugationBatchRequestDTO {
+export interface SubmitIrradiationBatchRequestDTO {
     unitNumbers: string[];
     location: string;
     deviceId: string;
