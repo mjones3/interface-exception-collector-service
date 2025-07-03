@@ -81,10 +81,10 @@
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    [controlName]="'shipToLocation'"
+                    [controlName]="'locations'"
                     [disabled]="shipmentTypeSelected() === 'customer'"
                     title="Ship to Location"
-                    [items]="shipToLocationOptions"
+                    [items]="locations"
                     matSelectId="shipToLocationId"
                 ></app-multiple-select>
             </div>

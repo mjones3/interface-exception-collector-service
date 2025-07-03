@@ -30,7 +30,21 @@ public class SearchOrderCriteriaMapper {
             searchCriteriaValues.getCustomers().stream().map(customer -> OrderCustomerReportDTO.builder()
                 .code(customer.getCode())
                 .name(customer.getName())
-                .build()).toList());
+                .build()).toList(),
+            searchCriteriaValues.getShipmentTypes().stream().map(shipmenType ->
+                LookupDTO.builder()
+                    .type(shipmenType.getId().getType())
+                    .optionValue(shipmenType.getId().getOptionValue())
+                    .descriptionKey(shipmenType.getDescriptionKey())
+                    .orderNumber(shipmenType.getOrderNumber())
+                    .active(shipmenType.isActive())
+                    .build()).toList(),
+            searchCriteriaValues.getLocations().stream().map(location ->
+                LocationFilterDTO.builder()
+                    .code(location.getCode())
+                    .name(location.getName())
+                    .build()).toList()
+            );
     }
 
 }

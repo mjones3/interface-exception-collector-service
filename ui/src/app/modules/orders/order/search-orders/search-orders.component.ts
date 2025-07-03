@@ -207,7 +207,13 @@ export class SearchOrdersComponent implements OnInit {
         if (this.currentFilter.customers?.length) {
             criteria.customers = this.currentFilter.customers;
         }
-        //TODO
+        if (this.currentFilter.customers?.length) {
+            criteria.customers = this.currentFilter.customers;
+        }
+        if (this.currentFilter.locations?.length) {
+            criteria.customers = this.currentFilter.locations;
+        }
+
         if (this.currentFilter.shipmentType?.length) {
             criteria.shipmentType = this.currentFilter.shipmentType;
         }

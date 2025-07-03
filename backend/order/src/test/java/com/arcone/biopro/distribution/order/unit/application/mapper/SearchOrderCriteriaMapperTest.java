@@ -1,9 +1,11 @@
 package com.arcone.biopro.distribution.order.unit.application.mapper;
 
 import com.arcone.biopro.distribution.order.application.mapper.SearchOrderCriteriaMapper;
+import com.arcone.biopro.distribution.order.domain.model.Location;
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.SearchOrderCriteria;
 import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
@@ -27,6 +29,8 @@ class SearchOrderCriteriaMapperTest {
     LookupService lookupService;
     @MockBean
     CustomerService customerService;
+    @MockBean
+    LocationRepository locationRepository;
 
     @Test
     void testMapToDTO() {
@@ -47,7 +51,13 @@ class SearchOrderCriteriaMapperTest {
 
         Mockito.when(customerService.getCustomers()).thenReturn(Flux.just(customer));
 
-        var searchOrderCriteria = new SearchOrderCriteria(lookupService, customerService);
+        var locationMock = Mockito.mock(Location.class);
+        Mockito.when(locationMock.getCode()).thenReturn("code");
+        Mockito.when(locationMock.getName()).thenReturn("name");
+
+        Mockito.when(locationRepository.findAll()).thenReturn(Flux.just(locationMock));
+
+        var searchOrderCriteria = new SearchOrderCriteria(lookupService, customerService,locationRepository);
 
         // Execute
         var result = searchOrderCriteriaMapper.mapToDTO(searchOrderCriteria);
@@ -58,6 +68,7 @@ class SearchOrderCriteriaMapperTest {
         assertEquals(searchOrderCriteria.getOrderPriorities().getFirst().getId().getOptionValue(), result.orderPriorities().getFirst().optionValue());
         assertEquals(searchOrderCriteria.getOrderPriorities().getFirst().getOrderNumber(), result.orderPriorities().getFirst().orderNumber());
         assertTrue(result.orderStatus().getFirst().active());
+        assertEquals(searchOrderCriteria.getLocations().getFirst().getCode(), result.locations().getFirst().code());
     }
 
 }

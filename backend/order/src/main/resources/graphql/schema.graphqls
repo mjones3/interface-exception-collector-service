@@ -301,6 +301,8 @@ type SearchOrderCriteriaDTO {
     orderStatus:[LookupDTO]
     orderPriorities:[LookupDTO]
     customers:[OrderCustomerReportDTO]
+    shipmentTypes:[LookupDTO]
+    locations:[LocationFilterDTO]
 }
 
 type LocationDTO {
@@ -314,4 +316,9 @@ type LocationDTO {
     city:String
     state:String
     properties:JSON
+}
+
+type LocationFilterDTO {
+    name:String!
+    code:String!
 }

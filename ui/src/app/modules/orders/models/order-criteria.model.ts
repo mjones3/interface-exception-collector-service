@@ -6,4 +6,6 @@ export interface OrderCriteriaDTO {
     orderPriorities: LookUpDto[];
     shipToLocation: CustomerCriteriaDto[];
     customers: CustomerCriteriaDto[];
+    shipmentTypes: LookUpDto[];
+    locations: CustomerCriteriaDto[];
 }

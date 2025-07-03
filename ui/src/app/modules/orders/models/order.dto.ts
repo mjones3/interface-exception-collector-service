@@ -160,6 +160,7 @@ export interface SearchOrderFilterDTO {
     orderStatus?: string[];
     deliveryTypes?: string[];
     customers?: string[];
+    locations?:string[];
     page?: number;
     limit?: number;
     sortBy?: string;

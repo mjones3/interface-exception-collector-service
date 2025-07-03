@@ -39,6 +39,8 @@ import { OrderStatusMap } from '../../../../../shared/models/order-status.model'
 import { SearchOrderFilterDTO } from '../../../models/order.dto';
 import { OrderService } from '../../../services/order.service';
 import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
+import { ShipmentTypeMap } from '../../../../../shared/models/shipment-type.model';
+import { OptionDTO } from '../../../../../shared/models/option.dto';
 
 @Component({
     selector: 'app-search-order-filter',
@@ -88,18 +90,8 @@ export class SearchOrderFilterComponent implements OnInit {
     statusOptions: SelectOptionDto[];
     priorityOptions: SelectOptionDto[];
     customers: SelectOptionDto[];
-    shipToLocationOptions: SelectOptionDto[];
-    //TODO
-    shipmentTypeOptions = [ 
-        {
-            code: 'internalTransfer',
-            name: 'Internal Transfer'
-        },
-        {
-            code: 'customer',
-            name: 'Customer'
-        }
-    ];
+    locations: SelectOptionDto[];
+    shipmentTypeOptions:OptionDTO[];
 
     totalFieldsApplied = 0;
 
@@ -130,11 +122,11 @@ export class SearchOrderFilterComponent implements OnInit {
                         this.searchForm.get(key)?.enable({ emitEvent: false });
                         if(this.shipmentTypeSelected() === '') {
                             this.searchForm.get('customers')?.disable({ emitEvent: false });
-                            this.searchForm.get('shipToLocation')?.disable({ emitEvent: false });
-                        } else if(this.shipmentTypeSelected() === 'internalTransfer'){
+                            this.searchForm.get('locations')?.disable({ emitEvent: false });
+                        } else if(this.shipmentTypeSelected() === 'INTERNAL_TRANSFER'){
                             this.searchForm.get('customers')?.disable({ emitEvent: false });
                         }else{
-                            this.searchForm.get('shipToLocation')?.disable({ emitEvent: false });
+                            this.searchForm.get('locations')?.disable({ emitEvent: false });
                         }
                         if (key === 'createDate') {
                             const startControl = this.searchForm
@@ -187,6 +179,8 @@ export class SearchOrderFilterComponent implements OnInit {
         //TODO
         this.searchForm.get('shipmentType').valueChanges.subscribe((value) => {
             this.shipmentTypeSelected.set(value);
+            this.searchForm.get('locations').reset();
+            this.searchForm.get('customers').reset();
         })
     }
 
@@ -251,8 +245,22 @@ export class SearchOrderFilterComponent implements OnInit {
                                 ]?.toUpperCase(),
                         })
                     );
+                this.shipmentTypeOptions =
+                    response.data.searchOrderCriteria.shipmentTypes.map(
+                        (item) => ({
+                            code: item.optionValue,
+                            name:ShipmentTypeMap[
+                                item.optionValue
+                                ]?.toUpperCase(),
+                        })
+                    );
                 this.customers =
                     response.data.searchOrderCriteria.customers.map((item) => ({
+                        optionKey: item.code,
+                        optionDescription: item.name,
+                    }));
+                this.locations =
+                    response.data.searchOrderCriteria.locations.map((item) => ({
                         optionKey: item.code,
                         optionDescription: item.name,
                     }));
@@ -275,8 +283,8 @@ export class SearchOrderFilterComponent implements OnInit {
                 orderStatus: [''],
                 deliveryTypes: [''],
                 shipmentType: [''],
-                shipToLocation: [{value: '', disabled: true}],
-                customers: [{value: '', disabled: true}],
+                locations: [{value: '', disabled: false}],
+                customers: [{value: '', disabled: false}],
                 createDate: this.formBuilder.group({
                     start: [null], // Start date
                     end: [null], // End date
