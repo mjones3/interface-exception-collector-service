@@ -63,7 +63,7 @@ public class OrderEntityMapper {
             .modifyReason(order.getModifyReason())
             .transactionId(order.getTransactionId())
             .quarantinedProducts(order.getQuarantinedProducts())
-            .labelStatus(order.getLabelStatus().value())
+            .labelStatus(order.getLabelStatus() != null ? order.getLabelStatus().value() : null)
             .build();
     }
 

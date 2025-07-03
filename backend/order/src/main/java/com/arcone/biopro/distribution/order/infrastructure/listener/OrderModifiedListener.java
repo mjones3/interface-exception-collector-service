@@ -80,6 +80,8 @@ public class OrderModifiedListener {
                 .modifyEmployeeId(order.getModifyEmployeeId())
                 .modifyReason(order.getModifyReason())
                 .transactionId(order.getTransactionId())
+                .labelStatus(event.getPayload().getLabelStatus() != null ? event.getPayload().getLabelStatus().value() : null)
+                .quarantinedProducts(event.getPayload().getQuarantinedProducts())
                 .orderItems(order.getOrderItems().stream().map(orderItem -> OrderItemCancelledDTO.builder()
                     .productFamily(orderItem.getProductFamily().getProductFamily())
                     .quantity(orderItem.getQuantity())

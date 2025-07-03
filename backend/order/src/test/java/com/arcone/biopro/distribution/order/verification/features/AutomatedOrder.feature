@@ -21,7 +21,7 @@ Feature: Validate order
             | DIS336000000002 | order-inbound-scenario-DIS-336_apheresis-platelets.json      |
             | DIS336000000003 | order-inbound-scenario-DIS-336_prt-apheresis-platelets.json  |
             | DIS337000000001 | order-inbound-scenario-DIS-337_frozen-rbc.json               |
-            | DIS440000000001 | order-inbound-scenario-1-happy-path.json                     |
+            | DIS440000000001 | order-inbound-internal-transfer-scenario-1-happy-path.json   |
 
     @DIS-377 @rc
     Scenario Outline: Creating a BioPro order using a custom shipping method configuration from a valid order inbound request

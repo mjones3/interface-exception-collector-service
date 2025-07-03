@@ -73,6 +73,8 @@ public class OrderCreatedListener {
             .createEmployeeCode(event.getPayload().getCreateEmployeeId())
             .billingCustomerCode(event.getPayload().getBillingCustomer() != null ? event.getPayload().getBillingCustomer().getCode() : null)
             .shippingCustomerCode(event.getPayload().getShippingCustomer() != null ? event.getPayload().getShippingCustomer().getCode() : null)
+            .labelStatus(event.getPayload().getLabelStatus() != null ? event.getPayload().getLabelStatus().value() : null)
+            .quarantinedProducts(event.getPayload().getQuarantinedProducts())
             .orderItems(event.getPayload().getOrderItems().stream().map(orderItem -> OrderItemCreatedDTO.builder()
                 .productFamily(orderItem.getProductFamily().getProductFamily())
                 .quantity(orderItem.getQuantity())
