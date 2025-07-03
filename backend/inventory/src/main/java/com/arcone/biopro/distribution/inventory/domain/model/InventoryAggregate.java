@@ -91,7 +91,6 @@ public class InventoryAggregate {
     }
 
     private List<NotificationMessage> createNotificationMessage() {
-
         MessageType messageType = MessageType.fromStatus(inventory.getInventoryStatus())
             .orElseThrow(UnavailableStatusNotMappedException::new);
 
@@ -117,8 +116,6 @@ public class InventoryAggregate {
     private List<NotificationMessage> createQuarantinesNotificationMessage() {
         MessageType qt = MessageType.INVENTORY_IS_QUARANTINED;
 
-
-
         List<String> details = inventory.getQuarantines().stream().map(q -> !q.reason().equals(OTHER_REASON) ? q.reason() : String.format("%s: %s", OTHER_REASON, q.comments())).toList();
 
         return List.of(new NotificationMessage(
@@ -131,7 +128,8 @@ public class InventoryAggregate {
             details));
     }
 
-    public InventoryAggregate completeShipment(ShipmentType shipmentType) {
+    public InventoryAggregate completeShipment(ShipmentType shipmentType, String shippedLocation) {
+        inventory.setShippedLocation(shippedLocation);
         if(ShipmentType.INTERNAL_TRANSFER.equals(shipmentType)) {
             transitionStatus(InventoryStatus.IN_TRANSIT, null);
             return this;
@@ -148,9 +146,7 @@ public class InventoryAggregate {
 
     public InventoryAggregate discardProduct(String reason, String comments) {
         transitionStatus(InventoryStatus.DISCARDED, reason);
-
         inventory.setComments(comments);
-
         return this;
     }
 
@@ -166,7 +162,6 @@ public class InventoryAggregate {
     public InventoryAggregate addQuarantine(Long quarantineId, String reason, String comments) {
         inventory.addQuarantine(quarantineId, reason, comments);
         addQuarantineFlag();
-
         return this;
     }
 
@@ -177,7 +172,6 @@ public class InventoryAggregate {
 
     public InventoryAggregate updateQuarantine(Long quarantineId, String reason, String comments) {
         inventory.updateQuarantine(quarantineId, reason, comments);
-
         return this;
     }
 
@@ -297,4 +291,3 @@ public class InventoryAggregate {
         addProperty(PropertyKey.TIMEZONE_RELEVANT, "Y");
     }
 }
-

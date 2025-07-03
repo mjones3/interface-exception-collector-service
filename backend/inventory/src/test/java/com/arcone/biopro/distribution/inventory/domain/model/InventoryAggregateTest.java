@@ -76,13 +76,13 @@ class InventoryAggregateTest {
 
     @Test
     void testCompleteShipment_ShouldTransitionStatusToShipped() {
-        inventoryAggregate.completeShipment(ShipmentType.CUSTOMER);
+        inventoryAggregate.completeShipment(ShipmentType.CUSTOMER,"");
         verify(inventoryMock).transitionStatus(InventoryStatus.SHIPPED, null);
     }
 
     @Test
     void testCompleteShipment_ShouldTransitionStatusToInTransit() {
-        inventoryAggregate.completeShipment(ShipmentType.INTERNAL_TRANSFER);
+        inventoryAggregate.completeShipment(ShipmentType.INTERNAL_TRANSFER, "");
         verify(inventoryMock).transitionStatus(InventoryStatus.IN_TRANSIT, null);
     }
 
