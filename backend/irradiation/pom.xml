@@ -4,10 +4,10 @@
          xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>com.arcone.biopro.commons</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.0.25</version>
+        <relativePath />
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -19,63 +19,18 @@
         <sonar.organization>arc-one</sonar.organization>
 
         <!-- Build properties -->
-        <maven.version>3.3.9</maven.version>
-        <java.version>21</java.version>
-        <allure.version>2.24.0</allure.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <node.version>v20.12.1</node.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <start-class>com.arcone.biopro.distribution.irradiation.BioProApplication</start-class>
-        <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
-        <m2e.apt.activation>jdt_apt</m2e.apt.activation>
-        <run.addResources>false</run.addResources>
-        <spring-boot.version>${project.parent.version}</spring-boot.version>
-        <archunit-junit5.version>1.2.1</archunit-junit5.version>
-        <blockhound-junit-platform.version>1.0.8.RELEASE</blockhound-junit-platform.version>
+        <start-class>com.arcone.biopro.distribution.inventory.BioProApplication</start-class>
         <checkstyle.version>10.15.0</checkstyle.version>
-        <checksum-maven-plugin.version>1.11</checksum-maven-plugin.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
-        <cucumber-bom.version>7.17.0</cucumber-bom.version>
-        <git-commit-id-maven-plugin.version>8.0.2</git-commit-id-maven-plugin.version>
-        <graphql-java-extended-scalars.version>22.0</graphql-java-extended-scalars.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-        <logstash-logback.version>7.4</logstash-logback.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-        <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
-        <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
-        <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
-        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
-        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
-        <micrometer-context-propagation.version>1.1.1</micrometer-context-propagation.version>
         <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
-        <opentelemetry.version>1.37.0</opentelemetry.version>
-        <opentelemetry-instrumentation.version>2.3.0-alpha</opentelemetry-instrumentation.version>
         <profile.api-docs/>
         <profile.e2e/>
         <profile.test/>
         <profile.tls/>
-        <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
-        <rest-assured.version>5.4.0</rest-assured.version>
         <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
-        <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
-        <spring-cloud-dependencies.version>2023.0.1</spring-cloud-dependencies.version>
         <springdoc-openapi-starter-webflux-ui.version>2.5.0</springdoc-openapi-starter-webflux-ui.version>
-        <springwolf.version>1.2.0</springwolf.version>
-        <testng.version>7.10.0</testng.version>
-        <tsid-creator.version>5.2.6</tsid-creator.version>
+
+        <!-- Skip antrun plugin to avoid Windows command line length issue -->
+        <maven.antrun.skip>true</maven.antrun.skip>
     </properties>
 
     <dependencyManagement>
@@ -462,9 +417,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-console-standalone</artifactId>
+            <version>1.10.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.arcone.biopro.commons</groupId>
+            <artifactId>test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.arcone.biopro.commons</groupId>
             <artifactId>frontend-test</artifactId>
-            <version>0.0.22</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.arcone.biopro.commons</groupId>
+            <artifactId>security</artifactId>
         </dependency>
     </dependencies>
 
