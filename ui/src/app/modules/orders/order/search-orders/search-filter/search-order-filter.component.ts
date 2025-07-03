@@ -12,6 +12,7 @@ import {
     OnInit,
     input,
     output,
+    signal,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -37,6 +38,7 @@ import { OrderPriorityMap } from '../../../../../shared/models/order-priority.mo
 import { OrderStatusMap } from '../../../../../shared/models/order-status.model';
 import { SearchOrderFilterDTO } from '../../../models/order.dto';
 import { OrderService } from '../../../services/order.service';
+import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
 
 @Component({
     selector: 'app-search-order-filter',
@@ -58,6 +60,7 @@ import { OrderService } from '../../../services/order.service';
         FormsModule,
         CommonModule,
         MatDividerModule,
+        SearchSelectComponent,
         MatIconModule,
         FiltersComponent,
         MatSelectModule,
@@ -78,12 +81,25 @@ export class SearchOrderFilterComponent implements OnInit {
     onApplySearchFilters = output<SearchOrderFilterDTO>();
     onResetFilters = output<SearchOrderFilterDTO>();
     toggleFilters = output<boolean>();
+    shipmentTypeSelected = signal<string>('');
 
     searchForm: FormGroup;
 
     statusOptions: SelectOptionDto[];
     priorityOptions: SelectOptionDto[];
     customers: SelectOptionDto[];
+    shipToLocationOptions: SelectOptionDto[];
+    //TODO
+    shipmentTypeOptions = [ 
+        {
+            code: 'internalTransfer',
+            name: 'Internal Transfer'
+        },
+        {
+            code: 'customer',
+            name: 'Customer'
+        }
+    ];
 
     totalFieldsApplied = 0;
 
@@ -112,6 +128,14 @@ export class SearchOrderFilterComponent implements OnInit {
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.enable({ emitEvent: false });
+                        if(this.shipmentTypeSelected() === '') {
+                            this.searchForm.get('customers')?.disable({ emitEvent: false });
+                            this.searchForm.get('shipToLocation')?.disable({ emitEvent: false });
+                        } else if(this.shipmentTypeSelected() === 'internalTransfer'){
+                            this.searchForm.get('customers')?.disable({ emitEvent: false });
+                        }else{
+                            this.searchForm.get('shipToLocation')?.disable({ emitEvent: false });
+                        }
                         if (key === 'createDate') {
                             const startControl = this.searchForm
                                 .get(key)
@@ -160,6 +184,10 @@ export class SearchOrderFilterComponent implements OnInit {
                 });
             }
         });
+        //TODO
+        this.searchForm.get('shipmentType').valueChanges.subscribe((value) => {
+            this.shipmentTypeSelected.set(value);
+        })
     }
 
     orderNumberInformed = () => this.isFieldInformed('orderNumber');
@@ -246,7 +274,9 @@ export class SearchOrderFilterComponent implements OnInit {
                 orderNumber: ['', [Validators.maxLength(50)]],
                 orderStatus: [''],
                 deliveryTypes: [''],
-                customers: [''],
+                shipmentType: [''],
+                shipToLocation: [{value: '', disabled: true}],
+                customers: [{value: '', disabled: true}],
                 createDate: this.formBuilder.group({
                     start: [null], // Start date
                     end: [null], // End date

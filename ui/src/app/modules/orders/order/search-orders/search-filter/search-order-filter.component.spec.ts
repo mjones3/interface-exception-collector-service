@@ -6,11 +6,12 @@ import { ActivatedRoute } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Apollo } from 'apollo-angular';
 import moment from 'moment';
-import { ToastrModule } from 'ngx-toastr';
-import { of } from 'rxjs';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { of, throwError } from 'rxjs';
 import { OrderService } from '../../../services/order.service';
 import { SearchOrderFilterComponent } from './search-order-filter.component';
 import { AuthState } from 'app/core/state/auth/auth.reducer';
+import { ApolloError } from '@apollo/client';
 
 const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
 
@@ -18,6 +19,7 @@ describe('SearchOrderFilterComponent', () => {
     let component: SearchOrderFilterComponent;
     let fixture: ComponentFixture<SearchOrderFilterComponent>;
     let orderService: OrderService;
+    let toastr: ToastrService;
 
     const initialState: AuthState = {
         id: 'mock-user-id',
@@ -47,6 +49,7 @@ describe('SearchOrderFilterComponent', () => {
                     },
                 },
                 OrderService,
+                ToastrService,
             ],
         }).compileComponents();
     });
@@ -55,7 +58,9 @@ describe('SearchOrderFilterComponent', () => {
         fixture = TestBed.createComponent(SearchOrderFilterComponent);
         component = fixture.componentInstance;
         orderService = TestBed.inject(OrderService);
+        toastr = TestBed.inject(ToastrService);
         jest.spyOn(orderService, 'searchOrderCriteria').mockReturnValue(of());
+        jest.spyOn(toastr, 'error');
         component.ngOnInit();
     });
 
@@ -64,20 +69,76 @@ describe('SearchOrderFilterComponent', () => {
         expect(component.enableSubmit).toBeFalsy();
     });
 
+    
+
+    it('should handle error in loadCriteriaOptions', () => {
+        const error = new ApolloError({ graphQLErrors: [new Error('Test error')] });
+        jest.spyOn(orderService, 'searchOrderCriteria').mockReturnValue(throwError(() => error));
+        
+        component.ngOnInit();
+        
+        expect(toastr.error).toHaveBeenCalledWith('Something went wrong.');
+    });
+
+    it('should properly handle shipmentType selection', () => {
+        const shipmentType = 'STANDARD';
+        component.searchForm.get('shipmentType').setValue(shipmentType);
+        expect(component.shipmentTypeSelected()).toBe(shipmentType);
+    });
+
+    it('should disable both customers and shipToLocation fields when shipmentType is empty', () => {
+        component.searchForm.get('shipmentType').setValue('customer');
+        component.searchForm.get('shipmentType').setValue('');
+        fixture.detectChanges();
+
+        const customersControl = component.searchForm.get('customers');
+        const shipToLocationControl = component.searchForm.get('shipToLocation');
+        
+        expect(customersControl.disabled).toBeTruthy();
+        expect(shipToLocationControl.disabled).toBeTruthy();
+        expect(component.shipmentTypeSelected()).toBe('');
+    });
+
+    it('should properly get date range form groups', () => {
+        const createDateGroup = component.getDateRangeFormGroup('createDate');
+        expect(createDateGroup).toBeTruthy();
+        expect(createDateGroup.get('start')).toBeTruthy();
+        expect(createDateGroup.get('end')).toBeTruthy();
+
+        const desiredShipDateGroup = component.getDateRangeFormGroup('desiredShipDate');
+        expect(desiredShipDateGroup).toBeTruthy();
+        expect(desiredShipDateGroup.get('start')).toBeTruthy();
+        expect(desiredShipDateGroup.get('end')).toBeTruthy();
+    });
+
+
+    it('should properly handle form state when toggling between order number and other filters', () => {
+        component.searchForm.get('orderNumber').setValue('TEST123');
+        expect(component.searchForm.get('createDate').disabled).toBeTruthy();
+        expect(component.searchForm.get('orderStatus').disabled).toBeTruthy();
+
+        component.searchForm.get('orderNumber').setValue('');
+        component.searchForm.get('orderStatus').setValue(['PENDING']);
+        expect(component.searchForm.get('orderNumber').disabled).toBeTruthy();
+        expect(component.searchForm.get('createDate').enabled).toBeTruthy();
+        expect(component.searchForm.get('orderStatus').enabled).toBeTruthy();
+
+        component.resetFilters();
+        expect(component.searchForm.get('orderNumber').enabled).toBeTruthy();
+        expect(component.searchForm.get('createDate').enabled).toBeTruthy();
+        expect(component.searchForm.get('orderStatus').enabled).toBeTruthy();
+    });
+
     it('should clear form when reset is triggered', () => {
         const { createDate, desiredShipDate, ...nonDateRangeFields } =
             component.searchForm.controls;
 
-        // Should be disabled when no filters are active
         expect(component.enableSubmit).toBeFalsy();
-        expect(component.enableReset).toBeFalsy();
 
         Object.keys(nonDateRangeFields).forEach((filterKey) => {
             component.searchForm.controls[filterKey].setValue('Test');
         });
-        // Should be enabled when filters are active
         expect(component.enableSubmit).toBeTruthy();
-        expect(component.enableReset).toBeTruthy();
 
         component.resetFilters();
 
@@ -85,9 +146,7 @@ describe('SearchOrderFilterComponent', () => {
             expect(component.searchForm.controls[filterKey].value).toBe(null);
         });
 
-        // Should be disabled when no filters are active
         expect(component.enableSubmit).toBeFalsy();
-        expect(component.enableReset).toBeFalsy();
 
         [createDate, desiredShipDate].forEach((dateRangeField) => {
             dateRangeField.setValue({ start: '01/01/2024', end: '01/01/2024' });
@@ -99,10 +158,6 @@ describe('SearchOrderFilterComponent', () => {
 
     it('should disable apply button', () => {
         expect(component.enableSubmit).toBeFalsy();
-    });
-
-    it('should disable reset button', () => {
-        expect(component.enableReset).toBeFalsy();
     });
 
     it('should enable apply button when order number is entered', () => {
@@ -161,7 +216,7 @@ describe('SearchOrderFilterComponent', () => {
         const expectedValue = {
             orderNumber: '',
             orderStatus: '',
-            customers: '',
+            shipmentType: '',
             deliveryTypes: '',
             createDate: { start: null, end: null },
             desiredShipDate: { start: null, end: null },
@@ -239,12 +294,12 @@ describe('SearchOrderFilterComponent', () => {
     });
 
     it('should see the number of fields used to select the filter criteria', () => {
-        const { createDate, desiredShipDate, ...nonDateRangeFields } =
+        const { createDate, desiredShipDate, customers, shipToLocation,  ...otherFields } =
             component.searchForm.controls;
 
         let filterCount = 0;
         component.resetFilters();
-        Object.keys(nonDateRangeFields).forEach((filterKey) => {
+        Object.keys(otherFields).forEach((filterKey) => {
             if (filterKey != 'orderNumber') {
                 component.searchForm.controls[filterKey].setValue('Test');
                 filterCount++;

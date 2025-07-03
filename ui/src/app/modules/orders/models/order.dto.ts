@@ -163,6 +163,7 @@ export interface SearchOrderFilterDTO {
     page?: number;
     limit?: number;
     sortBy?: string;
+    shipmentType?: string;
     order?: string;
     createDate?: SearchOrderFilterDateRangeDTO;
     desiredShipDate?: SearchOrderFilterDateRangeDTO;

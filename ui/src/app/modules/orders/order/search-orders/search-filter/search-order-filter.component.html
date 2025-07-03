@@ -1,6 +1,5 @@
 <app-filters
     [disabled]="!enableSubmit"
-    [resetDisabled]="!enableReset"
     [appliedTotalFilterCount]="totalFieldsApplied"
     (search)="applyFilterSearch()"
     (resetSearchFilter)="resetFilters()"
@@ -43,13 +42,6 @@
                     matSelectId="deliveryTypes"
                 ></app-multiple-select>
 
-                <app-multiple-select
-                    [formGroup]="searchForm"
-                    controlName="customers"
-                    title="Ship to Customer"
-                    [items]="customers"
-                    matSelectId="customers"
-                ></app-multiple-select>
 
                 <app-date-range-picker
                     [formGroup]="getDateRangeFormGroup('createDate')"
@@ -67,6 +59,34 @@
                     title="Desired Shipment Date"
                     dateRangeId="desiredShipmentDate"
                 ></app-date-range-picker>
+
+                <biopro-search-select
+                    id="shipmentTypeId"
+                    [formGroup]="searchForm"
+                    [controlName]="'shipmentType'"
+                    title="Shipment Type"
+                    [items]="shipmentTypeOptions"
+                    matSelectId="shipmentType"
+                >
+                </biopro-search-select>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    [disabled]="shipmentTypeSelected() === 'internalTransfer'"
+                    [controlName]="'customers'"
+                    title="Ship to Customer"
+                    [items]="customers"
+                    matSelectId="customers"
+                ></app-multiple-select>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    [controlName]="'shipToLocation'"
+                    [disabled]="shipmentTypeSelected() === 'customer'"
+                    title="Ship to Location"
+                    [items]="shipToLocationOptions"
+                    matSelectId="shipToLocationId"
+                ></app-multiple-select>
             </div>
         </div>
     </form>

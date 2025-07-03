@@ -36,6 +36,7 @@ import {
 } from '../../models/search-order.model';
 import { OrderService } from '../../services/order.service';
 import { SearchOrderFilterComponent } from './search-filter/search-order-filter.component';
+import { ShipmentTypeMap } from 'app/shared/models/shipment-type.model';
 
 @Component({
     selector: 'app-search-orders',
@@ -55,6 +56,7 @@ import { SearchOrderFilterComponent } from './search-filter/search-order-filter.
 export class SearchOrdersComponent implements OnInit {
     readonly OrderPriorityMap = OrderPriorityMap;
     readonly OrderStatusMap = OrderStatusMap;
+    readonly ShipmentTypeMap = ShipmentTypeMap;
 
     isFilterToggled = false;
     currentFilter: SearchOrderFilterDTO;
@@ -79,6 +81,9 @@ export class SearchOrdersComponent implements OnInit {
     );
     customerNameTemplateRef = viewChild<TemplateRef<Element>>(
         'customerNameTemplateRef'
+    );
+    shipmentTypeTemplateRef = viewChild<TemplateRef<Element>>(
+        'shipmentTypeTemplateRef'
     );
     detailBtnTemplateRef = viewChild<TemplateRef<Element>>(
         'detailBtnTemplateRef'
@@ -116,8 +121,14 @@ export class SearchOrdersComponent implements OnInit {
             columnTempRef: this.statusTemplateRef(),
         },
         {
+            id: 'shipmentType',
+            header: 'Shipment Type',
+            sort: true,
+            columnTempRef: this.shipmentTypeTemplateRef(),
+        },
+        {
             id: 'shippingCustomerName',
-            header: 'Ship to Customer Name',
+            header: 'Ship To',
             sort: true,
             columnTempRef: this.customerNameTemplateRef(),
         },
@@ -195,6 +206,10 @@ export class SearchOrdersComponent implements OnInit {
         }
         if (this.currentFilter.customers?.length) {
             criteria.customers = this.currentFilter.customers;
+        }
+        //TODO
+        if (this.currentFilter.shipmentType?.length) {
+            criteria.shipmentType = this.currentFilter.shipmentType;
         }
         if (
             this.currentFilter.createDate?.start != null &&
