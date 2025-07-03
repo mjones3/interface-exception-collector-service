@@ -4,9 +4,10 @@ import com.arcone.biopro.distribution.irradiation.BioProApplication;
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
@@ -14,16 +15,12 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest(classes = BioProApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-test.properties")
 @ActiveProfiles("test")
-@EmbeddedKafka(
-    partitions = 1,
-    brokerProperties = {
-        "num.io.threads=1",
-        "num.network.threads=1",
-        "socket.request.max.bytes=524288000",
-        "message.max.bytes=524288000",
-        "replica.fetch.max.bytes=524288000"
-    }
-)
+@AutoConfigureHttpGraphQlTester
+@ComponentScan(basePackages = {
+    "com.arcone.biopro.distribution.irradiation",
+    "com.arcone.biopro.testing.frontend"
+})
+
 public class CucumberSpringConfiguration {
 
     @Autowired
