@@ -164,8 +164,28 @@ public class ImportProductsController {
         } else {
             return null;
         }
+    }
 
+    public Map cancelImport() {
+        String payload = GraphQLMutationMapper.cancelImportMutation(
+            sharedContext.getCreateImportResponse().get("id").toString(),
+            employeeId
+        );
+        var response = apiHelper.graphQlRequest(payload, "cancelImport");
+        log.debug("Cancel import response: {}", response);
+        if (response.get("data") != null) {
+            sharedContext.setCompleteImportResponse((Map) response.get("data"));
+        } else {
+            sharedContext.setCompleteImportResponse(null);
+        }
 
+        return response;
+    }
 
+    public Object getLastImportCreated(){
+        String payload = GraphQLQueryMapper.getImportById(sharedContext.getLastImportId());
+        var response = apiHelper.graphQlRequest(payload, "findImportById");
+        log.debug("Last Import Response :{}",response);
+        return response.get("data");
     }
 }

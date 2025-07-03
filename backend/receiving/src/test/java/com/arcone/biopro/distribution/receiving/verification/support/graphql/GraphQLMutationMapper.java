@@ -92,4 +92,25 @@ public class GraphQLMutationMapper {
             }
             """, importId, employeeId);
     }
+
+    public static String cancelImportMutation(String importId,String employeeId) {
+        return String.format("""
+            mutation cancelImport {
+                cancelImport(
+                    cancelImportRequest: {
+                        importId: %s
+                        cancelEmployeeId: "%s"
+                    }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                    }
+                }
+            }
+            """, importId, employeeId);
+    }
 }

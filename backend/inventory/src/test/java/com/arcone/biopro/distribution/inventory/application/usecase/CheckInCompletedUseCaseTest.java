@@ -45,7 +45,7 @@ class CheckInCompletedUseCaseTest {
             .productCode("E123412")
             .productDescription("APH PLASMA 24H")
             .collectionDate(ZonedDateTime.now())
-            .inventoryLocation("LOCATION_1")
+            .checkInLocation("LOCATION_1")
             .collectionLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)

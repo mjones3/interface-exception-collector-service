@@ -47,7 +47,7 @@ public class BarcodeValidator {
             return switch (validateBarcodeCommand.getParseType()) {
                 case BARCODE_UNIT_NUMBER -> configurationService.findByFinNumber(foundText.substring(0,5))
                     .flatMap(translation -> Mono.just(ValidationResult.builder().valid(true).result(foundText).build()))
-                    .switchIfEmpty(Mono.just( ValidationResult.builder().valid(false).message("FIN is not associated with a registered facility").build()))
+                    .switchIfEmpty(Mono.just( ValidationResult.builder().valid(false).message("This FIN is not registered in the system").build()))
                     .block();
                 case BARCODE_PRODUCT_CODE ->
                     configurationService.findByCodeAndTemperatureCategory(foundText, validateBarcodeCommand.getTemperatureCategory())

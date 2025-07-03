@@ -23,5 +23,5 @@ public interface UseCaseResponseMapper {
 
     UseCaseResponseDTO<ImportDTO> toCreateImportUseCaseResponse(UseCaseOutput<ImportOutput> useCaseOutput);
 
-    UseCaseResponseDTO<ValidationResultDTO> toValidateTemperatureUseCaseResponse(UseCaseOutput<ValidationResultOutput> useCaseOutput);
+    UseCaseResponseDTO<Void> toVoidUseCaseResponse(UseCaseOutput<Void> useCaseOutput);
 }

@@ -97,7 +97,7 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
 
     private String createProductCodePattern(String productCode) {
         if (productCode != null && productCode.length() == 7) {
-            return productCode.replaceAll("^(E\\d{4})([A-Z0-9]{2})$", "$1%$2");
+            return productCode.replaceAll("^(E[A-Z0-9]\\d{3})([A-Z0-9]{2})$", "$1%$2");
         }
 
         return productCode;

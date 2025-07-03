@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.eventbridge.verification.context;
 
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.LoggingConfiguration;
+import io.cucumber.spring.ScenarioScope;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

@@ -3,9 +3,12 @@ package com.arcone.biopro.distribution.inventory.verification.utils;
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.PropertyKey;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
+import com.arcone.biopro.distribution.inventory.infrastructure.persistence.PropertyEntity;
+import com.arcone.biopro.distribution.inventory.infrastructure.persistence.PropertyEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,13 +18,18 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class InventoryUtil {
 
     private final InventoryEntityRepository inventoryEntityRepository;
+    private final PropertyEntityRepository propertyEntityRepository;
+
 
     @Value("${default.location}")
     private String defaultLocation;
@@ -53,6 +61,50 @@ public class InventoryUtil {
             .isLicensed(true)
             .shortDescription(ISBTProductUtil.getProductDescription(productCode))
             .build();
+    }
+
+    public void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, String expireIn, InventoryStatus status, String temperatureCategory, Boolean isLabeled, String statusReason, String comments, String expirationTimezone, String timezoneRelevant) {
+        var inventory = newInventoryEntity(unitNumber, productCode, status);
+
+        var expirePlus = Integer.parseInt(expireIn.split(" ")[0]);
+        var expireType = expireIn.split(" ")[1];
+        if ("Hours".equals(expireType)) {
+            inventory.setExpirationDate(LocalDateTime.now().plusHours(expirePlus));
+        } else {
+            inventory.setExpirationDate(LocalDateTime.now().plusDays(expirePlus));
+        }
+        inventory.setInventoryLocation(location);
+        inventory.setCollectionLocation(location);
+        inventory.setProductFamily(productFamily);
+        inventory.setAboRh(aboRhType);
+        inventory.setStatusReason(statusReason);
+        inventory.setComments(comments);
+        inventory.setIsLabeled(isLabeled);
+        inventory.setTemperatureCategory(temperatureCategory);
+        inventory.setExpirationTimeZone(expirationTimezone);
+        saveInventory(inventory);
+        if ("Y".equals(timezoneRelevant)) {
+            propertyEntityRepository.save(
+                PropertyEntity.builder()
+                    .id(UUID.randomUUID())
+                    .key(PropertyKey.TIMEZONE_RELEVANT.name())
+                    .value(timezoneRelevant)
+                    .inventoryId(inventory.getId())
+                    .build()
+            ).block();
+        }
+    }
+
+    public void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, String expireIn, InventoryStatus status, String temperatureCategory) {
+        createInventory(unitNumber, productCode, productFamily, aboRhType, location, expireIn, status, temperatureCategory, null, null, null, null, null);
+    }
+
+    public void createMultipleProducts(String unitNumber, String productCode, Integer quantity, String productFamily, String aboRh, String location, String expireIn, InventoryStatus status, String temperatureCategory, String expirationTimezone, String timezoneRelevant ) {
+        AboRhType aboRhType = AboRhType.valueOf(aboRh);
+
+        for (int i = 0; i < quantity; i++) {
+            createInventory(unitNumber, productCode, productFamily, aboRhType, location, expireIn, status, temperatureCategory, true, null, null, expirationTimezone, timezoneRelevant);
+        }
     }
 
     /**
@@ -122,11 +174,11 @@ public class InventoryUtil {
         return builder.build();
     }
 
-    public CheckInCompletedInput newCheckInCompletedInput(String unitNumber, String productCode, String collectionLocation, String collectionTimeZone) {
+    public CheckInCompletedInput newCheckInCompletedInput(String unitNumber, String productCode, String collectionLocation, String collectionTimeZone, String checkinLocation) {
         return CheckInCompletedInput.builder()
             .productFamily(ISBTProductUtil.getProductFamily(productCode))
             .aboRh(AboRhType.OP)
-            .inventoryLocation(collectionLocation)
+            .checkInLocation(checkinLocation)
             .collectionLocation(collectionLocation)
             .collectionTimeZone(collectionTimeZone)
             .collectionDate(ZonedDateTime.now())
