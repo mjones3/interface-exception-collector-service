@@ -57,7 +57,7 @@
       "$ref": "#/definitions/shippingCustomerCode"
     },
     "billingCustomerCode": {
-      "$ref": "#/definitions/billingCustomerCode"
+      "type": ["string","null"]
     },
     "comments": {
       "$ref": "#/definitions/comments"
@@ -90,6 +90,10 @@
           "quarantinedProducts": {
             "type": ["boolean"],
             "title": "Order can be filled with quarantined products"
+          },
+          "billingCustomerCode": {
+            "type": ["string","null"],
+            "title": "Billing Customer Code of ordering hospital"
           }
         },
         "required": [
@@ -105,6 +109,13 @@
         ]
       },
       "else": {
+        "properties": {
+          "billingCustomerCode": {
+            "type": ["string"],
+            "minLength": 1,
+            "title": "Billing Customer Code of ordering hospital"
+          }
+        },
         "required": [
           "externalId",
           "orderStatus",
@@ -189,11 +200,8 @@
     },
     "shippingCustomerCode": {
       "type": ["string"],
+      "minLength": 1,
       "title": "Shipping Customer Code of ordering hospital"
-    },
-    "billingCustomerCode": {
-      "type": ["string","null"],
-      "title": "Billing Customer Code of ordering hospital"
     },
     "comments": {
       "type": ["string","null"],
