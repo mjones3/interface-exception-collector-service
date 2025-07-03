@@ -11,6 +11,7 @@ public record ShipmentCompletedInput(
     ShipmentType shipmentType,
     String orderNumber,
     String performedBy,
+    String locationCode,
     List<LineItem> lineItems) {
 
     public record LineItem(
@@ -22,4 +23,3 @@ public record ShipmentCompletedInput(
         }
     }
 }
-

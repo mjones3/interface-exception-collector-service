@@ -334,5 +334,7 @@ topic:
     name: ProductModified
   products-imported:
     name: ProductsImported
+  products-received:
+    name: ProductsReceived
 
 

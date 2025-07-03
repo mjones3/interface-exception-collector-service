@@ -35,16 +35,16 @@ public class ShipmentCompletedUseCase implements UseCase<Mono<ShipmentCompletedO
     public Mono<ShipmentCompletedOutput> execute(ShipmentCompletedInput input) {
         return Flux.fromIterable(input.lineItems())
             .flatMap(lineItem -> Flux.fromIterable(lineItem.products()))
-            .flatMap(product -> processProduct(product, input.shipmentType()))
+            .flatMap(product -> processProduct(product, input.shipmentType(), input.locationCode()))
             .collectList()
             .map(inventoryOutputs -> createShipmentCompletedOutput(input, inventoryOutputs));
     }
 
-    private Mono<InventoryOutput> processProduct(ShipmentCompletedInput.LineItem.Product product, ShipmentType shipmentType) {
+    private Mono<InventoryOutput> processProduct(ShipmentCompletedInput.LineItem.Product product, ShipmentType shipmentType, String locationCode) {
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(product.unitNumber(), product.productCode())
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
             .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(
-                inventoryAggregate.completeShipment(shipmentType)
+                inventoryAggregate.completeShipment(shipmentType, locationCode)
             ))
             .map(InventoryAggregate::getInventory)
             .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.SHIPPED)))
