@@ -269,4 +269,19 @@ public class GraphQLQueryMapper {
             }
             """, orderId);
     }
+
+    public static String findOrderShipmentByOrderId(Integer orderId) {
+        return String.format("""
+            query  {
+                  findOrderShipmentByOrderId(orderId:%s) {
+                               id
+                               orderId
+                               shipmentId
+                               shipmentStatus
+                               createDate
+
+                       }
+                }
+            """, orderId);
+    }
 }

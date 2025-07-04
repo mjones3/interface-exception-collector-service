@@ -73,6 +73,9 @@ public class PickListMapper {
                                     .build())
                                 .toList()
                         )
+                        .labelStatus(pickList.getLabelStatus())
+                        .shipmentType(pickList.getShipmentType())
+                        .quarantinedProducts(pickList.getQuarantinedProducts())
                         .build()
                 )
                     .orElse(null))
@@ -82,7 +85,8 @@ public class PickListMapper {
     public UseCaseResponseDTO<PickList> mapToUseCaseResponse(Order order){
 
         var pickList = new PickList(order.getOrderNumber().getOrderNumber() , order.getLocationFrom().getCode() , order.getOrderStatus().getOrderStatus()
-            , new PickListCustomer(order.getShippingCustomer().getCode() , order.getShippingCustomer().getName()), order.getComments() , order.getProductCategory().getProductCategory());
+            , new PickListCustomer(order.getShippingCustomer().getCode() , order.getShippingCustomer().getName()), order.getComments()
+            , order.getProductCategory().getProductCategory() , order.getShipmentType().getShipmentType(), order.getQuarantinedProducts(), order.getLabelStatus().value());
 
         if(order.getOrderItems() != null){
             order.getOrderItems().forEach(orderItem -> pickList.addPickListItem(new PickListItem(orderItem.getProductFamily().getProductFamily()

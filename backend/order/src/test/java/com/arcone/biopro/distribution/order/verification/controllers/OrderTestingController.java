@@ -150,6 +150,10 @@ public class OrderTestingController {
         context.setOrdersPage(response);
     }
 
+    public Map generatePickList(Integer orderId, boolean skipServiceUnavailable) {
+        return apiHelper.graphQlRequest(GraphQLMutationMapper.generatePickListMutation(orderId,skipServiceUnavailable), "generatePickList");
+    }
+
     @Getter
     @RequiredArgsConstructor
     public
@@ -244,6 +248,12 @@ public class OrderTestingController {
 
         var event = kafkaHelper.sendEvent(eventPayload.eventId().toString(), eventPayload, Topics.MODIFY_ORDER_RECEIVED).block();
         Assert.assertNotNull(event);
+    }
+
+    public Map getOrderShipmentDetailsMap(Integer orderId) {
+        var response = apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderShipmentByOrderId(orderId), "findOrderShipmentByOrderId");
+        log.debug("Order Shipment details: {}", response);
+        return response;
     }
 
 }

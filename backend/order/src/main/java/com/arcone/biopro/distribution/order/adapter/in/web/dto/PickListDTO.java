@@ -10,6 +10,9 @@ public record PickListDTO(
     Long orderNumber,
     PickListCustomerDTO customer,
     List<PickListItemDTO> pickListItems,
-    String orderComments
+    String orderComments,
+    String shipmentType,
+    Boolean quarantinedProducts,
+    String labelStatus
 ) implements Serializable {
 }
