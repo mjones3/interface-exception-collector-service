@@ -111,4 +111,13 @@ public class DatabaseQueries {
     public static String getOrderStatus(String externalId) {
         return String.format("SELECT status FROM bld_order WHERE external_id = '%s'", externalId);
     }
+
+    public static String removeLocationPropertyByExternalId(String externalId) {
+            return "DELETE FROM lk_location_property WHERE location_id = (SELECT id FROM lk_location WHERE external_id = '" + externalId + "');";
+
+    }
+
+    public static String removeLocationByExternalId(String externalId) {
+            return "DELETE FROM lk_location WHERE external_id = '" + externalId + "';";
+    }
 }

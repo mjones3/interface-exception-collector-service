@@ -105,4 +105,14 @@ public class DatabaseSteps {
         var query = DatabaseQueries.insertBioProOrderShipmentQuantity(quantity, context.getOrderId().toString());
         databaseService.executeSql(query).block();
     }
+
+    @Given("I have removed from the database all the configurations for the location {string}.")
+    public void iHaveRemovedFromTheDatabaseAllTheConfigurationsForTheLocation(String external_id) {
+        var deletePropertySQL = DatabaseQueries.removeLocationPropertyByExternalId(external_id);
+        databaseService.executeSql(deletePropertySQL).block();
+
+        var deleteConfigurationSQL = DatabaseQueries.removeLocationByExternalId(external_id);
+        databaseService.executeSql(deleteConfigurationSQL).block();
+    }
+
 }

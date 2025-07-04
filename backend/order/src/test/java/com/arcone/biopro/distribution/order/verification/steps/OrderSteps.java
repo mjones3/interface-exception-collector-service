@@ -615,7 +615,9 @@ public class OrderSteps {
     }
 
     @Then("I should see {int} orders in the search results.")
-    public void iShouldSeeOrdersInTheSearchResults(int quantity) {
+    public void iShouldSeeOrdersInTheSearchResults(int quantity) throws InterruptedException {
+        // Delay to render the table rows
+        Thread.sleep(500);
         Assert.assertEquals(quantity, searchOrderPage.tableRowsCount());
     }
 
@@ -748,6 +750,7 @@ public class OrderSteps {
     public void iHaveAnotherBioproOrderWithTheExternalIdEqualsToOrderNumberOfThePreviousOrder() {
         var query = DatabaseQueries.insertBioProOrder(context.getOrderNumber().toString(), context.getLocationCode(), orderController.getPriorityValue(priority), priority.replace('-', '_'), status);
         databaseService.executeSql(query).block();
+        context.setExternalId(context.getOrderNumber().toString());
     }
 
     @Given("I have an order with external ID {string} partially fulfilled with a shipment {string}.")

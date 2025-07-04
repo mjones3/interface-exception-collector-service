@@ -16,7 +16,9 @@ Feature: Search Orders
         @ui @R20-227 @R20-228 @DIS-481
         Scenario Outline: Search orders by Order Number
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
+            And I have an order item with product family "APHERESIS_PLATELETS_LEUKOREDUCED", blood type "AP", quantity 5, and order item comments "Comments".
             And I have another Biopro Order with the externalId equals to order number of the previous order.
+            And I have an order item with product family "APHERESIS_PLATELETS_LEUKOREDUCED", blood type "ON", quantity 2, and order item comments "Comments 2".
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
             And I open the search orders filter panel.
