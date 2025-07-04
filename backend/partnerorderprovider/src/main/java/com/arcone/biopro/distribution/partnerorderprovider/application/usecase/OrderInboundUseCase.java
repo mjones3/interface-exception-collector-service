@@ -43,7 +43,7 @@ public class OrderInboundUseCase implements OrderInboundService {
             , orderInboundDTO.getComments()
             , Objects.nonNull(orderInboundDTO.getOrderPickType()) ? new PartnerOrderPickUpType(orderInboundDTO.getOrderPickType().getWillCallPickUp(),orderInboundDTO.getOrderPickType().getPhoneNumber()): null
             ,orderInboundDTO.getLabelStatus()
-            , orderInboundDTO.getQuarantineProducts());
+            , orderInboundDTO.getQuarantinedProducts());
         if(orderInboundDTO.getOrderItems() != null && !orderInboundDTO.getOrderItems().isEmpty()){
             orderInboundDTO.getOrderItems().forEach(orderItemDTO -> {
                 partnerOrder.addItem(new PartnerOrderItem(orderItemDTO.getProductFamily(), orderItemDTO.getBloodType() , orderItemDTO.getQuantity(), orderItemDTO.getComments()));

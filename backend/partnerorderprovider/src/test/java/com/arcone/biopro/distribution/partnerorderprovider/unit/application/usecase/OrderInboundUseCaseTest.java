@@ -72,7 +72,7 @@ class OrderInboundUseCaseTest {
         Mockito.when(orderInboundDto.getShippingMethod()).thenReturn("ShippingMethod");
         Mockito.when(orderInboundDto.getProductCategory()).thenReturn("ProductCategory");
         Mockito.when(orderInboundDto.getDesiredShippingDate()).thenReturn("DesiredShippingDate");
-        Mockito.when(orderInboundDto.getQuarantineProducts()).thenReturn(true);
+        Mockito.when(orderInboundDto.getQuarantinedProducts()).thenReturn(true);
         Mockito.when(orderInboundDto.getLabelStatus()).thenReturn("LABELED");
 
         var response = orderInboundService.receiveOrderInbound(orderInboundDto);

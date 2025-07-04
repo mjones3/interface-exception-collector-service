@@ -28,7 +28,7 @@ public class OrderInboundDTO implements Serializable {
     private String comments;
     private OrderPickTypeDTO orderPickType;
     private List<OrderItemDTO> orderItems = new ArrayList<>();
-    private Boolean quarantineProducts;
+    private Boolean quarantinedProducts;
     private String labelStatus;
 
 }
