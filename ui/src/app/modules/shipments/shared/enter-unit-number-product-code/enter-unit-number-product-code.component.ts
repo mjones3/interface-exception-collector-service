@@ -65,6 +65,7 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
     productGroup: FormGroup;
     formValueChange: Subscription;
     unitNumberFocus = true;
+    @Input() showProductCode = true;
     @Input() showVisualInspection = false;
     @Input() showCheckDigit = true;
     @Output()
@@ -88,15 +89,15 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
             productCode: [
                 { value: '', disabled: true },
-                [RsaValidators.fullProductCode, Validators.required],
+                this.showProductCode
+                    ? [ RsaValidators.fullProductCode, Validators.required ]
+                    : [ Validators.nullValidator ],
             ],
             visualInspection: [
                 { value: '', disabled: true },
-                [
-                    this.showVisualInspection
-                        ? Validators.required
-                        : Validators.nullValidator,
-                ],
+                this.showVisualInspection
+                    ? [ Validators.required ]
+                    : [ Validators.nullValidator ],
             ],
         });
 
@@ -104,13 +105,12 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
             .pipe(
                 combineLatestWith(formGroup.valueChanges),
                 filter(
-                    ([status, value]) =>
-                        !!value.unitNumber?.trim() &&
-                        !!value.productCode?.trim() &&
-                        (this.showVisualInspection
-                            ? !!value.visualInspection?.trim()
-                            : true) &&
-                        status === 'VALID'
+                    ([status, value]) => {
+                        return !!value.unitNumber?.trim() &&
+                            ( this.showProductCode ? !!value.productCode?.trim() : true) &&
+                            ( this.showVisualInspection ? !!value.visualInspection?.trim() : true) &&
+                            status === 'VALID'
+                    }
                 ),
                 debounceTime(300)
             )
