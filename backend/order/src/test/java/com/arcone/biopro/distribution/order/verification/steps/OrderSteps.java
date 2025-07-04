@@ -885,6 +885,15 @@ public class OrderSteps {
             Assert.fail("Invalid search key.");
         }
     }
+    @When("I search for orders by {string} and {string}.")
+    public void iSearchForOrdersByExternalID(String keys, String values) {
+        String[] KeyList = testUtils.getCommaSeparatedList(keys);
+        String[] ValueList = testUtils.getCommaSeparatedList(values);
+
+        Assert.assertEquals(KeyList.length, ValueList.length);
+
+        orderController.listOrdersByCriteria(KeyList, ValueList);
+    }
 
     @When("I search for orders by {string} from {string} to {string}.")
     public void searchForOrdersByCreateDate(String searchKey, String createDateFrom, String createDateTo) {

@@ -101,22 +101,22 @@ public class OrderTestingController {
     }
 
     public void listOrdersByExternalId() {
-        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getExternalId()), "searchOrders");
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(), context.getExternalId()), "searchOrders");
         context.setOrdersPage(response);
     }
 
     public void listOrdersByOrderId() {
-        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getOrderId().toString()), "searchOrders");
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(), context.getOrderId().toString()), "searchOrders");
         context.setOrdersPage(response);
     }
 
     public void listOrdersByPage(Integer page) {
-        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByPage(context.getLocationCode(),page), "searchOrders");
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByPage(context.getLocationCode(), page), "searchOrders");
         context.setOrdersPage(response);
     }
 
-    public void sortOrdersByPage(Integer page , String sortingColumn , String sortingOrder) {
-        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.sortOrdersByPage(context.getLocationCode(),page, sortingColumn, sortingOrder), "searchOrders");
+    public void sortOrdersByPage(Integer page, String sortingColumn, String sortingOrder) {
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.sortOrdersByPage(context.getLocationCode(), page, sortingColumn, sortingOrder), "searchOrders");
         context.setOrdersPage(response);
     }
 
@@ -130,7 +130,23 @@ public class OrderTestingController {
     }
 
     public void searchOrdersByCreateDate(String locationCode, String createDateFrom, String createDateTo) {
-        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.searchOrdersByCreateDate(locationCode,createDateFrom,createDateTo), "searchOrders");
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.searchOrdersByCreateDate(locationCode, createDateFrom, createDateTo), "searchOrders");
+        context.setOrdersPage(response);
+    }
+
+    public void listOrdersByCriteria(String[] keyList, String[] valueList) {
+        String criteria = "";
+        for (var i = 0; i < keyList.length; i++) {
+            if (i > 0) {
+                criteria += ", ";
+            }
+            if (keyList[i].contains("Date")) {
+                valueList[i] = "'" + testUtils.parseDateKeyword(valueList[i]) + "'";
+            }
+            criteria += keyList[i] + ": " + valueList[i].replace("'", "\"");
+        }
+
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByCriteria(criteria), "searchOrders");
         context.setOrdersPage(response);
     }
 
@@ -191,7 +207,7 @@ public class OrderTestingController {
         String transactionId,
         String modifyPayload,
         String modifyItemsPayload
-       ) throws Exception {
+    ) throws Exception {
 
         // Prepare items string object
         StringBuilder orderItems = new StringBuilder();
