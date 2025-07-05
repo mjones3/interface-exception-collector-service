@@ -96,7 +96,7 @@ public class ShipmentFulfillmentSteps {
             "North Miami",
             quantities,
             bloodTypes,
-            productFamilies, unitNumbers, productCodes);
+            productFamilies, unitNumbers, productCodes,"CUSTOMER","LABELED",false);
     }
 
     private void goToDetailsPage(long orderNumber) throws Exception {
@@ -571,6 +571,28 @@ public class ShipmentFulfillmentSteps {
             var verified = packedItems.stream().filter(item -> item.get("secondVerification").equals("COMPLETE")).toList();
             Assert.assertEquals(expectedQuantity, Integer.valueOf(verified.size()));
         }
+    }
+
+    @When("I receive a shipment fulfillment request event with Order Number as {string}, Priority as {string}, Shipping Date as {string} , Shipment Type defined as {string}, Label Status as {string} and Quarantined Products as {string}.")
+    public void iReceiveAShipmentFulfillmentRequestEventWithOrderExternalIDAsOrderNumberAsPriorityAsShippingDateAsShipmentTypeDefinedAsLabelStatusAsAndQuarantinedProductsAs(String orderNumber, String priority, String shipDate
+        , String shipmentType, String labelStatus, String quarantinedProducts) throws Exception {
+        var shipDateFormat = "";
+        if("<tomorrow>".equals(shipDate)){
+            shipDateFormat = LocalDate.now().plusDays(1).toString();
+        }else{
+            shipDateFormat = LocalDate.now().toString();
+        }
+        this.orderPriority = priority;
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(orderNumber,priority,shipDateFormat,shipmentType,labelStatus,Boolean.parseBoolean(quarantinedProducts)));
+
+    }
+
+    @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {string}, Blood Types: {string}, Product Families {string}, Temperature Category as {string}, Shipment Type defined as {string}, Label Status as {string} and Quarantined Products as {string}.")
+    public void theShipmentDetailsAreOrderNumberCustomerIDCustomerNameProductDetailsQuantitiesBloodTypesProductFamiliesShipmentTypeDefinedAsLabelStatusAsAndQuarantinedProductsAs(String orderNumber, String customerId, String customerName
+        , String quantities, String bloodTypes, String productFamilies,String temperatureCategory,String shipmentType, String labelStatus, String quarantinedProducts) {
+        this.shipmentDetailType = shipmentTestingController.buildShipmentRequestDetailsResponseType(Long.parseLong(orderNumber), "123456789", customerId, customerName
+            , "", "36544 SW 27th St", null, null, null, productFamilies, bloodTypes, quantities,shipmentType,labelStatus,Boolean.parseBoolean(quarantinedProducts),temperatureCategory);
+        Assert.assertNotNull(this.shipmentDetailType);
     }
 }
 

@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.shipping.verification.pages.distribution.F
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 
 
@@ -124,5 +126,10 @@ public class ShipmentDetailPageSteps {
         } else {
             Assert.fail("Invalid option: " + option);
         }
+    }
+
+    @And("I can see the Internal Transfer details with Shipment type as {string}, Label Status as {string}, Quarantined Products as {string}.")
+    public void iCanSeeTheInternalTransferDetailsWithShipmentTypeAsLabelStatusAsQuarantinedProductsAs(String shipmentType, String labelStatus, String quarantinedProducts) {
+        shipmentDetailPage.verifyInternalTransferInformation(shipmentType, labelStatus, quarantinedProducts);
     }
 }

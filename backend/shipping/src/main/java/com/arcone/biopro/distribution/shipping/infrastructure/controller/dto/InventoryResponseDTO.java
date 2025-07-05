@@ -21,7 +21,8 @@ public record InventoryResponseDTO(
     ZonedDateTime collectionDate,
     String storageLocation,
     ZonedDateTime createDate,
-    ZonedDateTime modificationDate
+    ZonedDateTime modificationDate,
+    String status
 
 ) implements Serializable {
 }
