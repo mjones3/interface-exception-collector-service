@@ -78,6 +78,9 @@ public class ShipmentItemPacked implements Serializable, Persistable<Long> {
     @Column("product_family")
     private String productFamily;
 
+    @Column("product_status")
+    private String productStatus;
+
     @Column("blood_type")
     private BloodType bloodType;
 

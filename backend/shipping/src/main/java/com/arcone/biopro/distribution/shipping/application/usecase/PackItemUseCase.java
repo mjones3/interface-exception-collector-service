@@ -21,8 +21,10 @@ import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentReposit
 import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
 import com.arcone.biopro.distribution.shipping.domain.service.PackItemService;
 import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
+import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryNotificationDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
+import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.InventoryServiceNotAvailableException;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
@@ -31,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -58,6 +61,7 @@ public class PackItemUseCase implements PackItemService {
     private final InventoryRsocketClient inventoryRsocketClient;
     private final SecondVerificationService secondVerificationUseCase;
     private final ShipmentRepository shipmentRepository;
+    private static final String INTERNAL_TRANSFER_TYPE = "INTERNAL_TRANSFER";
 
     @Override
     @WithSpan("packItem")
@@ -66,8 +70,8 @@ public class PackItemUseCase implements PackItemService {
         var visualInspection = configService.findShippingVisualInspectionActive();
         var secondVerification = configService.findShippingSecondVerificationActive();
         var validateInventory = validateInventory(packItemRequest);
-        return Mono.zip(validateInventory,visualInspection,secondVerification)
-            .flatMap(tuple -> validateProductCriteria(packItemRequest, tuple.getT1(), tuple.getT2() , tuple.getT3()))
+        return Mono.zip(validateInventory, visualInspection, secondVerification)
+            .flatMap(tuple -> validateProductCriteria(packItemRequest, tuple.getT1(), tuple.getT2(), tuple.getT3()))
             .flatMap(this::resetSecondVerification)
             .flatMap(shipmentItemPacked ->
                 Mono.from(getShipmentItemById(shipmentItemPacked.getShipmentItemId())).flatMap(shipmentItemResponseDTO -> Mono.just(RuleResponseDTO.builder()
@@ -110,83 +114,114 @@ public class PackItemUseCase implements PackItemService {
             });
     }
 
-    private Mono<InventoryResponseDTO> validateInventory(PackItemRequest packItemRequest) {
-        return inventoryRsocketClient.validateInventory(InventoryValidationRequest.builder()
-            .productCode(packItemRequest.productCode())
-            .locationCode(packItemRequest.locationCode())
-            .unitNumber(packItemRequest.unitNumber()).build()).flatMap(inventoryValidationResponseDTO -> {
-            if (inventoryValidationResponseDTO.inventoryResponseDTO() != null && (inventoryValidationResponseDTO.inventoryNotificationsDTO() == null || inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty())) {
-                return Mono.just(inventoryValidationResponseDTO.inventoryResponseDTO());
-            } else {
-                return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
-                    ,inventoryValidationResponseDTO.inventoryResponseDTO()
-                    , inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
-                    .map(inventoryNotificationDTO -> NotificationDTO
-                        .builder()
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .name(inventoryNotificationDTO.errorName())
-                        .message(inventoryNotificationDTO.errorMessage())
-                        .code(inventoryNotificationDTO.errorCode())
-                        .action(inventoryNotificationDTO.action())
-                        .notificationType(inventoryNotificationDTO.errorType())
-                        .reason(inventoryNotificationDTO.reason())
-                        .details(inventoryNotificationDTO.details())
-                        .build() )
-                    .toList()));
+    private Mono<InventoryValidationResponseDTO> validateInventory(PackItemRequest packItemRequest) {
+        return shipmentRepository.findShipmentByItemId(packItemRequest.shipmentItemId()).flatMap(shipment -> {
+                return inventoryRsocketClient.validateInventory(InventoryValidationRequest.builder()
+                    .productCode(packItemRequest.productCode())
+                    .locationCode(packItemRequest.locationCode())
+                    .unitNumber(packItemRequest.unitNumber()).build()).flatMap(inventoryValidationResponseDTO -> {
+                    if (inventoryValidationResponseDTO.inventoryResponseDTO() != null && (inventoryValidationResponseDTO.inventoryNotificationsDTO() == null || inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty())) {
+                        return Mono.just(inventoryValidationResponseDTO);
+                    } else {
+
+                        if(hasOnlyQuarantineNotifications(inventoryValidationResponseDTO.inventoryNotificationsDTO())
+                            && INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
+                            && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts()){
+                            return Mono.just(inventoryValidationResponseDTO);
+                        }
+
+                        return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
+                            , inventoryValidationResponseDTO.inventoryResponseDTO()
+                            , inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
+                            .map(inventoryNotificationDTO -> NotificationDTO
+                                .builder()
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .name(inventoryNotificationDTO.errorName())
+                                .message(inventoryNotificationDTO.errorMessage())
+                                .code(inventoryNotificationDTO.errorCode())
+                                .action(inventoryNotificationDTO.action())
+                                .notificationType(inventoryNotificationDTO.errorType())
+                                .reason(inventoryNotificationDTO.reason())
+                                .details(inventoryNotificationDTO.details())
+                                .build())
+                            .toList()));
+                    }
+                });
             }
-        });
+        );
+
     }
 
-    private Mono<ShipmentItemPacked> validateProductCriteria(PackItemRequest request, InventoryResponseDTO inventoryResponseDTO, Boolean visualInspectionFlag, Boolean secondVerificationFlag) {
+    private boolean hasOnlyQuarantineNotifications(List<InventoryNotificationDTO> inventoryNotificationsDTO){
+        if(inventoryNotificationsDTO == null){
+            throw new IllegalArgumentException("inventoryNotificationsDTO is null");
+        }
+
+        var countNotifications = inventoryNotificationsDTO.stream()
+        .filter(notificationDTO -> notificationDTO.errorName().equals("INVENTORY_IS_QUARANTINED"))
+        .count();
+        return countNotifications == 1 && inventoryNotificationsDTO.size() == 1;
+    }
+
+    private Mono<ShipmentItemPacked> validateProductCriteria(PackItemRequest request, InventoryValidationResponseDTO inventoryValidationResponseDTO, Boolean visualInspectionFlag, Boolean secondVerificationFlag) {
         var visualInspectionActive = ofNullable(visualInspectionFlag).orElse(TRUE);
         var secondVerificationActive = ofNullable(secondVerificationFlag).orElse(FALSE);
+        var inventoryResponseDTO = inventoryValidationResponseDTO.inventoryResponseDTO();
 
         return shipmentItemRepository.findById(request.shipmentItemId())
             .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_ITEM_NOT_FOUND_ERROR)))
             .flatMap(shipmentItem -> {
                 return shipmentRepository.findById(shipmentItem.getShipmentId()).flatMap(shipment -> {
-                    if (!shipmentItem.getProductFamily().equals(inventoryResponseDTO.productFamily())) {
-                        log.error("Product Family does not match");
-                        return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR,List.of(NotificationDTO
-                            .builder()
-                            .notificationType(NotificationType.WARN.name())
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .message(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR)
-                            .name("PRODUCT_CRITERIA_FAMILY_ERROR")
-                            .build())));
+                        if (!shipmentItem.getProductFamily().equals(inventoryResponseDTO.productFamily())) {
+                            log.error("Product Family does not match");
+                            return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR, List.of(NotificationDTO
+                                .builder()
+                                .notificationType(NotificationType.WARN.name())
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .message(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR)
+                                .name("PRODUCT_CRITERIA_FAMILY_ERROR")
+                                .build())));
 
-                    } else if (!BloodType.ANY.equals(shipmentItem.getBloodType()) && !inventoryResponseDTO.aboRh().contains(shipmentItem.getBloodType().name())) {
-                        log.error("Blood Type does not match");
-                        return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR , List.of(NotificationDTO
-                            .builder()
-                            .name("PRODUCT_CRITERIA_BLOOD_TYPE_ERROR")
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .message(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR)
-                            .notificationType(NotificationType.WARN.name())
-                            .build())));
-                    }else if(!shipment.getProductCategory().equals(inventoryResponseDTO.temperatureCategory())){
-                        return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR , List.of(NotificationDTO
-                            .builder()
-                            .name("PRODUCT_CRITERIA_TEMPERATURE_CATEGORY_ERROR")
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .message(ShipmentServiceMessages.PRODUCT_CRITERIA_TEMPERATURE_CATEGORY_ERROR)
-                            .notificationType(NotificationType.WARN.name())
-                            .build())));
-                    }
-                    return Mono.just(shipmentItem);
-                })
-                .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)));
+                        } else if (!BloodType.ANY.equals(shipmentItem.getBloodType()) && !inventoryResponseDTO.aboRh().contains(shipmentItem.getBloodType().name())) {
+                            log.error("Blood Type does not match");
+                            return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR, List.of(NotificationDTO
+                                .builder()
+                                .name("PRODUCT_CRITERIA_BLOOD_TYPE_ERROR")
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .message(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR)
+                                .notificationType(NotificationType.WARN.name())
+                                .build())));
+                        } else if (!shipment.getProductCategory().equals(inventoryResponseDTO.temperatureCategory())) {
+                            return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR, List.of(NotificationDTO
+                                .builder()
+                                .name("PRODUCT_CRITERIA_TEMPERATURE_CATEGORY_ERROR")
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .message(ShipmentServiceMessages.PRODUCT_CRITERIA_TEMPERATURE_CATEGORY_ERROR)
+                                .notificationType(NotificationType.WARN.name())
+                                .build())));
+                        } else if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType()) && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts() && CollectionUtils.isEmpty(inventoryValidationResponseDTO.inventoryNotificationsDTO()) ) {
+                            return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR, List.of(NotificationDTO
+                                .builder()
+                                .name("PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR")
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .message(ShipmentServiceMessages.PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR)
+                                .notificationType(NotificationType.WARN.name())
+                                .build())));
+                        }
+                        return Mono.just(shipmentItem);
+                    })
+                    .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)));
             }).zipWith(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(request.unitNumber(), request.productCode()))
             .flatMap(tuple2 -> {
-                if(tuple2.getT2() > 0){
-                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR,List.of(NotificationDTO
+                if (tuple2.getT2() > 0) {
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR, List.of(NotificationDTO
                         .builder()
                         .name("PRODUCT_ALREADY_USED_ERROR")
                         .statusCode(HttpStatus.BAD_REQUEST.value())
                         .message(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR)
                         .notificationType(NotificationType.WARN.name())
                         .build())));
-                } else if(TRUE.equals(visualInspectionActive) && !VisualInspection.SATISFACTORY.equals(request.visualInspection())){
+                } else if (TRUE.equals(visualInspectionActive) && !VisualInspection.SATISFACTORY.equals(request.visualInspection())) {
                     return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR, inventoryResponseDTO, List.of(NotificationDTO
                         .builder()
                         .name("PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR")
@@ -202,7 +237,7 @@ public class PackItemUseCase implements PackItemService {
                 var total = tuple2.getT2() + 1;
                 if (total > tuple2.getT1().getQuantity()) {
                     log.error("Quantity exceeded");
-                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_QUANTITY_ERROR,List.of(NotificationDTO
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_QUANTITY_ERROR, List.of(NotificationDTO
                         .builder()
                         .name("PRODUCT_CRITERIA_QUANTITY_ERROR")
                         .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -223,6 +258,7 @@ public class PackItemUseCase implements PackItemService {
                             .bloodType(tuple2.getT1().getBloodType())
                             .visualInspection(TRUE.equals(visualInspectionActive) ? VisualInspection.SATISFACTORY : VisualInspection.DISABLED)
                             .secondVerification(TRUE.equals(secondVerificationActive) ? SecondVerification.PENDING : SecondVerification.DISABLED)
+                            .productStatus(inventoryResponseDTO.status())
                             .build())
                         .flatMap(Mono::just);
                 }
@@ -230,7 +266,7 @@ public class PackItemUseCase implements PackItemService {
     }
 
     private Mono<RuleResponseDTO> buildPackErrorResponse(Throwable error) {
-        if(error instanceof InventoryServiceNotAvailableException){
+        if (error instanceof InventoryServiceNotAvailableException) {
             return Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.BAD_REQUEST)
                 .notifications(List.of(NotificationDTO
@@ -243,26 +279,26 @@ public class PackItemUseCase implements PackItemService {
                     .build()))
                 .build());
         }
-        if(error instanceof ProductValidationException exception){
+        if (error instanceof ProductValidationException exception) {
 
             return configService.findVisualInspectionFailedDiscardReasons()
                 .flatMap(reasonDomainMapper::flatMapToDto)
                 .collectList()
                 .map(reasons -> {
-                    Map<String, List<?>> results  = new HashMap<>();
-                    if(((ProductValidationException) error).getInventoryResponseDTO() != null ) {
+                    Map<String, List<?>> results = new HashMap<>();
+                    if (((ProductValidationException) error).getInventoryResponseDTO() != null) {
                         results.put("inventory", List.of(((ProductValidationException) error).getInventoryResponseDTO()));
-                    }else{
+                    } else {
                         results.put("inventory", List.of(Collections.emptyList()));
                     }
-                    results.put("reasons",reasons);
+                    results.put("reasons", reasons);
                     return RuleResponseDTO.builder()
                         .ruleCode(HttpStatus.BAD_REQUEST)
                         .results(results)
                         .notifications(exception.getNotifications())
                         .build();
-                } );
-        }else{
+                });
+        } else {
             return Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.BAD_REQUEST)
                 .notifications(List.of(NotificationDTO
@@ -277,8 +313,8 @@ public class PackItemUseCase implements PackItemService {
         }
     }
 
-    private Mono<ShipmentItemPacked> resetSecondVerification(ShipmentItemPacked shipmentItemPacked){
-        log.debug("Reset Second Verification {}",shipmentItemPacked);
+    private Mono<ShipmentItemPacked> resetSecondVerification(ShipmentItemPacked shipmentItemPacked) {
+        log.debug("Reset Second Verification {}", shipmentItemPacked);
         return shipmentItemRepository.findById(shipmentItemPacked.getShipmentItemId())
             .map(shipmentItem -> Shipment.builder().id(shipmentItem.getShipmentId()).build())
             .flatMap(secondVerificationUseCase::resetVerification)

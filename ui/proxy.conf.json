@@ -37,7 +37,7 @@
     },
     {
         "context": ["/shipping/graphql"],
-        "target": "http://api.local.gd/shipping/graphql",
+        "target": "http://localhost:8080/shipping/graphql",
         "secure": true,
         "changeOrigin": true,
         "pathRewrite": {
