@@ -21,7 +21,6 @@ export class UnitNumberCardComponent {
     @Input() id: string | number;
     @Input() unitNumber = '';
     @Input() productName = '';
-    @Input() status = '';
     @Input() statusClasses = '';
     @Input() statuses = [];
     @Input() iconName = '';

@@ -42,12 +42,11 @@ import {
 } from "../record-visual-inspection-modal/record-visual-inspection-modal.component";
 
 const AVAILABLE = 'AVAILABLE';
-const DISCARDED = 'DISCARDED';
 const QUARANTINED = 'QUARANTINED';
-const UNSUITABLE = 'UNSUITABLE';
+const PENDING_INSPECTION = 'PENDING INSPECTION';
 const EXPIRED = 'EXPIRED';
-const UNSATISFACTORY = 'UNSATISFACTORY';
-const SATISFACTORY = 'SATISFACTORY';
+const IRRADIATED = 'IRRADIATED';
+const NOT_IRRADIATED = 'NOT IRRADIATED';
 
 @Component({
   selector: 'app-close-irradiation',
@@ -199,6 +198,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             });
     }
 
+
     validateUnit(event: ValidateUnitEvent) {
         console.log('validateUnit', event);
 
@@ -211,12 +211,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 productFamily: 'WHOLE_BLOOD',
                 icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
-                statuses: [
-                    {
-                        value: 'AVAILABLE',
-                        classes: this.statusToColorClass('AVAILABLE'),
-                    },
-                ],
+                statuses: this.getStatuses(AVAILABLE)
             },
             {
                 unitNumber: "W036825314134",
@@ -226,12 +221,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 productFamily: 'WHOLE_BLOOD',
                 icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
-                statuses: [
-                    {
-                        value: 'QUARANTINED',
-                        classes: this.statusToColorClass('QUARANTINED'),
-                    },
-                ],
+                statuses: this.getStatuses(QUARANTINED)
             },
         ];
 
@@ -275,6 +265,23 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     private findIconsByProductFamily(productFamily: string) {
         return this._productIconService.getIconByProductFamily(productFamily);
+    }
+
+    private getStatuses(status: string) {
+        let statuses = [];
+        if (status) {
+            statuses.push({
+                value: status,
+                classes: this.statusToColorClass(status),
+            });
+        }
+        statuses.push(
+            {
+                value: PENDING_INSPECTION,
+                classes: this.statusToColorClass(PENDING_INSPECTION),
+            },
+        )
+        return statuses;
     }
 
     private statusToColorClass(status: string) {
@@ -380,12 +387,12 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
                     if (successful) {
                         product.statuses.push({
-                            value: SATISFACTORY,
+                            value: IRRADIATED,
                             classes: 'bg-green-500 text-white',
                         });
                     } else {
                         product.statuses.push({
-                            value: UNSATISFACTORY,
+                            value: NOT_IRRADIATED,
                             classes: 'bg-gray-200 text-black',
                         });
                     }
@@ -399,7 +406,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                                     priority,
                                 }) as ReasonDTO
                         ),
-                        status: successful ? SATISFACTORY : UNSATISFACTORY,
+                        status: successful ? IRRADIATED : NOT_IRRADIATED,
                         comments,
                     };
                     this.selectedProducts = [];
