@@ -38,4 +38,8 @@ public class DatabaseQueries {
         return String.format("UPDATE bld_import SET status = '%s' WHERE id = %s", status,importId);
     }
 
+    public static String COUNT_IMPORTED_PRODUCT_BY_UNIT_NUMBER_PRODUCT_CODE(String unitNumber , String productCode) {
+        return String.format("SELECT count(*) as total FROM bld_import_item WHERE unit_number = '%s' AND product_code = '%s' ", unitNumber,productCode);
+    }
+
 }

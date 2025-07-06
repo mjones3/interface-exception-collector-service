@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.PropertyKey;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
@@ -369,6 +368,9 @@ public class RepositorySteps {
             if(row.containsKey("Collection Location")){
                 assertEquals(row.get("Collection Location"), inventoryEntity.getCollectionLocation());
             }
+            if(row.containsKey("Checkin Location")){
+                assertEquals(row.get("Checkin Location"), inventoryEntity.getInventoryLocation());
+            }
             if(row.containsKey("Collection TimeZone")){
                 assertEquals(row.get("Collection TimeZone"), inventoryEntity.getCollectionTimeZone());
             }
@@ -432,49 +434,11 @@ public class RepositorySteps {
                 temperatureCategory = product.get("Temperature Category");
             }
 
-            createMultipleProducts(unitNumber, productCode, units, family, abORh, location, expiresIn, status, temperatureCategory, product.get("Expiration Timezone"), product.get("Timezone Relevant"));
+            inventoryUtil.createMultipleProducts(unitNumber, productCode, units, family, abORh, location, expiresIn, status, temperatureCategory, product.get("Expiration Timezone"), product.get("Timezone Relevant"));
         }
     }
 
-    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, String expireIn, InventoryStatus status, String temperatureCategory, Boolean isLabeled, String statusReason, String comments, String expirationTimezone, String timezoneRelevant) {
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
 
-        var expirePlus = Integer.parseInt(expireIn.split(" ")[0]);
-        var expireType = expireIn.split(" ")[1];
-        if ("Hours".equals(expireType)) {
-            inventory.setExpirationDate(LocalDateTime.now().plusHours(expirePlus));
-        } else {
-            inventory.setExpirationDate(LocalDateTime.now().plusDays(expirePlus));
-        }
-        inventory.setInventoryLocation(location);
-        inventory.setCollectionLocation(location);
-        inventory.setProductFamily(productFamily);
-        inventory.setAboRh(aboRhType);
-        inventory.setStatusReason(statusReason);
-        inventory.setComments(comments);
-        inventory.setIsLabeled(isLabeled);
-        inventory.setTemperatureCategory(temperatureCategory);
-        inventory.setExpirationTimeZone(expirationTimezone);
-        inventoryUtil.saveInventory(inventory);
-        if ("Y".equals(timezoneRelevant)) {
-            propertyEntityRepository.save(
-                PropertyEntity.builder()
-                    .id(UUID.randomUUID())
-                    .key(PropertyKey.TIMEZONE_RELEVANT.name())
-                    .value(timezoneRelevant)
-                    .inventoryId(inventory.getId())
-                    .build()
-            ).block();
-        }
-    }
-
-    private void createMultipleProducts(String unitNumber, String productCode, Integer quantity, String productFamily, String aboRh, String location, String expireIn, InventoryStatus status, String temperatureCategory, String expirationTimezone, String timezoneRelevant ) {
-        AboRhType aboRhType = AboRhType.valueOf(aboRh);
-
-        for (int i = 0; i < quantity; i++) {
-            createInventory(unitNumber, productCode, productFamily, aboRhType, location, expireIn, status, temperatureCategory, true, null, null, expirationTimezone, timezoneRelevant);
-        }
-    }
 
     @Then("the properties should be added:")
     public void thePropertiesShouldBeAdded(DataTable dataTable) {

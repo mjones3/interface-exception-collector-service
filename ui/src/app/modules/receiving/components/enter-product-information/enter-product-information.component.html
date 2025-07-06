@@ -19,9 +19,9 @@
                 id="productInformationCancel"
                 btnId="productInformationCancelActionButton"
                 label="Cancel"
-                [disabled]="true"
                 color="secondary"
                 icon="heroicons_outline:x-circle"
+                (clickEvent)="onClickCancel()"
             />
 
             <biopro-action-button
@@ -30,7 +30,7 @@
                 label="Submit"
                 [disabled]="!importData()?.canComplete"
                 color="primary"
-                (click) = "completeImport()"
+                (clickEvent) = "completeImport()"
                 icon="heroicons_outline:paper-airplane"
             />
         </div>
@@ -169,18 +169,19 @@
 
         <!-- ADDED PRODUCTS -->
         <div class="flex flex-col w-full md:w-9/12">
-            <biopro-table
-                #importedProductInformationTable
-                tableId="importItemsTableId"
-                [tableContainerClass]="'h-[calc(100vh-350px)] min-h-[300px] overflow-auto'"
-                [totalCounts]="importData()?.maxNumberOfProducts"
-                [showCounts]="true"
-                [dataSource]="importData()?.products"
-                [configuration]="importItemsTableConfigComputed()"
-                [pageIndex]="0"
-                [serverPagination]="false"
-            >
-            </biopro-table>
+                <biopro-table
+                    #importedProductInformationTable
+                    tableId="importItemsTableId"
+                    [tableContainerClass]="'h-[calc(100vh-350px)] min-h-[300px] overflow-auto'"
+                    [totalCounts]="importData()?.maxNumberOfProducts"
+                    [tableNoResultsMessage]="'No Products Added'"
+                    [showCounts]="true"
+                    [dataSource]="importData()?.products"
+                    [configuration]="importItemsTableConfigComputed()"
+                    [pageIndex]="0"
+                    [serverPagination]="false"
+                >
+                </biopro-table>
 
         <ng-template #expirationDateTemplateRef let-element="element">
             {{ element?.expirationDate | date: 'MM/dd/yyyy' }}

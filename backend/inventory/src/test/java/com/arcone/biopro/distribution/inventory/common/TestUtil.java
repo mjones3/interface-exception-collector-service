@@ -11,6 +11,10 @@ public class TestUtil {
         return "W" + RandomStringUtils.random(length - 1, false, true);
     }
 
+    public static String randomString(String prefix, int length) {
+        return prefix + RandomStringUtils.random(length - prefix.length(), false, true);
+    }
+
     public static List<Quarantine> createQuarantines() {
         return List.of(
             new Quarantine(1L, "ABS_POSITIVE", null),

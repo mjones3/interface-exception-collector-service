@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.eventbridge.domain.model.ShipmentCompleted
 import com.arcone.biopro.distribution.eventbridge.domain.model.vo.ShipmentCustomer;
 import com.arcone.biopro.distribution.eventbridge.domain.model.vo.ShipmentLocation;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.ShipmentCompletedOutboundPayload;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.event.ShipmentCompletedOutboundOutputEvent;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.listener.ShipmentCompletedOutboundEventListener;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.mapper.ShipmentCompletedOutboundMapper;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -16,13 +17,13 @@ import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.core.publisher.Mono;
 import reactor.kafka.sender.SenderResult;
 
-class ShipmentCompletedOutboundEventListenerTest {
+class ShipmentCompletedOutboundOutputEventListenerTest {
 
 
     @Test
     public void shouldHandleShipmentCompletedOutboundEvents(){
 
-        ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutboundPayload> producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
+        ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutboundOutputEvent> producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
 
         var mapper = new ShipmentCompletedOutboundMapper();
 

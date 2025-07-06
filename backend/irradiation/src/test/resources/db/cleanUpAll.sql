@@ -1,0 +1,2 @@
+-- DELETE FROM irradiation.bld_donation
+-- WHERE irradiation.bld_donation.unit_number like 'W7777%';

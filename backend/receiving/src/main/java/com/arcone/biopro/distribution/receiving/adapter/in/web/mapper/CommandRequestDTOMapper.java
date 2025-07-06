@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.receiving.adapter.in.web.mapper;
 
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.AddImportItemRequestDTO;
+import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CancelImportRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CompleteImportRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CreateImportRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.EnterShippingInformationRequestDTO;
@@ -9,6 +10,7 @@ import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ValidateDevic
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ValidateTemperatureRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ValidateTransitTimeRequestDTO;
 import com.arcone.biopro.distribution.receiving.application.dto.AddImportItemCommandInput;
+import com.arcone.biopro.distribution.receiving.application.dto.CancelImportCommandInput;
 import com.arcone.biopro.distribution.receiving.application.dto.CompleteImportCommandInput;
 import com.arcone.biopro.distribution.receiving.application.dto.CreateImportCommandInput;
 import com.arcone.biopro.distribution.receiving.application.dto.EnterShippingInformationCommandInput;
@@ -29,4 +31,5 @@ public interface CommandRequestDTOMapper {
     ValidateBarcodeCommandInput toCommandInput(ValidateBarcodeRequestDTO validateBarcodeRequestDTO);
     AddImportItemCommandInput toCommandInput(AddImportItemRequestDTO addImportItemRequestDTO);
     CompleteImportCommandInput toCommandInput(CompleteImportRequestDTO completeImportRequestDTO);
+    CancelImportCommandInput toCommandInput(CancelImportRequestDTO cancelImportRequestDTO);
 }

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string"
+    },
+    "occurredOn": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "externalId": {
+          "type": "string"
+        },
+        "rejectedReason": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string"
+        },
+        "transactionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "externalId",
+        "rejectedReason",
+        "operation"
+      ]
+    },
+    "eventType": {
+      "type": "string"
+    },
+    "eventVersion": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "eventId",
+    "occurredOn",
+    "payload",
+    "eventType",
+    "eventVersion"
+  ]
+}
