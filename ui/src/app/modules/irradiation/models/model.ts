@@ -11,6 +11,25 @@ export interface CheckDigitResponseDTO {
     };
 }
 
+export interface RecordVisualInpectionResult {
+    successful: boolean;
+    comment: string;
+    reasons: ReasonDTO[];
+}
+
+export interface ReasonDTO {
+    type: string;
+    reasonKey: string;
+    consequenceType: string;
+    priority: number;
+}
+
+export interface VisualInspectionRequestDTO {
+    status: string;
+    comments: string;
+    reasons: ReasonDTO[];
+}
+
 export interface ValidationDataDTO {
     unitNumber: string;
     productCode: string;
@@ -51,8 +70,10 @@ export interface IrradiationProductDTO {
     productDescription: string;
     productFamily: string;
     status: string;
+    statusClasses?: string;
     icon?: string;
     order: number;
+    visualInspection?: VisualInspectionRequestDTO;
     statuses?: { value: string; classes: string }[];
 }
 

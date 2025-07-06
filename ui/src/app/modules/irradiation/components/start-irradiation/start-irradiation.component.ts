@@ -256,7 +256,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         if (notAddedProducts.length === 0) {
             this.showMessage(
                 MessageType.WARNING,
-                'Unit has already been added to the list'
+                'Product has already been added to the list'
             );
             return;
         }
