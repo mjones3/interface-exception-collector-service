@@ -283,10 +283,10 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 return 'bg-orange-500 text-white';
             case AVAILABLE:
                 return 'bg-green-500 text-white';
-            case UNSUITABLE:
-            case DISCARDED:
             case EXPIRED:
                 return 'bg-red-500 text-white';
+            default:
+                return 'bg-gray-500 text-white';
         }
     }
 

@@ -112,7 +112,7 @@
             <mat-divider></mat-divider>
 
             <div class="-mx-3 mt-3">
-                <div id="optionButtons" class="grid-container w-1/5">
+                <div id="optionButtons" class="grid-container w-1/4">
                     @if (products.length === 0) {
                         <p>
                             Enter irradiation ID then scan or enter unit numbers
@@ -120,13 +120,14 @@
                     } @else {
                         @for (option of products; track $index) {
                             <biopro-unit-number-card
-                                class="grid-item"
+                                class="grid-item m-2"
                                 [ngStyle]="{
                                     'grid-row-start': ($index % 2) + 1,
                                 }"
                                 [id]="'unit-' + $index"
                                 [unitNumber]="option.unitNumber"
                                 [productName]="option.productDescription"
+                                [status]="option.status"
                                 [statuses]="option.statuses"
                                 [active]="selectedProducts.includes(option)"
                                 [iconName]="option.icon"
