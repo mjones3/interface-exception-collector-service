@@ -49,7 +49,6 @@ const OTHER_REASON_KEY = 'OTHER';
 })
 export class RecordVisualInspectionModalComponent implements OnInit {
     form: FormGroup;
-    $reasons: Observable<ReasonDTO[]>;
 
     constructor(
         private readonly irradiationService: IrradiationService,
@@ -62,20 +61,17 @@ export class RecordVisualInspectionModalComponent implements OnInit {
         this.form = formBuilder.group<{
             visualInspection: FormControl<boolean | null>;
             reasons: FormControl<ReasonDTO[]>;
-            comments: FormControl<string>;
+
         }>({
             visualInspection: new FormControl(null, {
                 validators: Validators.required,
             }),
-            reasons: new FormControl([]),
-            comments: new FormControl(''),
+            reasons: new FormControl([])
         });
     }
 
     ngOnInit(): void {
-        // this.$reasons = this.checkInService
-        //     .getReasons(VISUAL_INSPECTION)
-        //     .pipe(map((response) => response.data.getReasons));
+
     }
 
     toggleButton(reason: ReasonDTO) {
@@ -99,7 +95,7 @@ export class RecordVisualInspectionModalComponent implements OnInit {
         });
     }
 
-    set visualInpsection(value: boolean) {
+    set visualInspection(value: boolean) {
         if (!value) {
             this.reasons.setValidators(Validators.required);
             this.reasons.updateValueAndValidity();
@@ -118,10 +114,4 @@ export class RecordVisualInspectionModalComponent implements OnInit {
         return this.form.controls['reasons'];
     }
 
-    get commentRequired(): boolean {
-        return this.reasons.value.find(
-            (reason: { reasonKey: string }) =>
-                reason.reasonKey === OTHER_REASON_KEY
-        );
-    }
 }

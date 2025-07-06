@@ -100,9 +100,9 @@
                     ></biopro-action-button>
                     <biopro-action-button
                         id="visualInspectionBtn"
-                        btnId="visualInspectionBtn"
+                        btnId="visualInspecActionBtn"
                         label="Record Inspection"
-
+                        icon="biopro:visual-inspection"
                         [disabled]="false"
                         (clickEvent)="openRecordVisualInspectionModal()"
                     ></biopro-action-button>
@@ -112,7 +112,7 @@
             <mat-divider></mat-divider>
 
             <div class="-mx-3 mt-3">
-                <div id="optionButtons" class="grid-container">
+                <div id="optionButtons" class="grid-container w-1/5">
                     @if (products.length === 0) {
                         <p>
                             Enter irradiation ID then scan or enter unit numbers

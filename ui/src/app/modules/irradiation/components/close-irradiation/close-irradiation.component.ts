@@ -341,17 +341,18 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             RecordVisualInpectionResult
         >(RecordVisualInspectionModalComponent, {
             disableClose: true,
-            width: '42rem',
+            width: '30rem',
         });
 
         dialogRef
             .afterClosed()
             .subscribe(({ successful, comment, reasons }) =>
-                this.applyVisualInspectionOnSelectedProducts(
-                    successful,
-                    reasons,
-                    comment
-                )
+                console.log('dialog closed', successful, comment, reasons)
+                // this.applyVisualInspectionOnSelectedProducts(
+                //     successful,
+                //     reasons,
+                //     comment
+                // )
             );
     }
 
