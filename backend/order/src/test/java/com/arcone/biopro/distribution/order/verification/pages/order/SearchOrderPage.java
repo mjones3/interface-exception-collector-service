@@ -483,7 +483,7 @@ public class SearchOrderPage extends CommonPageFactory {
 
     private void theShipToLocationFieldIsEnabled() {
         sharedActions.waitForVisible(shipToLocationField);
-        Assert.assertTrue("ShipToLocation field should be disabled", sharedActions.isElementEnabled(driver, shipToLocationField));
+        Assert.assertFalse("ShipToLocation field should be disabled", sharedActions.isElementEnabled(driver, shipToLocationField));
     }
 
     public void theOrderFieldIsEnabled() throws InterruptedException {

@@ -120,14 +120,7 @@ export class SearchOrderFilterComponent implements OnInit {
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.enable({ emitEvent: false });
-                        if(this.shipmentTypeSelected() === '') {
-                            this.searchForm.get('customers')?.disable({ emitEvent: false });
-                            this.searchForm.get('locations')?.disable({ emitEvent: false });
-                        } else if(this.shipmentTypeSelected() === 'INTERNAL_TRANSFER'){
-                            this.searchForm.get('customers')?.disable({ emitEvent: false });
-                        }else{
-                            this.searchForm.get('locations')?.disable({ emitEvent: false });
-                        }
+                        this.enableFieldsByShipmentTypeSelection();
                         if (key === 'createDate') {
                             const startControl = this.searchForm
                                 .get(key)
@@ -173,15 +166,27 @@ export class SearchOrderFilterComponent implements OnInit {
                             emitEvent: false,
                         });
                     }
+                    this.enableFieldsByShipmentTypeSelection();
                 });
             }
         });
-        //TODO
         this.searchForm.get('shipmentType').valueChanges.subscribe((value) => {
             this.shipmentTypeSelected.set(value);
             this.searchForm.get('locations').reset();
             this.searchForm.get('customers').reset();
         })
+    }
+
+
+    enableFieldsByShipmentTypeSelection(){
+        if(this.shipmentTypeSelected() === '' || this.shipmentTypeSelected() === null) {
+            this.searchForm.get('customers')?.disable({ emitEvent: false });
+            this.searchForm.get('locations')?.disable({ emitEvent: false });
+        } else if(this.shipmentTypeSelected() === 'INTERNAL_TRANSFER'){
+            this.searchForm.get('customers')?.disable({ emitEvent: false });
+        }else{
+            this.searchForm.get('locations')?.disable({ emitEvent: false });
+        }
     }
 
     orderNumberInformed = () => this.isFieldInformed('orderNumber');
@@ -283,8 +288,8 @@ export class SearchOrderFilterComponent implements OnInit {
                 orderStatus: [''],
                 deliveryTypes: [''],
                 shipmentType: [''],
-                locations: [{value: '', disabled: false}],
-                customers: [{value: '', disabled: false}],
+                locations: [{value: '', disabled: true}],
+                customers: [{value: '', disabled: true}],
                 createDate: this.formBuilder.group({
                     start: [null], // Start date
                     end: [null], // End date
@@ -320,8 +325,14 @@ export class SearchOrderFilterComponent implements OnInit {
     // Reseting Filters
     resetFilters(): void {
         this.searchForm.reset();
+        this.shipmentTypeSelected.set('');
         Object.keys(this.searchForm.controls).forEach((filterKey) => {
-            this.searchForm.controls[filterKey].enable();
+            if(filterKey !== 'customers' && filterKey !== 'locations'){
+                this.searchForm.controls[filterKey].enable();
+            }else{
+                this.searchForm.controls[filterKey].disable();
+            }
+            
         });
         this.emitNoResults();
     }

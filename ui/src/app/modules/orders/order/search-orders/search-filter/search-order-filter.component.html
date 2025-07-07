@@ -72,7 +72,7 @@
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    [disabled]="shipmentTypeSelected() === 'internalTransfer'"
+                    [disabled]="shipmentTypeSelected() === 'INTERNAL_TRANSFER'"
                     [controlName]="'customers'"
                     title="Ship to Customer"
                     [items]="customers"
@@ -82,7 +82,7 @@
                 <app-multiple-select
                     [formGroup]="searchForm"
                     [controlName]="'locations'"
-                    [disabled]="shipmentTypeSelected() === 'customer'"
+                    [disabled]="shipmentTypeSelected() === 'CUSTOMER'"
                     title="Ship to Location"
                     [items]="locations"
                     matSelectId="shipToLocationId"
