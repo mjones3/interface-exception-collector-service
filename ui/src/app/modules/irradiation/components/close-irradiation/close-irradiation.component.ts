@@ -49,8 +49,8 @@ const IRRADIATED = 'IRRADIATED';
 const NOT_IRRADIATED = 'NOT IRRADIATED';
 
 @Component({
-  selector: 'app-close-irradiation',
-  standalone: true,
+    selector: 'biopro-close-irradiation',
+    standalone: true,
     imports: [
         ActionButtonComponent,
         FuseCardComponent,
@@ -62,8 +62,9 @@ const NOT_IRRADIATED = 'NOT IRRADIATED';
         UnitNumberCardComponent,
         NgStyle
     ],
-  templateUrl: './close-irradiation.component.html',
-  styleUrl: './close-irradiation.component.scss'
+    templateUrl: './close-irradiation.component.html',
+    styleUrl: './close-irradiation.component.scss',
+    encapsulation: ViewEncapsulation.None,
 })
 export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
@@ -108,6 +109,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             lotNumber: [null, [Validators.required]]
         });
     }
+
     ngOnInit() {
         this.isCheckDigitVisible = (
             this.activatedRoute.snapshot.data as { useCheckDigit: boolean }
@@ -209,6 +211,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 p.disabled = false;
             });
         }
+        this.unitNumberComponent.reset();
     }
 
     private populateCentrifugationBatch(irradiationProducts: IrradiationProductDTO[]) {
@@ -263,7 +266,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.unitNumberComponent.reset();
         this.unitNumberComponent.focusOnUnitNumber();
 
-        this.allProducts.push({ ...newProduct });
+        this.allProducts.push({...newProduct});
     }
 
     private notInProductList(product: ValidationDataDTO) {
@@ -275,7 +278,9 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     get numberOfUnits() {
-        return this.allProducts.length;
+        return this.products
+            .filter(p => !p.disabled)
+            .length;
     }
 
     get selectAllTextRule() {
@@ -290,7 +295,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     selectAllUnits() {
-        if (this.selectedProducts.length === this.products.length) {
+        const enabledProducts = this.products.filter(p => !p.disabled);
+        if (this.selectedProducts.length === enabledProducts.length) {
             this.selectedProducts = [];
         } else {
             this.selectedProducts = [].concat(enabledProducts);
@@ -309,8 +315,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
         dialogRef
             .afterClosed()
-            .subscribe(({ successful, comment, reasons }) =>
-                console.log('dialog closed', successful, comment, reasons)
+            .subscribe(({successful, comment, reasons}) =>
+                    console.log('dialog closed', successful, comment, reasons)
                 // this.applyVisualInspectionOnSelectedProducts(
                 //     successful,
                 //     reasons,
@@ -355,7 +361,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
                     product.visualInspection = {
                         reasons: reasons.map(
-                            ({ reasonKey, consequenceType, priority }) =>
+                            ({reasonKey, consequenceType, priority}) =>
                                 ({
                                     reasonKey,
                                     consequenceType,

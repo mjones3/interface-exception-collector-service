@@ -41,10 +41,7 @@ const UNSUITABLE = 'UNSUITABLE';
 const EXPIRED = 'EXPIRED';
 
 @Component({
-  host: {
-      class: 'flex flex-1 h-full',
-  },
-  selector: 'app-start-irradiation',
+  selector: 'biopro-start-irradiation',
   standalone: true,
     imports: [
         ActionButtonComponent,
@@ -303,7 +300,9 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     get numberOfUnits() {
-        return this.allProducts.length;
+        return this.allProducts
+            .filter(p => !p.disabled)
+            .length;
     }
 
     get selectAllTextRule() {
@@ -321,7 +320,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         if (this.selectedProducts.length === this.products.length) {
             this.selectedProducts = [];
         } else {
-            this.selectedProducts = [].concat(this.products);
+            this.selectedProducts = [].concat(this.products.filter(p => !p.disabled));
         }
     }
 

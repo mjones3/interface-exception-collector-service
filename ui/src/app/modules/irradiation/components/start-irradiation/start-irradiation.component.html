@@ -30,7 +30,7 @@
         <div class="w-full flex flex-row gap-4">
             <fuse-card
                 [formGroup]="form"
-                class="w-full flex flex-row gap-4 justify-center p-4"
+                class="w-full flex flex-row gap-4 justify-start p-4"
             >
                 <biopro-input
                     [inputWidth]="'w-90'"
@@ -71,7 +71,7 @@
         </div>
 
         <fuse-card
-            class="mb-4 flex flex-col px-8 pb-4"
+            class="mb-4 flex flex-col px-8"
             id="centrifugation-container"
         >
             <div class="flex flex-row justify-between">
@@ -113,18 +113,17 @@
 
             <mat-divider></mat-divider>
 
-            <div class="-mx-3 mt-3">
-                <div id="optionButtons" class="grid-container">
-                    @if (products.length === 0) {
-                        <p>
-                            Enter irradiation ID then scan or enter unit numbers
-                        </p>
-                    } @else {
-                        @for (option of products; track $index) {
-                            <biopro-unit-number-card
+            <div id="optionButtons" class="grid-container">
+                @if (products.length === 0) {
+                    <p>
+                        Enter irradiation ID then scan or enter unit numbers
+                    </p>
+                } @else {
+                    @for (option of products; track $index) {
+                        <biopro-unit-number-card
                                 class="grid-item m-2"
                                 [ngStyle]="{
-                                    'grid-row-start': ($index % 2) + 1,
+                                    'grid-row-start': ($index % 5) + 1
                                 }"
                                 [id]="'unit-' + $index"
                                 [unitNumber]="option.unitNumber"
@@ -133,10 +132,9 @@
                                 [active]="selectedProducts.includes(option)"
                                 [iconName]="option.icon"
                                 (clickEvent)="toggleProduct(option)"
-                            ></biopro-unit-number-card>
-                        }
+                        ></biopro-unit-number-card>
                     }
-                </div>
+                }
             </div>
         </fuse-card>
     </div>
