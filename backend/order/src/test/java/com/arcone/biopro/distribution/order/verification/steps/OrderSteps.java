@@ -257,8 +257,23 @@ public class OrderSteps {
             this.status = row.get(headers.indexOf("Status"));
             var desireShipDate = row.get(headers.indexOf("Desired Shipment Date")).equals("NULL_VALUE") ? null : "'" + row.get(headers.indexOf("Desired Shipment Date")) + "'";
 
-            var query = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), orderController.getPriorityValue(priority), priority, status, desireShipDate
-                , row.get(headers.indexOf("Customer Code")), row.get(headers.indexOf("Ship To Customer Name")), row.get(headers.indexOf("Create Date")));
+            var query = DatabaseQueries.insertBioProOrderWithDetails(
+                context.getExternalId(),
+                context.getLocationCode(),
+                orderController.getPriorityValue(priority),
+                priority,
+                status,
+                row.get(headers.indexOf("Shipment Type")),
+                "FEDEX",
+                "FROZEN",
+                desireShipDate,
+                row.get(headers.indexOf("Customer Code")),
+                row.get(headers.indexOf("Ship To Customer Name")),
+                "null",
+                "null",
+                "Comments",
+                "false",
+                "LABELED");
             databaseService.executeSql(query).block();
 
             var orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString());
@@ -321,6 +336,11 @@ public class OrderSteps {
             this.labelStatus = "LABELED";
         } else {
             this.labelStatus = labelStatus;
+        }
+        if("<null>".equalsIgnoreCase(desiredShipDate)){
+            desiredShipDate = null;
+        } else {
+            desiredShipDate = "'" + desiredShipDate + "'";
         }
 
         var query = DatabaseQueries.insertBioProOrderWithDetails(context.getExternalId(), locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, this.shippingCustomerCode, this.shippingCustomerName, this.billCustomerCode, this.billCustomerName, comments, this.quarantinedProducts, this.labelStatus);
