@@ -4,6 +4,6 @@ Feature: Scan Irradiation Device
     So that I do not initiate a batch in an irradiator that is in use
 
     Scenario: Successfully scan and validate available irradiation device
-        Given I have a device "DEVICE001" at location "123456789" with status "ACTIVE"
-        When I scan the device "DEVICE001" at location "123456789"
+        Given I have a device "TESTDEVICE004" at location "123456789" with status "ACTIVE"
+        When I scan the device "TESTDEVICE004" at location "123456789"
         Then the device validation should be successful
