@@ -15,7 +15,8 @@ public record OrderReportDTO (
     OrderCustomerReportDTO orderCustomerReport,
     OrderPriorityReportDTO orderPriorityReport,
     ZonedDateTime createDate,
-    LocalDate desireShipDate
+    LocalDate desireShipDate,
+    String shipmentType
 ) implements Serializable {
 
 

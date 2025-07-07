@@ -9,7 +9,9 @@ import java.util.List;
 public record SearchOrderCriteriaDTO(
     List<LookupDTO> orderStatus,
     List<LookupDTO> orderPriorities,
-    List<OrderCustomerReportDTO> customers
+    List<OrderCustomerReportDTO> customers,
+    List<LookupDTO> shipmentTypes,
+    List<LocationFilterDTO> locations
 ) implements Serializable {
 
 

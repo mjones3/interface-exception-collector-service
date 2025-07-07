@@ -9,6 +9,8 @@ import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -69,6 +71,40 @@ public class TestUtils {
         return listOfMap.stream()
             .sorted(Comparator.comparing(e -> (R) e.get(key)))
             .toList();
+    }
+
+    public String parseDateKeyword(String keyword) {
+        if (keyword.equals("<tomorrow>")) {
+            LocalDate tomorrow = LocalDate.now().plusDays(1);
+            log.info("Tomorrow's date is {}", tomorrow);
+            return tomorrow.toString();
+        } else if (keyword.equals("<today>")) {
+            LocalDate today = LocalDate.now();
+            log.info("Today's date is {}", today);
+            return today.toString();
+        } else if(keyword.equals("<yesterday>")){
+            LocalDate yesterday = LocalDate.now().plusDays(-1);
+            log.info("Yesterday's date is {}", yesterday);
+            return yesterday.toString();
+        }
+        else if (keyword.equals("<next_week>")) {
+            LocalDate nextWeek = LocalDate.now().plusWeeks(1);
+            log.info("Next week's date is {}", nextWeek);
+            return nextWeek.toString();
+        } else if(keyword.equals("<null>")) {
+            log.info("Shipment date in unset");
+            return null;
+        } else if(keyword.equals("<today_formatted>")){
+            return LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        } else if(keyword.equals("<tomorrow_formatted>")){
+            return LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        } else if (keyword.equals("<yesterday_formatted>")){
+            return LocalDate.now().plusDays(-1).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        }
+        else {
+            log.info("Keyword {} not recognized", keyword);
+            return keyword;
+        }
     }
 
 }

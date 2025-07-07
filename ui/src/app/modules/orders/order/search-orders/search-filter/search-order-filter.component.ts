@@ -12,6 +12,7 @@ import {
     OnInit,
     input,
     output,
+    signal,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -37,6 +38,9 @@ import { OrderPriorityMap } from '../../../../../shared/models/order-priority.mo
 import { OrderStatusMap } from '../../../../../shared/models/order-status.model';
 import { SearchOrderFilterDTO } from '../../../models/order.dto';
 import { OrderService } from '../../../services/order.service';
+import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
+import { ShipmentTypeMap } from '../../../../../shared/models/shipment-type.model';
+import { OptionDTO } from '../../../../../shared/models/option.dto';
 
 @Component({
     selector: 'app-search-order-filter',
@@ -58,6 +62,7 @@ import { OrderService } from '../../../services/order.service';
         FormsModule,
         CommonModule,
         MatDividerModule,
+        SearchSelectComponent,
         MatIconModule,
         FiltersComponent,
         MatSelectModule,
@@ -78,12 +83,15 @@ export class SearchOrderFilterComponent implements OnInit {
     onApplySearchFilters = output<SearchOrderFilterDTO>();
     onResetFilters = output<SearchOrderFilterDTO>();
     toggleFilters = output<boolean>();
+    shipmentTypeSelected = signal<string>('');
 
     searchForm: FormGroup;
 
     statusOptions: SelectOptionDto[];
     priorityOptions: SelectOptionDto[];
     customers: SelectOptionDto[];
+    locations: SelectOptionDto[];
+    shipmentTypeOptions:OptionDTO[];
 
     totalFieldsApplied = 0;
 
@@ -112,6 +120,7 @@ export class SearchOrderFilterComponent implements OnInit {
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.enable({ emitEvent: false });
+                        this.disableFieldsByShipmentTypeSelection();
                         if (key === 'createDate') {
                             const startControl = this.searchForm
                                 .get(key)
@@ -157,9 +166,27 @@ export class SearchOrderFilterComponent implements OnInit {
                             emitEvent: false,
                         });
                     }
+                    this.disableFieldsByShipmentTypeSelection();
                 });
             }
         });
+        this.searchForm.get('shipmentType').valueChanges.subscribe((value) => {
+            this.shipmentTypeSelected.set(value);
+            this.searchForm.get('locations').reset();
+            this.searchForm.get('customers').reset();
+        })
+    }
+
+
+    disableFieldsByShipmentTypeSelection(){
+        if(this.shipmentTypeSelected() === '' || this.shipmentTypeSelected() === null) {
+            this.searchForm.get('customers')?.disable({ emitEvent: false });
+            this.searchForm.get('locations')?.disable({ emitEvent: false });
+        } else if(this.shipmentTypeSelected() === 'INTERNAL_TRANSFER'){
+            this.searchForm.get('customers')?.disable({ emitEvent: false });
+        }else{
+            this.searchForm.get('locations')?.disable({ emitEvent: false });
+        }
     }
 
     orderNumberInformed = () => this.isFieldInformed('orderNumber');
@@ -223,8 +250,22 @@ export class SearchOrderFilterComponent implements OnInit {
                                 ]?.toUpperCase(),
                         })
                     );
+                this.shipmentTypeOptions =
+                    response.data.searchOrderCriteria.shipmentTypes.map(
+                        (item) => ({
+                            code: item.optionValue,
+                            name:ShipmentTypeMap[
+                                item.optionValue
+                                ]?.toUpperCase(),
+                        })
+                    );
                 this.customers =
                     response.data.searchOrderCriteria.customers.map((item) => ({
+                        optionKey: item.code,
+                        optionDescription: item.name,
+                    }));
+                this.locations =
+                    response.data.searchOrderCriteria.locations.map((item) => ({
                         optionKey: item.code,
                         optionDescription: item.name,
                     }));
@@ -246,7 +287,9 @@ export class SearchOrderFilterComponent implements OnInit {
                 orderNumber: ['', [Validators.maxLength(50)]],
                 orderStatus: [''],
                 deliveryTypes: [''],
-                customers: [''],
+                shipmentType: [''],
+                locations: [{value: '', disabled: true}],
+                customers: [{value: '', disabled: true}],
                 createDate: this.formBuilder.group({
                     start: [null], // Start date
                     end: [null], // End date
@@ -282,8 +325,14 @@ export class SearchOrderFilterComponent implements OnInit {
     // Reseting Filters
     resetFilters(): void {
         this.searchForm.reset();
+        this.shipmentTypeSelected.set('');
         Object.keys(this.searchForm.controls).forEach((filterKey) => {
-            this.searchForm.controls[filterKey].enable();
+            if(filterKey !== 'customers' && filterKey !== 'locations'){
+                this.searchForm.controls[filterKey].enable();
+            }else{
+                this.searchForm.controls[filterKey].disable();
+            }
+            
         });
         this.emitNoResults();
     }

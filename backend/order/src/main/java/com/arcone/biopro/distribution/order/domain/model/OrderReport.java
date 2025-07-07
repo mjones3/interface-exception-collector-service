@@ -24,8 +24,9 @@ public class OrderReport implements Validatable {
     private final OrderPriorityReport orderPriorityReport;
     private final ZonedDateTime createDate;
     private final LocalDate desireShipDate;
+    private final String shipmentType;
 
-    public OrderReport(Long orderId, Long orderNumber, String externalId, String orderStatus, OrderCustomerReport orderCustomerReport, OrderPriorityReport orderPriorityReport, ZonedDateTime createDate, LocalDate desireShipDate) {
+    public OrderReport(Long orderId, Long orderNumber, String externalId, String orderStatus, OrderCustomerReport orderCustomerReport, OrderPriorityReport orderPriorityReport, ZonedDateTime createDate, LocalDate desireShipDate , String shipmentType) {
         this.orderId = orderId;
         this.orderNumber = orderNumber;
         this.externalId = externalId;
@@ -34,6 +35,7 @@ public class OrderReport implements Validatable {
         this.orderPriorityReport = orderPriorityReport;
         this.createDate = createDate;
         this.desireShipDate = desireShipDate;
+        this.shipmentType = shipmentType;
         checkValid();
     }
 
@@ -45,6 +47,7 @@ public class OrderReport implements Validatable {
         Assert.notNull(orderPriorityReport, "orderPriorityReport must not be null");
         Assert.notNull(createDate, "createDate must not be null");
         Assert.notNull(orderStatus, "orderStatus must not be null");
+        Assert.notNull(shipmentType, "shipmentType must not be null");
     }
 
 }

@@ -26,7 +26,7 @@ public class OrderQueryMapper {
             Optional.ofNullable(commandDTO.querySort()).map(querySortDTO -> new QuerySort(Optional
                 .of(querySortDTO.orderByList().stream().map(sortDto -> new QueryOrderBy(sortDto.property(),sortDto.direction())).toList())
                 .orElse(null))).orElse(null),
-            commandDTO.pageNumber(), commandDTO.pageSize()
+            commandDTO.pageNumber(), commandDTO.pageSize(), commandDTO.shipmentType()
         );
     }
 
