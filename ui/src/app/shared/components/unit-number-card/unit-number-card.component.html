@@ -21,25 +21,27 @@
                 </div>
             </div>
         </div>
-        @if (showVisualInspection) {
-            <div class="mt-1">
-                <span
-                    class="badge rounded-pill"
-                    [ngClass]="{
-                        satisfactoryBadge: visualInspection === 'SATISFACTORY',
-                        otherBadge: visualInspection != 'SATISFACTORY',
-                    }"
-                >
-                    {{ visualInspection }}
-                </span>
-            </div>
-        }
-        @if (ineligibleStatus) {
-            <div class="mt-1">
-                <span class="badge rounded-pill otherBadge">
-                    {{ ineligibleStatus }}
-                </span>
-            </div>
-        }
+        <div class="flex flex-row gap-1">
+            @if (showVisualInspection) {
+                <div class="mt-1">
+                    <span
+                        class="badge rounded-pill"
+                        [ngClass]="{
+                            satisfactoryBadge: visualInspection === 'SATISFACTORY',
+                            otherBadge: visualInspection != 'SATISFACTORY',
+                        }"
+                    >
+                        {{ visualInspection }}
+                    </span>
+                </div>
+            }
+            @if (ineligibleStatus) {
+                <div class="mt-1">
+                    <span class="badge rounded-pill otherBadge">
+                        {{ ineligibleStatus }}
+                    </span>
+                </div>
+            }
+        </div>
     </div>
 </fuse-card>
