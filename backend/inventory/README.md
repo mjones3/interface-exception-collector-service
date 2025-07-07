@@ -44,6 +44,8 @@ Download the rsocket client (rsc) from https://github.com/making/rsc/releases
   run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"locationCode\":\"LOCATION_1\",\"availableInventoryCriteriaDTOS\": [{\"productFamily\":\"PLASMA_TRANSFUSABLE\", \"bloodType\":\"O\"}]}" --route getAvailableInventoryWithShortDatedProducts tcp://api.local.gd:7002
 - validateInventory
   run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"unitNumber\":\"W012345678903\", \"productCode\":\"E0869V02\", \"locationCode\":\"LOCATION_2\"}" --route validateInventory tcp://api.local.gd:7002
+- validateInventoryByUnitNumber
+    run the command: java -jar rsc-0.9.1.jar --debug --stream --data "{\"unitNumber\":\"W777725014012\", \"locationCode\":\"LOCATION_1\"}" --route validateInventoryByUnitNumber tcp://api.local.gd:7002
 - getInventoryByUnitNumber
   run the command: java -jar rsc-0.9.1.jar --debug --stream --data "W036825016017" --route getInventoryByUnitNumber tcp://api.local.gd:7002
 - getInventoryByUnitNumberAndProductCode
