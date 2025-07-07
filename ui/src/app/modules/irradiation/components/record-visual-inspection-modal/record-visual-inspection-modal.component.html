@@ -1,0 +1,50 @@
+    <h1 mat-dialog-title class="text-3xl">Record Inspection</h1>
+    <mat-dialog-content class="mat-typography" >
+        <form [formGroup]="form">
+            <div class="flex flex-col gap-8">
+                <div class="flex flex-col gap-2">
+                    <p class="font-bold">
+                        Irradiation Status
+                    </p>
+                    <div class="flex w-full flex-row gap-5 justify-center">
+                        <biopro-action-button
+                            id="irradiatedBtn"
+                            btnId="irradiatedActionBtn"
+                            label="Irradiated"
+                            class="w-50"
+                            [color]="visualInspection ? 'primary' : 'secondary'"
+                            (clickEvent)="visualInspection = true"
+                        ></biopro-action-button>
+                        <biopro-action-button
+                            id="noIrradiatedBtn"
+                            btnId="noIrradiatedActionBtn"
+                            label="Not Irradiated"
+                            class="w-50"
+                            [color]="
+                                visualInspection === false
+                                    ? 'primary'
+                                    : 'secondary'
+                            "
+                            (clickEvent)="visualInspection = false"
+                        ></biopro-action-button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end" class="space-x-6">
+        <biopro-action-button
+            id="cancelBtn"
+            btnId="cancelActionBtn"
+            label="Cancel"
+            color="secondary"
+            mat-dialog-close
+        ></biopro-action-button>
+        <biopro-action-button
+            id="submitBtn"
+            btnId="submitActionBtn"
+            label="Submit"
+            [disabled]="form.invalid"
+            (clickEvent)="submit()"
+        ></biopro-action-button>
+    </mat-dialog-actions>

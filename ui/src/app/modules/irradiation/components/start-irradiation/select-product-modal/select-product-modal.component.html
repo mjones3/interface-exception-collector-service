@@ -1,0 +1,33 @@
+<div class="relative flex h-full w-full flex-col" id="productsContainer">
+    <h1 mat-dialog-title class="text-3xl">{{ data.dialogTitle }}</h1>
+
+    <!-- Content -->
+    <mat-dialog-content class="mat-typography">
+        <div class="flex w-full flex-auto items-center justify-center p-4">
+            <biopro-options-picker
+                [optionsLabel]="data.optionsLabel"
+                [options]="data.options"
+                [buttonTemplate]="productButtonTpl"
+                (optionChange)="selectOption($event)"
+            ></biopro-options-picker>
+        </div>
+    </mat-dialog-content>
+
+    <!-- Actions -->
+    <mat-dialog-actions align="end" class="space-x-6">
+        <biopro-action-button
+            id="cancelBtn"
+            btnId="cancelActionBtn"
+            label="Cancel"
+            color="secondary"
+            mat-dialog-close
+        ></biopro-action-button>
+    </mat-dialog-actions>
+</div>
+
+<ng-template #productButtonTpl let-option="option">
+    <span class="mx-3 min-w-40 flex flex-col text-left">
+        <span class="mb-2">{{ option.productDescription }}</span>
+        <span class="mb-0">{{ option.productCode }}</span>
+    </span>
+</ng-template>

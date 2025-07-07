@@ -118,4 +118,25 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: 'download',
         disabled: false,
     },
+    {
+        id: 15,
+        title: 'Irradiation',
+        type: 'collapsable',
+        icon: 'download',
+        disabled: false,
+        children: [
+            {
+                id: 16,
+                title: 'Start Irradiation',
+                type: 'basic',
+                link: '/irradiation/start-irradiation'
+            },
+            {
+                id: 17,
+                title: 'Close Irradiation',
+                type: 'basic',
+                link: '/irradiation/close-irradiation'
+            }
+        ]
+    },
 ];
