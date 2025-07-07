@@ -16,7 +16,7 @@ Feature: Validate Inventory
             | W777725014008 | E0869VD0     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | false      | 5               |                                                        |                          |                   |                           |                                  |
             | W777725014009 | E0869VD0     | LOCATION_1 | PACKED    | LOCATION_1          | America/New_York    | true       | 5               |                                                        |                          |                   |                           |                                  |
             | W777725014010 | E0869VD0     | LOCATION_1 | SHIPPED   | LOCATION_1          | America/New_York    | true       | 5               |                                                        |                          |                   |                           |                                  |
-            | W777725014011 | E0869VD0     | LOCATION_1 | PACKED    | LOCATION_1          | America/New_York    | true       | -1              |                                                        |                          |                   |                           |                                  |
+            | W777725014011 | E0869VD0     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | -1              |                                                        |                          |                   |                           |                                  |
 
         When I request "<Unit Number>" with "<Product Code>" in the "<Location>"
         Then I receive the following:
@@ -39,4 +39,31 @@ Feature: Validate Inventory
             | W777725014009 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_PACKED             | BACK_TO_STORAGE    |                 | This product is part of a carton and cannot be added.                                                                |                                                                                     |
             | W777725014010 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_SHIPPED            | BACK_TO_STORAGE    |                 | This product was previously shipped.                                                                                 |                                                                                     |
             | W777725014011 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_EXPIRED            | TRIGGER_DISCARD    | EXPIRED         | This product is expired and has been discarded. Place in biohazard container.                                        |                                                                                     |
+
+
+
+    @api @MGF1-288 @validateInventory
+    Scenario Outline: Validate Inventory by Unit Number
+        Given I have the following inventories:
+            | Unit Number   | Product Code | Location   | Status    | Collection Location | Collection TimeZone | Is Labeled | Expires In Days | Quarantine Reasons                                     | Discard Reason           | Unsuitable Reason | Comments                  | Volumes                          |
+            | W777725014012 | E0869V00     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | 5               |                                                        |                          |                   |                           | Anticoagulant - 50, Volume - 500 |
+            | W777725014012 | E0869VA0     | LOCATION_2 | AVAILABLE | LOCATION_2          | America/Los_Angeles | true       | 5               |                                                        |                          |                   |                           |                                  |
+            | W777725014012 | E0869VB0     | LOCATION_1 | AVAILABLE | LOCATION_2          | America/Los_Angeles | false      | 5               | ABS_POSITIVE, PENDING_FURTHER_REVIEW_INSPECTION, OTHER |                          |                   | Quarantine other comments |                                  |
+            | W777725014012 | E0869VC0     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | -1              |                                                        |                          |                   |                           |                                  |
+            | W777725014012 | E0869VD0     | LOCATION_1 | DISCARDED | LOCATION_1          | America/New_York    | true       | 5               |                                                        | ADDITIVE_SOLUTION_ISSUES |                   |                           |                                  |
+
+        When I request "<Unit Number>" in the "LOCATION_1"
+        Then I receive the following:
+            | Unit Number   | Product Code   | Temperature Category   | Location   | Collection Location   | Collection TimeZone   | Volumes   | RESPONSE ERROR   | Found It   |
+            | <Unit Number> | <Product Code> | <Temperature Category> | <Location> | <Collection Location> | <Collection TimeZone> | <Volumes> | <RESPONSE ERROR> | <Found It> |
+
+        Examples:
+            | Unit Number   | Product Code | Temperature Category | Location   | Volumes                          | Collection Location | Collection TimeZone | RESPONSE ERROR                                   | Found It |
+            | W777725014012 | E0869V00     | FROZEN               | LOCATION_1 | Anticoagulant - 50, Volume - 500 | LOCATION_1          | America/New_York    |                                                  | Yes      |
+            | W777725014012 | E0869VA0     | FROZEN               | LOCATION_2 |                                  | LOCATION_2          | America/Los_Angeles | INVENTORY_NOT_FOUND_IN_LOCATION                  | Yes      |
+            | W777725014012 | E0869VB0     | FROZEN               | LOCATION_1 |                                  | LOCATION_2          | America/Los_Angeles | INVENTORY_IS_QUARANTINED, INVENTORY_IS_UNLABELED | Yes      |
+            | W777725014012 | E0869VC0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_EXPIRED                             | Yes      |
+            | W777725014012 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    |                                                  | False    |
+
+
 

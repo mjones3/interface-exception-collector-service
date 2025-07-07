@@ -43,27 +43,40 @@ public class InventoryAggregate {
 
         if (!inventory.getInventoryLocation().equals(location)) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION, null));
+            return this;
         }
-        else if (inventory.getInventoryStatus().equals(InventoryStatus.DISCARDED)) {
+
+        if (isUniqueNotificationStatus()) {
             notificationMessages.addAll(createNotificationMessage());
+            return this;
         }
-        else if (isUnsuitable()) {
+
+        if (isUnsuitable()) {
             notificationMessages.addAll(createUnsuitableNotificationMessage());
         }
-        else if (isQuarantined()) {
+
+        if (isQuarantined()) {
             notificationMessages.addAll(createQuarantinesNotificationMessage());
         }
-        else if (!inventory.getIsLabeled()) {
+
+        if (!inventory.getIsLabeled()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_UNLABELED, null));
         }
-        else if (isExpired()) {
+
+        if (isExpired()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }
-        else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
+
+        if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
             notificationMessages.addAll(createNotificationMessage());
         }
 
         return this;
+    }
+
+    private boolean isUniqueNotificationStatus() {
+
+        return List.of(InventoryStatus.DISCARDED, InventoryStatus.MODIFIED, InventoryStatus.CONVERTED, InventoryStatus.SHIPPED, InventoryStatus.IN_TRANSIT).contains(inventory.getInventoryStatus());
     }
 
     private Collection<NotificationMessage> createUnsuitableNotificationMessage() {
