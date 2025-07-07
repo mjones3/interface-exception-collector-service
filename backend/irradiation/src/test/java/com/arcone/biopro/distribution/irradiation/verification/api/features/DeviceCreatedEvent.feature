@@ -12,8 +12,8 @@ Feature: Device Created Event
 
             Examples:
                 | Location  | Device Category | Status   | Device ID     |
-                | 123456789 | IRRADIATOR      | ACTIVE   | AUTODEVICE001 |
-                | 123456789 | IRRADIATOR      | INACTIVE | AUTODEVICE002 |
+                | 123456789 | IRRADIATOR      | ACTIVE   | AUTO-DEVICE001 |
+                | 123456789 | IRRADIATOR      | INACTIVE | AUTO-DEVICE002 |
 
         Scenario Outline: Skip device creation for non-irradiator types.
             When I received a Device Created event with the following:
@@ -24,4 +24,4 @@ Feature: Device Created Event
 
             Examples:
                 | Id            | Location  | Device Category | Status |
-                | AUTODEVICE003 | 123456789 | PRINTER         | ACTIVE |
+                | AUTO-DEVICE003 | 123456789 | PRINTER         | ACTIVE |
