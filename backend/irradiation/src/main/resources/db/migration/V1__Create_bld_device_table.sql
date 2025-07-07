@@ -1,0 +1,5 @@
+CREATE TABLE bld_device (
+    id BIGSERIAL PRIMARY KEY,
+    device_id VARCHAR(255) NOT NULL UNIQUE,
+    location VARCHAR(255) NOT NULL
+);
