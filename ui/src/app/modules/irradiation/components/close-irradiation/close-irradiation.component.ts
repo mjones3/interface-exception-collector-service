@@ -7,7 +7,7 @@ import {
     Input,
     OnInit,
     TemplateRef,
-    ViewChild
+    ViewChild, ViewEncapsulation
 } from '@angular/core';
 import {ActionButtonComponent} from "../../../../shared/components/buttons/action-button.component";
 import {FuseCardComponent} from "../../../../../@fuse";
@@ -115,7 +115,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        setTimeout(() => this.unitNumberComponent.form.enable());
+        setTimeout(() => this.unitNumberComponent.form.disable());
     }
 
     get irradiation() {
@@ -199,65 +199,19 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
 
-    validateUnit(event: ValidateUnitEvent) {
+    validateUnit(event: { unitNumber: string }) {
         console.log('validateUnit', event);
-
-        const irradiationProducts: IrradiationProductDTO[] = [
-            {
-                unitNumber: "W036825314134",
-                productCode: 'E468900',
-                productDescription: 'WHOLE BLOOD|CPD/500mL/refg|ResLeu:<5E6',
-                status: 'AVAILABLE',
-                productFamily: 'WHOLE_BLOOD',
-                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
-                order: 1,
-                statuses: this.getStatuses(AVAILABLE)
-            },
-            {
-                unitNumber: "W036825314134",
-                productCode: 'E468800',
-                productDescription: 'FRESH FROZEN PLASMA|CPD/XX/<=-18C',
-                status: 'QUARANTINED',
-                productFamily: 'WHOLE_BLOOD',
-                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
-                order: 1,
-                statuses: this.getStatuses(QUARANTINED)
-            },
-        ];
-
-        const defaults = {
-            height: 'auto',
-            data: {
-                options: irradiationProducts,
-                optionsLabel: 'productDescription'
-            }
-        };
-
-        this.matDialog.open(IrradiationSelectProductModal, {
-            ...defaults
-        }).afterClosed()
-            .subscribe((selectedOption) => {
-                if (selectedOption) {
-                    this.populateCentrifugationBatch(selectedOption);
-                }
+        const unitNumber = event.unitNumber;
+        if (unitNumber) {
+            this.products.filter(p =>
+                p.unitNumber === unitNumber
+            ).forEach(p => {
+                p.disabled = false;
             });
-
+        }
     }
 
-    private populateCentrifugationBatch(irradiationProductDTO: IrradiationProductDTO) {
-        const irradiationProducts: IrradiationProductDTO[] = [irradiationProductDTO];
-
-        // const notAddedProducts = irradiationProducts.filter((p) =>
-        //     this.notInProductList(p)
-        // );
-        //
-        // if (notAddedProducts.length === 0) {
-        //     this.showMessage(
-        //         MessageType.WARNING,
-        //         'Product has already been added to the list'
-        //     );
-        //     return;
-        // }
+    private populateCentrifugationBatch(irradiationProducts: IrradiationProductDTO[]) {
 
         irradiationProducts.forEach((product) => {
             this.addProductToList(product);
@@ -299,7 +253,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     private addProductToList(newProduct: IrradiationProductDTO) {
-        this.initialProductsState.push({ ...newProduct });
+        newProduct.disabled = true;
+        this.initialProductsState.push({...newProduct});
         this.products.push(newProduct);
         this.products = this.products.sort((productA, productB) => {
             return productB.order - productA.order;
@@ -338,7 +293,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         if (this.selectedProducts.length === this.products.length) {
             this.selectedProducts = [];
         } else {
-            this.selectedProducts = [].concat(this.products);
+            this.selectedProducts = [].concat(enabledProducts);
         }
     }
 
@@ -529,7 +484,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     loadIrradiationId(irradiationId: string) {
-        const irradiationProduct: IrradiationProductDTO =
+        const irradiationProducts: IrradiationProductDTO[] = [
             {
                 unitNumber: "W036825314134",
                 productCode: 'E468900',
@@ -539,9 +494,31 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
                 statuses: this.getStatuses(AVAILABLE)
-            };
+            },
+            {
+                unitNumber: "W036825314134",
+                productCode: 'E468800',
+                productDescription: 'FRESH FROZEN PLASMA|CPD/XX/<=-18C',
+                status: 'QUARANTINED',
+                productFamily: 'WHOLE_BLOOD',
+                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
+                order: 1,
+                statuses: this.getStatuses(QUARANTINED)
+            },
+            {
+                unitNumber: "W036825314135",
+                productCode: 'E469900',
+                productDescription: 'WHOLE BLOOD|CPD/500mL/refg|ResLeu:<5E6',
+                status: 'AVAILABLE',
+                productFamily: 'WHOLE_BLOOD',
+                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
+                order: 1,
+                statuses: this.getStatuses(QUARANTINED)
+            },
+        ];
 
-        this.populateCentrifugationBatch(irradiationProduct);
+        this.populateCentrifugationBatch(irradiationProducts);
+        this.unitNumberComponent.form.enable()
     }
 
     redirect() {

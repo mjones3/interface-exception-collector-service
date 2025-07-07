@@ -75,6 +75,7 @@ export interface IrradiationProductDTO {
     order: number;
     visualInspection?: VisualInspectionRequestDTO;
     statuses?: { value: string; classes: string }[];
+    disabled?: boolean;
 }
 
 export interface CentrifugationResolveData {

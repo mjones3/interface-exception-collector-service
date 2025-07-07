@@ -111,18 +111,19 @@
 
             <mat-divider></mat-divider>
 
-            <div class="-mx-3 mt-3">
-                <div id="optionButtons" class="grid-container w-1/4">
-                    @if (products.length === 0) {
-                        <p>
-                            Enter irradiation ID then scan or enter unit numbers
-                        </p>
-                    } @else {
-                        @for (option of products; track $index) {
-                            <biopro-unit-number-card
+            <div id="optionButtons" class="grid-container">
+                @if (products.length === 0) {
+                    <p>
+                        Enter irradiation ID then scan or enter unit numbers
+                    </p>
+                } @else {
+                    @for (option of products; track $index) {
+                        <biopro-unit-number-card
                                 class="grid-item m-2"
                                 [ngStyle]="{
-                                    'grid-row-start': ($index % 2) + 1,
+                                    'grid-row-start': ($index % 5) + 1,
+                                    'pointer-events': option.disabled ? 'none' : 'auto',
+                                    'opacity': option.disabled ? '0.5' : '1'
                                 }"
                                 [id]="'unit-' + $index"
                                 [unitNumber]="option.unitNumber"
@@ -130,11 +131,10 @@
                                 [statuses]="option.statuses"
                                 [active]="selectedProducts.includes(option)"
                                 [iconName]="option.icon"
-                                (clickEvent)="toggleProduct(option)"
-                            ></biopro-unit-number-card>
-                        }
+                                (clickEvent)="!option.disabled && toggleProduct(option)"
+                        ></biopro-unit-number-card>
                     }
-                </div>
+                }
             </div>
         </fuse-card>
     </div>
