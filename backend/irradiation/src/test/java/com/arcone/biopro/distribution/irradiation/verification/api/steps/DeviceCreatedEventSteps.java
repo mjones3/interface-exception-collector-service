@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.test.StepVerifier;
 
@@ -17,6 +18,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Slf4j
 public class DeviceCreatedEventSteps {
 
     @Autowired
@@ -26,6 +28,7 @@ public class DeviceCreatedEventSteps {
     private DeviceRepository deviceRepository;
 
     private Device createdDevice;
+    private String currentDeviceId;
 
     @When("I received a Device Created event with the following:")
     public void i_received_a_device_created_event_with_the_following(DataTable dataTable) {
@@ -36,6 +39,8 @@ public class DeviceCreatedEventSteps {
         String location = data.get("Location");
         String deviceCategory = data.get("Device Category");
         String status = data.get("Status");
+        
+        this.currentDeviceId = id;
 
         DeviceCreatedPayload payload = new DeviceCreatedPayload(id, location, deviceCategory, status);
         EventMessage<DeviceCreatedPayload> eventMessage = new EventMessage<>("DeviceCreated", "1.0", payload);
@@ -74,6 +79,6 @@ public class DeviceCreatedEventSteps {
     public void the_device_should_not_be_created_and_a_message_should_be_logged() {
         // This step verifies that no device was created for non-irradiator types
         // The logging verification would typically be done through log capture in a real test
-        System.out.println("Device creation skipped for non-irradiator type");
+        log.info("Device creation skipped for non-irradiator type: {}", currentDeviceId);
     }
 }
