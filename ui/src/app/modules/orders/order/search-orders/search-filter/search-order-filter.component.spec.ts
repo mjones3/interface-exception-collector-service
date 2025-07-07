@@ -86,13 +86,13 @@ describe('SearchOrderFilterComponent', () => {
         expect(component.shipmentTypeSelected()).toBe(shipmentType);
     });
 
-    it('should disable both customers and shipToLocation fields when shipmentType is empty', () => {
-        component.searchForm.get('shipmentType').setValue('customer');
+    it('should disable both customers and locations fields when shipmentType is empty', () => {
+        component.searchForm.get('shipmentType').setValue('customers');
         component.searchForm.get('shipmentType').setValue('');
         fixture.detectChanges();
 
         const customersControl = component.searchForm.get('customers');
-        const shipToLocationControl = component.searchForm.get('shipToLocation');
+        const shipToLocationControl = component.searchForm.get('locations');
         
         expect(customersControl.disabled).toBeTruthy();
         expect(shipToLocationControl.disabled).toBeTruthy();
@@ -266,7 +266,7 @@ describe('SearchOrderFilterComponent', () => {
     });
 
     it('should be able to see order number disabled when filtering by remaining filter fields', () => {
-        const { createDate, desiredShipDate, ...nonDateRangeFields } =
+        const { createDate, desiredShipDate, customers, locations, ...nonDateRangeFields } =
             component.searchForm.controls;
 
         Object.keys(nonDateRangeFields).forEach((filterKey) => {
@@ -276,9 +276,7 @@ describe('SearchOrderFilterComponent', () => {
             );
             component.searchForm.controls[filterKey].setValue('Test');
             if (filterKey != 'orderNumber') {
-                expect(
-                    component.searchForm.controls['orderNumber'].enabled
-                ).toBe(false);
+                expect(component.searchForm.controls['orderNumber'].enabled).toBe(false);
             }
         });
 
@@ -294,7 +292,7 @@ describe('SearchOrderFilterComponent', () => {
     });
 
     it('should see the number of fields used to select the filter criteria', () => {
-        const { createDate, desiredShipDate, customers, shipToLocation,  ...otherFields } =
+        const { createDate, desiredShipDate, customers, locations,  ...otherFields } =
             component.searchForm.controls;
 
         let filterCount = 0;
@@ -306,5 +304,72 @@ describe('SearchOrderFilterComponent', () => {
                 expect(component.totalFieldsInformed()).toBe(filterCount);
             }
         });
+    });
+
+    it('should properly handle isFieldInformed for different field types', () => {
+        // Test array field
+        component.searchForm.get('orderStatus').setValue(['PENDING', 'COMPLETED']);
+        expect(component.isFieldInformed('orderStatus')).toBeTruthy();
+        component.searchForm.get('orderStatus').setValue([]);
+        expect(component.isFieldInformed('orderStatus')).toBeFalsy();
+
+        // Test date range field
+        component.searchForm.get('createDate').setValue({ start: new Date(), end: new Date() });
+        expect(component.isFieldInformed('createDate')).toBeTruthy();
+        component.searchForm.get('createDate').setValue({ start: null, end: null });
+        expect(component.isFieldInformed('createDate')).toBeFalsy();
+
+        // Test regular field
+        component.searchForm.get('orderNumber').setValue('TEST123');
+        expect(component.isFieldInformed('orderNumber')).toBeTruthy();
+        component.searchForm.get('orderNumber').setValue('');
+        expect(component.isFieldInformed('orderNumber')).toBeFalsy();
+    });
+
+    it('should properly handle invalid date range inputs', () => {
+        const createDateGroup = component.searchForm.get('createDate');
+        createDateGroup.get('start').setErrors({ matDatepickerParse: true });
+        expect(component.isInvalidDateRangeInformed('createDate')).toBeTruthy();
+        
+        createDateGroup.get('start').setErrors(null);
+        createDateGroup.get('end').setErrors({ matDatepickerParse: true });
+        expect(component.isInvalidDateRangeInformed('createDate')).toBeTruthy();
+        
+        createDateGroup.get('end').setErrors(null);
+        expect(component.isInvalidDateRangeInformed('createDate')).toBeFalsy();
+    });
+
+    it('should properly handle shipment type changes', () => {
+        // Test INTERNAL_TRANSFER type
+        component.searchForm.get('shipmentType').setValue('INTERNAL_TRANSFER');
+        expect(component.searchForm.get('customers').disabled).toBeTruthy();
+        expect(component.searchForm.get('locations').enabled).toBeTruthy();
+
+        // Test other shipment type
+        component.searchForm.get('shipmentType').setValue('STANDARD');
+        expect(component.searchForm.get('customers').enabled).toBeTruthy();
+        expect(component.searchForm.get('locations').disabled).toBeTruthy();
+
+        // Test resetting locations and customers when shipment type changes
+        const locationsControl = component.searchForm.get('locations');
+        
+        locationsControl.setValue('TEST_LOCATION');
+        
+        component.searchForm.get('shipmentType').setValue('NEW_TYPE');
+        expect(locationsControl.value).toBeNull();
+    });
+
+    it('should properly handle emitResults and emitNoResults', () => {
+        const applySearchFiltersEvent = jest.spyOn(component.onApplySearchFilters, 'emit');
+        const resetFiltersEvent = jest.spyOn(component.onResetFilters, 'emit');
+        
+        // Test emitResults
+        const testValue = { orderNumber: 'TEST123' };
+        component.emitResults(testValue);
+        expect(applySearchFiltersEvent).toHaveBeenCalledWith(testValue);
+        
+        // Test emitNoResults
+        component.emitNoResults();
+        expect(resetFiltersEvent).toHaveBeenCalledWith(null);
     });
 });
