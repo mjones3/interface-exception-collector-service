@@ -12,6 +12,13 @@ import { IrradiationService } from '../../services/irradiation.service';
 import { StartIrradiationComponent } from './start-irradiation.component';
 import { of } from 'rxjs';
 import { IrradiationProductDTO, ValidateUnitEvent } from '../../models/model';
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'biopro-irradiation-select-product-modal',
+  template: ''
+})
+class MockSelectProductModal {}
 
 describe('StartIrradiationComponent', () => {
     let component: StartIrradiationComponent;
@@ -31,6 +38,7 @@ describe('StartIrradiationComponent', () => {
                 MatIconTestingModule,
                 ReactiveFormsModule,
             ],
+            declarations: [MockSelectProductModal],
             providers: [
                 FormBuilder,
                 {
@@ -53,7 +61,7 @@ describe('StartIrradiationComponent', () => {
                 },
                 {
                     provide: ToastrService,
-                    useValue: { success: jest.fn(), warning: jest.fn() },
+                    useValue: { success: jest.fn(), warning: jest.fn(), error: jest.fn() },
                 },
                 {
                     provide: FuseConfirmationService,
@@ -117,14 +125,6 @@ describe('StartIrradiationComponent', () => {
         expect(component.isSubmitEnabled()).toBeFalsy();
     });
 
-    // it('should enable submit when form is valid and has products', () => {
-    //     component.form.patchValue({
-    //         irradiationId: 'test-id',
-    //         lotNumber: 'test-lot'
-    //     });
-    //     component.products = [{ unitNumber: 'test' } as IrradiationProductDTO];
-    //     expect(component.isSubmitEnabled()).toBeTruthy();
-    // });
 
     it('should open cancel confirmation dialog', () => {
         component.openCancelConfirmationDialog();

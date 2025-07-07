@@ -27,7 +27,6 @@ import {
     IrradiationProductDTO,
     MessageType, ReasonDTO,
     RecordVisualInpectionResult,
-    ValidateUnitEvent,
     ValidationDataDTO
 } from "../../models/model";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -35,7 +34,6 @@ import {IrradiationService} from "../../services/irradiation.service";
 import {FuseConfirmationService} from "../../../../../@fuse/services/confirmation";
 import {ToastrService} from "ngx-toastr";
 import {MatDialog} from "@angular/material/dialog";
-import {IrradiationSelectProductModal} from "../start-irradiation/select-product-modal/select-product-modal.component";
 import {NgStyle} from "@angular/common";
 import {
     RecordVisualInspectionModalComponent

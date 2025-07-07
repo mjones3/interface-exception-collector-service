@@ -35,9 +35,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {IrradiationSelectProductModal} from "./select-product-modal/select-product-modal.component";
 
 const AVAILABLE = 'AVAILABLE';
-const DISCARDED = 'DISCARDED';
 const QUARANTINED = 'QUARANTINED';
-const UNSUITABLE = 'UNSUITABLE';
 const EXPIRED = 'EXPIRED';
 
 @Component({

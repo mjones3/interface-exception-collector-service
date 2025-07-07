@@ -10,6 +10,14 @@ import { CloseIrradiationComponent } from './close-irradiation.component';
 import { IrradiationService } from '../../services/irradiation.service';
 import { ProcessHeaderService, FacilityService } from '@shared';
 import { ProductIconsService } from '../../../../shared/services/product-icon.service';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { of } from 'rxjs';
+
+@Component({
+  selector: 'biopro-record-visual-inspection-modal',
+  template: ''
+})
+class MockRecordVisualInspectionModal {}
 
 describe('CloseIrradiationComponent', () => {
   let component: CloseIrradiationComponent;
@@ -18,16 +26,28 @@ describe('CloseIrradiationComponent', () => {
   beforeEach(async () => {
     const mockRouter = { navigateByUrl: jest.fn() };
     const mockActivatedRoute = { snapshot: { data: { useCheckDigit: true } } };
-    const mockMatDialog = { open: jest.fn() };
+    const mockMatDialog = { 
+      open: jest.fn().mockReturnValue({
+        afterClosed: () => of(null)
+      })
+    };
     const mockToastrService = { success: jest.fn(), error: jest.fn(), warning: jest.fn() };
-    const mockFuseConfirmationService = { open: jest.fn() };
-    const mockIrradiationService = { submitCentrifugationBatch: jest.fn() };
+    const mockFuseConfirmationService = { 
+      open: jest.fn().mockReturnValue({
+        afterClosed: () => of(true)
+      })
+    };
+    const mockIrradiationService = { 
+      submitCentrifugationBatch: jest.fn().mockReturnValue(of({}))
+    };
     const mockProcessHeaderService = { setActions: jest.fn() };
     const mockFacilityService = { getFacilityCode: jest.fn().mockReturnValue('TEST') };
-    const mockProductIconsService = { getIconByProductFamily: jest.fn() };
+    const mockProductIconsService = { getIconByProductFamily: jest.fn().mockReturnValue('icon') };
+    const mockChangeDetectorRef = { detectChanges: jest.fn() };
 
     await TestBed.configureTestingModule({
       imports: [CloseIrradiationComponent, ReactiveFormsModule],
+      declarations: [MockRecordVisualInspectionModal],
       providers: [
         provideAnimations(),
         { provide: Router, useValue: mockRouter },
@@ -38,7 +58,8 @@ describe('CloseIrradiationComponent', () => {
         { provide: IrradiationService, useValue: mockIrradiationService },
         { provide: ProcessHeaderService, useValue: mockProcessHeaderService },
         { provide: FacilityService, useValue: mockFacilityService },
-        { provide: ProductIconsService, useValue: mockProductIconsService }
+        { provide: ProductIconsService, useValue: mockProductIconsService },
+        { provide: ChangeDetectorRef, useValue: mockChangeDetectorRef }
       ]
     })
     .compileComponents();
