@@ -265,7 +265,7 @@ public class OrderSteps {
                 status,
                 row.get(headers.indexOf("Shipment Type")),
                 "FEDEX",
-                "FROZEN",
+                "REFRIGERATED",
                 desireShipDate,
                 row.get(headers.indexOf("Customer Code")),
                 row.get(headers.indexOf("Ship To Customer Name")),

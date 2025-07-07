@@ -56,30 +56,30 @@ Feature: List of all orders in Search Order
         @R20-274 @api @bug @DIS-285
         Scenario: List Biopro Orders in the specified order by default
             Given I have these BioPro Orders.
-                | External ID       | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
-                | EXT1141179223321  | 1979          | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
-                | EXT1141179320123  | 1979          | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T20:59:16 |
-                | EXT1141179225123  | 1979          | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
-                | EXT1141179114123  | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
-                | EXT1141179123123  | 1979          | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
-                | EXT1141179179123  | 1979          | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
-                | EXT1141179443123  | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T20:59:16 |
-                | EXT1141179915123  | 1979          | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T20:59:16 |
-                | EXT1141179541123  | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T20:59:16 |
-                | EXT1141179DIS2951 | 1979          | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T20:59:16 |
+                | External ID       | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         | Shipment Type |
+                | EXT1141179223321  | 1979          | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 | CUSTOMER      |
+                | EXT1141179320123  | 1979          | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T20:59:16 | CUSTOMER      |
+                | EXT1141179225123  | 1979          | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 | CUSTOMER      |
+                | EXT1141179114123  | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 | CUSTOMER      |
+                | EXT1141179123123  | 1979          | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 | CUSTOMER      |
+                | EXT1141179179123  | 1979          | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 | CUSTOMER      |
+                | EXT1141179443123  | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T20:59:16 | CUSTOMER      |
+                | EXT1141179915123  | 1979          | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T20:59:16 | CUSTOMER      |
+                | EXT1141179541123  | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T20:59:16 | CUSTOMER      |
+                | EXT1141179DIS2951 | 1979          | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T20:59:16 | CUSTOMER      |
             When I want to list orders for location "1979".
             Then I should have orders listed in the following order.
-                | External ID       | Location Code | Priority | Status      | Desired Shipment Date |
-                | EXT1141179225123  | 1979          | STAT     | OPEN        | 2025-01-01            |
-                | EXT1141179223321  | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
-                | EXT1141179320123  | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
-                | EXT1141179915123  | 1979          | ASAP     | OPEN        | 2025-01-01            |
-                | EXT1141179123123  | 1979          | ASAP     | IN_PROGRESS | 2025-01-01            |
-                | EXT1141179443123  | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            |
-                | EXT1141179179123  | 1979          | ROUTINE  | OPEN        | 2025-01-01            |
-                | EXT1141179541123  | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            |
-                | EXT1141179114123  | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-02            |
-                | EXT1141179DIS2951 | 1979          | ROUTINE  | IN_PROGRESS | NULL_VALUE            |
+                | External ID       | Location Code | Priority | Status      | Desired Shipment Date | Shipment Type |
+                | EXT1141179225123  | 1979          | STAT     | OPEN        | 2025-01-01            | CUSTOMER      |
+                | EXT1141179223321  | 1979          | STAT     | IN_PROGRESS | 2025-01-01            | CUSTOMER      |
+                | EXT1141179320123  | 1979          | STAT     | IN_PROGRESS | 2025-01-02            | CUSTOMER      |
+                | EXT1141179915123  | 1979          | ASAP     | OPEN        | 2025-01-01            | CUSTOMER      |
+                | EXT1141179123123  | 1979          | ASAP     | IN_PROGRESS | 2025-01-01            | CUSTOMER      |
+                | EXT1141179443123  | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            | CUSTOMER      |
+                | EXT1141179179123  | 1979          | ROUTINE  | OPEN        | 2025-01-01            | CUSTOMER      |
+                | EXT1141179541123  | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            | CUSTOMER      |
+                | EXT1141179114123  | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-02            | CUSTOMER      |
+                | EXT1141179DIS2951 | 1979          | ROUTINE  | IN_PROGRESS | NULL_VALUE            | CUSTOMER      |
 
 
 
@@ -87,18 +87,17 @@ Feature: List of all orders in Search Order
         @R20-274 @api
         Scenario: List Biopro Orders in OPEN or IN_PROGRESS status
             Given I have these BioPro Orders.
-                | External ID      | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
-                | EXT1141179223322 | 1979          | STAT     | OPEN        | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
-                | EXT1141179223321 | 1979          | STAT     | IN_PROGRESS | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
-                | EXT1141179320123 | 1979          | STAT     | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
-                | EXT1141179225123 | 1979          | STAT     | COMPLETED   | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+                | External ID      | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         | Shipment Type |
+                | EXT1141179223322 | 1979          | STAT     | OPEN        | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 | CUSTOMER      |
+                | EXT1141179223321 | 1979          | STAT     | IN_PROGRESS | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 | CUSTOMER      |
+                | EXT1141179320123 | 1979          | STAT     | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 | CUSTOMER      |
+                | EXT1141179225123 | 1979          | STAT     | COMPLETED   | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 | CUSTOMER      |
             When I want to list orders for location "1979".
             Then I should have orders listed in the following order.
-                | External ID      | Location Code | Priority | Status      | Desired Shipment Date |
-                | EXT1141179223322 | 1979          | STAT     | OPEN        | 2025-01-02            |
-                | EXT1141179223321 | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
-                | EXT1141179320123 | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
-
+                | External ID      | Location Code | Priority | Status      | Desired Shipment Date | Shipment Type |
+                | EXT1141179223322 | 1979          | STAT     | OPEN        | 2025-01-02            | CUSTOMER      |
+                | EXT1141179223321 | 1979          | STAT     | IN_PROGRESS | 2025-01-01            | CUSTOMER      |
+                | EXT1141179320123 | 1979          | STAT     | IN_PROGRESS | 2025-01-02            | CUSTOMER      |
 
     Rule: I should be able to navigate across pages.
         Rule: I should be able to know the total number of records and pages.
