@@ -481,6 +481,10 @@ export class FillProductsComponent implements OnInit {
         );
     }
 
+    getProductStatus(product: ShipmentItemPackedDTO){
+        return product?.productStatus != "AVAILABLE" ? product?.productStatus : "";
+    }
+
     toggleProduct(product: VerifyFilledProductDto) {
         if (this.selectedProducts.includes(product)) {
             const index = this.selectedProducts.findIndex(

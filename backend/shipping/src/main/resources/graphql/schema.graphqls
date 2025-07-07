@@ -183,6 +183,7 @@ type ShipmentItemPackedDTO {
     ineligibleReason:String
     ineligibleMessage:String
     ineligibleAction:String
+    productStatus:String
 }
 
 input PackItemRequest {

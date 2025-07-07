@@ -83,6 +83,7 @@ const GET_SHIPMENT_BY_ID = gql<
                     collectionDate
                     packedByEmployeeId
                     visualInspection
+                    productStatus
                 }
             }
         }
