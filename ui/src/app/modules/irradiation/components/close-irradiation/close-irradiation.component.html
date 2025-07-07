@@ -103,7 +103,7 @@
                         btnId="visualInspecActionBtn"
                         label="Record Inspection"
                         icon="biopro:visual-inspection"
-                        [disabled]="false"
+                        [disabled]="numberOfUnits === 0"
                         (clickEvent)="openRecordVisualInspectionModal()"
                     ></biopro-action-button>
                 </div>
