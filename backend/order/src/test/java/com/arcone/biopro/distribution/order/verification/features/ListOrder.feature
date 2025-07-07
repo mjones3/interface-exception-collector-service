@@ -341,7 +341,7 @@ Feature: List of all orders in Search Order
                     | EXTDIS2370012 | 987654321_DIS481 | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 | INTERNAL_TRANSFER | LABELED      | false               |
                     | EXTDIS237009  | 987654321_DIS481 | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 | INTERNAL_TRANSFER | LABELED      | false               |
                     | EXTDIS2370010 | 987654321_DIS481 | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 | INTERNAL_TRANSFER | LABELED      | false               |
-                And  The sorting indicator should be at "createDate" property in "ascending" order.
+                And  The sorting indicator should be at "shipmentType" property in "ascending" order.
                 When I request to list the Orders sorted by "shipmentType" in "descending" order.
                 Then I should receive the orders listed in the following order.
                     | External ID   | Location Code    | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         | Shipment Type     | Label Status | Quarantine Products |
@@ -357,7 +357,7 @@ Feature: List of all orders in Search Order
                     | EXTDIS2370012 | 987654321_DIS481 | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 | INTERNAL_TRANSFER | LABELED      | false               |
                     | EXTDIS237009  | 987654321_DIS481 | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 | INTERNAL_TRANSFER | LABELED      | false               |
                     | EXTDIS2370010 | 987654321_DIS481 | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 | INTERNAL_TRANSFER | LABELED      | false               |
-                And  The sorting indicator should be at "createDate" property in "descending" order.
+                And  The sorting indicator should be at "shipmentType" property in "descending" order.
                 When I request to list the Orders sorted by "orderNumber" in "ascending" order.
                 Then I should receive the orders listed by "orderNumber" in "ascending" order.
                 And  The sorting indicator should be at "orderNumber" property in "ascending" order.

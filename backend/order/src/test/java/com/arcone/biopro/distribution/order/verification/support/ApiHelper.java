@@ -164,7 +164,9 @@ public class ApiHelper {
 
         var qlClient = HttpGraphQlClient.create(webTestClientGraphQl);
         try {
-            return (PageDTO<T>) qlClient.document(document).retrieveSync(path).toEntity(contentTypeClass);
+            var response =  (PageDTO<T>) qlClient.document(document).retrieveSync(path).toEntity(contentTypeClass);
+            log.debug("Response: {}", response);
+            return response;
         } catch (FieldAccessException e) {
             this.setErrorContext(e);
             return new PageDTO<>(Collections.emptyList(), 0, 0, 0, null);

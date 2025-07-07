@@ -1389,4 +1389,35 @@ public class OrderSteps {
             Assert.fail("Invalid option for can/cannot");
         }
     }
+
+    @Then("The order with external ID {string} is present.")
+    public void theOrderWithExternalIDIsPresent(String externalId) {
+        var lastOrderPageResponse = context.getOrdersPage();
+        var order = lastOrderPageResponse.content().stream()
+            .filter(o -> o.get("externalId").asText().equals(externalId))
+            .findFirst()
+            .orElse(null);
+        Assert.assertNotNull(order);
+    }
+
+    @And("The result list includes only the shipment type {string}.")
+    public void theResultListIncludesOnlyTheShipmentType(String shipmentType) {
+        var lastOrderPageResponse = context.getOrdersPage();
+        var orders = lastOrderPageResponse.content().stream()
+            .filter(order -> !order.get("shipmentType").asText().equals(shipmentType))
+            .toList();
+        Assert.assertEquals(0, orders.size());
+    }
+
+    @And("The result list includes only the customer {string}.")
+    public void theResultListIncludesOnlyTheCustomer(String customerName) {
+        var lastOrderPageResponse = context.getOrdersPage();
+        var orders = lastOrderPageResponse.content().stream()
+            .filter(order -> {
+                JsonNode orderCustomerReport = order.get("orderCustomerReport");
+                return !orderCustomerReport.get("name").asText().equals(customerName);
+            })
+            .toList();
+        Assert.assertEquals(0, orders.size());
+    }
 }
