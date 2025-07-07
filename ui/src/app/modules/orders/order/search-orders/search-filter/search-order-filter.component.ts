@@ -120,7 +120,7 @@ export class SearchOrderFilterComponent implements OnInit {
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.enable({ emitEvent: false });
-                        this.enableFieldsByShipmentTypeSelection();
+                        this.disableFieldsByShipmentTypeSelection();
                         if (key === 'createDate') {
                             const startControl = this.searchForm
                                 .get(key)
@@ -166,7 +166,7 @@ export class SearchOrderFilterComponent implements OnInit {
                             emitEvent: false,
                         });
                     }
-                    this.enableFieldsByShipmentTypeSelection();
+                    this.disableFieldsByShipmentTypeSelection();
                 });
             }
         });
@@ -178,7 +178,7 @@ export class SearchOrderFilterComponent implements OnInit {
     }
 
 
-    enableFieldsByShipmentTypeSelection(){
+    disableFieldsByShipmentTypeSelection(){
         if(this.shipmentTypeSelected() === '' || this.shipmentTypeSelected() === null) {
             this.searchForm.get('customers')?.disable({ emitEvent: false });
             this.searchForm.get('locations')?.disable({ emitEvent: false });
