@@ -594,5 +594,17 @@ public class ShipmentFulfillmentSteps {
             , "", "36544 SW 27th St", null, null, null, productFamilies, bloodTypes, quantities,shipmentType,labelStatus,Boolean.parseBoolean(quarantinedProducts),temperatureCategory);
         Assert.assertNotNull(this.shipmentDetailType);
     }
+
+    @And("I {string} see the product status as {string}.")
+    public void iSeeTheProductStatusAs(String shouldShouldNot, String productStatus) {
+
+        if ("should".equals(shouldShouldNot)) {
+            fillProductsPage.assertProductStatusIs(productStatus,true);
+        } else if("should not".equals(shouldShouldNot)) {
+            fillProductsPage.assertProductStatusIs(productStatus,false);
+        }else{
+            Assert.fail("Invalid option for should/should not");
+        }
+    }
 }
 

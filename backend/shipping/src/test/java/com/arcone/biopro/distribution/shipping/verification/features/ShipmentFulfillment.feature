@@ -3,7 +3,7 @@ Feature: Shipment fulfillment request
 
     Background:
         Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,,W812530107009,,W812530107010,W812530444001,W812530444002".
-        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008,44400010,44400011,44400012,44400013,44400014".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -166,4 +166,32 @@ Feature: Shipment fulfillment request
                 | 4440006      |DL1          | Distribution and Labeling | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530444001 | E5107V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | false                |
                 | 4440007      |234567891    | MDL Hub 2                 | 10       | A         | APHERESIS_PLATELETS_LEUKOREDUCED | W812530444002 | EA007V00 | ROOM_TEMPERATURE | INTERNAL_TRANSFER | LABELED      | false                |
                 | 4440008      |DO1          | Distribution Only         | 5        | AB        | PLASMA_TRANSFUSABLE              | W036898786758 | E0707V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 |
+
+
+
+            Rule: I should be able to manage labeled products to fill a shipment.
+            Rule: I should be able to fill the internal transfer order labeled products as requested.
+            Rule: I should be able to fill an internal transfer order with quarantined products as requested.
+            @ui @DIS-444
+            Scenario Outline: Fill Shipment with Labeled Products.
+                Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
+                And The check digit configuration is "disabled".
+                And The visual inspection configuration is "<Inspection Config>".
+                And The second verification configuration is "disabled".
+                And I have received a shipment fulfillment request with above details.
+                And I am on the Shipment Fulfillment Details page for order <Order Number>.
+                And I choose to fill product of family "<Family>" and blood type "<Type>".
+                When I add the unit "<UN>" with product code "<Code>".
+                And I define visual inspection as "Satisfactory", if needed.
+                Then I should see the list of packed products added including "<UN>" and "<Code>".
+                And I should see the inspection status as "Satisfactory", if applicable.
+                And I "<ShouldShouldNot>" see the product status as "Quarantined".
+
+                Examples:
+                    | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                                               | Family                           | Type | UN               | Code       | Inspection Config | Category         | Shipment Type   | Label Status | Quarantined Products |ShouldShouldNot |
+                   | 44400010     | 1           | Testing Customer  | 10,5,8   | ANY,B,O   | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE              | ANY  | =W03689878680200 | =<E7648V00 | enabled           | FROZEN           |CUSTOMER          | LABELED      | false                |should not      |
+                   | 44400011     | 1           | Testing Customer  | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED                            | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W81253010700800 | =<EA141V00 | enabled           | ROOM_TEMPERATURE |CUSTOMER          | LABELED      | false                |should not      |
+                   | 44400012     | 1           | Testing Customer  | 2        | B         | PRT_APHERESIS_PLATELETS                                     | PRT APHERESIS PLATELETS          | B    | =W81253010701000 | =<EB317V00 | enabled           | REFRIGERATED     |CUSTOMER          | LABELED      | false                |should not      |
+                   | 44400013     | 1           | Testing Customer  | 2        | AP        | RED_BLOOD_CELLS_LEUKOREDUCED                                | RED BLOOD CELLS LEUKOREDUCED     | AP   | =W81253010701200 | =<E5107V00 | enabled           | FROZEN           |CUSTOMER          | LABELED      | false                |should not      |
+                   | 44400014     | DO1         | Distribution Only | 2        | ANY        | PLASMA_TRANSFUSABLE                                        | PLASMA TRANSFUSABLE              | ANY  | =W03689878675800 | =<E0707V00 | enabled           | FROZEN           |INTERNAL_TRANSFER | LABELED      | true                 |should          |
 
