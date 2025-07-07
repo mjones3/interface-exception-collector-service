@@ -41,6 +41,7 @@ public class ShipmentMapper {
             .ineligibleReason(shipmentItemPacked.getIneligibleReason())
             .ineligibleMessage(shipmentItemPacked.getIneligibleMessage())
             .ineligibleDetails(!StringUtils.isEmpty(shipmentItemPacked.getIneligibleDetails()) ? Arrays.asList(shipmentItemPacked.getIneligibleDetails().split(",")) : null)
+            .productStatus(shipmentItemPacked.getProductStatus())
 
             .build();
     }

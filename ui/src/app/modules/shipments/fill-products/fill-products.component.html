@@ -108,7 +108,7 @@
                             [productName]="option.productCode"
                             [productDescription]="option.productDescription"
                             [visualInspection]="option.visualInspection"
-                            [ineligibleStatus]="option.productStatus"
+                            [ineligibleStatus]="getProductStatus(option)"
                             [iconName]="getIcon()"
                             [active]="selectedProducts.includes(option)"
                             (clickEvent)="toggleProduct(option)"
