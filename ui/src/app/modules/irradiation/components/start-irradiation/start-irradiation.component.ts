@@ -109,7 +109,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        setTimeout(() => this.unitNumberComponent.form.enable());
+        setTimeout(() => this.unitNumberComponent.form.disable());
     }
 
     get irradiation() {
@@ -400,4 +400,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         }
     }
 
+    validateLotNumber($event: string) {
+       console.log('validateLotNumber', $event);
+        this.unitNumberComponent.controlUnitNumber.enable();
+    }
 }

@@ -52,6 +52,7 @@
                     [inputId]="'lotNumberInput'"
                     formControlName="lotNumber"
                     required
+                    (tabOrEnterPressed)="validateLotNumber($event)"
                     [customErrors]="{ required: 'Lot number is required.' }"
                 ></biopro-input>
                 <div class="mt-1 w-90">
