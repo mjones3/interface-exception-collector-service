@@ -72,6 +72,8 @@ public class OrderDetailsPage extends CommonPageFactory {
     private static final By completeOrderSubmitBtn = By.id("completeOrderSubmitBtn");
     private static final By createBackOrderTrueBtn = By.id("createBackOrderTrue-button");
     private static final By createBackOrderFalseBtn = By.id("createBackOrderFalse-button");
+    private static final By billInformation = By.id("billInfoDescriptions");
+    private static final By inventoryUnavailableIcon = By.id("billInfoDescriptions");
 
 
     //Dynamic locators
@@ -84,7 +86,7 @@ public class OrderDetailsPage extends CommonPageFactory {
     }
 
     private String billInformationDetail(String param) {
-        return String.format("//*[@id='billInfoDescriptions']/*//span[normalize-space()='%s']", param);
+        return String.format("//*[@id='billInfoDescriptions']/*//span[normalize-space()=%s]", param);
     }
 
     private String orderComments(String comment) {
@@ -100,6 +102,10 @@ public class OrderDetailsPage extends CommonPageFactory {
     }
 
     private String availableInventory(String productFamily, String bloodType, Integer quantity) {
+        return String.format("//*[@id='prodTableId']/*//tbody//tr//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[1]", productFamily.toUpperCase(), bloodType.toUpperCase(), quantity);
+    }
+
+    private String unAvailableInventory(String productFamily, String bloodType, Integer quantity) {
         return String.format("//*[@id='prodTableId']/*//tbody//tr//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[1]", productFamily.toUpperCase(), bloodType.toUpperCase(), quantity);
     }
 
@@ -173,6 +179,11 @@ public class OrderDetailsPage extends CommonPageFactory {
     public void verifyBillingInformationCard(String billingCustomerCode, String customerName) {
         sharedActions.waitForVisible(By.xpath(billInformationDetail(billingCustomerCode)));
         sharedActions.waitForVisible(By.xpath(billInformationDetail(customerName.toUpperCase())));
+    }
+
+    public void verifyBillingInformationCardIsNotPresent() {
+        sharedActions.waitForNotVisible(billInformation);
+
     }
 
     public void verifyProductDetailsSection(String productFamily, String bloodType, Integer quantity, String comments) {
@@ -359,6 +370,43 @@ public class OrderDetailsPage extends CommonPageFactory {
             sharedActions.click(createBackOrderTrueBtn);
         } else {
             sharedActions.click(createBackOrderFalseBtn);
+        }
+    }
+
+    public void verifyShipmentType(String shipmentType) {
+        sharedActions.waitForVisible(By.xpath(shippingInformationDetail(shipmentType)));
+    }
+
+    public void checkInventoryUnavailable(String[] productFamily, String[] bloodType, String[] quantity) {
+        for (int i = 0; i < productFamily.length; i++) {
+            String productFamilyDescription = productFamily[i].replace("_", " ");
+            sharedActions.waitForVisible(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
+
+            try {
+                var unAvailableInventoryValue = sharedActions.getText(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
+
+                // Value must be UNAVAILABLE
+                Assert.assertEquals("UNAVAILABLE", unAvailableInventoryValue.trim());
+
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Unable to read available inventory value");
+            }
+        }
+    }
+
+    public void verifyLabelStatus(String labelStatus, boolean visible) {
+        if (visible) {
+            sharedActions.waitForVisible(By.xpath(orderInformationDetail(labelStatus)));
+        } else {
+            sharedActions.waitForNotVisible(By.xpath(orderInformationDetail(labelStatus)));
+        }
+    }
+
+    public void verifyQuarantineProducts(String isQuarantine, boolean visible) {
+        if (visible) {
+            sharedActions.waitForVisible(By.xpath(orderInformationDetail(isQuarantine)));
+        } else {
+            sharedActions.waitForNotVisible(By.xpath(orderInformationDetail(isQuarantine)));
         }
     }
 }

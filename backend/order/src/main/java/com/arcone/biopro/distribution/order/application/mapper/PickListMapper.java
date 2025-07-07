@@ -81,7 +81,7 @@ public class PickListMapper {
 
     public UseCaseResponseDTO<PickList> mapToUseCaseResponse(Order order){
 
-        var pickList = new PickList(order.getOrderNumber().getOrderNumber() , order.getLocationCode() , order.getOrderStatus().getOrderStatus()
+        var pickList = new PickList(order.getOrderNumber().getOrderNumber() , order.getLocationFrom().getCode() , order.getOrderStatus().getOrderStatus()
             , new PickListCustomer(order.getShippingCustomer().getCode() , order.getShippingCustomer().getName()), order.getComments() , order.getProductCategory().getProductCategory());
 
         if(order.getOrderItems() != null){

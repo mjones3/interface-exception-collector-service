@@ -8,8 +8,7 @@ import {
     NotificationDto,
     NotificationTypeMap,
     ProcessHeaderComponent,
-    ProcessHeaderService,
-    ToastrImplService,
+    ProcessHeaderService
 } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { NotificationComponent } from 'app/shared/components/notification/notification.component';
@@ -31,6 +30,7 @@ import { SecondVerificationCommon } from '../second-verification-common';
 import { ShipmentService } from '../services/shipment.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { VerifyProductsNavbarComponent } from '../verify-products-navbar/verify-products-navbar.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-verify-products',
@@ -84,7 +84,7 @@ export class VerifyProductsComponent
         protected store: Store,
         protected shipmentService: ShipmentService,
         protected productIconService: ProductIconsService,
-        protected toaster: ToastrImplService,
+        protected toaster: ToastrService,
         protected header: ProcessHeaderService,
         protected matDialog: MatDialog,
         protected fuseConfirmationService: FuseConfirmationService

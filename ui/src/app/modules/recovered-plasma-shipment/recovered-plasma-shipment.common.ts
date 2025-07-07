@@ -2,7 +2,6 @@ import { computed, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { Store } from '@ngrx/store';
-import { ToastrImplService } from '@shared';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import handleApolloError from 'app/shared/utils/apollo-error-handling';
 import { CookieService } from 'ngx-cookie-service';

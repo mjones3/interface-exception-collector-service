@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.order.domain.model.OrderItem;
 import com.arcone.biopro.distribution.order.domain.model.PickList;
 import com.arcone.biopro.distribution.order.domain.model.PickListItem;
 import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderLocation;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
 import org.junit.jupiter.api.Assertions;
@@ -41,7 +42,9 @@ class PickListCommandMapperTest {
     public void shouldMapOrderGeneratePickListCommandToDomain(){
         var target = new PickListCommandMapper();
         var order = Mockito.mock(Order.class);
-        Mockito.when(order.getLocationCode()).thenReturn("LOCATION_CODE");
+        var oderLocation = Mockito.mock(OrderLocation.class);
+        Mockito.when(oderLocation.getCode()).thenReturn("LOCATION_CODE");
+        Mockito.when(order.getLocationFrom()).thenReturn(oderLocation);
 
         var productCategory = Mockito.mock(ProductCategory.class);
         Mockito.when(productCategory.getProductCategory()).thenReturn("FROZEN");

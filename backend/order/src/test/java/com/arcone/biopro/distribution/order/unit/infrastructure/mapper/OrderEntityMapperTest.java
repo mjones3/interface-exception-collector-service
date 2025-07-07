@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.unit.infrastructure.mapper;
 
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
@@ -42,6 +43,9 @@ class OrderEntityMapperTest {
     @MockBean
     LookupService lookupService;
 
+    @MockBean
+    LocationRepository locationRepository;
+
     @BeforeEach
     void beforeEach() {
         given(customerService.getCustomerByCode(anyString()))
@@ -60,7 +64,7 @@ class OrderEntityMapperTest {
             , "shipmentType", "shippingMethod"
             , "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber"
             , "productCategory", "comments", "status"
-            , "priority", "createEmployeeId", "2023-04-25 20:09:01", ZonedDateTime.now(), null);
+            , "priority", "createEmployeeId", "2023-04-25 20:09:01", ZonedDateTime.now(), null,null,"LABELED",locationRepository);
         order.setTransactionId(java.util.UUID.randomUUID());
 
         var orderEntity = mapper.mapToEntity(order);
@@ -68,7 +72,7 @@ class OrderEntityMapperTest {
         assertEquals(order.getId(), orderEntity.getId());
         assertEquals(order.getOrderNumber().getOrderNumber(), orderEntity.getOrderNumber());
         assertEquals(order.getOrderExternalId().getOrderExternalId(), orderEntity.getExternalId());
-        assertEquals(order.getLocationCode(), orderEntity.getLocationCode());
+        assertEquals(order.getLocationFrom().getCode(), orderEntity.getLocationCode());
         assertEquals(order.getShipmentType().getShipmentType(), orderEntity.getShipmentType());
         assertEquals(order.getShippingMethod().getShippingMethod(), orderEntity.getShippingMethod());
         assertEquals(order.getShippingCustomer().getCode(), orderEntity.getShippingCustomerCode());
@@ -145,7 +149,7 @@ class OrderEntityMapperTest {
         assertEquals(orderEntity.getId(), domain.getId());
         assertEquals(orderEntity.getOrderNumber(), domain.getOrderNumber().getOrderNumber());
         assertEquals(orderEntity.getExternalId(), domain.getOrderExternalId().getOrderExternalId());
-        assertEquals(orderEntity.getLocationCode(), domain.getLocationCode());
+        assertEquals(orderEntity.getLocationCode(), domain.getLocationFrom().getCode());
         assertEquals(orderEntity.getShipmentType(), domain.getShipmentType().getShipmentType());
         assertEquals(orderEntity.getShippingMethod(), domain.getShippingMethod().getShippingMethod());
         assertEquals(orderEntity.getShippingCustomerCode(), domain.getShippingCustomer().getCode());

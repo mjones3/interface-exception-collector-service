@@ -27,8 +27,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import {
     RsaValidators,
-    ScanUnitNumberCheckDigitComponent,
-    ToastrImplService,
+    ScanUnitNumberCheckDigitComponent
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { RuleResponseDTO } from 'app/shared/models/rule.model';
@@ -42,6 +41,7 @@ import {
 } from 'rxjs';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 import { ShipmentService } from '../../services/shipment.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     standalone: true,
@@ -78,7 +78,7 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
         protected fb: FormBuilder,
         private changeDetector: ChangeDetectorRef,
         private shipmentService: ShipmentService,
-        private toaster: ToastrImplService
+        private toaster: ToastrService
     ) {
         this.buildFormGroup();
     }
