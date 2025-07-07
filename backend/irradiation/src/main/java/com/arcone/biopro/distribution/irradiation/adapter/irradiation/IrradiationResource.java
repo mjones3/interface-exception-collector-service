@@ -3,15 +3,13 @@ package com.arcone.biopro.distribution.irradiation.adapter.irradiation;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@RestController
-@RequestMapping("/irradiation")
+@Controller
 public class IrradiationResource {
     private final ValidateDeviceUseCase validateDeviceUseCase;
     private final ValidateUnitNumberUseCase validateUnitNumberUseCase;
@@ -22,33 +20,13 @@ public class IrradiationResource {
         this.validateUnitNumberUseCase = validateUnitNumberUseCase;
     }
 
-    @PostMapping("/validate-device")
-    public Mono<Boolean> validateDevice(@RequestBody ValidateDeviceRequest request) {
-        return validateDeviceUseCase.execute(request.getDeviceId(), request.getLocation());
+    @QueryMapping
+    public Mono<Boolean> validateDevice(@Argument String deviceId, @Argument String location) {
+        return validateDeviceUseCase.execute(deviceId, location);
     }
 
-    @PostMapping("/validate-unit")
-    public Flux<Inventory> validateUnit(@RequestBody ValidateUnitRequest request) {
-        return validateUnitNumberUseCase.execute(request.getUnitNumber(), request.getLocation());
-    }
-
-    public static class ValidateDeviceRequest {
-        private String deviceId;
-        private String location;
-
-        public String getDeviceId() { return deviceId; }
-        public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
-        public String getLocation() { return location; }
-        public void setLocation(String location) { this.location = location; }
-    }
-
-    public static class ValidateUnitRequest {
-        private String unitNumber;
-        private String location;
-
-        public String getUnitNumber() { return unitNumber; }
-        public void setUnitNumber(String unitNumber) { this.unitNumber = unitNumber; }
-        public String getLocation() { return location; }
-        public void setLocation(String location) { this.location = location; }
+    @QueryMapping
+    public Flux<Inventory> validateUnit(@Argument String unitNumber, @Argument String location) {
+        return validateUnitNumberUseCase.execute(unitNumber, location);
     }
 }

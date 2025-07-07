@@ -1,0 +1,8 @@
+{
+  "request" : {
+    "routePath" : "getInventoryByUnitNumberAndProductCode"
+  },
+  "response" : {
+    "bodyFileName" : "getInventoryByUnitNumberAndProductCode.json"
+  }
+}
