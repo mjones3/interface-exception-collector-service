@@ -10,23 +10,24 @@ import reactor.core.publisher.Flux;
 
 @Component
 public class InventoryRSocketClient implements InventoryClient {
-    private final RSocketRequester rSocketRequester;
-
-    public InventoryRSocketClient(RSocketRequester rSocketRequester) {
-        this.rSocketRequester = rSocketRequester;
-    }
+//    private final RSocketRequester rSocketRequester;
+//
+//    public InventoryRSocketClient(RSocketRequester rSocketRequester) {
+//        this.rSocketRequester = rSocketRequester;
+//    }
 
     @Override
     public Flux<Inventory> getInventoryByUnitNumber(UnitNumber unitNumber) {
-        return rSocketRequester
-                .route("getInventoryByUnitNumber")
-                .data(unitNumber.getValue())
-                .retrieveFlux(InventoryOutput.class)
-                .map(output -> new Inventory(
-                        UnitNumber.of(output.getUnitNumber()),
-                        output.getProductCode(),
-                        Location.of(output.getLocation()),
-                        output.getStatus()
-                ));
+        return Flux.empty();
+//        return rSocketRequester
+//                .route("getInventoryByUnitNumber")
+//                .data(unitNumber.getValue())
+//                .retrieveFlux(InventoryOutput.class)
+//                .map(output -> new Inventory(
+//                        UnitNumber.of(output.getUnitNumber()),
+//                        output.getProductCode(),
+//                        Location.of(output.getLocation()),
+//                        output.getStatus()
+//                ));
     }
 }

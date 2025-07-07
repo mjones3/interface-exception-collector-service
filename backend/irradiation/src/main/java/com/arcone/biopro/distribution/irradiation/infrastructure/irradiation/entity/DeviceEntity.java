@@ -14,12 +14,16 @@ public class DeviceEntity {
     
     @Column("location")
     private String location;
+    
+    @Column("status")
+    private String status;
 
     public DeviceEntity() {}
 
-    public DeviceEntity(String deviceId, String location) {
+    public DeviceEntity(String deviceId, String location, String status) {
         this.deviceId = deviceId;
         this.location = location;
+        this.status = status;
     }
 
     public Long getId() {
@@ -44,5 +48,13 @@ public class DeviceEntity {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

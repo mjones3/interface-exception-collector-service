@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.irradiation.application.irradiation.usecase;
+package com.arcone.biopro.distribution.irradiation.application.usecase;
 
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.aggregate.IrradiationAggregate;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.DeviceRepository;

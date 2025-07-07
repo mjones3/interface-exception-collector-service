@@ -6,10 +6,12 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject
 public class Device {
     private final DeviceId deviceId;
     private final Location location;
+    private final String status;
 
-    public Device(DeviceId deviceId, Location location) {
+    public Device(DeviceId deviceId, Location location, String status) {
         this.deviceId = deviceId;
         this.location = location;
+        this.status = status;
     }
 
     public boolean isAtLocation(Location targetLocation) {
@@ -22,5 +24,9 @@ public class Device {
 
     public Location getLocation() {
         return location;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

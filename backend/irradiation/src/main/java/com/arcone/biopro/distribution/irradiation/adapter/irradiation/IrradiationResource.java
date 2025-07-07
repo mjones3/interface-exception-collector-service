@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.irradiation.adapter.irradiation;
 
-import com.arcone.biopro.distribution.irradiation.application.irradiation.usecase.ValidateDeviceUseCase;
-import com.arcone.biopro.distribution.irradiation.application.irradiation.usecase.ValidateUnitNumberUseCase;
+import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
+import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +16,7 @@ public class IrradiationResource {
     private final ValidateDeviceUseCase validateDeviceUseCase;
     private final ValidateUnitNumberUseCase validateUnitNumberUseCase;
 
-    public IrradiationResource(ValidateDeviceUseCase validateDeviceUseCase, 
+    public IrradiationResource(ValidateDeviceUseCase validateDeviceUseCase,
                               ValidateUnitNumberUseCase validateUnitNumberUseCase) {
         this.validateDeviceUseCase = validateDeviceUseCase;
         this.validateUnitNumberUseCase = validateUnitNumberUseCase;

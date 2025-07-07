@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface DeviceRepository {
     Mono<Device> findByDeviceId(DeviceId deviceId);
+    Mono<Device> save(Device device);
 }
