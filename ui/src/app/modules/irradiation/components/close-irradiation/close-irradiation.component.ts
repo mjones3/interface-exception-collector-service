@@ -246,17 +246,18 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     private populateCentrifugationBatch(irradiationProductDTO: IrradiationProductDTO) {
         const irradiationProducts: IrradiationProductDTO[] = [irradiationProductDTO];
-        const notAddedProducts = irradiationProducts.filter((p) =>
-            this.notInProductList(p)
-        );
 
-        if (notAddedProducts.length === 0) {
-            this.showMessage(
-                MessageType.WARNING,
-                'Product has already been added to the list'
-            );
-            return;
-        }
+        // const notAddedProducts = irradiationProducts.filter((p) =>
+        //     this.notInProductList(p)
+        // );
+        //
+        // if (notAddedProducts.length === 0) {
+        //     this.showMessage(
+        //         MessageType.WARNING,
+        //         'Product has already been added to the list'
+        //     );
+        //     return;
+        // }
 
         irradiationProducts.forEach((product) => {
             this.addProductToList(product);
@@ -528,7 +529,19 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     loadIrradiationId(irradiationId: string) {
-        console.log('irradiationId', irradiationId);
+        const irradiationProduct: IrradiationProductDTO =
+            {
+                unitNumber: "W036825314134",
+                productCode: 'E468900',
+                productDescription: 'WHOLE BLOOD|CPD/500mL/refg|ResLeu:<5E6',
+                status: 'AVAILABLE',
+                productFamily: 'WHOLE_BLOOD',
+                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
+                order: 1,
+                statuses: this.getStatuses(AVAILABLE)
+            };
+
+        this.populateCentrifugationBatch(irradiationProduct);
     }
 
     redirect() {
