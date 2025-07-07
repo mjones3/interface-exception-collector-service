@@ -21,7 +21,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { FuseCardComponent } from '@fuse/components/card';
 import { OptionPicker, OptionStatus } from 'app/shared/models';
-
 import { BaseControlValueAccessor } from '../../forms/base-control-value-accessor';
 import {Orientation} from "../../types/orientation.enum";
 
