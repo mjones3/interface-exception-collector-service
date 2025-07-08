@@ -1,4 +1,5 @@
 # Feature Unit Number reference: W777725002xxx
+
 @ui @LAB-576 @AOA-61 @disabled
 Feature: Starts Irradiation Process
 
@@ -16,7 +17,7 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
 
-            When I navigate to "Irradiation"
+            When I navigate to "Start Irradiation" in "Irradiation"
             Then I verify that I am taken to the page "Start Irradiation" in "Irradiation"
             And I verify that the "Lot Number" field is "disabled"
             And I verify that the "Unit Number" field is "disabled"

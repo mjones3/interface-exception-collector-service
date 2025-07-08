@@ -21,7 +21,7 @@ public class NavigationSteps {
     private final HomePage homePage;
 
     @Given("I login to Distribution module")
-    public void iNavigateToManufacturingModule() {
+    public void iNavigateToDistributionModule() {
         homePage.goTo();
     }
 
@@ -50,4 +50,9 @@ public class NavigationSteps {
         assertEquals(page, actualSubTitle, "The page sub-title is not equal to: " + page);
     }
 
+    @When("I navigate to {string} in {string}")
+    public void iNavigateToIn(String subProcess, String process) throws Exception {
+        homePage.goToProcess(process);
+        homePage.goToProcess(subProcess);
+    }
 }

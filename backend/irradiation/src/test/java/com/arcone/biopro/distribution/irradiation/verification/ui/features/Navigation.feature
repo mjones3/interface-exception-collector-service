@@ -9,5 +9,5 @@ Feature: Irradiation Menu
         Scenario: Irradiation Menu
             Given I login to Distribution module
             And I select the location "MDL Hub 1"
-            When I navigate to "Orders"
-            Then I verify that I am taken to the page "Search Orders" in "Order"
+            When I navigate to "Start Irradiation" in "Irradiation"
+            Then I verify that I am taken to the page "Start Irradiation" in "Irradiation"
