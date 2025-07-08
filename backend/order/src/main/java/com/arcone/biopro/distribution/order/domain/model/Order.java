@@ -459,7 +459,7 @@ public class Order implements Validatable {
             , modifyOrderCommand.getDesiredShippingDate()
             , modifyOrderCommand.isWillPickUp() , modifyOrderCommand.getWillPickUpPhoneNumber() , modifyOrderCommand.getProductCategory() , modifyOrderCommand.getComments()
             , orderToBeUpdated.getOrderStatus().getOrderStatus() , modifyOrderCommand.getDeliveryType(),  orderToBeUpdated.getCreateEmployeeId()
-            , createDateFormat , ZonedDateTime.now(),null, modifyOrderCommand.getQuarantinedProducts(), modifyOrderCommand.getLabelStatus(), locationRepository
+            , createDateFormat , ZonedDateTime.now(),null, modifyOrderCommand.getQuarantinedProducts(), orderToBeUpdated.getLabelStatus() != null ? orderToBeUpdated.getLabelStatus().value() : null, locationRepository
 
         );
 
