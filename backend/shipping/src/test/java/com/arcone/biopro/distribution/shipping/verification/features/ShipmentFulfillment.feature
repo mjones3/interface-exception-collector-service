@@ -195,3 +195,61 @@ Feature: Shipment fulfillment request
            | 44400013     | 1           | Testing Customer  | 2        | AP        | RED_BLOOD_CELLS_LEUKOREDUCED                                | RED BLOOD CELLS LEUKOREDUCED     | AP   | =W81253010701200 | =<E5107V00 | enabled           | FROZEN           |CUSTOMER          | LABELED      | false                |should not      |
            | 44400014     | DO1         | Distribution Only | 2        | ANY        | PLASMA_TRANSFUSABLE                                        | PLASMA TRANSFUSABLE              | ANY  | =W03689878675800 | =<E0707V00 | enabled           | FROZEN           |INTERNAL_TRANSFER | LABELED      | true                 |should          |
 
+
+
+        Rule: I should be able to see all available products for a given unit number.
+        Rule: I should be able to select unlabeled products to fill an internal transfer order.
+        Rule: I should not be able to select multiple products.
+        Rule: I should be able to fill an internal transfer order with quarantined products as requested.
+        @ui @DIS-452
+        Scenario Outline: Fill Shipment with Unlabeled Unit with multiple products.
+            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
+            And The check digit configuration is "disabled".
+            And The visual inspection configuration is "<Inspection Config>".
+            And The second verification configuration is "disabled".
+            And I have received a shipment fulfillment request with above details.
+            And I am on the Shipment Fulfillment Details page for order <Order Number>.
+            And I choose to fill product of family "<Family>" and blood type "<Type>".
+            When I add the unit "<UN>".
+            And I define visual inspection as "Satisfactory", if needed.
+            Then I should see the product selection option with the products "<product_list>" available for the unit number "<UN>".
+            When I select the product "<product_description>"
+            Then I should see the list of packed products added including "<UN>" and "<product_description>".
+            And I should see the inspection status as "Satisfactory", if applicable.
+            And I "<ShouldShouldNot>" see the product status as "Quarantined".
+            Examples:
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily       | Family              | Type | UN               | product_description | product_list      | Inspection Config | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
+                | 45200001     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | ANY  | =W03689878675800 | GENERIC1            | GENERIC1,GENERIC2 | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | 45200002     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | ANY  | =W03689878675800 | GENERIC1            | GENERIC1,GENERIC2 | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
+                | 45200003     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | ANY  | =W03689878675800 | GENERIC1            | GENERIC1,GENERIC2 | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+
+
+        Rule: I should be able to see all available products for a given unit number.
+        Rule: I should be able to select unlabeled products to fill an internal transfer order.
+        Rule: I should not be able to select multiple products.
+        Rule: The system should automatically select when the unit has only one product available.
+        Rule: I should be notified when all available products have been selected.
+        @ui @DIS-452
+        Scenario Outline: Fill Shipment with Unlabeled Unit with single product.
+            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
+            And The check digit configuration is "disabled".
+            And The visual inspection configuration is "<Inspection Config>".
+            And The second verification configuration is "disabled".
+            And I have received a shipment fulfillment request with above details.
+            And I am on the Shipment Fulfillment Details page for order <Order Number>.
+            And I choose to fill product of family "<Family>" and blood type "<Type>".
+            When I add the unit "<UN>".
+            And I define visual inspection as "Satisfactory", if needed.
+            Then I should see the list of packed products added including "<UN>" and "<product_description>".
+            And I should see the inspection status as "Satisfactory", if applicable.
+            And I "<ShouldShouldNot>" see the product status as "Quarantined".
+            When I add the unit "<UN>".
+            And I define visual inspection as "Satisfactory", if needed.
+            Then I should see a "WARNING" message: "all available products have been selected".
+            Examples:
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily       | Family              | Type | UN               | product_description | Inspection Config | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
+                | 45200004     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | ANY  | =W03689878675800 | GENERIC1            | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | 45200005     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | ANY  | =W03689878675800 | GENERIC1            | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
+                | 45200006     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | ANY  | =W03689878675800 | GENERIC1            | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+
+
