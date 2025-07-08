@@ -47,7 +47,11 @@ public class ShipmentCompletedUseCase implements UseCase<Mono<ShipmentCompletedO
                 inventoryAggregate.completeShipment(shipmentType, locationCode)
             ))
             .map(InventoryAggregate::getInventory)
-            .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.SHIPPED)))
+            .doOnSuccess(inventory -> {
+                if (shipmentType.equals(ShipmentType.CUSTOMER)) {
+                    inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.SHIPPED));
+                }
+            })
             .map(mapper::toOutput);
     }
 
