@@ -140,7 +140,7 @@ public class ShipmentTestingController {
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.
-        Thread.sleep(3000);
+        Thread.sleep(kafkaWaitingTime);
 
         log.debug("Message sent to create the order: {} payload {}", orderId,resource);
         return orderId;

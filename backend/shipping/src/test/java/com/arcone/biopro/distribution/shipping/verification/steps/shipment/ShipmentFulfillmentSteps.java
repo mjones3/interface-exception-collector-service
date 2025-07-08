@@ -576,12 +576,7 @@ public class ShipmentFulfillmentSteps {
     @When("I receive a shipment fulfillment request event with Order Number as {string}, Priority as {string}, Shipping Date as {string} , Shipment Type defined as {string}, Label Status as {string} and Quarantined Products as {string}.")
     public void iReceiveAShipmentFulfillmentRequestEventWithOrderExternalIDAsOrderNumberAsPriorityAsShippingDateAsShipmentTypeDefinedAsLabelStatusAsAndQuarantinedProductsAs(String orderNumber, String priority, String shipDate
         , String shipmentType, String labelStatus, String quarantinedProducts) throws Exception {
-        var shipDateFormat = "";
-        if("<tomorrow>".equals(shipDate)){
-            shipDateFormat = LocalDate.now().plusDays(1).toString();
-        }else{
-            shipDateFormat = LocalDate.now().toString();
-        }
+        var shipDateFormat = shipDate != null && !shipDate.isBlank() ? TestUtils.parseDateKeyword(shipDate) : TestUtils.parseDateKeyword("<today>") ;
         this.orderPriority = priority;
         context.setOrderNumber(shipmentTestingController.createShippingRequest(orderNumber,priority,shipDateFormat,shipmentType,labelStatus,Boolean.parseBoolean(quarantinedProducts)));
 
