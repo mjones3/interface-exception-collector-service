@@ -7,7 +7,6 @@ import lombok.ToString;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @EqualsAndHashCode
@@ -40,4 +39,7 @@ public class OrderFulfilledDTO implements Serializable {
     private String departmentName;
     private String departmentCode;
     private List<OrderFulfilledItemDTO> items;
+    private String shipmentType;
+    private String labelStatus;
+    private Boolean quarantinedProducts;
 }

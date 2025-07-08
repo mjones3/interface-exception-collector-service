@@ -35,6 +35,7 @@ public class PickListUseCase implements PickListService {
     private static final String ORDER_STATUS_OPEN = "OPEN";
     private final PickListMapper pickListMapper;
     private final PickListCommandMapper pickListCommandMapper;
+    private static final String INTERNAL_TRANSFER_TYPE = "INTERNAL_TRANSFER";
 
     @Override
     @Transactional
@@ -42,30 +43,33 @@ public class PickListUseCase implements PickListService {
         return orderService.findOneById(orderId)
             .map(pickListMapper::mapToUseCaseResponse)
             .publishOn(Schedulers.boundedElastic())
-            .doOnNext(useCaseResponse ->
-               Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(useCaseResponse.data())).onErrorResume(error -> {
-                            if(skipInventoryUnavailable) {
-                                log.debug("Skipping inventory unavailable.");
-                                return Mono.empty();
-                            }else{
-                                log.error("Not able to fetch inventory Data {}", error.getMessage());
-                                return Mono.error(new ServiceNotAvailableException("Inventory Service Not Available"));
+            .doOnNext(useCaseResponse -> {
+                if(!INTERNAL_TRANSFER_TYPE.equals(useCaseResponse.data().getShipmentType())){
+                    Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(useCaseResponse.data()))
+                            .onErrorResume(error -> {
+                                if(skipInventoryUnavailable) {
+                                    log.debug("Skipping inventory unavailable.");
+                                    return Mono.empty();
+                                }else{
+                                    log.error("Not able to fetch inventory Data {}", error.getMessage());
+                                    return Mono.error(new ServiceNotAvailableException("Inventory Service Not Available"));
+                                }
+                            })
+                        )
+                        .flatMap(availableInventory -> {
+                                var item = useCaseResponse.data().getPickListItems().stream()
+                                    .filter(x -> x.getBloodType().equals(availableInventory.getAboRh())
+                                        && x.getProductFamily().equals(availableInventory.getProductFamily())).findFirst();
+
+                                item.ifPresent(pickListItem -> availableInventory.getShortDateProducts()
+                                    .forEach(shortDateProduct -> pickListItem.addShortDate(new PickListItemShortDate(shortDateProduct.getUnitNumber()
+                                        , shortDateProduct.getProductCode() , shortDateProduct.getAboRh(), shortDateProduct.getStorageLocation()))));
+
+                                return Mono.just(availableInventory);
                             }
-                        })
-                    )
-                    .flatMap(availableInventory -> {
-                            var item = useCaseResponse.data().getPickListItems().stream()
-                                .filter(x -> x.getBloodType().equals(availableInventory.getAboRh())
-                                    && x.getProductFamily().equals(availableInventory.getProductFamily())).findFirst();
-
-                            item.ifPresent(pickListItem -> availableInventory.getShortDateProducts()
-                                .forEach(shortDateProduct -> pickListItem.addShortDate(new PickListItemShortDate(shortDateProduct.getUnitNumber()
-                                    , shortDateProduct.getProductCode() , shortDateProduct.getAboRh(), shortDateProduct.getStorageLocation()))));
-
-                            return Mono.just(availableInventory);
-                        }
-                    ).blockLast()
-
+                        ).blockLast();
+                }
+              }
             )
             .doOnSuccess(this::publishPickListCreatedEvent)
             .onErrorResume(error -> {

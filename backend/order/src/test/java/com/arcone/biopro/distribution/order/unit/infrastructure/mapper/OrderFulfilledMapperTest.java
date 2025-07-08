@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.order.domain.model.PickList;
 import com.arcone.biopro.distribution.order.domain.model.PickListItem;
 import com.arcone.biopro.distribution.order.domain.model.PickListItemShortDate;
 import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
+import com.arcone.biopro.distribution.order.domain.model.vo.LabelStatus;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderItemOrderId;
@@ -15,10 +16,12 @@ import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
+import com.arcone.biopro.distribution.order.domain.model.vo.ShipmentType;
 import com.arcone.biopro.distribution.order.domain.model.vo.ShippingMethod;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO;
 import com.arcone.biopro.distribution.order.infrastructure.event.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderFulfilledMapper;
+import com.arcone.biopro.distribution.order.infrastructure.persistence.LocationEntity;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerAddressDTO;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
 import org.junit.jupiter.api.Assertions;
@@ -27,7 +30,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -57,6 +59,14 @@ class OrderFulfilledMapperTest {
 
         var orderStatus = Mockito.mock(OrderStatus.class);
         Mockito.when(orderStatus.getOrderStatus()).thenReturn("STATUS");
+
+
+        var shipmentType = Mockito.mock(ShipmentType.class);
+        Mockito.when(shipmentType.getShipmentType()).thenReturn("SHIPMENT_TYPE");
+        Mockito.when(orderMock.getShipmentType()).thenReturn(shipmentType);
+
+        Mockito.when(orderMock.getLabelStatus()).thenReturn(LabelStatus.LABELED());
+        Mockito.when(orderMock.getQuarantinedProducts()).thenReturn(false);
 
         var deliveryType = Mockito.mock(OrderPriority.class);
         Mockito.when(deliveryType.getDeliveryType()).thenReturn("DELIVERY");
@@ -139,6 +149,9 @@ class OrderFulfilledMapperTest {
         Assertions.assertEquals("SHIPPING_METHOD", dto.getShippingMethod());
         Assertions.assertEquals("PRODUCT_CATEGORY", dto.getProductCategory());
         Assertions.assertEquals("COMMENTS", dto.getComments());
+        Assertions.assertEquals("SHIPMENT_TYPE", dto.getShipmentType());
+        Assertions.assertEquals("LABELED", dto.getLabelStatus());
+        Assertions.assertFalse(dto.getQuarantinedProducts());
 
         // assert items
         Assertions.assertNotNull(dto.getItems());
@@ -250,18 +263,13 @@ class OrderFulfilledMapperTest {
     @Test
     public void shouldNotBuildShippingCustomerWhenAddressMissing(){
 
-        var tupleMock = Mockito.mock(Tuple2.class);
-
         var orderFulfilledDTO = Mockito.mock(OrderFulfilledEventDTO.class);
 
         var customerDTO = Mockito.mock(CustomerDTO.class);
 
-        Mockito.when(tupleMock.getT1()).thenReturn(orderFulfilledDTO);
-        Mockito.when(tupleMock.getT2()).thenReturn(customerDTO);
-
         var mapper = new OrderFulfilledMapper();
 
-        StepVerifier.create(mapper.buildShippingCustomerDetails(tupleMock))
+        StepVerifier.create(mapper.buildShippingCustomerDetails(orderFulfilledDTO,customerDTO))
             .expectError(IllegalArgumentException.class)
             .verify();
 
@@ -270,7 +278,6 @@ class OrderFulfilledMapperTest {
     @Test
     public void shouldBuildShippingCustomer(){
 
-        var tupleMock = Mockito.mock(Tuple2.class);
 
         var addressMock = Mockito.mock(CustomerAddressDTO.class);
         Mockito.when(addressMock.addressType()).thenReturn("SHIPPING");
@@ -288,12 +295,9 @@ class OrderFulfilledMapperTest {
         Mockito.when(customerDTO.departmentName()).thenReturn("DEPARTAMENT_NAME");
         Mockito.when(customerDTO.departmentCode()).thenReturn("DEPARTAMENT_CODE");
 
-        Mockito.when(tupleMock.getT1()).thenReturn(new OrderFulfilledEventDTO(new OrderFulfilledDTO()));
-        Mockito.when(tupleMock.getT2()).thenReturn(customerDTO);
-
         var mapper = new OrderFulfilledMapper();
 
-        Mono<OrderFulfilledEventDTO> dto = mapper.buildShippingCustomerDetails(tupleMock);
+        Mono<OrderFulfilledEventDTO> dto = mapper.buildShippingCustomerDetails(new OrderFulfilledEventDTO(new OrderFulfilledDTO()),customerDTO);
 
         StepVerifier.create(dto)
             .consumeNextWith( response  -> {
@@ -309,6 +313,40 @@ class OrderFulfilledMapperTest {
                 Assertions.assertEquals("CustomerAddressAddressLine2",response.getPayload().getCustomerAddressAddressLine2());
                 Assertions.assertEquals("DEPARTAMENT_NAME",response.getPayload().getDepartmentName());
                 Assertions.assertEquals("DEPARTAMENT_CODE",response.getPayload().getDepartmentCode());
+
+            })
+            .verifyComplete();
+
+    }
+
+
+    @Test
+    public void shouldBuildShippingCustomerFromLocation(){
+
+
+        var locationMock = Mockito.mock(LocationEntity.class);
+
+        Mockito.when(locationMock.getState()).thenReturn("CustomerAddressState");
+        Mockito.when(locationMock.getPostalCode()).thenReturn("CustomerAddressPostalCode");
+        Mockito.when(locationMock.getCity()).thenReturn("CustomerAddressCity");
+        Mockito.when(locationMock.getAddressLine1()).thenReturn("CustomerAddressAddressLine1");
+        Mockito.when(locationMock.getAddressLine2()).thenReturn("CustomerAddressAddressLine2");
+
+
+        var mapper = new OrderFulfilledMapper();
+
+        Mono<OrderFulfilledEventDTO> dto = mapper.buildShippingCustomerDetailsFromLocation(new OrderFulfilledEventDTO(new OrderFulfilledDTO()),locationMock);
+
+        StepVerifier.create(dto)
+            .consumeNextWith( response  -> {
+                Assertions.assertNotNull(response);
+                Assertions.assertEquals("CustomerAddressState",response.getPayload().getCustomerAddressState());
+                Assertions.assertEquals("CustomerAddressPostalCode",response.getPayload().getCustomerAddressPostalCode());
+                Assertions.assertEquals("US",response.getPayload().getCustomerAddressCountry());
+                Assertions.assertEquals("US",response.getPayload().getCustomerAddressCountryCode());
+                Assertions.assertEquals("CustomerAddressCity",response.getPayload().getCustomerAddressCity());
+                Assertions.assertEquals("CustomerAddressAddressLine1",response.getPayload().getCustomerAddressAddressLine1());
+                Assertions.assertEquals("CustomerAddressAddressLine2",response.getPayload().getCustomerAddressAddressLine2());
 
             })
             .verifyComplete();
