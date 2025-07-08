@@ -116,6 +116,8 @@ Example:
 ``` Feature Unit Number Reference: W777725001000 ```
 
 ## List of current Unit Number Reference per Feature file
-| **UN reference** | **Feature file** |
-|------------------|------------------|
-| W777725001000    | example.feature  |
+| **UN reference** | **Feature file**         | **Type** |
+|------------------|--------------------------|----------|
+| W777725001000    | ScanUnitNumber.feature   | API      | 
+| W777725002000    | IrradiationStart.feature | UI       |
+
