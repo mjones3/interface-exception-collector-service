@@ -37,6 +37,7 @@ public class OrderUseCase extends AbstractProcessOrderUseCase implements OrderSe
     private final InventoryService inventoryService;
     private final PickListCommandMapper pickListCommandMapper;
     private final static String USE_CASE_OPERATION = "CREATE_ORDER";
+    private final static String INTERNAL_TRANSFER_TYPE = "INTERNAL_TRANSFER";
 
     @Override
     public Mono<UseCaseResponseDTO<Order>> findUseCaseResponseById(Long id) {
@@ -95,22 +96,25 @@ public class OrderUseCase extends AbstractProcessOrderUseCase implements OrderSe
     }
 
     private void setAvailableInventories(UseCaseResponseDTO<Order> useCaseResponseDTO){
-        Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(useCaseResponseDTO.data())).onErrorResume(error -> {
-                log.error("Not able to fetch inventory Data {}", error.getMessage());
-                useCaseResponseDTO.notifications().add(UseCaseNotificationDTO
-                    .builder()
-                    .useCaseMessageType(UseCaseMessageType.INVENTORY_SERVICE_IS_DOWN)
-                    .build());
-                return Mono.empty();
-            }))
-            .flatMap(availableInventory -> {
-                    var orderItem = useCaseResponseDTO.data().getOrderItems().stream()
-                        .filter(x -> x.getBloodType().getBloodType().equals(availableInventory.getAboRh())
-                            && x.getProductFamily().getProductFamily().equals(availableInventory.getProductFamily())).findFirst();
-                    orderItem.ifPresent(item -> item.defineAvailableQuantity(availableInventory.getQuantityAvailable()));
-                    return Mono.just(availableInventory);
-                }
-            ).blockLast();
+        var order = useCaseResponseDTO.data();
+        if(!INTERNAL_TRANSFER_TYPE.equals(order.getShipmentType().getShipmentType())){
+            Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(order)).onErrorResume(error -> {
+                    log.error("Not able to fetch inventory Data {}", error.getMessage());
+                    useCaseResponseDTO.notifications().add(UseCaseNotificationDTO
+                        .builder()
+                        .useCaseMessageType(UseCaseMessageType.INVENTORY_SERVICE_IS_DOWN)
+                        .build());
+                    return Mono.empty();
+                }))
+                .flatMap(availableInventory -> {
+                        var orderItem = order.getOrderItems().stream()
+                            .filter(x -> x.getBloodType().getBloodType().equals(availableInventory.getAboRh())
+                                && x.getProductFamily().getProductFamily().equals(availableInventory.getProductFamily())).findFirst();
+                        orderItem.ifPresent(item -> item.defineAvailableQuantity(availableInventory.getQuantityAvailable()));
+                        return Mono.just(availableInventory);
+                    }
+                ).blockLast();
+        }
     }
 
     @Override

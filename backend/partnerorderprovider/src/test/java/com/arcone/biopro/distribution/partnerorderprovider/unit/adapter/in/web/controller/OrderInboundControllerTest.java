@@ -37,7 +37,7 @@ class OrderInboundControllerTest {
         var id = UUID.randomUUID();
         var response = ValidationResponseDTO.builder()
             .id(id)
-            .status("CREATED")
+            .status("ACCEPTED")
             .timestamp(ZonedDateTime.now())
             .build();
 
@@ -45,11 +45,11 @@ class OrderInboundControllerTest {
 
         webTestClient.post().uri("/v1/partner-order-provider/orders")
             .exchange()
-            .expectStatus().isCreated()
+            .expectStatus().isAccepted()
             .expectBody()
             .jsonPath("$").isNotEmpty()
             .jsonPath("$.timestamp").isNotEmpty()
-            .jsonPath("$.status").isEqualTo("CREATED")
+            .jsonPath("$.status").isEqualTo("ACCEPTED")
             .jsonPath("$.id").isEqualTo(id.toString());
 
 

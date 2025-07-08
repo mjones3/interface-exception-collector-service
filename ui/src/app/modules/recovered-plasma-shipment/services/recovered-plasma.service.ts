@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
-import { LookUpDto, NotificationTypeMap, ToastrImplService } from '@shared';
+import { LookUpDto, NotificationTypeMap } from '@shared';
 import { MutationResult } from 'apollo-angular';
 import { catchError, Observable, Observer } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';

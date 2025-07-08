@@ -1,26 +1,31 @@
-@AOA-39
+@AOA-39 @AOA-19
 Feature: Search Orders
 
     Background:
-        Given I cleaned up from the database the orders with external ID starting with "EXTSEARCH1".
+        Given I cleaned up from the database the orders with external ID starting with "EXTSEARCH1,ORDERDIS".
         And I cleaned up from the database the orders with external ID starting with "29402".
+        And I have removed from the database all the configurations for the location "123456789_DIS481".
 
 
-    Rule: I should be able to filter the order lists by specific criteria.
+        Rule: I should be able to filter the order lists by specific criteria.
         Rule: I should be able to apply filter criteria.
-    Rule: I should be able to search the order by BioPro order number or External Order ID.
+        Rule: I should be able to search the order by BioPro order number or External Order ID.
         Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
-    Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
-        @ui @R20-227 @R20-228
+        Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
+        Rule: I should be able to see the Shipment Type and Ship to Location as filter options.
+        @ui @R20-227 @R20-228 @DIS-481
         Scenario Outline: Search orders by Order Number
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
+            And I have an order item with product family "APHERESIS_PLATELETS_LEUKOREDUCED", blood type "AP", quantity 5, and order item comments "Comments".
             And I have another Biopro Order with the externalId equals to order number of the previous order.
+            And I have an order item with product family "APHERESIS_PLATELETS_LEUKOREDUCED", blood type "ON", quantity 2, and order item comments "Comments 2".
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
             And I open the search orders filter panel.
-            And "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are "enabled".
+            And "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, shipment type" fields are "enabled".
+            And "ship to customer, ship to location" fields are "disabled".
             And I search the order by "<Search Key>".
-            And "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are "disabled".
+            And "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer, ship to location, shipment type" fields are "disabled".
             When I choose "apply" option.
             Then I should see 2 orders in the search results.
 
@@ -63,9 +68,35 @@ Feature: Search Orders
                 | COMPLETED       | orderId    | 3                | 1                 | EXTSEARCH1DIS29402 |
                 | COMPLETED       | orderId    | 3                | 1                 | 29402              |
 
-        Scenario: Cleanup database
-            Given I cleaned up from the database the orders with external ID starting with "EXTSEARCH1".
+
+
+        Rule: I should be able to search the order by  “Ship to Location” when the Shipment Type is Internal Transfer.
+        Rule: I should be able to search the order by “Ship to Customer” when the Shipment Type is Customer.
+        Rule: I should be able to see the Location name in the “Ship To” column when the shipment type is Internal Transfer.
+        @api @DIS-481
+        Scenario Outline: Search orders by Ship to Customer/Location based on the shipment type
+            Given The location "123456789_DIS481" is configured.
+            And I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>", and Quarantined Products as "<Quarantined Products>", and Label Status as "<Label Status>".
+            And I have 2 order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
+            When I search for orders by "<Search Keys>" and "<Search Values>".
+            Then The order with external ID "<External ID>" is present.
+            And The result list includes only the shipment type "<Shipment Type>".
+            And The result list includes only the customer "<Shipping Customer Name>".
+            Examples:
+                | External ID    | LocationCode     | Priority | Status | ProductFamily                                                     | BloodType | Quantity | Shipment Type     | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                | Quarantined Products | Label Status | Search Keys                                                         | Search Values                                                       |
+                | ORDERDIS481001 | 123456789_DIS481 | STAT     | OPEN   | APHERESIS_PLATELETS_LEUKOREDUCED,APHERESIS_PLATELETS_LEUKOREDUCED | AB,A      | 2,50     | CUSTOMER          | FEDEX           | ROOM_TEMPERATURE | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment | <null>               | <null>       | locationCode, createDateFrom, createDateTo, shipmentType, customers | '123456789_DIS481', <yesterday>, <today>, 'CUSTOMER', 'A1235'       |
+                | ORDERDIS481002 | 123456789_DIS481 | STAT     | OPEN   | PRT_APHERESIS_PLATELETS,PRT_APHERESIS_PLATELETS                   | AB,A      | 10,5     | CUSTOMER          | FEDEX           | ROOM_TEMPERATURE | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment | <null>               | <null>       | locationCode, createDateFrom, createDateTo, shipmentType, customers | '123456789_DIS481', <yesterday>, <today>, 'CUSTOMER', 'A1235'       |
+                | ORDERDIS481003 | 123456789_DIS481 | STAT     | OPEN   | PRT_APHERESIS_PLATELETS,PRT_APHERESIS_PLATELETS                   | AB,O      | 10,7     | CUSTOMER          | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment | <null>               | <null>       | locationCode, createDateFrom, createDateTo, shipmentType, customers | '123456789_DIS481', <yesterday>, <today>, 'CUSTOMER', 'A1235'       |
+                | ORDERDIS481004 | 123456789_DIS481 | STAT     | OPEN   | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED         | AP,OP     | 10,7     | CUSTOMER          | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment | <null>               | <null>       | locationCode, createDateFrom, createDateTo, shipmentType, customers | '123456789_DIS481', <yesterday>, <today>, 'CUSTOMER', 'A1235'       |
+                | ORDERDIS481005 | 123456789_DIS481 | STAT     | OPEN   | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED         | AP,OP     | 10,7     | INTERNAL_TRANSFER | FEDEX           | FROZEN           | 2024-08-20   | DO1                    | Distribution Only          | <null>                | <null>                     | Confirm when ready | Needed asap, Another comment | false                | LABELED      | locationCode, createDateFrom, createDateTo, shipmentType, customers | '123456789_DIS481', <yesterday>, <today>, 'INTERNAL_TRANSFER','DO1' |
+                | ORDERDIS481006 | 123456789_DIS481 | STAT     | OPEN   | WHOLE_BLOOD,WHOLE_BLOOD                                           | ANY,ANY   | 10,7     | INTERNAL_TRANSFER | FEDEX           | REFRIGERATED     | 2024-08-20   | DO1                    | Distribution Only          | <null>                | <null>                     | Confirm when ready | Needed asap, Another comment | true                 | UNLABELED    | locationCode, createDateFrom, createDateTo, shipmentType, customers | '123456789_DIS481', <yesterday>, <today>, 'INTERNAL_TRANSFER','DO1' |
+
+
+
+            Scenario: Cleanup database
+            Given I cleaned up from the database the orders with external ID starting with "EXTSEARCH1,ORDERDIS".
             And I cleaned up from the database the orders with external ID starting with "29402".
+            And I have removed from the database all the configurations for the location "123456789_DIS481".
 
 
                                 ############################################################

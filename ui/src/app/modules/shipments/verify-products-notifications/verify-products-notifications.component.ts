@@ -5,8 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import {
     ProcessHeaderComponent,
-    ProcessHeaderService,
-    ToastrImplService,
+    ProcessHeaderService
 } from '@shared';
 import { ConfirmationAcknowledgmentService } from 'app/shared/services/confirmation-acknowledgment.service';
 import { CookieService } from 'ngx-cookie-service';
@@ -35,6 +34,7 @@ import { SecondVerificationCommon } from '../second-verification-common';
 import { ShipmentService } from '../services/shipment.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { VerifyProductsNavbarComponent } from '../verify-products-navbar/verify-products-navbar.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-verify-products-notifications',
@@ -104,7 +104,7 @@ export class VerifyProductsNotificationsComponent
         protected shipmentService: ShipmentService,
         protected confirmationService: FuseConfirmationService,
         protected productIconService: ProductIconsService,
-        protected toaster: ToastrImplService,
+        protected toaster: ToastrService,
         protected header: ProcessHeaderService,
         private discardService: DiscardService,
         private cookieService: CookieService

@@ -16,6 +16,7 @@ type Query {
     searchOrders(orderQueryCommandDTO: OrderQueryCommandDTO!): PageDTO
     findOrderShipmentByOrderId(orderId:ID!):OrderShipmentDTO
     searchOrderCriteria: SearchOrderCriteriaDTO
+    findAllLocations:[LocationDTO]!
 }
 
 type Mutation {
@@ -130,10 +131,10 @@ type Order {
     locationCode: String!
     shipmentType: String!
     shippingMethod: String!
-    shippingCustomerName: String!
-    shippingCustomerCode: String!
-    billingCustomerName: String!
-    billingCustomerCode: String!
+    shippingCustomerName: String
+    shippingCustomerCode: String
+    billingCustomerName: String
+    billingCustomerCode: String
     desiredShippingDate: Date
     willCallPickup: Boolean
     phoneNumber: String
@@ -162,6 +163,8 @@ type Order {
     modifyByProcess:String
     displayModificationDetails:Boolean
     transactionId: String
+    quarantinedProducts:Boolean
+    labelStatus:String
 }
 
 type OrderReportDTO {
@@ -196,6 +199,7 @@ input OrderQueryCommandDTO {
     createDateTo: Date
     desireShipDateFrom: Date
     desireShipDateTo: Date
+    shipmentType:String
     querySort: InputQuerySortDTO
     pageSize: Int
     pageNumber: Int
@@ -297,5 +301,24 @@ type SearchOrderCriteriaDTO {
     orderStatus:[LookupDTO]
     orderPriorities:[LookupDTO]
     customers:[OrderCustomerReportDTO]
+    shipmentTypes:[LookupDTO]
+    locations:[LocationFilterDTO]
 }
 
+type LocationDTO {
+    id:ID!
+    name:String!
+    code:String!
+    externalId:String
+    addressLine1:String
+    addressLine2:String
+    postalCode:String
+    city:String
+    state:String
+    properties:JSON
+}
+
+type LocationFilterDTO {
+    name:String!
+    code:String!
+}

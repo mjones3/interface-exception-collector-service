@@ -15,7 +15,7 @@ class OrderQueryCommandTest {
 
     @Test
     public void shouldCreateOrderQueryCommandWhenSortIsNull() {
-        var orderQueryCommand = new OrderQueryCommand("1",null,null,null,null,null,null,null,null,null, null, null);
+        var orderQueryCommand = new OrderQueryCommand("1",null,null,null,null,null,null,null,null,null, null, null,null);
         Assertions.assertNotNull(orderQueryCommand);
         Assertions.assertNotNull(orderQueryCommand.getQuerySort());
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
@@ -40,7 +40,7 @@ class OrderQueryCommandTest {
     public void shouldCreateOrderQueryCommand() {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
-        var orderQueryCommand = new OrderQueryCommand("1","123",null,null,null,null,null,null,null,sort, 3, 10);
+        var orderQueryCommand = new OrderQueryCommand("1","123",null,null,null,null,null,null,null,sort, 3, 10,"INTERNAL_TRANSFER");
         Assertions.assertNotNull(orderQueryCommand);
         Assertions.assertNotNull(orderQueryCommand.getQuerySort());
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
@@ -48,13 +48,15 @@ class OrderQueryCommandTest {
         Assertions.assertEquals("TEST",orderQueryCommand.getQuerySort().getQueryOrderByList().get(0).getProperty());
         Assertions.assertEquals(10, orderQueryCommand.getPageSize());
         Assertions.assertEquals(3, orderQueryCommand.getPageNumber());
+        Assertions.assertEquals("INTERNAL_TRANSFER", orderQueryCommand.getShipmentType());
+
     }
 
     @Test
     public void shouldCreateOrderQueryCommandWhenUniqueIdentifierIsBigNumeric() {
         var orderBy = new QueryOrderBy("TEST", "DESC");
         var sort = new QuerySort(List.of(orderBy));
-        var orderQueryCommand = new OrderQueryCommand("1", "99999999999999999999999999999999999999999999999999", null, null, null, null, null, null, null, sort, null, 10);
+        var orderQueryCommand = new OrderQueryCommand("1", "99999999999999999999999999999999999999999999999999", null, null, null, null, null, null, null, sort, null, 10,null);
         Assertions.assertNotNull(orderQueryCommand);
         Assertions.assertNotNull(orderQueryCommand.getQuerySort());
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
@@ -64,18 +66,18 @@ class OrderQueryCommandTest {
 
     @Test
     public void shouldNotCreateOrderQueryCommand() {
-        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null,null,null,null,null,null,null, null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null,null,null,null,null,null,null, null, null, null,null));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null,null,null,null,null,null,null, null, null, 10));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null,null,null,null,null,null,null, null, null, 10,null));
         Assertions.assertEquals("locationCode cannot be null or empty", exception.getMessage());
 
-        exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("TEST","123",null,null,null,null,null,null,null, null, null, -1));
+        exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("TEST","123",null,null,null,null,null,null,null, null, null, -1,null));
         Assertions.assertEquals("pageSize must be greater than 0", exception.getMessage());
 
-        exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,List.of("OPEN", "IN_PROGRESS", "COMPLETED"),null,null,null,null,null,null,null, null, 10));
+        exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,List.of("OPEN", "IN_PROGRESS", "COMPLETED"),null,null,null,null,null,null,null, null, 10,null));
         Assertions.assertEquals("The createDate must not be null or empty", exception.getMessage());
 
-        exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,List.of("COMPLETED", "IN_PROGRESS"),null,null,null,null,null,null,null, null, 10));
+        exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,List.of("COMPLETED", "IN_PROGRESS"),null,null,null,null,null,null,null, null, 10,null));
         Assertions.assertEquals("The createDate must not be null or empty", exception.getMessage());
     }
 
@@ -84,12 +86,12 @@ class OrderQueryCommandTest {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
         var uniqueIdentifier = "123";
-        var orderQueryCommand = new OrderQueryCommand("1","123",null,null,null,null,null,null,null,sort, null, 10);
+        var orderQueryCommand = new OrderQueryCommand("1","123",null,null,null,null,null,null,null,sort, null, 10,null);
 
         Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getOrderNumber());
         Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getExternalOrderId());
 
-        var orderQueryCommandInitialScenario = new OrderQueryCommand("1",null,null,null,null,null,null,null,null,sort, null, 10);
+        var orderQueryCommandInitialScenario = new OrderQueryCommand("1",null,null,null,null,null,null,null,null,sort, null, 10,null);
         Assertions.assertEquals(List.of("OPEN","IN_PROGRESS"), orderQueryCommandInitialScenario.getOrderStatus());
     }
 
@@ -98,7 +100,7 @@ class OrderQueryCommandTest {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
         var uniqueIdentifier = "F123";
-        var orderQueryCommand = new OrderQueryCommand("1",uniqueIdentifier,null,null,null,null,null,null,null,sort, null, 10);
+        var orderQueryCommand = new OrderQueryCommand("1",uniqueIdentifier,null,null,null,null,null,null,null,sort, null, 10,null);
         Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getExternalOrderId());
         Assertions.assertNull(orderQueryCommand.getOrderNumber());
     }
@@ -108,7 +110,7 @@ class OrderQueryCommandTest {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
 
-        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, LocalDate.now().plusDays(1), LocalDate.now(),null,null,sort, null, 10), "Initial date should not be greater than final date");
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, LocalDate.now().plusDays(1), LocalDate.now(),null,null,sort, null, 10,null), "Initial date should not be greater than final date");
     }
 
     @Test
@@ -116,7 +118,7 @@ class OrderQueryCommandTest {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
 
-        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, LocalDate.now().minusMonths(3), LocalDate.now().plusDays(1),null,null,sort, null, 10), "Final date should not be greater than today");
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, LocalDate.now().minusMonths(3), LocalDate.now().plusDays(1),null,null,sort, null, 10,null), "Final date should not be greater than today");
     }
 
     @Test
@@ -124,7 +126,7 @@ class OrderQueryCommandTest {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
 
-        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, LocalDate.now().minusYears(3), LocalDate.now().minusMonths(1),null,null,sort, null, 10), "Date range exceeds two years");
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, LocalDate.now().minusYears(3), LocalDate.now().minusMonths(1),null,null,sort, null, 10,null), "Date range exceeds two years");
     }
 
     @Test
@@ -133,7 +135,7 @@ class OrderQueryCommandTest {
         var sort = new QuerySort(List.of(orderBy));
         var uniqueIdentifier = "F123";
 
-        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",uniqueIdentifier,null,null,null, LocalDate.now().minusYears(1), LocalDate.now().minusMonths(1),null,null,sort, null, 10), "The createDate must be null or empty");
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",uniqueIdentifier,null,null,null, LocalDate.now().minusYears(1), LocalDate.now().minusMonths(1),null,null,sort, null, 10,null), "The createDate must be null or empty");
     }
 
     @Test
@@ -141,12 +143,12 @@ class OrderQueryCommandTest {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
 
-        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, null, null,LocalDate.now(),null,sort, null, 10), "The createDate must not be null or empty");
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, null, null,LocalDate.now(),null,sort, null, 10,null), "The createDate must not be null or empty");
     }
 
     @Test
     public void shouldDefineStatusWhenSearchWithUniqueIdentifierNull() {
-        var orderQueryCommand = new OrderQueryCommand("1", null, null, null, null, null, null, null, null, null, null, 10);
+        var orderQueryCommand = new OrderQueryCommand("1", null, null, null, null, null, null, null, null, null, null, 10,null);
         Assertions.assertNotNull(orderQueryCommand.getOrderStatus());
         Assertions.assertTrue(orderQueryCommand.getOrderStatus().contains("IN_PROGRESS"));
         Assertions.assertTrue(orderQueryCommand.getOrderStatus().contains("OPEN"));
@@ -154,13 +156,13 @@ class OrderQueryCommandTest {
 
     @Test
     public void shouldNotDefineStatusWhenSearchByUniqueIdentifierAsExternalOrderId() {
-        var orderQueryCommand = new OrderQueryCommand("1", "123abx", null, null, null, null, null, null, null, null, null, 10);
+        var orderQueryCommand = new OrderQueryCommand("1", "123abx", null, null, null, null, null, null, null, null, null, 10,null);
         Assertions.assertNull(orderQueryCommand.getOrderStatus());
     }
 
     @Test
     public void shouldNotDefineStatusWhenSearchByUniqueIdentifierAsOrderId() {
-        var orderQueryCommand = new OrderQueryCommand("1", "123", null, null, null, null, null, null, null, null, null, 10);
+        var orderQueryCommand = new OrderQueryCommand("1", "123", null, null, null, null, null, null, null, null, null, 10,null);
         Assertions.assertNull(orderQueryCommand.getOrderStatus());
     }
 }

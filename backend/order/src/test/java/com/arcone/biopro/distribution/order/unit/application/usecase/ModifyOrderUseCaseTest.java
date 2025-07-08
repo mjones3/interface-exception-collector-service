@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.order.domain.event.OrderModifiedEvent;
 import com.arcone.biopro.distribution.order.domain.event.OrderRejectedEvent;
 import com.arcone.biopro.distribution.order.domain.model.ModifyOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
@@ -34,6 +35,7 @@ class ModifyOrderUseCaseTest {
     private LookupService lookupService;
     private OrderConfigService orderConfigService;
     private ModifyOrderReceivedEventMapper modifyOrderReceivedEventMapper;
+    private LocationRepository locationRepository;
 
     @BeforeEach
     public void setUp(){
@@ -43,7 +45,7 @@ class ModifyOrderUseCaseTest {
         orderConfigService = Mockito.mock(OrderConfigService.class);
         modifyOrderReceivedEventMapper = new ModifyOrderReceivedEventMapper();
 
-        useCase = new ModifyOrderUseCase(orderRepository,modifyOrderReceivedEventMapper, applicationEventPublisher,customerService,lookupService,orderConfigService);
+        useCase = new ModifyOrderUseCase(orderRepository,modifyOrderReceivedEventMapper, applicationEventPublisher,customerService,lookupService,orderConfigService,locationRepository);
     }
 
     @Test
@@ -66,7 +68,7 @@ class ModifyOrderUseCaseTest {
     void shouldProcessCancelOrderAndRejectWhenModifyOrderRequestIsInvalid(){
 
         var order = Mockito.mock(Order.class);
-        Mockito.doThrow(new IllegalArgumentException("Invalid Request")).when(order).modify(Mockito.any(ModifyOrderCommand.class),Mockito.anyList(),Mockito.any(CustomerService.class),Mockito.any(),Mockito.any());
+        Mockito.doThrow(new IllegalArgumentException("Invalid Request")).when(order).modify(Mockito.any(ModifyOrderCommand.class),Mockito.anyList(),Mockito.any(CustomerService.class),Mockito.any(),Mockito.any(),Mockito.any());
 
         Mockito.when(orderRepository.findByExternalId(Mockito.any(String.class))).thenReturn(Flux.just(order));
 
@@ -86,7 +88,7 @@ class ModifyOrderUseCaseTest {
     void shouldProcessModifyOrder(){
 
         var order = Mockito.mock(Order.class);
-        Mockito.when(order.modify(Mockito.any(ModifyOrderCommand.class),Mockito.anyList(),Mockito.any(CustomerService.class),Mockito.any(),Mockito.any())).thenReturn(order);
+        Mockito.when(order.modify(Mockito.any(ModifyOrderCommand.class),Mockito.anyList(),Mockito.any(CustomerService.class),Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(order);
 
         var event = Mockito.mock(ModifyOrderReceivedDTO.class);
         Mockito.when(event.payload()).thenReturn(ModifyOrderReceivedPayloadDTO.builder()

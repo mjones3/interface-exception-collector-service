@@ -23,7 +23,7 @@ class OrderReportMapperTest {
     void shouldMapToDTO() {
         var createDate = ZonedDateTime.now();
         var desireShipDate = LocalDate.now();
-        var orderReport = new OrderReport(1L, 2L, "3", "STATUS", new OrderCustomerReport("CODE", "NAME"), new OrderPriorityReport("PRIORITY", "PRIORITY COLOR"), createDate, desireShipDate);
+        var orderReport = new OrderReport(1L, 2L, "3", "STATUS", new OrderCustomerReport("CODE", "NAME"), new OrderPriorityReport("PRIORITY", "PRIORITY COLOR"), createDate, desireShipDate,"INTERNAL_TRANSFER");
 
         var orderReportDTO = orderReportMapper.mapToDTO(orderReport);
         assertEquals(orderReport.getOrderId(), orderReportDTO.orderId());
@@ -36,6 +36,7 @@ class OrderReportMapperTest {
         assertEquals(orderReport.getOrderPriorityReport().getPriorityColor(), orderReportDTO.orderPriorityReport().priorityColor());
         assertEquals(createDate, orderReportDTO.createDate());
         assertEquals(desireShipDate, orderReportDTO.desireShipDate());
+        assertEquals(orderReport.getShipmentType(), orderReportDTO.shipmentType());
     }
 
 }

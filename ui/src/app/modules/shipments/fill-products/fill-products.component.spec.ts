@@ -6,13 +6,12 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrImplService } from '@shared';
 import {
     ApolloTestingController,
     ApolloTestingModule,
 } from 'apollo-angular/testing';
 import { ConfirmationAcknowledgmentService } from 'app/shared/services/confirmation-acknowledgment.service';
-import { ToastrModule } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { VerifyFilledProductDto } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
@@ -24,7 +23,7 @@ describe('FillProductsComponent', () => {
     let fixture: ComponentFixture<FillProductsComponent>;
     let router: Router;
     let service: ShipmentService;
-    let toaster: ToastrImplService;
+    let toaster: ToastrService;
     let confirmationAcknowledgmentService: ConfirmationAcknowledgmentService;
     let controller: ApolloTestingController;
     let datePipe: DatePipe;
@@ -65,7 +64,7 @@ describe('FillProductsComponent', () => {
         fixture = TestBed.createComponent(FillProductsComponent);
         router = TestBed.inject(Router);
         component = fixture.componentInstance;
-        toaster = TestBed.inject(ToastrImplService);
+        toaster = TestBed.inject(ToastrService);
         service = TestBed.inject(ShipmentService);
         confirmationAcknowledgmentService = TestBed.inject(
             ConfirmationAcknowledgmentService

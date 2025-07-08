@@ -182,6 +182,20 @@ public record OrderModifiedDTO(
         example = "123e4567-e89b-12d3-a456-426614174000",
         requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    UUID transactionId
+    UUID transactionId,
+    @Schema(
+        title = "Quarantined Products",
+        description = "The order can be filled with quarantined products",
+        example = "true",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    Boolean quarantinedProducts,
+    @Schema(
+        title = "Label Status",
+        description = "The label status of the order",
+        example = "LABELED",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    String labelStatus
 ) implements Serializable {
 }

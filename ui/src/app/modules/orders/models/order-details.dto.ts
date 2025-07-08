@@ -36,6 +36,8 @@ export interface OrderDetailsDTO {
     modifyReason?: string;
     modifyByProcess?: string;
     displayModificationDetails: boolean;
+    quarantinedProducts?:boolean;
+    labelStatus?:string;
 }
 
 export interface OrderItemDetailsDto {

@@ -174,7 +174,7 @@ class OrderQueryControllerTest {
             new OrderCustomerReport(randomAlphanumeric(16), randomAlphanumeric(16)),
             new OrderPriorityReport(randomAlphanumeric(16), randomAlphanumeric(16)),
             ZonedDateTime.now(),
-            LocalDate.now().plusDays(nextInt(0, 10))
+            LocalDate.now().plusDays(nextInt(0, 10)),"INTERNAL_TRANSFER"
         );
     }
 

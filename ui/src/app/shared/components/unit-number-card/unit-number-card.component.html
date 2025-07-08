@@ -21,6 +21,17 @@
                 </div>
             </div>
         </div>
+        <div class="inline-flex gap-2">
+            @for (status of statuses; track $index) {
+                <p
+                    id="statusClasses"
+                    [ngClass]="status.classes"
+                    class="status mt-2 text-sm font-medium"
+                >
+                    {{ status.value }}
+                </p>
+            }
+        </div>
         @if (showVisualInspection) {
             <div class="mt-1">
                 <span

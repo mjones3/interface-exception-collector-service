@@ -57,6 +57,13 @@ export const appRoutes: Route[] = [
                     import('app/modules/receiving/receiving.routes'),
             },
 
+            {
+                path: 'irradiation',
+                canActivate: [AuthGuard],
+                loadChildren: () =>
+                    import('app/modules/irradiation/irradiation.routes'),
+            },
+
             // 404 & Catch all
             { path: '**', redirectTo: 'errors/404' },
         ],

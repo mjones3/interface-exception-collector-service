@@ -30,6 +30,8 @@ public record OrderCreatedDTO(
     boolean willPickUp,
     String willPickUpPhoneNumber,
     UUID transactionId,
-    List<OrderItemCreatedDTO> orderItems
+    List<OrderItemCreatedDTO> orderItems,
+    Boolean quarantinedProducts,
+    String labelStatus
 ) implements Serializable {
 }

@@ -7,7 +7,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { NotificationDto, ToastrImplService } from '@shared';
+import { NotificationDto } from '@shared';
 import { ApolloModule, MutationResult } from 'apollo-angular';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
@@ -72,7 +72,7 @@ describe('VerifyProductsComponent', () => {
 
         shipmentService = TestBed.inject(ShipmentService);
         fuseConfirmationService = TestBed.inject(FuseConfirmationService);
-        toastr = TestBed.inject(ToastrImplService);
+        toastr = TestBed.inject(ToastrService);
         router = TestBed.inject(Router);
         jest.spyOn(shipmentService, 'getShipmentById').mockReturnValue(of());
         jest.spyOn(
