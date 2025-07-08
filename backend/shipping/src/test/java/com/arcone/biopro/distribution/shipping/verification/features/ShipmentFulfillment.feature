@@ -1,4 +1,4 @@
-@api @AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19
+@AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19
 Feature: Shipment fulfillment request
 
     Background:
@@ -134,64 +134,64 @@ Feature: Shipment fulfillment request
                | 337001         | 1           | Testing Customer | 5        | BP        | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530107011 | E5085V00 | FROZEN           |
 
 
-           @api @DIS-261
-           Rule: The second verification process should be restarted when a product is added into the shipment.
-           Scenario Outline: Restart verification status when a Product is added into a Shipment.
-               Given I have a shipment for order "<Order Number>" with the units "<Units>" and product codes "<Product Codes>" of family "<Product Family>" and blood type "<Blood Type>" "verified", out of <Quantity Requested> requested.
-               And The second verification configuration is "enabled".
-               When I fill a product with the unit number "<Unit Filled>", product code "<Code Filled>".
-               Then The product unit number "<Unit Filled>" and product code "<Code Filled>" should be packed in the shipment.
-               And I should have 0 items "verified" in the shipment.
-               Examples:
-                   | Order Number | Product Codes              | Units                                     | Product Family               | Blood Type | Unit Filled   | Code Filled  | Quantity Requested |
-                   | 261002       | E4701V00,E4701V00,E4701V00 | W822530103004,W822530103005,W822530103006 | PLASMA_TRANSFUSABLE          | AP         | W822530106093 | E7648V00     | 10                 |
-                   | 261002       | E0685V00,E0685V00,E0685V00 | W822530103004,W822530103005               | RED_BLOOD_CELLS_LEUKOREDUCED | OP         | W822530106094 | E0685V00     | 8                  |
-                   | 261002       | E0033V00,E0033V00,E0033V00 | W822530103004,W822530103005,W822530103006 | WHOLE_BLOOD_LEUKOREDUCED     | ABP        | W812530106095 | E0033V00     | 5                  |
-                   | 261002       | E0167V00,E0167V00,E0167V00 | W822530103004,W822530103005               | RED_BLOOD_CELLS              | ON         | W812530106098 | E0167V00     | 5                  |
-                   | 261002       | E0167V00,E0167V00,E0167V00 | W822530103004,W822530103005               | WHOLE_BLOOD                  | AP         | W812530107002 | E0023V00     | 9                  |
+   @api @DIS-261
+   Rule: The second verification process should be restarted when a product is added into the shipment.
+   Scenario Outline: Restart verification status when a Product is added into a Shipment.
+       Given I have a shipment for order "<Order Number>" with the units "<Units>" and product codes "<Product Codes>" of family "<Product Family>" and blood type "<Blood Type>" "verified", out of <Quantity Requested> requested.
+       And The second verification configuration is "enabled".
+       When I fill a product with the unit number "<Unit Filled>", product code "<Code Filled>".
+       Then The product unit number "<Unit Filled>" and product code "<Code Filled>" should be packed in the shipment.
+       And I should have 0 items "verified" in the shipment.
+       Examples:
+           | Order Number | Product Codes              | Units                                     | Product Family               | Blood Type | Unit Filled   | Code Filled  | Quantity Requested |
+           | 261002       | E4701V00,E4701V00,E4701V00 | W822530103004,W822530103005,W822530103006 | PLASMA_TRANSFUSABLE          | AP         | W822530106093 | E7648V00     | 10                 |
+           | 261002       | E0685V00,E0685V00,E0685V00 | W822530103004,W822530103005               | RED_BLOOD_CELLS_LEUKOREDUCED | OP         | W822530106094 | E0685V00     | 8                  |
+           | 261002       | E0033V00,E0033V00,E0033V00 | W822530103004,W822530103005,W822530103006 | WHOLE_BLOOD_LEUKOREDUCED     | ABP        | W812530106095 | E0033V00     | 5                  |
+           | 261002       | E0167V00,E0167V00,E0167V00 | W822530103004,W822530103005               | RED_BLOOD_CELLS              | ON         | W812530106098 | E0167V00     | 5                  |
+           | 261002       | E0167V00,E0167V00,E0167V00 | W822530103004,W822530103005               | WHOLE_BLOOD                  | AP         | W812530107002 | E0023V00     | 9                  |
 
 
-        Rule: I should be able to manage labeled products to fill a shipment.
-        Rule: I should be able to fill the internal transfer order labeled products as requested.
-        Rule: I should be able to fill an internal transfer order with quarantined products as requested.
-        @api @DIS-444
-        Scenario Outline: Fill Internal Transfer final labeled product.
-            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
-            And The visual inspection configuration is "enabled".
-            And I have received a shipment fulfillment request with above details.
-            When I fill a product with the unit number "<UN>", product code "<Code>".
-            Then The product unit number "<UN>" and product code "<Code>" should be packed in the shipment.
-            Examples:
-                | Order Number | Customer ID | Customer Name             | Quantity | BloodType | ProductFamily                    | UN            | Code     | Category         | Shipment Type     | Label Status | Quarantined Products |
-                | 4440006      |DL1          | Distribution and Labeling | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530444001 | E5107V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | false                |
-                | 4440007      |234567891    | MDL Hub 2                 | 10       | A         | APHERESIS_PLATELETS_LEUKOREDUCED | W812530444002 | EA007V00 | ROOM_TEMPERATURE | INTERNAL_TRANSFER | LABELED      | false                |
-                | 4440008      |DO1          | Distribution Only         | 5        | AB        | PLASMA_TRANSFUSABLE              | W036898786758 | E0707V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 |
+    Rule: I should be able to manage labeled products to fill a shipment.
+    Rule: I should be able to fill the internal transfer order labeled products as requested.
+    Rule: I should be able to fill an internal transfer order with quarantined products as requested.
+    @api @DIS-444
+    Scenario Outline: Fill Internal Transfer final labeled product.
+        Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
+        And The visual inspection configuration is "enabled".
+        And I have received a shipment fulfillment request with above details.
+        When I fill a product with the unit number "<UN>", product code "<Code>".
+        Then The product unit number "<UN>" and product code "<Code>" should be packed in the shipment.
+        Examples:
+            | Order Number | Customer ID | Customer Name             | Quantity | BloodType | ProductFamily                    | UN            | Code     | Category         | Shipment Type     | Label Status | Quarantined Products |
+            | 4440006      |DL1          | Distribution and Labeling | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530444001 | E5107V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | false                |
+            | 4440007      |234567891    | MDL Hub 2                 | 10       | A         | APHERESIS_PLATELETS_LEUKOREDUCED | W812530444002 | EA007V00 | ROOM_TEMPERATURE | INTERNAL_TRANSFER | LABELED      | false                |
+            | 4440008      |DO1          | Distribution Only         | 5        | AB        | PLASMA_TRANSFUSABLE              | W036898786758 | E0707V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 |
 
 
 
-            Rule: I should be able to manage labeled products to fill a shipment.
-            Rule: I should be able to fill the internal transfer order labeled products as requested.
-            Rule: I should be able to fill an internal transfer order with quarantined products as requested.
-            @ui @DIS-444
-            Scenario Outline: Fill Shipment with Labeled Products.
-                Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
-                And The check digit configuration is "disabled".
-                And The visual inspection configuration is "<Inspection Config>".
-                And The second verification configuration is "disabled".
-                And I have received a shipment fulfillment request with above details.
-                And I am on the Shipment Fulfillment Details page for order <Order Number>.
-                And I choose to fill product of family "<Family>" and blood type "<Type>".
-                When I add the unit "<UN>" with product code "<Code>".
-                And I define visual inspection as "Satisfactory", if needed.
-                Then I should see the list of packed products added including "<UN>" and "<Code>".
-                And I should see the inspection status as "Satisfactory", if applicable.
-                And I "<ShouldShouldNot>" see the product status as "Quarantined".
+    Rule: I should be able to manage labeled products to fill a shipment.
+    Rule: I should be able to fill the internal transfer order labeled products as requested.
+    Rule: I should be able to fill an internal transfer order with quarantined products as requested.
+    @ui @DIS-444
+    Scenario Outline: Fill Shipment with Labeled Products.
+        Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
+        And The check digit configuration is "disabled".
+        And The visual inspection configuration is "<Inspection Config>".
+        And The second verification configuration is "disabled".
+        And I have received a shipment fulfillment request with above details.
+        And I am on the Shipment Fulfillment Details page for order <Order Number>.
+        And I choose to fill product of family "<Family>" and blood type "<Type>".
+        When I add the unit "<UN>" with product code "<Code>".
+        And I define visual inspection as "Satisfactory", if needed.
+        Then I should see the list of packed products added including "<UN>" and "<Code>".
+        And I should see the inspection status as "Satisfactory", if applicable.
+        And I "<ShouldShouldNot>" see the product status as "Quarantined".
 
-                Examples:
-                    | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                                               | Family                           | Type | UN               | Code       | Inspection Config | Category         | Shipment Type   | Label Status | Quarantined Products |ShouldShouldNot |
-                   | 44400010     | 1           | Testing Customer  | 10,5,8   | ANY,B,O   | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE              | ANY  | =W03689878680200 | =<E7648V00 | enabled           | FROZEN           |CUSTOMER          | LABELED      | false                |should not      |
-                   | 44400011     | 1           | Testing Customer  | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED                            | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W81253010700800 | =<EA141V00 | enabled           | ROOM_TEMPERATURE |CUSTOMER          | LABELED      | false                |should not      |
-                   | 44400012     | 1           | Testing Customer  | 2        | B         | PRT_APHERESIS_PLATELETS                                     | PRT APHERESIS PLATELETS          | B    | =W81253010701000 | =<EB317V00 | enabled           | REFRIGERATED     |CUSTOMER          | LABELED      | false                |should not      |
-                   | 44400013     | 1           | Testing Customer  | 2        | AP        | RED_BLOOD_CELLS_LEUKOREDUCED                                | RED BLOOD CELLS LEUKOREDUCED     | AP   | =W81253010701200 | =<E5107V00 | enabled           | FROZEN           |CUSTOMER          | LABELED      | false                |should not      |
-                   | 44400014     | DO1         | Distribution Only | 2        | ANY        | PLASMA_TRANSFUSABLE                                        | PLASMA TRANSFUSABLE              | ANY  | =W03689878675800 | =<E0707V00 | enabled           | FROZEN           |INTERNAL_TRANSFER | LABELED      | true                 |should          |
+        Examples:
+            | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                                               | Family                           | Type | UN               | Code       | Inspection Config | Category         | Shipment Type   | Label Status | Quarantined Products |ShouldShouldNot |
+           | 44400010     | 1           | Testing Customer  | 10,5,8   | ANY,B,O   | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE              | ANY  | =W03689878680200 | =<E7648V00 | enabled           | FROZEN           |CUSTOMER          | LABELED      | false                |should not      |
+           | 44400011     | 1           | Testing Customer  | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED                            | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W81253010700800 | =<EA141V00 | enabled           | ROOM_TEMPERATURE |CUSTOMER          | LABELED      | false                |should not      |
+           | 44400012     | 1           | Testing Customer  | 2        | B         | PRT_APHERESIS_PLATELETS                                     | PRT APHERESIS PLATELETS          | B    | =W81253010701000 | =<EB317V00 | enabled           | REFRIGERATED     |CUSTOMER          | LABELED      | false                |should not      |
+           | 44400013     | 1           | Testing Customer  | 2        | AP        | RED_BLOOD_CELLS_LEUKOREDUCED                                | RED BLOOD CELLS LEUKOREDUCED     | AP   | =W81253010701200 | =<E5107V00 | enabled           | FROZEN           |CUSTOMER          | LABELED      | false                |should not      |
+           | 44400014     | DO1         | Distribution Only | 2        | ANY        | PLASMA_TRANSFUSABLE                                        | PLASMA TRANSFUSABLE              | ANY  | =W03689878675800 | =<E0707V00 | enabled           | FROZEN           |INTERNAL_TRANSFER | LABELED      | true                 |should          |
 
