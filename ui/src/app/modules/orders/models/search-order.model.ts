@@ -38,6 +38,7 @@ export interface OrderQueryCommandDTO {
     orderStatus?: string[];
     deliveryTypes?: string[];
     customers?: string[];
+    shipmentType?: string;
     createDateFrom?: string;
     createDateTo?: string;
     desireShipDateFrom?: string;

@@ -43,6 +43,11 @@
                         {{ OrderStatusMap[element.orderStatus] | uppercase }}
                     </span>
                 </ng-template>
+                <ng-template #shipmentTypeTemplateRef let-element="element">
+                    <span>
+                        {{ ShipmentTypeMap[element.shipmentType] | uppercase }}
+                    </span>
+                </ng-template>
 
                 <ng-template #priorityTemplateRef let-element="element">
                     <span

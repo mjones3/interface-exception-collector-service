@@ -144,7 +144,7 @@ public class SharedActions {
         element.sendKeys(text);
     }
 
-    public void sendKeys (By locator, String text) {
+    public void sendKeys(By locator, String text) {
         waitForVisible(locator);
         wait.until(e -> {
             log.debug("Sending keys {} to element {}.", text, locator);
@@ -271,5 +271,42 @@ public class SharedActions {
             e.get(baseUrl + url);
             return true;
         });
+    }
+
+    public boolean hasElementCssClass(WebDriver driver, By element, String cssClass) {
+        try {
+            return driver.findElement(element).getAttribute("class").contains(cssClass);
+        } catch (Exception e) {
+            log.debug("Element {} does not have CSS class {}.", element, cssClass);
+            return false;
+        }
+    }
+
+    public boolean isElementEnabled(WebDriver driver, By element) {
+        try {
+            return driver.findElement(element).isEnabled() && !hasElementCssClass(driver, element, "mat-form-field-disabled") && !hasElementDomAttribute(driver, element, "aria-disabled");
+        } catch (Exception e) {
+            log.debug("Element {} not found or is not enabled.", element);
+            return false;
+        }
+    }
+
+    private boolean hasElementDomAttribute(WebDriver driver, By element, String attribute) {
+        try {
+            return driver.findElement(element).getDomAttribute(attribute).equals("true");
+        } catch (Exception e) {
+            log.debug("Element {} not found or does not have attribute {}.", element, attribute);
+            return false;
+        }
+    }
+
+    public void verifyElementEnabledDisabled(WebDriver driver, By element, String enabledDisabled) {
+        if (enabledDisabled.equalsIgnoreCase("enabled")) {
+            Assert.assertTrue(isElementEnabled(driver, element));
+        } else if (enabledDisabled.equalsIgnoreCase("disabled")) {
+            Assert.assertFalse(isElementEnabled(driver, element));
+        } else {
+            throw new IllegalArgumentException("Invalid argument (enabled/disabled): " + enabledDisabled);
+        }
     }
 }

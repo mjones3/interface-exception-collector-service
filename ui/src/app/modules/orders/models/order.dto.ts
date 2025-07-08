@@ -160,9 +160,11 @@ export interface SearchOrderFilterDTO {
     orderStatus?: string[];
     deliveryTypes?: string[];
     customers?: string[];
+    locations?:string[];
     page?: number;
     limit?: number;
     sortBy?: string;
+    shipmentType?: string;
     order?: string;
     createDate?: SearchOrderFilterDateRangeDTO;
     desiredShipDate?: SearchOrderFilterDateRangeDTO;

@@ -59,12 +59,16 @@ public class DatabaseSteps {
 
     @And("I cleaned up from the database the orders with external ID starting with {string}.")
     public void cleanUpOrdersStartingWith(String externalIdPrefix) {
-        var shipmentQuery = DatabaseQueries.deleteShipmentsByOrderExternalIdStartingWith(externalIdPrefix);
-        databaseService.executeSql(shipmentQuery).block();
-        var childQuery = DatabaseQueries.deleteOrderItemsByExternalIdStartingWith(externalIdPrefix);
-        databaseService.executeSql(childQuery).block();
-        var query = DatabaseQueries.deleteOrdersByExternalIdStartingWith(externalIdPrefix);
-        databaseService.executeSql(query).block();
+        String[] prefixList = testUtils.getCommaSeparatedList(externalIdPrefix);
+
+        for (String prefix : prefixList) {
+            var shipmentQuery = DatabaseQueries.deleteShipmentsByOrderExternalIdStartingWith(prefix);
+            databaseService.executeSql(shipmentQuery).block();
+            var childQuery = DatabaseQueries.deleteOrderItemsByExternalIdStartingWith(prefix);
+            databaseService.executeSql(childQuery).block();
+            var query = DatabaseQueries.deleteOrdersByExternalIdStartingWith(prefix);
+            databaseService.executeSql(query).block();
+        }
     }
 
     @And("I have restored the default configuration for the order priority colors.")
@@ -104,5 +108,36 @@ public class DatabaseSteps {
     public void iHaveShippedShippedQuantityProducts(String quantity) {
         var query = DatabaseQueries.insertBioProOrderShipmentQuantity(quantity, context.getOrderId().toString());
         databaseService.executeSql(query).block();
+    }
+
+    @Given("I have removed from the database all the configurations for the location {string}.")
+    public void iHaveRemovedFromTheDatabaseAllTheConfigurationsForTheLocation(String external_id) {
+        var deletePropertySQL = DatabaseQueries.removeLocationPropertyByExternalId(external_id);
+        databaseService.executeSql(deletePropertySQL).block();
+
+        var deleteConfigurationSQL = DatabaseQueries.removeLocationByExternalId(external_id);
+        databaseService.executeSql(deleteConfigurationSQL).block();
+    }
+
+    @Given("The location {string} is configured.")
+    public void theLocationIsConfigured(String locationCode) {
+        int randomId = (int) (Math.random() * 10000) + 1;
+        // lk_location
+        var createConfigurationSQL = "INSERT INTO lk_location (id, external_id, code, name, city, state, postal_code, address_line_1, active, create_date, modification_date) " +
+            "VALUES (" + randomId + ", '" + locationCode + "', '" + locationCode + "', '" + locationCode + "', 'city', 'state', '000000', 'address_line_1', true, now(), now())";
+        databaseService.executeSql(createConfigurationSQL).block();
+
+        // lk_location_property
+        var locationPropertySQL = "INSERT INTO lk_location_property (location_id, property_key, property_value) " +
+            "VALUES (" + randomId + ", 'RPS_PARTNER_PREFIX', 'AUTO'), " +
+            " ((" + randomId + "), 'RPS_LOCATION_SHIPMENT_CODE', 'AUTO'), " +
+            " ((" + randomId + "), 'RPS_LOCATION_CARTON_CODE', '" + "MH1" + "'), " +
+            " ((" + randomId + "), 'RPS_CARTON_PARTNER_PREFIX', 'AUTO'), " +
+            " ((" + randomId + "), 'TZ', 'America/New_York'), " +
+            " ((" + randomId + "), 'PHONE_NUMBER', '123-456-7894'), " +
+            " ((" + randomId + "), 'RPS_USE_PARTNER_PREFIX', 'true');";
+        databaseService.executeSql(locationPropertySQL).block();
+
+        context.setLocationCode(locationCode);
     }
 }
