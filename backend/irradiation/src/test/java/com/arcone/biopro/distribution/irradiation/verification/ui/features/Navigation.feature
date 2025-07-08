@@ -7,7 +7,7 @@ Feature: Irradiation Menu
     Rule: I should be able to select an option to begin the Irradiation process.
 
         Scenario: Irradiation Menu
-            Given I login to Manufacturing module
+            Given I login to Distribution module
             And I select the location "MDL Hub 1"
             When I navigate to "Orders"
             Then I verify that I am taken to the page "Search Orders" in "Order"

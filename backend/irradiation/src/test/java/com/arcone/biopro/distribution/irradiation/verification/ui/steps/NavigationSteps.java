@@ -20,7 +20,7 @@ public class NavigationSteps {
     private static final Logger log = LoggerFactory.getLogger(NavigationSteps.class);
     private final HomePage homePage;
 
-    @Given("I login to Manufacturing module")
+    @Given("I login to Distribution module")
     public void iNavigateToManufacturingModule() {
         homePage.goTo();
     }
