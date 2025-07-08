@@ -19,6 +19,11 @@ public class StartIrradiationPage extends CommonPageFactory {
     private final By unitNumberInputLocator = By.id("inUnitNumber");
     private final By pageTitleLocator = By.xpath("//h3//span[contains(text(),'Start Irradiation')]");
 
+    private By unitNumberCard(String unitNumber) {
+        String xpathExpression = String.format("//biopro-unit-number-card//div[contains(text(),'%s')]", unitNumber);
+        return By.xpath(xpathExpression);
+    }
+
     @Override
     public boolean isLoaded() {
         try {

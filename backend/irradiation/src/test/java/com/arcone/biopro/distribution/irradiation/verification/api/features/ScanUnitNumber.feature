@@ -4,7 +4,7 @@
 Feature: Scan Unit Number for Irradiation
 
     @LAB-576 @AOA-61
-    Scenario: I successfully scan a unit number with a product eligible for irradiation
+    Scenario Outline: I successfully scan a unit number with a product eligible for irradiation
         Given I have the following products:
             | Unit Number   | Product Code | Product Family               |
             | <Unit Number> | E033600      | WHOLE_BLOOD                  |
@@ -15,7 +15,6 @@ Feature: Scan Unit Number for Irradiation
         Examples:
             | Unit Number   | Message                        |
             | W777725001001 | Product was added in the batch |
-
 
     @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a quarantined unit number with a reason that stops manufacturing
@@ -31,7 +30,6 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Error Message                                                        |
             | W777725001002 | This unit has been quarantined and manufacturing cannot be completed |
 
-
     @LAB-615 @AOA-61
     Scenario Outline: I can add into the batch a quarantined unit number with a reason that doesn't stops manufacturing, being warned with a message
         Given I have the following products:
@@ -46,7 +44,6 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Message                        |
             | W777725001003 | Product was added in the batch |
 
-
     @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a discarded unit number
         Given I have the following products:
@@ -60,7 +57,8 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Error Message                                                                                    |
             | W777725001004 | This unit has been discarded and manufacturing cannot be completed. Place in biohazard container |
 
-
+    @LAB-615 @AOA-61
+    Scenario Outline: I cannot add into the batch a unit number that is marked for discard/unsuitable
         Given I have the following products:
             | Unit Number   | Product Code | Product Family               | Status             | Discard Reason                 |
             | <Unit Number> | E033600      | WHOLE_BLOOD                  | MARKED_FOR_DISCARD | POSITIVE_REACTIVE_TEST_RESULTS |
@@ -73,9 +71,8 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Error Message                                                                                           |
             | W777725001005 | This product is unsuitable with the reason Positive Reactive Test Results. Place in biohazard container |
 
-
     @LAB-615 @AOA-61
-    Scenario: I cannot add into the batch a unit number that is not in the location
+    Scenario Outline: I cannot add into the batch a unit number that is not in the location
         Given I have the following products:
             | Unit Number   | Product Code | Product Family               | Location      |
             | <Unit Number> | E033600      | WHOLE_BLOOD                  | Diff Location |
@@ -85,7 +82,6 @@ Feature: Scan Unit Number for Irradiation
         Examples:
             | Unit Number   |
             | W777725001006 |
-
 
     @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a unit number that is not in the location
