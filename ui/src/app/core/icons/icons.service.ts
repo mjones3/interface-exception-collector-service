@@ -120,6 +120,14 @@ export class IconsService {
             )
         );
 
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'visual-inspection',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-visual-inspection.svg'
+            )
+        );
+
         // Adding icons
         [...RSA_ICONS, ...DRIP_ICONS, ...HEROIC_ICONS].forEach((icon) => {
             matIconRegistry.addSvgIconLiteralInNamespace(
