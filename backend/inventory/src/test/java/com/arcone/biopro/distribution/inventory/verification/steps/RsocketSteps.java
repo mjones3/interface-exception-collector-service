@@ -39,6 +39,8 @@ public class RsocketSteps {
 
     Mono<InventoryValidationResponseDTO> inventoryValidationResponseDTOMonoResult;
 
+    Flux<InventoryValidationResponseDTO> inventoryValidationResponseDTOFluxResult;
+
     Flux<InventoryOutput> getInventoryByUnitNumberFluxResult;
 
     Mono<InventoryOutput> getInventoryByUnitNumberAndProductCodeMonoResult;
@@ -95,6 +97,14 @@ public class RsocketSteps {
             .route("validateInventory")
             .data(new InventoryValidationRequest(unitNumber, productCode, location))
             .retrieveMono(InventoryValidationResponseDTO.class);
+    }
+
+    @When("I request {string} in the {string}")
+    public void iRequestValidateByUnitNumberWithInTheLocation(String unitNumber, String location) {
+        inventoryValidationResponseDTOFluxResult = requester
+            .route("validateInventoryByUnitNumber")
+            .data(new InventoryValidationRequest(unitNumber, null, location))
+            .retrieveFlux(InventoryValidationResponseDTO.class);
     }
 
     @When("I request a inventory with unit number {string}")
@@ -160,77 +170,123 @@ public class RsocketSteps {
         var row = dataTable.asMaps(String.class, String.class).getFirst();
         String unitNumber = row.get("Unit Number");
         String productCode = row.get("Product Code");
+        String foundIt = row.get("Found It");
+
+        Publisher<? extends InventoryValidationResponseDTO> publisher = inventoryValidationResponseDTOFluxResult != null ? inventoryValidationResponseDTOFluxResult : inventoryValidationResponseDTOMonoResult;
+
+        if (inventoryValidationResponseDTOMonoResult != null) {
+            assertToValidateInventory(inventoryValidationResponseDTOMonoResult.block(), row);
+        } else if (inventoryValidationResponseDTOFluxResult != null) {
+            List<InventoryValidationResponseDTO> list = inventoryValidationResponseDTOFluxResult.collectList().block();
+            assert list != null;
+            InventoryValidationResponseDTO inventoryValidationResponseDTO = list.stream()
+                .filter(item -> unitNumber.equals(item.inventoryResponseDTO().unitNumber()) && productCode.equals(item.inventoryResponseDTO().productCode()))
+                .findFirst().orElse(null);
+
+            if ("False".equals(foundIt)) {
+                assertNull(inventoryValidationResponseDTO);
+            } else {
+                assertToValidateInventory(inventoryValidationResponseDTO, row);
+            }
+        }
+    }
+
+    private void assertToValidateInventory(InventoryValidationResponseDTO message, Map<String, String> row) {
+
+        String unitNumber = row.get("Unit Number");
+        String productCode = row.get("Product Code");
         String temperatureCategory = row.get("Temperature Category");
         String location = row.get("Location");
-        String errorType = row.get("RESPONSE ERROR");
+        List<String> errorTypes = splitValues(row.get("RESPONSE ERROR"));
+
+        if (Objects.nonNull(message.inventoryResponseDTO())) {
+            assertThat(message.inventoryResponseDTO().unitNumber()).isEqualTo(unitNumber);
+            assertThat(message.inventoryResponseDTO().productCode()).isEqualTo(productCode);
+            assertThat(message.inventoryResponseDTO().temperatureCategory()).isEqualTo(temperatureCategory);
+
+            if (!errorTypes.contains(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.name())) {
+                assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
+                if (row.get("Collection Location") != null) {
+                    assertThat(message.inventoryResponseDTO().collectionLocation()).isEqualTo(row.get("Collection Location"));
+                }
+            }
+
+            if (row.containsKey("Volumes") && row.get("Volumes") != null) {
+                var volumes = row.get("Volumes").split(",");
+                for(String volume: volumes) {
+                    var volumeFields = volume.split("-");
+                    assertTrue( message.inventoryResponseDTO().volumes().stream()
+                        .filter(v -> v.type().equals(volumeFields[0].trim().toUpperCase()))
+                        .findFirst()
+                        .map(v -> Objects.equals(v.value(), Integer.parseInt(volumeFields[1].trim())))
+                        .orElse(false));
+                }
+            }
+
+            if (row.get("Collection TimeZone") != null) {
+                assertThat(message.inventoryResponseDTO().collectionTimeZone()).isEqualTo(row.get("Collection TimeZone"));
+            }
+
+        } else {
+            assertThat(message.inventoryResponseDTO()).isNull();
+        }
+
+        if (errorTypes != null && !errorTypes.isEmpty()) {
+            assertThat(message.inventoryNotificationsDTO().isEmpty()).isFalse();
+            assertThat(message.inventoryNotificationsDTO().size()).isEqualTo(errorTypes.size());
+            errorTypes.forEach(errorType -> assertNotifications(errorType, message.inventoryNotificationsDTO(), row));
+        } else {
+            assertThat(message.inventoryNotificationsDTO().isEmpty()).isTrue();
+        }
+
+        log.debug("Received message from validate inventory {}", message);
+
+    }
+
+    private static void assertNotifications(String errorType, List<InventoryNotificationDTO> inventoryNotificationDTOS, Map<String, String> row) {
+
+        InventoryNotificationDTO inventoryNotificationDTO = inventoryNotificationDTOS.stream().filter(item -> item.errorName().equals(errorType)).findFirst().orElse(null);
+
+        assertThat(inventoryNotificationDTO).isNotNull();
+
         String action = row.get("ACTION");
         String reason = row.get("REASON");
         String messageError = row.get("MESSAGE");
         String details = row.get("DETAILS");
-        Integer errorCode = Objects.isNull(errorType) ? null : MessageType.valueOf(errorType).getCode();
 
-        StepVerifier
-            .create(inventoryValidationResponseDTOMonoResult)
-            .consumeNextWith(message -> {
-                if (!MessageType.INVENTORY_NOT_EXIST.getCode().equals(errorCode)) {
-                    assertThat(message.inventoryResponseDTO().unitNumber()).isEqualTo(unitNumber);
-                    assertThat(message.inventoryResponseDTO().productCode()).isEqualTo(productCode);
-                    assertThat(message.inventoryResponseDTO().temperatureCategory()).isEqualTo(temperatureCategory);
+        Integer errorCode =  MessageType.valueOf(errorType).getCode();
 
-                    if (!MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.getCode().equals(errorCode)) {
-                        assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
-                        if (row.get("Collection Location") != null) {
-                            assertThat(message.inventoryResponseDTO().collectionLocation()).isEqualTo(row.get("Collection Location"));
-                        }
-                    }
+        assertThat(inventoryNotificationDTO.errorCode()).isEqualTo(errorCode);
+        assertThat(inventoryNotificationDTO.errorName()).isEqualTo(errorType);
+        if (Objects.nonNull(action)) {
+            assertThat(inventoryNotificationDTO.action()).isEqualTo(action);
 
-                    if (row.containsKey("Volumes") && row.get("Volumes") != null) {
-                        var volumes = row.get("Volumes").split(",");
-                        for(String volume: volumes) {
-                            var volumeFields = volume.split("-");
-                            assertTrue( message.inventoryResponseDTO().volumes().stream()
-                                .filter(v -> v.type().equals(volumeFields[0].trim().toUpperCase()))
-                                .findFirst()
-                                .map(v -> Objects.equals(v.value(), Integer.parseInt(volumeFields[1].trim())))
-                                .orElse(false));
-                        }
-                    }
+        }
 
-                    if (row.get("Collection TimeZone") != null) {
-                        assertThat(message.inventoryResponseDTO().collectionTimeZone()).isEqualTo(row.get("Collection TimeZone"));
-                    }
+        if (Objects.nonNull(messageError)) {
+            assertThat(inventoryNotificationDTO.errorMessage()).isEqualTo(messageError);
+        }
 
-                } else {
-                    assertThat(message.inventoryResponseDTO()).isNull();
-                }
+        if (Objects.nonNull(details) && MessageType.INVENTORY_IS_QUARANTINED.getCode().equals(errorCode)) {
+            var detailsList = Arrays.stream(details.split(",")).map(String::toString).map(String::trim).toList();
+            detailsList.forEach(
+                detail -> assertThat(inventoryNotificationDTO.details().contains(detail)).isTrue());
+        }
 
-                if (errorCode != null) {
-                    assertThat(message.inventoryNotificationsDTO().getFirst().errorCode()).isEqualTo(errorCode);
-                    assertThat(message.inventoryNotificationsDTO().getFirst().errorName()).isEqualTo(errorType);
-                    assertThat(message.inventoryNotificationsDTO().getFirst().action()).isEqualTo(action);
-                    assertThat(message.inventoryNotificationsDTO().getFirst().action()).isEqualTo(action);
-                    assertThat(message.inventoryResponseDTO()).hasNoNullFieldsOrProperties();
-                    assertThat(message.inventoryNotificationsDTO().getFirst().errorMessage()).isEqualTo(messageError);
+        if (Objects.nonNull(reason) && MessageType.INVENTORY_IS_EXPIRED.getCode().equals(errorCode)) {
+            assertThat(inventoryNotificationDTO.reason()).isEqualTo(reason);
+        }
+        if (Objects.nonNull(reason) && MessageType.INVENTORY_IS_UNSUITABLE.getCode().equals(errorCode)) {
+            assertThat(inventoryNotificationDTO.reason()).isEqualTo(reason);
+        }
+    }
 
-                } else {
-                    assertThat(message.inventoryNotificationsDTO().isEmpty()).isTrue();
-                }
-                if (MessageType.INVENTORY_IS_QUARANTINED.getCode().equals(errorCode)) {
-                    var detailsList = Arrays.stream(details.split(",")).map(String::toString).map(String::trim).toList();
-                    detailsList.forEach(
-                        detail -> assertThat(message.inventoryNotificationsDTO().getFirst().details().contains(detail)).isTrue());
-                    assertThat(message.inventoryNotificationsDTO().size()).isEqualTo(1);
-                }
+    private List<String> splitValues(String values) {
+        if (Objects.isNull(values)) {
+            return List.of();
+        }
 
-                if (MessageType.INVENTORY_IS_EXPIRED.getCode().equals(errorCode)) {
-                    assertThat(message.inventoryNotificationsDTO().getFirst().reason()).isEqualTo(reason);
-                }
-                if (MessageType.INVENTORY_IS_UNSUITABLE.getCode().equals(errorCode)) {
-                    assertThat(message.inventoryNotificationsDTO().getFirst().reason()).isEqualTo(reason);
-                }
-                log.debug("Received message from validate inventory {}", message);
-            })
-            .verifyComplete();
+        return Arrays.stream(values.split(",")).map(String::trim).toList();
     }
 
     @Then("I receive the following from get inventory by unit number:")
