@@ -10,7 +10,7 @@ public class GraphQLSteps {
 
     @Autowired
     private GraphQlTester graphQlTester;
-    
+
     @Autowired
     private RepositorySteps repositorySteps;
 
@@ -22,7 +22,20 @@ public class GraphQLSteps {
                 .path("validateDevice")
                 .entity(Boolean.class)
                 .get();
-        
+
         repositorySteps.setValidationResult(result);
+    }
+
+    @When("I query the batch {string} status")
+    public void iQueryTheBatchStatus(String batchId) {
+        String actualBatchId = repositorySteps.getBatchId();
+        Boolean isActive = graphQlTester
+                .document("query { isBatchActive(batchId: \"" + actualBatchId + "\") }")
+                .execute()
+                .path("isBatchActive")
+                .entity(Boolean.class)
+                .get();
+
+        repositorySteps.setBatchActiveResult(isActive);
     }
 }
