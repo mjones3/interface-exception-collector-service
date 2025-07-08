@@ -16,7 +16,7 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
 
-            When I navigate to "Start Irradiation" in Irradiation
+            When I navigate to "Irradiation"
             Then I verify that I am taken to the page "Start Irradiation" in "Irradiation"
             And I verify that the "Lot Number" field is "disabled"
             And I verify that the "Unit Number" field is "disabled"
