@@ -5,7 +5,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 
-public interface ConfigurationRepository {
+public interface ConfigurationService {
 
     Flux<Configuration> readConfiguration(List<String> keys);
 

@@ -4,7 +4,6 @@ import com.arcone.biopro.distribution.irradiation.infrastructure.persistence.ent
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.graphql.data.GraphQlRepository;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 

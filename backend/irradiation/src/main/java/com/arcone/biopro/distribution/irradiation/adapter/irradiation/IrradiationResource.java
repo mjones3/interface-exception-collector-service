@@ -7,7 +7,7 @@ import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDe
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
 
-import com.arcone.biopro.distribution.irradiation.domain.service.ConfigurationService;
+import com.arcone.biopro.distribution.irradiation.domain.repository.ConfigurationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
