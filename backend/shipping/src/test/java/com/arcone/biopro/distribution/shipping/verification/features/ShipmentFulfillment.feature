@@ -197,10 +197,10 @@ Feature: Shipment fulfillment request
 
 
 
-        Rule: I should be able to see all available products for a given unit number.
-        Rule: I should be able to select unlabeled products to fill an internal transfer order.
-        Rule: I should not be able to select multiple products.
-        Rule: I should be able to fill an internal transfer order with quarantined products as requested.
+
+        Rule I should be able to see all eligible products for a given unit number.
+        Rule I should be able to select unlabeled products to fill an internal transfer order.
+        Rule I should not be able to select multiple products.
         @ui @DIS-452
         Scenario Outline: Fill Shipment with Unlabeled Unit with multiple products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
@@ -224,10 +224,10 @@ Feature: Shipment fulfillment request
                 | 45200003     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | ANY  | =W03689878675800 | GENERIC1            | GENERIC1,GENERIC2 | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
 
 
-        Rule: I should be able to see all available products for a given unit number.
-        Rule: I should be able to select unlabeled products to fill an internal transfer order.
-        Rule: I should not be able to select multiple products.
-        Rule: The system should automatically select when the unit has only one product available.
+        Rule I should be able to see all eligible products for a given unit number.
+        Rule I should be able to select unlabeled products to fill an internal transfer order.
+        Rule I should not be able to select multiple products.
+        Rule The system should automatically select when the unit has only one product eligible.
         Rule: I should be notified when all available products have been selected.
         @ui @DIS-452
         Scenario Outline: Fill Shipment with Unlabeled Unit with single product.
@@ -245,7 +245,7 @@ Feature: Shipment fulfillment request
             And I "<ShouldShouldNot>" see the product status as "Quarantined".
             When I add the unit "<UN>".
             And I define visual inspection as "Satisfactory", if needed.
-            Then I should see a "WARNING" message: "all available products have been selected".
+            Then I should see a "WARNING" message: "All products associated with this unit have already been selected".
             Examples:
                 | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily       | Family              | Type | UN               | product_description | Inspection Config | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
                 | 45200004     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | ANY  | =W03689878675800 | GENERIC1            | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
