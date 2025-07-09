@@ -50,6 +50,10 @@ public class SecurityConfiguration {
 
     @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
     private String issuerUri;
+
+    @Value("${spring.graphql.path:/irradiation/graphql}")
+    private String graphQLPath;
+
     @Value("${application.security.disabled:true}")
     private boolean securityDisabled;
 
@@ -89,7 +93,7 @@ public class SecurityConfiguration {
                 authz ->
                     // prettier-ignore
                     authz
-                        .pathMatchers("/graphql").permitAll()
+                        .pathMatchers(this.graphQLPath).permitAll()
                         .pathMatchers("/v1/**").permitAll()
                         .pathMatchers("/api/authenticate").permitAll()
                         .pathMatchers("/api/auth-info").permitAll()

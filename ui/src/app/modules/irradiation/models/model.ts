@@ -98,9 +98,7 @@ export interface ValidateUnitEvent {
 }
 
 export interface DeviceDTO {
-    bloodCenterId: string;
-    deviceType: string;
-    location: string;
+    validateDevice: boolean;
 }
 
 export interface IrradiationDeviceResponseDTO {

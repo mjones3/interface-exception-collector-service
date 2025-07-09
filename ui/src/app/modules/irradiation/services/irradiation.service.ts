@@ -17,12 +17,15 @@ export class IrradiationService {
 
     constructor(private dynamicGraphqlPathService: DynamicGraphqlPathService) {}
 
-    public loadDeviceById(): Observable<
-        ApolloQueryResult<{ dto: DeviceDTO }>
+    public loadDeviceById(
+        deviceId: string, location: string
+    ): Observable<
+        ApolloQueryResult<{ validateDevice: boolean }>
     > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
-            GET_IRRADIATION_DEVICE_BY_ID
+            GET_IRRADIATION_DEVICE_BY_ID,
+            { deviceId, location }
         );
     }
 

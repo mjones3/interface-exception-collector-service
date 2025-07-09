@@ -24,11 +24,11 @@ public class ValidateDeviceUseCase {
             .switchIfEmpty(Mono.error(new RuntimeException("Device not found")))
             .flatMap(device -> {
                 IrradiationAggregate aggregate = new IrradiationAggregate(device, Collections.emptyList(), null);
-                
+
                 if (!aggregate.validateDevice(locationObj)) {
                     return Mono.error(new RuntimeException("Device not in current location"));
                 }
-                
+
                 return batchRepository.findActiveBatchByDeviceId(deviceIdObj)
                     .flatMap(batch -> {
                         IrradiationAggregate aggregateWithBatch = new IrradiationAggregate(device, Collections.emptyList(), batch);
