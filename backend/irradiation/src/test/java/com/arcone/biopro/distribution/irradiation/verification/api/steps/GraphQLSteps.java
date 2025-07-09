@@ -10,7 +10,7 @@ public class GraphQLSteps {
 
     @Autowired
     private GraphQlTester graphQlTester;
-    
+
     @Autowired
     private RepositorySteps repositorySteps;
 
@@ -22,7 +22,19 @@ public class GraphQLSteps {
                 .path("validateDevice")
                 .entity(Boolean.class)
                 .get();
-        
+
+        repositorySteps.setValidationResult(result);
+    }
+
+    @When("I scan the device {string}")
+    public void iScanTheDevice(String deviceId) {
+        Boolean result = graphQlTester
+                .document("query { validateDevice(deviceId: \"" + deviceId + "\", location: \"DEFAULT_LOCATION\") }")
+                .execute()
+                .path("validateDevice")
+                .entity(Boolean.class)
+                .get();
+
         repositorySteps.setValidationResult(result);
     }
 }
