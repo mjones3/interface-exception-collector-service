@@ -412,5 +412,68 @@
     "Temperature Category": "ROOM_TEMPERATURE",
     "Product Family": "PRT_APHERESIS_PLATELETS",
     "Expiration in Days": "2"
+  },
+  {
+    "Product Code": "E3556",
+    "Division Code": "00",
+    "ISBT Product Description": "Washed Apheresis PLATELETS|None/XX/20-24C|Open|ResLeu:<5E6",
+    "Product Description": "WSH APH PLT BM36",
+    "Temperature Category": "ROOM_TEMPERATURE",
+    "Product Family": "WASHED_APHERESIS_PLATELETS",
+    "Expiration in Days": "42"
+  },
+  {
+    "Product Code": "E3558",
+    "Division Code": "00",
+    "ISBT Product Description": "Washed Apheresis PLATELETS|None/XX/20-24C|Open|ResLeu:<5E6|1st container",
+    "Product Description": "WSH APH PLT BM36 C1",
+    "Temperature Category": "ROOM_TEMPERATURE",
+    "Product Family": "WASHED_APHERESIS_PLATELETS",
+    "Expiration in Days": "42"
+  },
+  {
+    "Product Code": "E3559",
+    "Division Code": "00",
+    "ISBT Product Description": "Washed Apheresis PLATELETS|None/XX/20-24C|Open|ResLeu:<5E6|2nd container",
+    "Product Description": "WSH APH PLT BM36 C2",
+    "Temperature Category": "ROOM_TEMPERATURE",
+    "Product Family": "WASHED_APHERESIS_PLATELETS",
+    "Expiration in Days": "42"
+  },
+  {
+    "Product Code": "E4140",
+    "Division Code": "00",
+    "ISBT Product Description": "Washed Apheresis RED BLOOD CELLS|None/XX/refg|Open|1st container",
+    "Product Description": "WSH APH LR RBC C1",
+    "Temperature Category": "REFRIGERATED",
+    "Product Family": "WASHED_RED_BLOOD_CELLS",
+    "Expiration in Days": "42"
+  },
+  {
+  "Product Code": "E4566",
+  "Division Code": "00",
+  "ISBT Product Description": "Washed Apheresis RED BLOOD CELLS|None/XX/refg|Open|1st container",
+  "Product Description": "WSH APH LR RBC C1",
+  "Temperature Category": "REFRIGERATED",
+  "Product Family": "WASHED_RED_BLOOD_CELLS",
+  "Expiration in Days": "42"
+  },
+  {
+    "Product Code": "E4567",
+    "Division Code": "00",
+    "ISBT Product Description": "Washed Apheresis RED BLOOD CELLS|None/XX/refg|Open|2nd container",
+    "Product Description": "WSH APH LR RBC C2",
+    "Temperature Category": "REFRIGERATED",
+    "Product Family": "WASHED_RED_BLOOD_CELLS",
+    "Expiration in Days": "42"
+  },
+  {
+    "Product Code": "E3560",
+    "Division Code": "00",
+    "ISBT Product Description": "Washed Apheresis PLATELETS|None/XX/20-24C|Open|ResLeu:<5E6|3rd container",
+    "Product Description": "WSH APH PLT BM36 C3",
+    "Temperature Category": "REFRIGERATED",
+    "Product Family": "WASHED_RED_BLOOD_CELLS",
+    "Expiration in Days": "42"
   }
 ]
