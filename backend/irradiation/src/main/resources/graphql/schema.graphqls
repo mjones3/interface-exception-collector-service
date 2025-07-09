@@ -1,11 +1,6 @@
 type Query {
-    validateDevice(deviceId: String!, location: String!): DeviceValidationResult
+    validateDevice(deviceId: String!, location: String!): Boolean
     validateUnit(unitNumber: String!, location: String!): [Inventory]
-}
-
-type DeviceValidationResult {
-    valid: Boolean!
-    errorMessage: String
 }
 
 type Inventory {
