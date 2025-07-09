@@ -20,7 +20,7 @@ public class ValidateUnitNumberUseCase {
         Location targetLocation = Location.of(location);
         return inventoryClient.getInventoryByUnitNumber(UnitNumber.of(unitNumber))
                 .collectList()
-                .map(inventories -> new IrradiationAggregate(null, inventories))
+                .map(inventories -> new IrradiationAggregate(null, inventories, null))
                 .flatMapMany(aggregate -> Flux.fromIterable(aggregate.getValidInventories(targetLocation)));
     }
 }

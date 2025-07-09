@@ -18,7 +18,8 @@ public class IrradiationResource {
 
     @QueryMapping
     public Mono<Boolean> validateDevice(@Argument String deviceId, @Argument String location) {
-        return validateDeviceUseCase.execute(deviceId, location);
+        return validateDeviceUseCase.execute(deviceId, location)
+                .onErrorReturn(false);
     }
 
     @QueryMapping
