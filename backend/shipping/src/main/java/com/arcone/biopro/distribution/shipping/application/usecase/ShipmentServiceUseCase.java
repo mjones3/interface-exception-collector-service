@@ -79,6 +79,9 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .departmentName(message.departmentName())
             .departmentCode(message.departmentCode())
             .createdByEmployeeId("mock-employee-id")
+            .labelStatus(message.labelStatus())
+            .quarantinedProducts(message.quarantinedProducts())
+            .shipmentType(message.shipmentType())
             .build();
 
 
@@ -193,6 +196,9 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 .checkDigitActive(checkDigitActive)
                 .visualInspectionActive(visualInspectionActive)
                 .secondVerificationActive(secondVerificationActive)
+                    .labelStatus(shipment.getLabelStatus())
+                    .shipmentType(shipment.getShipmentType())
+                    .quarantinedProducts(shipment.getQuarantinedProducts())
                 .build()));
     }
 

@@ -12,7 +12,7 @@
     "locationCode": "123456789",
     "deliveryType": "TEST",
     "shippingMethod": "{SHIPPING_METHOD}",
-    "productCategory": "Frozen",
+    "productCategory": "FROZEN",
     "shippingDate": "{order.shipping_date}",
     "shippingCustomerName": "Testing Customer",
     "customerPhoneNumber": "3056778756",
@@ -27,6 +27,9 @@
     "comments": "Distribution Comments",
     "departmentName": "Department",
     "departmentCode": "Department Code",
+    "labelStatus": "LABELED",
+    "shipmentType": "CUSTOMER",
+    "quarantinedProducts": false,
     "items": [
       {
         "productFamily": "PLASMA_TRANSFUSABLE",

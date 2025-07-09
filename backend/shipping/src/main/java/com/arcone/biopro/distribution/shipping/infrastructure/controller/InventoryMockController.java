@@ -64,7 +64,9 @@ public class InventoryMockController {
                         .collectionDate(ZonedDateTime.now())
                         .unitNumber("W036898786756")
                         .expirationDate(LocalDateTime.now())
+                        .temperatureCategory("FROZEN")
                         .productDescription("PRODUCT_DESCRIPTION")
+                        .status("EXPIRED")
                         .build())
                     .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                         .builder()
@@ -90,6 +92,8 @@ public class InventoryMockController {
                         .unitNumber("W036898786757")
                         .expirationDate(LocalDateTime.now())
                         .productDescription("PRODUCT_DESCRIPTION")
+                        .temperatureCategory("FROZEN")
+                        .status("DISCARDED")
                         .build())
                     .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                         .builder()
@@ -112,7 +116,9 @@ public class InventoryMockController {
                         .collectionDate(ZonedDateTime.now())
                         .unitNumber("W036898786759")
                         .expirationDate(LocalDateTime.now())
+                        .temperatureCategory("FROZEN")
                         .productDescription("PRODUCT_DESCRIPTION")
+                        .status("DISCARDED")
                         .build())
                     .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                         .builder()
@@ -135,9 +141,11 @@ public class InventoryMockController {
                         .locationCode("123456789")
                         .productCode("E0707V00")
                         .collectionDate(ZonedDateTime.now())
+                        .temperatureCategory("FROZEN")
                         .unitNumber("W036898786758")
                         .expirationDate(LocalDateTime.now())
                         .productDescription("PRODUCT_DESCRIPTION")
+                        .status("QUARANTINED")
                         .build())
                     .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                         .builder()
@@ -160,10 +168,12 @@ public class InventoryMockController {
                         .aboRh("AB")
                         .locationCode("123456789")
                         .productCode("E0707V00")
+                        .temperatureCategory("FROZEN")
                         .collectionDate(ZonedDateTime.now())
                         .unitNumber("W036898786700")
                         .expirationDate(LocalDateTime.now())
                         .productDescription("PRODUCT_DESCRIPTION")
+                        .status("SHIPPED")
                         .build())
                     .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                         .builder()

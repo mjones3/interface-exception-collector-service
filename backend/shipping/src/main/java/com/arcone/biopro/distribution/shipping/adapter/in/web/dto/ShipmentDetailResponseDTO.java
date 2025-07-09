@@ -41,6 +41,9 @@ public record ShipmentDetailResponseDTO(
     boolean visualInspectionActive,
     boolean secondVerificationActive,
     String departmentName,
-    String departmentCode
+    String departmentCode,
+    String labelStatus,
+    String shipmentType,
+    Boolean quarantinedProducts
 ) implements Serializable {
 }
