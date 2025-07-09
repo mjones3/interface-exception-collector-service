@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.irradiation.adapter.irradiation;
 
-import com.arcone.biopro.distribution.irradiation.application.usecase.CheckBatchStatusUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
@@ -16,9 +15,6 @@ import reactor.core.publisher.Mono;
 public class IrradiationResource {
     private final ValidateDeviceUseCase validateDeviceUseCase;
     private final ValidateUnitNumberUseCase validateUnitNumberUseCase;
-    private final CheckBatchStatusUseCase checkBatchStatusUseCase;
-
-
 
     @QueryMapping
     public Mono<Boolean> validateDevice(@Argument String deviceId, @Argument String location) {
@@ -28,10 +24,5 @@ public class IrradiationResource {
     @QueryMapping
     public Flux<Inventory> validateUnit(@Argument String unitNumber, @Argument String location) {
         return validateUnitNumberUseCase.execute(unitNumber, location);
-    }
-
-    @QueryMapping
-    public Mono<Boolean> isBatchActive(@Argument String batchId) {
-        return checkBatchStatusUseCase.execute(batchId);
     }
 }

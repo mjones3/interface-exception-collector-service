@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 interface BatchEntityRepository extends ReactiveCrudRepository<BatchEntity, Long> {
+    Mono<BatchEntity> findByDeviceIdAndEndTimeIsNull(String deviceId);
 }
 
 @Repository
@@ -21,8 +22,8 @@ public class BatchRepositoryImpl implements BatchRepository {
     }
 
     @Override
-    public Mono<Batch> findByBatchId(BatchId id) {
-        return repository.findById(id.getValue())
+    public Mono<Batch> findActiveBatchByDeviceId(DeviceId deviceId) {
+        return repository.findByDeviceIdAndEndTimeIsNull(deviceId.getValue())
             .map(batchEntity -> new Batch(
                 BatchId.of(batchEntity.getId()),
                 DeviceId.of(batchEntity.getDeviceId()),

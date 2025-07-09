@@ -26,16 +26,15 @@ public class GraphQLSteps {
         repositorySteps.setValidationResult(result);
     }
 
-    @When("I query the batch {string} status")
-    public void iQueryTheBatchStatus(String batchId) {
-        String actualBatchId = repositorySteps.getBatchId();
-        Boolean isActive = graphQlTester
-                .document("query { isBatchActive(batchId: \"" + actualBatchId + "\") }")
+    @When("I scan the device {string}")
+    public void iScanTheDevice(String deviceId) {
+        Boolean result = graphQlTester
+                .document("query { validateDevice(deviceId: \"" + deviceId + "\", location: \"DEFAULT_LOCATION\") }")
                 .execute()
-                .path("isBatchActive")
+                .path("validateDevice")
                 .entity(Boolean.class)
                 .get();
 
-        repositorySteps.setBatchActiveResult(isActive);
+        repositorySteps.setValidationResult(result);
     }
 }
