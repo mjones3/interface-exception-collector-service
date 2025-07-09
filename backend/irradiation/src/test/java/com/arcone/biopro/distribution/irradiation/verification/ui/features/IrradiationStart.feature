@@ -6,14 +6,7 @@ Feature: Starts Irradiation Process
     Rule: As a distribution specialist, I want to add products into an irradiation batch so that I can start the irradiation process
         @LAB-576 @LAB-575 @LAB-574
         Scenario Outline: I can start an irradiation batch.
-            Given I have the following irradiator device:
-                | Blood Center Id   | Category   | Location   |
-                | <Blood Center Id> | <Category> | <Location> |
-            And I have the following products:
-                | Unit Number     | Product Code | Product Family               |
-                | <Unit Number 1> | E033600      | WHOLE_BLOOD                  |
-                | <Unit Number 2> | E068600      | RED_BLOOD_CELLS_LEUKOREDUCED |
-
+            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
             And I login to Distribution module
             And I select the location "MDL Hub 1"
 

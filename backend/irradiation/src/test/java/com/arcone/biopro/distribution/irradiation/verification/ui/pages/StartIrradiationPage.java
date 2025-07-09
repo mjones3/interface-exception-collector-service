@@ -19,8 +19,13 @@ public class StartIrradiationPage extends CommonPageFactory {
     private final By unitNumberInputLocator = By.id("inUnitNumber");
     private final By pageTitleLocator = By.xpath("//h3//span[contains(text(),'Start Irradiation')]");
 
-    private By unitNumberCard(String unitNumber) {
-        String xpathExpression = String.format("//biopro-unit-number-card//div[contains(text(),'%s')]", unitNumber);
+    private By unitNumberCardLocator(String unitNumber, String productCode) {
+        String xpathExpression = String.format("//biopro-unit-number-card//div[contains(text(),'%s')]//following-sibling::div//span[contains(text(),'%s')]", unitNumber, productCode);
+        return By.xpath(xpathExpression);
+    }
+
+    private By productForSelectionLocator(String productCode){
+        String xpathExpression = String.format("//biopro-irradiation-select-product//button//span[contains(text(),'%s')]", productCode);
         return By.xpath(xpathExpression);
     }
 
@@ -65,5 +70,29 @@ public class StartIrradiationPage extends CommonPageFactory {
         };
         assert field != null;
         return field.isEnabled();
+    }
+
+    public boolean productIsDisplayedForSelection(String productCode){
+        PageElement productForSelection = driver.waitForElement(productForSelectionLocator(productCode));
+        productForSelection.waitForVisible();
+        return productForSelection.isDisplayed();
+    }
+
+    public void selectProductForIrradiation(String productCode){
+        PageElement productForSelection = driver.waitForElement(productForSelectionLocator(productCode));
+        productForSelection.waitForVisible();
+        productForSelection.waitForClickable();
+        productForSelection.click();
+    }
+
+    public boolean unitNumberCardExists(String unitNumber, String productCode) {
+        try {
+            PageElement unitNumberCard = driver.waitForElement(unitNumberCardLocator(unitNumber,productCode), 5);
+            unitNumberCard.waitForVisible();
+            return unitNumberCard.isDisplayed();
+        } catch (Exception e) {
+            log.error("The card for the unit number: '{}' was not displayed", unitNumber);
+            return false;
+        }
     }
 }
