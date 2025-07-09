@@ -17,9 +17,9 @@ public class GraphQLSteps {
     @When("I scan the device {string} at location {string}")
     public void iScanTheDeviceAtLocation(String deviceId, String location) {
         Boolean result = graphQlTester
-                .document("query { validateDevice(deviceId: \"" + deviceId + "\", location: \"" + location + "\") }")
+                .document("query { validateDevice(deviceId: \"" + deviceId + "\", location: \"" + location + "\") { valid errorMessage } }")
                 .execute()
-                .path("validateDevice")
+                .path("validateDevice.valid")
                 .entity(Boolean.class)
                 .get();
 
@@ -29,9 +29,9 @@ public class GraphQLSteps {
     @When("I scan the device {string}")
     public void iScanTheDevice(String deviceId) {
         Boolean result = graphQlTester
-                .document("query { validateDevice(deviceId: \"" + deviceId + "\", location: \"DEFAULT_LOCATION\") }")
+                .document("query { validateDevice(deviceId: \"" + deviceId + "\", location: \"DEFAULT_LOCATION\") { valid errorMessage } }")
                 .execute()
-                .path("validateDevice")
+                .path("validateDevice.valid")
                 .entity(Boolean.class)
                 .get();
 

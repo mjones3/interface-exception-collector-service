@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.adapter.irradiation;
 
+import com.arcone.biopro.distribution.irradiation.adapter.irradiation.dto.DeviceValidationResult;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
@@ -17,9 +18,13 @@ public class IrradiationResource {
     private final ValidateUnitNumberUseCase validateUnitNumberUseCase;
 
     @QueryMapping
-    public Mono<Boolean> validateDevice(@Argument String deviceId, @Argument String location) {
+    public Mono<DeviceValidationResult> validateDevice(@Argument String deviceId, @Argument String location) {
         return validateDeviceUseCase.execute(deviceId, location)
-                .onErrorReturn(false);
+                .map(result -> new DeviceValidationResult(true, null))
+                .onErrorResume(throwable -> {
+                    String errorMessage = throwable.getMessage();
+                    return Mono.just(new DeviceValidationResult(false, errorMessage));
+                });
     }
 
     @QueryMapping
