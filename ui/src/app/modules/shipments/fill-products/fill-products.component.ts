@@ -86,6 +86,13 @@ import { ToastrService } from 'ngx-toastr';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FillProductsComponent implements OnInit {
+
+    static readonly PRODUCT_STATUS_AVAILABLE = 'AVAILABLE'
+    static readonly SHIPMENT_LABEL_STATUS_LABELED = 'LABELED';
+    static readonly SHIPMENT_LABEL_STATUS_UNLABELED = 'UNLABELED';
+
+    protected readonly ProductCategoryMap = ProductCategoryMap;
+
     filledProductsData: ShipmentItemPackedDTO[] = [];
     prodInfoDescriptions: Description[] = [];
     selectedProducts: VerifyFilledProductDto[] = [];
@@ -376,7 +383,7 @@ export class FillProductsComponent implements OnInit {
             locationCode: this.cookieService.get(Cookie.XFacility),
             employeeId: this.loggedUserId,
             visualInspection: this.showVisualInspection
-                ? item.visualInspection.toUpperCase()
+                ? item.visualInspection?.toUpperCase()
                 : null,
         };
     }
@@ -481,8 +488,16 @@ export class FillProductsComponent implements OnInit {
         );
     }
 
-    getProductStatus(product: ShipmentItemPackedDTO){
-        return product?.productStatus != "AVAILABLE" ? product?.productStatus : "";
+    getProductName(shipment: ShipmentDetailResponseDTO, product: ShipmentItemPackedDTO): string {
+        return shipment?.labelStatus === FillProductsComponent.SHIPMENT_LABEL_STATUS_UNLABELED
+            ? product?.productDescription
+            : product?.productCode;
+    }
+
+    getProductStatus(product: ShipmentItemPackedDTO): string {
+        return product?.productStatus != FillProductsComponent.PRODUCT_STATUS_AVAILABLE
+            ? product?.productStatus
+            : '';
     }
 
     toggleProduct(product: VerifyFilledProductDto) {
@@ -572,5 +587,4 @@ export class FillProductsComponent implements OnInit {
             });
     }
 
-    protected readonly ProductCategoryMap = ProductCategoryMap;
 }
