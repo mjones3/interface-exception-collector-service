@@ -14,8 +14,8 @@ CREATE TABLE irradiation.bld_batch (
 
 CREATE TABLE irradiation.bld_batch_item (
     id BIGSERIAL PRIMARY KEY,
-    batch_id BIGINT REFERENCES irradiation.bld_batch(id),
-    unit_number VARCHAR(100),
-    product_code VARCHAR(100),
-    lot_number VARCHAR(100)
+    batch_id BIGINT NOT NULL REFERENCES irradiation.bld_batch(id),
+    unit_number VARCHAR(100) NOT NULL,
+    product_code VARCHAR(100) NOT NULL,
+    lot_number VARCHAR(100) NOT NULL
 );
