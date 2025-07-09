@@ -1,6 +1,7 @@
 type Query {
     validateDevice(deviceId: String!, location: String!): DeviceValidationResult
     validateUnit(unitNumber: String!, location: String!): [Inventory]
+    readConfiguration(keys: [String]): [ConfigurationDTO]
 }
 
 type DeviceValidationResult {
@@ -13,4 +14,9 @@ type Inventory {
     productCode: String
     location: String
     status: String
+}
+
+type  ConfigurationDTO {
+    key: String,
+    value: String
 }
