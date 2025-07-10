@@ -55,7 +55,7 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
         return shipmentItemRepository.findById(getUnlabeledProductsRequest.shipmentItemId())
             .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_ITEM_NOT_FOUND_ERROR)))
             .flatMap(shipmentItem -> {
-                return shipmentRepository.findById(shipmentItem.getId())
+                return shipmentRepository.findById(shipmentItem.getShipmentId())
                     .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
                     .zipWith(shipmentItemPackedRepository.listAllByShipmentId(shipmentItem.getShipmentId()).switchIfEmpty(Flux.empty()).collectList())
                     .flatMap(tuple -> {

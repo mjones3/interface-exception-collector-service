@@ -21,7 +21,6 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -213,7 +212,6 @@ public class InventoryMockController {
     }
 
     private List<InventoryResponseDTO> initInventoryMockList(String mockFile) {
-        inventoryResponseDTOList = new ArrayList<>();
         try {
             var fileInputStream = new ClassPathResource(mockFile).getInputStream();
             var mockData = objectMapper.readValue(fileInputStream, InventoryMockData.class);
