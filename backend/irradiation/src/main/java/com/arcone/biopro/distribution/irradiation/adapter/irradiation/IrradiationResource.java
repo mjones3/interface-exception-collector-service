@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.irradiation.adapter.irradiation;
 
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.ConfigurationResponseDTO;
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.mapper.ConfigurationDTOMapper;
-import com.arcone.biopro.distribution.irradiation.adapter.irradiation.dto.DeviceValidationResult;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
