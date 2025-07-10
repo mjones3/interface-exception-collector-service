@@ -2,7 +2,7 @@
 Feature: Fill Unlabeled Products for Internal Transfer order
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "452000016,452000017,452000018,452000019,452000020,452000021".
+        Given I cleaned up from the database, all shipments with order number "452000016,452000017,452000018,452000019,452000020,452000021,452000022,452000023,452000024".
 
         Rule: I should be able to see all eligible products for a given unit number.
         Rule: I should be able to select unlabeled products to fill an internal transfer order.
@@ -10,7 +10,7 @@ Feature: Fill Unlabeled Products for Internal Transfer order
         Scenario Outline: Product Selection Unlabeled Products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Temperature Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
             And I have received a shipment fulfillment request with above details.
-            When I request all available products for the unit number "<UN>"
+            When I request all unlabeled products for the unit number "<UN>" in the line item 1.
             Then I should receive the product list with the products "<product_list>" available for the unit number "<UN>".
             Examples:
                 | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                    | Temperature Category | Shipment Type     | Label Status | Quarantined Products  | UN            | product_list      |
@@ -24,11 +24,11 @@ Feature: Fill Unlabeled Products for Internal Transfer order
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
             And The visual inspection configuration is "enabled".
             And I have received a shipment fulfillment request with above details.
-            When I request all available products for the unit number "<UN>"
+            When I request all unlabeled products for the unit number "<UN>" in the line item 1.
             Then I should receive the product list with the products "<product_list_1>" available for the unit number "<UN>".
             When I fill a product with the unit number "<UN>", product code "<Code_1>".
             Then The product unit number "<UN>" and product code "<Code_1>" should be packed in the shipment.
-            When I request all available products for the unit number "<UN>"
+            When I request all unlabeled products for the unit number "<UN>" in the line item 1.
             Then I should receive the product list with the products "<product_list_2>" available for the unit number "<UN>".
             Examples:
                 | Order Number | Customer ID | Customer Name             | Quantity | BloodType | ProductFamily                    | UN            | Code_1   | Category         | Shipment Type     | Label Status | Quarantined Products | product_list_1            | product_list_2    |
@@ -49,13 +49,13 @@ Feature: Fill Unlabeled Products for Internal Transfer order
         Rule: I should be notified when I select an expired product.
         Rule: I should not be able to enter a unit number if it is part of another order or shipment.
         Rule: I should be able to fill an internal transfer order with quarantined products as requested.
-        Rule: I should not be able to fill the same internal order with both quarantined and unquarantined products.
+        Rule: I should not be able to fill the same internal order with both quarantined and quarantined products.
 
         @api @DIS-452
         Scenario Outline: Product Selection Unlabeled Products unavailable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Temperature Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
             And I have received a shipment fulfillment request with above details.
-            When I request all available products for the unit number "<UN>"
+            When I request all unlabeled products for the unit number "<UN>" in the line item 1.
             Then I should receive a "<Message Type>" message "<Message>".
             Examples:
                 | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                    | Temperature Category | Shipment Type     | Label Status | Quarantined Products | UN            | Message                                                                       | Message Type |
