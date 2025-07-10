@@ -4,36 +4,36 @@ Feature: Get all available inventories
 
     Scenario Outline: Get all available inventories
         Given I have the following units of products in inventory
-            | Unit Number   | Units | Family                           | ABORh | Location   | Expires In | Temperature Category | Expiration Timezone | Timezone Relevant |
-            | W777725003001 | 2     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1 | 2 Days     | FROZEN               |                     |                   |
-            | W777725003002 | 3     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_2 | 2 Days     | FROZEN               |                     |                   |
-            | W777725003003 | 5     | RED_BLOOD_CELLS                  | OP    | LOCATION_1 | 2 Days     | FROZEN               |                     |                   |
-            | W777725003004 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED     | OP    | LOCATION_1 | 2 Days     | FROZEN               |                     |                   |
-            | W777725003005 | 8     | PLASMA_TRANSFUSABLE              | ON    | LOCATION_1 | 2 Days     | FROZEN               |                     |                   |
-            | W777725003006 | 13    | PLASMA_TRANSFUSABLE              | ABN   | LOCATION_1 | 2 Days     | FROZEN               |                     |                   |
-            | W777725003007 | 21    | PLASMA_TRANSFUSABLE              | ABP   | LOCATION_1 | 31 Days    | FROZEN               |                     |                   |
-            | W777725003008 | 44    | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1 | -1 Days    | FROZEN               |                     |                   |
-            | W777725003009 | 4     | WHOLE_BLOOD                      | OP    | LOCATION_1 | 5 Days     | FROZEN               |                     |                   |
-            | W777725003010 | 5     | WHOLE_BLOOD_LEUKOREDUCED         | OP    | LOCATION_2 | 5 Days     | FROZEN               |                     |                   |
-            | W777725003011 | 10    | WHOLE_BLOOD                      | ABN   | LOCATION_2 | 2 Days     | FROZEN               |                     |                   |
-            | W777725003012 | 12    | WHOLE_BLOOD_LEUKOREDUCED         | ABN   | LOCATION_1 | 2 Days     | FROZEN               |                     |                   |
-            | W777725003013 | 18    | WHOLE_BLOOD                      | ABP   | LOCATION_1 | 30 Days    | FROZEN               |                     |                   |
-            | W777725003014 | 7     | WHOLE_BLOOD_LEUKOREDUCED         | ABP   | LOCATION_1 | 30 Days    | FROZEN               |                     |                   |
-            | W777725003015 | 3     | WHOLE_BLOOD                      | ABN   | LOCATION_2 | -1 Days    | FROZEN               |                     |                   |
-            | W777725003016 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 2 Days     | REFRIGERATED         |                     |                   |
-            | W777725003017 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 31 Days    | REFRIGERATED         |                     |                   |
-            | W777725003018 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 2 Days     | FROZEN               |                     |                   |
-            | W777725003019 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 31 Days    | FROZEN               |                     |                   |
-            | W777725003020 | 1     | PLASMA_MFG_NONINJECTABLE         | OP    | LOCATION_4 | 1 Days     | FROZEN               |                     |                   |
-            | W777725003021 | 1     | PLASMA_MFG_INJECTABLE            | OP    | LOCATION_4 | 1 Days     | FROZEN               |                     |                   |
-            | W777725003022 | 1     | PRT_APHERESIS_PLATELETS          | OP    | LOCATION_5 | 2 Days     | ROOM_TEMPERATURE     |                     |                   |
-            | W777725003023 | 1     | APHERESIS_PLATELETS_LEUKOREDUCED | OP    | LOCATION_5 | 2 Days     | ROOM_TEMPERATURE     |                     |                   |
-            | W777725003038 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9 | 0 Days     | FROZEN               |                     | N                 |
-            | W777725003039 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9 | 1 Hours    | REFRIGERATED         | America/New_York    | Y                 |
-            | W777725003040 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9 | -1 Hours   | REFRIGERATED         | America/New_York    | Y                 |
-
-
-
+            | Unit Number   | Units | Family                           | ABORh | Location    | Expires In | Temperature Category | Expiration Timezone | Timezone Relevant |
+            | W777725003001 | 2     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1  | 2 Days     | FROZEN               |                     |                   |
+            | W777725003002 | 3     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_2  | 2 Days     | FROZEN               |                     |                   |
+            | W777725003003 | 5     | RED_BLOOD_CELLS                  | OP    | LOCATION_1  | 2 Days     | FROZEN               |                     |                   |
+            | W777725003004 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED     | OP    | LOCATION_1  | 2 Days     | FROZEN               |                     |                   |
+            | W777725003005 | 8     | PLASMA_TRANSFUSABLE              | ON    | LOCATION_1  | 2 Days     | FROZEN               |                     |                   |
+            | W777725003006 | 13    | PLASMA_TRANSFUSABLE              | ABN   | LOCATION_1  | 2 Days     | FROZEN               |                     |                   |
+            | W777725003007 | 21    | PLASMA_TRANSFUSABLE              | ABP   | LOCATION_1  | 31 Days    | FROZEN               |                     |                   |
+            | W777725003008 | 44    | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1  | -1 Days    | FROZEN               |                     |                   |
+            | W777725003009 | 4     | WHOLE_BLOOD                      | OP    | LOCATION_1  | 5 Days     | FROZEN               |                     |                   |
+            | W777725003010 | 5     | WHOLE_BLOOD_LEUKOREDUCED         | OP    | LOCATION_2  | 5 Days     | FROZEN               |                     |                   |
+            | W777725003011 | 10    | WHOLE_BLOOD                      | ABN   | LOCATION_2  | 2 Days     | FROZEN               |                     |                   |
+            | W777725003012 | 12    | WHOLE_BLOOD_LEUKOREDUCED         | ABN   | LOCATION_1  | 2 Days     | FROZEN               |                     |                   |
+            | W777725003013 | 18    | WHOLE_BLOOD                      | ABP   | LOCATION_1  | 30 Days    | FROZEN               |                     |                   |
+            | W777725003014 | 7     | WHOLE_BLOOD_LEUKOREDUCED         | ABP   | LOCATION_1  | 30 Days    | FROZEN               |                     |                   |
+            | W777725003015 | 3     | WHOLE_BLOOD                      | ABN   | LOCATION_2  | -1 Days    | FROZEN               |                     |                   |
+            | W777725003016 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3  | 2 Days     | REFRIGERATED         |                     |                   |
+            | W777725003017 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3  | 31 Days    | REFRIGERATED         |                     |                   |
+            | W777725003018 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3  | 2 Days     | FROZEN               |                     |                   |
+            | W777725003019 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3  | 31 Days    | FROZEN               |                     |                   |
+            | W777725003020 | 1     | PLASMA_MFG_NONINJECTABLE         | OP    | LOCATION_4  | 1 Days     | FROZEN               |                     |                   |
+            | W777725003021 | 1     | PLASMA_MFG_INJECTABLE            | OP    | LOCATION_4  | 1 Days     | FROZEN               |                     |                   |
+            | W777725003022 | 1     | PRT_APHERESIS_PLATELETS          | OP    | LOCATION_5  | 2 Days     | ROOM_TEMPERATURE     |                     |                   |
+            | W777725003023 | 1     | APHERESIS_PLATELETS_LEUKOREDUCED | OP    | LOCATION_5  | 2 Days     | ROOM_TEMPERATURE     |                     |                   |
+            | W777725003038 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9  | 0 Days     | FROZEN               |                     | N                 |
+            | W777725003039 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9  | 1 Hours    | REFRIGERATED         | America/New_York    | Y                 |
+            | W777725003040 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_9  | -1 Hours   | REFRIGERATED         | America/New_York    | Y                 |
+            | W777725003041 | 2     | WASHED_APHERESIS_PLATELETS       | AN    | LOCATION_10 | 1 Days     | ROOM_TEMPERATURE     |                     |                   |
+            | W777725003042 | 3     | WASHED_RED_BLOOD_CELLS           | AN    | LOCATION_10 | 1 Days     | REFRIGERATED         |                     |                   |
+            | W777725003043 | 5     | WASHED_PRT_APHERESIS_PLATELETS   | AN    | LOCATION_10 | 1 Days     | ROOM_TEMPERATURE     |                     |                   |
 
         When I request available inventories for family with the following parameters:
             | Product Family   | Abo Rh Type   | Location   | Temperature Category   |
@@ -86,6 +86,13 @@ Feature: Get all available inventories
         Examples:
             | Quantity | Product Family      | Abo Rh Type | Location   | Short Date Quantity | Temperature Category |
             | 2        | PLASMA_TRANSFUSABLE | OP          | LOCATION_9 | 2                   |                      |
+
+        @MFG1-294
+        Examples:
+            | Quantity | Product Family                 | Abo Rh Type | Location    | Short Date Quantity | Temperature Category |
+            | 2        | WASHED_APHERESIS_PLATELETS     | ANY         | LOCATION_10 | 0                   |                      |
+            | 3        | WASHED_RED_BLOOD_CELLS         | ANY         | LOCATION_10 | 0                   |                      |
+            | 5        | WASHED_PRT_APHERESIS_PLATELETS | ANY         | LOCATION_10 | 0                   |                      |
 
 
     @LAB-81 @AOA-75 @LAB-257 @AOA-152
