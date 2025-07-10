@@ -179,19 +179,6 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
             location: this.facilityService.getFacilityCode(),
             deviceId: this.deviceId,
         };
-        // this.irradiationService
-        //     .submitCentrifugationBatch(requestDTO)
-        //     .subscribe((response) => {
-        //         if (response.errors && response.errors.length > 0) {
-        //             //this.irradiationService.handleErrors(response);
-        //         } else {
-        //             this.showMessage(
-        //                 MessageType.SUCCESS,
-        //                 'Start irradiation successfully completed'
-        //             );
-        //             this.redirect();
-        //         }
-        //     });
     }
 
     validateUnit(event: ValidateUnitEvent) {

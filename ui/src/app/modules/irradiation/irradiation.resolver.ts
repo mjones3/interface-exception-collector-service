@@ -21,8 +21,6 @@ export const irradiationResolver = (route: ActivatedRouteSnapshot) => {
 
             const resolverData: IrradiationResolveData = {
                 useCheckDigit: false
-                // useCheckDigit:
-                //     data.readConfiguration.readConfiguration.find((conf) => conf.key === USE_CHECK_DIGIT)?.value === YES
             };
 
             configurationService.update(resolverData);
