@@ -38,7 +38,10 @@
                 <div class="mt-3">
                     <biopro-enter-unit-number-product-code
                         #productSelection
+                        [shipmentId]="shipmentId"
+                        [shipmentItemId]="shipmentItemId"
                         [showCheckDigit]="showCheckDigit"
+                        [showProductCode]="shipmentInfo?.labelStatus !== 'UNLABELED' ?? true"
                         [showVisualInspection]="showVisualInspection"
                         (unitNumberProductCodeSelected)="
                             unitNumberProductCodeSelected($event)
