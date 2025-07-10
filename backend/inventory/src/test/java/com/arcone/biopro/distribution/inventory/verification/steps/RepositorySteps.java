@@ -275,7 +275,7 @@ public class RepositorySteps {
                 String type = inventory.get("Expires In").split(" ")[1];
                 String expirationTimezone = inventory.get("Expiration Timezone");
                 String timezoneRelevant = inventory.get("Timezone Relevant");
-                
+
                 LocalDateTime expirationDate;
                 if ("Y".equals(timezoneRelevant) && StringUtils.isNotBlank(expirationTimezone)) {
                     // For timezone-relevant products, calculate expiration in the specified timezone
@@ -297,11 +297,6 @@ public class RepositorySteps {
                 inventoryEntity.setExpirationDate(expirationDate);
             }
 
-
-
-
-
-
             inventoryEntity.setVolumes(new ArrayList<>());
             if(headers.contains("Volumes") && inventory.get("Volumes") != null){
                 var volumes = inventory.get("Volumes").split(",");
@@ -312,6 +307,14 @@ public class RepositorySteps {
             }
 
             inventoryEntity.setTemperatureCategory(headers.contains("Temperature Category") ? inventory.get("Temperature Category") : "FROZEN");
+
+            if(headers.contains("Storage Location")) {
+                inventoryEntity.setStorageLocation(inventory.get("Storage Location"));
+            }
+
+            if(headers.contains("Device Stored")) {
+                inventoryEntity.setDeviceStored(inventory.get("Device Stored"));
+            }
 
             inventoryUtil.saveInventory(inventoryEntity);
 
