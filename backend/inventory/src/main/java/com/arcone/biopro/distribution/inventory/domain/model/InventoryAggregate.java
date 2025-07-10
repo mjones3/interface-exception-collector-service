@@ -215,7 +215,7 @@ public class InventoryAggregate {
     }
 
     public boolean hasParent() {
-        return !this.inventory.getInputProducts().isEmpty();
+        return Objects.nonNull(this.inventory.getInputProducts()) && !this.inventory.getInputProducts().isEmpty();
     }
 
     public InventoryAggregate label(Boolean isLicensed, String finalProductCode, LocalDateTime expirationDate) {
