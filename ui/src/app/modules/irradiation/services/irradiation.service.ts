@@ -3,8 +3,8 @@ import {DynamicGraphqlPathService} from "../../../core/services/dynamic-graphql-
 import {Observable} from "rxjs";
 import {ApolloQueryResult} from "@apollo/client";
 import {MutationResult} from "apollo-angular";
-import {DeviceDTO, SubmitIrradiationBatchRequestDTO} from "../models/model";
-import {GET_IRRADIATION_DEVICE_BY_ID} from "../graphql/query.graphql";
+import {DeviceDTO, ReadConfigurationGraphQL, SubmitIrradiationBatchRequestDTO} from "../models/model";
+import {GET_CONFIGURATIONS, GET_IRRADIATION_DEVICE_BY_ID} from "../graphql/query.graphql";
 import {RuleResponseDTO} from "../../../shared/models/rule.model";
 import {SUBMIT_IRRADIATION_BATCH} from "../graphql/mutation.graphql";
 
@@ -16,6 +16,18 @@ export class IrradiationService {
     readonly servicePath = '/irradiation/graphql';
 
     constructor(private dynamicGraphqlPathService: DynamicGraphqlPathService) {}
+
+    public readConfiguration(
+        configurationKeys: string[]
+    ): Observable<
+        ApolloQueryResult<{ readConfiguration: ReadConfigurationGraphQL }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            GET_CONFIGURATIONS,
+            { configurationKeys }
+        );
+    }
 
     public loadDeviceById(
         deviceId: string, location: string

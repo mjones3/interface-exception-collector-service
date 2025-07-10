@@ -9,6 +9,16 @@ const GET_IRRADIATION_DEVICE_BY_ID = gql`
     }
 `;
 
+const GET_CONFIGURATIONS = gql`
+    query  readConfiguration($keys: [String]) {
+        readConfiguration(keys: $keys) {
+            key
+            value
+        }
+    }
+`;
+
 export {
-    GET_IRRADIATION_DEVICE_BY_ID
+    GET_IRRADIATION_DEVICE_BY_ID,
+    GET_CONFIGURATIONS
 };

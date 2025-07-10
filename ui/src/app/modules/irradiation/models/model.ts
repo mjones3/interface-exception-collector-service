@@ -1,5 +1,9 @@
 export const USE_CHECK_DIGIT = 'USE_CHECK_DIGIT';
 
+export interface IrradiationResolveData {
+    useCheckDigit: boolean;
+}
+
 export interface CheckDigitRequestDTO {
     unitNumber: string;
     checkDigit: string;
