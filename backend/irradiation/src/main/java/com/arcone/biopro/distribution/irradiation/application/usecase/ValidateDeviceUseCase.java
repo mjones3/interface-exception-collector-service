@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.application.usecase;
 
+import com.arcone.biopro.distribution.irradiation.adapter.in.web.controller.errors.DeviceValidationFailureException;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.aggregate.IrradiationAggregate;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.BatchRepository;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.DeviceRepository;
@@ -21,19 +22,19 @@ public class ValidateDeviceUseCase {
         Location locationObj = Location.of(location);
 
         return deviceRepository.findByDeviceId(deviceIdObj)
-            .switchIfEmpty(Mono.error(new RuntimeException("Device not found")))
+            .switchIfEmpty(Mono.error(new DeviceValidationFailureException("Device not found")))
             .flatMap(device -> {
                 IrradiationAggregate aggregate = new IrradiationAggregate(device, Collections.emptyList(), null);
-                
+
                 if (!aggregate.validateDevice(locationObj)) {
-                    return Mono.error(new RuntimeException("Device not in current location"));
+                    return Mono.error(new DeviceValidationFailureException("Device not in current location"));
                 }
-                
+
                 return batchRepository.findActiveBatchByDeviceId(deviceIdObj)
                     .flatMap(batch -> {
                         IrradiationAggregate aggregateWithBatch = new IrradiationAggregate(device, Collections.emptyList(), batch);
                         if (aggregateWithBatch.validateDeviceIsInUse(batch)) {
-                            return Mono.error(new RuntimeException("Device already in use"));
+                            return Mono.error(new DeviceValidationFailureException("Device already in use"));
                         }
                         return Mono.just(true);
                     })
