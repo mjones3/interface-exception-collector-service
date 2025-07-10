@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shipping.unit.infrastructure.controller;
 
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.InventoryMockController;
+import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationByUnitNumberRequest;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -138,6 +139,75 @@ class InventoryMockControllerTest {
                 assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
             })
             .verifyComplete();
+    }
+
+    @Test
+    public void shouldGetAllInventoryDetailsByUnitNumberWhenItsAvailable(){
+
+
+        var target = new InventoryMockController(objectMapper);
+        var inventoryResponse = target.validateInventoryByUnitNumber(InventoryValidationByUnitNumberRequest.builder()
+            .unitNumber("W036825655540")
+            .locationCode("123456789")
+            .build());
+
+        StepVerifier.create(inventoryResponse)
+            .expectNextMatches(detail -> detail.inventoryResponseDTO().unitNumber().equals("W036825655540") && detail.inventoryResponseDTO().productCode().equals("RBCAPH1") )
+            .expectNextMatches(detail -> detail.inventoryResponseDTO().unitNumber().equals("W036825655540") && detail.inventoryResponseDTO().productCode().equals("RBCAPH2"))
+            .expectComplete()
+            .verify();
+    }
+
+    @Test
+    public void shouldNotGetInventoryDetailsByUnitNumberWhenItsNotAvailable(){
+        var target = new InventoryMockController(objectMapper);
+        var inventoryResponse = target.validateInventoryByUnitNumber(InventoryValidationByUnitNumberRequest.builder()
+            .unitNumber("W036898786799ZZZZZ")
+            .locationCode("123456789")
+            .build());
+
+        StepVerifier.create(inventoryResponse)
+            .consumeNextWith(detail -> {
+                assertNull(detail.inventoryResponseDTO());
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(1), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
+            })
+            .verifyComplete();
+    }
+
+    @Test
+    public void shouldNotGetInventoryDetailsByUnitNumberWhenItsNotAvailableInLocation(){
+        var target = new InventoryMockController(objectMapper);
+        var inventoryResponse = target.validateInventoryByUnitNumber(InventoryValidationByUnitNumberRequest.builder()
+            .unitNumber("W036825655540")
+            .locationCode("123456789565656")
+            .build());
+
+        StepVerifier.create(inventoryResponse)
+            .consumeNextWith(detail -> {
+                assertNull(detail.inventoryResponseDTO());
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(1), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
+            })
+            .verifyComplete();
+    }
+
+    @Test
+    public void shouldGetUnitDetailsWhenItsUnsuitable(){
+
+
+        var target = new InventoryMockController(objectMapper);
+        var inventoryResponse = target.validateInventoryByUnitNumber(InventoryValidationByUnitNumberRequest.builder()
+            .unitNumber("W036825809707")
+            .locationCode("123456789")
+            .build());
+
+        StepVerifier.create(inventoryResponse)
+            .expectNextMatches(detail -> detail.inventoryResponseDTO().unitNumber().equals("W036825809707") && detail.inventoryResponseDTO().productCode().equals("E4532V00") )
+            .expectComplete()
+            .verify();
     }
 
 }
