@@ -26,13 +26,8 @@ public class IrradiationResource {
     private final ConfigurationDTOMapper configurationDTOMapper;
 
     @QueryMapping
-    public Mono<DeviceValidationResult> validateDevice(@Argument String deviceId, @Argument String location) {
-        return validateDeviceUseCase.execute(deviceId, location)
-                .map(result -> new DeviceValidationResult(true, null))
-                .onErrorResume(throwable -> {
-                    String errorMessage = throwable.getMessage();
-                    return Mono.just(new DeviceValidationResult(false, errorMessage));
-                });
+    public Mono<Boolean> validateDevice(@Argument String deviceId, @Argument String location) {
+        return validateDeviceUseCase.execute(deviceId, location);
     }
 
     @QueryMapping
