@@ -47,7 +47,7 @@ public class GraphQLQueryMapper {
             , shipmentId));
     }
 
-    public static String printShippingLabelQuery(long shipmentId){
+    public static String printShippingLabelQuery(long shipmentId) {
         return String.format("""
             query GenerateShippingLabel {
                 generateShippingLabel(shipmentId: "%s") {
@@ -79,22 +79,22 @@ public class GraphQLQueryMapper {
             """, shipmentId);
     }
 
-    public static String listShipmentsQuery(){
+    public static String listShipmentsQuery() {
         return """
-            query listShipments {
-                listShipments {
-                  id
-                  orderNumber
-                  priority
-                  status
-                  status
-                  createDate
-                }
-              }
-        """;
+                query listShipments {
+                    listShipments {
+                      id
+                      orderNumber
+                      priority
+                      status
+                      status
+                      createDate
+                    }
+                  }
+            """;
     }
 
-    public static String shipmentDetailsQuery(long shipmentId){
+    public static String shipmentDetailsQuery(long shipmentId) {
         return String.format("""
             query {
                 getShipmentDetailsById(shipmentId:%s) {
@@ -161,19 +161,19 @@ public class GraphQLQueryMapper {
 
     public static String getUnlabeledProductsQuery(Long shipmentItemId, String unitNumber, String facility) {
         return String.format("""
-            query {
-                getUnlabeledProducts(shipmentItemId: %s, unitNumber: "%s", locationCode: "%s") {
-                    inventoryId
-                    unitNumber
-                    productCode
-                    aboRh
-                    productDescription
-                    productFamily
-                    productStatus
-                    isLabeled
-                    isLicensed
-                }
-            }
+                query {
+                    getUnlabeledProducts(getUnlabeledProductsRequest: {shipmentItemId: %s, unitNumber: "%s", locationCode: "%s"}) {
+                          ruleCode
+                          results
+                          notifications{
+                              statusCode
+                              name
+                              notificationType
+                              message
+                          }
+                          _links
+                  }
+              }
             """, shipmentItemId, unitNumber, facility);
     }
 }
