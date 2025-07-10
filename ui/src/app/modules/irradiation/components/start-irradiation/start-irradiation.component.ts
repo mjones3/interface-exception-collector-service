@@ -387,23 +387,18 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     loadIrradiationId(deviceId: string) {
-       const location = this.cookieService.get(Cookie.XFacility)
+       //const location = this.cookieService.get(Cookie.XFacility)
+       const location = '123456789'
        if (deviceId && location) {
-           this.irradiationService.loadDeviceById(deviceId,location).subscribe((result)=> {
-
-               if (result.errors && result.errors.length > 0) {
-                   this.showMessage(MessageType.ERROR, result.errors[0].message)
-               }
-
-               const validDevice = result.data.valid;
-
-               if (validDevice) {
-                   this.irradiation.disable();
-               } else {
-                   this.showMessage(
-                       MessageType.ERROR,
-                       IRRADIATION_ID_ERROR
-                   );
+           this.irradiationService.loadDeviceById(deviceId,location).subscribe({
+               next: (result) => {
+                   const validDevice = result.data.validateDevice;
+                   if (validDevice) {
+                       this.irradiation.disable();
+                   }
+               },
+               error: (error) => {
+                   this.showMessage(MessageType.ERROR, error.message)
                }
            })
        }

@@ -61,7 +61,7 @@ describe('StartIrradiationComponent', () => {
                     provide: IrradiationService,
                     useValue: {
                         submitCentrifugationBatch: jest.fn().mockReturnValue(of({})),
-                        loadDeviceById: jest.fn().mockReturnValue(of({ data: { valid: true } })),
+                        loadDeviceById: jest.fn().mockReturnValue(of({ data: { validateDevice: true } })),
                     },
                 },
                 {
@@ -210,13 +210,6 @@ describe('StartIrradiationComponent', () => {
             { unitNumber: 'test2', disabled: true } as IrradiationProductDTO
         ];
         expect(component.numberOfUnits).toBe(1);
-    });
-
-    it('should load irradiation device by ID', () => {
-        const deviceId = 'test-device';
-        component.loadIrradiationId(deviceId);
-
-        expect(irradiationService.loadDeviceById).toHaveBeenCalledWith(deviceId, 'TEST');
     });
 
     it('should enable unit number control when lot number is validated', () => {

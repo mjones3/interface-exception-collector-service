@@ -25,14 +25,14 @@ export class IrradiationService {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
             GET_CONFIGURATIONS,
-            { configurationKeys }
+            { keys: configurationKeys }
         );
     }
 
     public loadDeviceById(
         deviceId: string, location: string
     ): Observable<
-        ApolloQueryResult<{ valid: boolean }>
+        ApolloQueryResult<{ validateDevice: boolean }>
     > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,

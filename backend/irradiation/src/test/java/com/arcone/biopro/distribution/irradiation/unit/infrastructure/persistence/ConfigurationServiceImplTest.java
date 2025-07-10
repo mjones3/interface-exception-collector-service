@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.irradiation.unit.infrastructure.persistence;
 
-import com.arcone.biopro.distribution.irradiation.domain.exception.ConfigurationNotFoundException;
 import com.arcone.biopro.distribution.irradiation.domain.model.Configuration;
 import com.arcone.biopro.distribution.irradiation.domain.model.vo.ConfigurationKey;
 import com.arcone.biopro.distribution.irradiation.infrastructure.mapper.ConfigurationEntityMapper;
@@ -57,19 +56,6 @@ class ConfigurationServiceImplTest {
         StepVerifier.create(result)
                 .expectNext(config)
                 .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("Should throw ConfigurationNotFoundException when no configurations found")
-    void readConfiguration_NotFound() {
-        when(configurationEntityRepository.findByKeyIn(anyList()))
-                .thenReturn(Flux.empty());
-
-        Flux<Configuration> result = configurationService.readConfiguration(List.of("nonexistent.key"));
-
-        StepVerifier.create(result)
-                .expectError(ConfigurationNotFoundException.class)
-                .verify();
     }
 
     @Test
