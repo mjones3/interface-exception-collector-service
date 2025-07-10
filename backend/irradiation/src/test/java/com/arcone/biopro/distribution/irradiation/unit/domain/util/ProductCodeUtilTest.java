@@ -1,6 +1,8 @@
-package com.arcone.biopro.distribution.irradiation.domain.util;
+package com.arcone.biopro.distribution.irradiation.unit.domain.util;
 
 
+import com.arcone.biopro.distribution.irradiation.domain.util.ProductCodeUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +13,7 @@ class ProductCodeUtilTest {
     @Test
     @DisplayName("Is a final product code with sixth digit")
     void testIsAFinalProductCodeWithSixthDigit_true() {
-        assertTrue(ProductCodeUtil.isAFinalProductCodeWithSixthDigit("AB123X45"));
+        Assertions.assertTrue(ProductCodeUtil.isAFinalProductCodeWithSixthDigit("AB123X45"));
     }
 
     @Test

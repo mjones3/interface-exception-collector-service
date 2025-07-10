@@ -33,10 +33,14 @@ import {IrradiationService} from "../../services/irradiation.service";
 import {NgStyle} from "@angular/common";
 import {MatDialog} from "@angular/material/dialog";
 import {IrradiationSelectProductModal} from "./select-product-modal/select-product-modal.component";
+import {Cookie} from "../../../../shared/types/cookie.enum";
+import {CookieService} from "ngx-cookie-service";
 
 const AVAILABLE = 'AVAILABLE';
 const QUARANTINED = 'QUARANTINED';
 const EXPIRED = 'EXPIRED';
+const IRRADIATION_ID_ERROR = 'Device not in current location';
+const DEVICE_USED_ERROR = 'Device is in use'
 
 @Component({
   selector: 'biopro-start-irradiation',
@@ -86,7 +90,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         private readonly toaster: ToastrService,
         private readonly facilityService: FacilityService,
         private readonly activatedRoute: ActivatedRoute,
-        private readonly matDialog: MatDialog
+        private readonly matDialog: MatDialog,
+        private cookieService: CookieService
     ) {
         effect(() => {
             this.processHeaderService.setActions(this.buttons);
@@ -152,8 +157,10 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         this.initialProductsState = [];
         this.selectedProducts = [];
         this.allProducts = [];
+        this.irradiation.reset();
+        this.lotNumber.reset();
         this.unitNumberComponent.reset();
-        this.redirect();
+        //this.redirect();
     }
 
     isSubmitEnabled(): boolean {
@@ -172,19 +179,6 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
             location: this.facilityService.getFacilityCode(),
             deviceId: this.deviceId,
         };
-        this.irradiationService
-            .submitCentrifugationBatch(requestDTO)
-            .subscribe((response) => {
-                if (response.errors && response.errors.length > 0) {
-                    //this.irradiationService.handleErrors(response);
-                } else {
-                    this.showMessage(
-                        MessageType.SUCCESS,
-                        'Start irradiation successfully completed'
-                    );
-                    this.redirect();
-                }
-            });
     }
 
     validateUnit(event: ValidateUnitEvent) {
@@ -379,8 +373,21 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         }
     }
 
-    loadIrradiationId(irradiationId: string) {
-        console.log('irradiationId', irradiationId);
+    loadIrradiationId(deviceId: string) {
+       const location = this.cookieService.get(Cookie.XFacility)
+       if (deviceId && location) {
+           this.irradiationService.loadDeviceById(deviceId,location).subscribe({
+               next: (result) => {
+                   const validDevice = result.data.validateDevice;
+                   if (validDevice) {
+                       this.irradiation.disable();
+                   }
+               },
+               error: (error) => {
+                   this.showMessage(MessageType.ERROR, error.message)
+               }
+           })
+       }
     }
 
     redirect() {

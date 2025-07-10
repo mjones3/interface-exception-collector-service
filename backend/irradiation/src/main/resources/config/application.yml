@@ -132,6 +132,7 @@ spring:
   messages:
     basename: i18n/messages
   graphql:
+    path: /irradiation/graphql
     graphiql:
       enabled: true
   r2dbc:

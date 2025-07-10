@@ -25,11 +25,6 @@ public class NavigationSteps {
         homePage.goTo();
     }
 
-    @When("I select the location {string}")
-    public void iSelectLocation(String location) {
-        homePage.selectLocation(location);
-    }
-
     @And("I navigate to {string}")
     public void iNavigateTo(String menuItem) throws Exception {
         homePage.goToProcess(menuItem);
