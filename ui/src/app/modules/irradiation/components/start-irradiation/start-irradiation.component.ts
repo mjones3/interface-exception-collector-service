@@ -395,7 +395,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                    this.showMessage(MessageType.ERROR, result.errors[0].message)
                }
 
-               const validDevice = result.data.validateDevice;
+               const validDevice = result.data.valid;
 
                if (validDevice) {
                    this.irradiation.disable();

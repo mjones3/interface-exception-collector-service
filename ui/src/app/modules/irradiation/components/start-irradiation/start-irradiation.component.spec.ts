@@ -61,7 +61,7 @@ describe('StartIrradiationComponent', () => {
                     provide: IrradiationService,
                     useValue: {
                         submitCentrifugationBatch: jest.fn().mockReturnValue(of({})),
-                        loadDeviceById: jest.fn().mockReturnValue(of({ data: { validateDevice: true } })),
+                        loadDeviceById: jest.fn().mockReturnValue(of({ data: { valid: true } })),
                     },
                 },
                 {

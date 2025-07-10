@@ -20,7 +20,7 @@ export class IrradiationService {
     public loadDeviceById(
         deviceId: string, location: string
     ): Observable<
-        ApolloQueryResult<{ validateDevice: boolean }>
+        ApolloQueryResult<{ valid: boolean }>
     > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
