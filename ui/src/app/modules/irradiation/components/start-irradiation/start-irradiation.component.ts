@@ -387,9 +387,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     loadIrradiationId(deviceId: string) {
-       //const location = this.facilityService.getFacilityCode();
-      // const location = this.cookieService.get(Cookie.XFacility)
-       const location = '1FS';
+       const location = this.cookieService.get(Cookie.XFacility)
        if (deviceId && location) {
            this.irradiationService.loadDeviceById(deviceId,location).subscribe((result)=> {
 
