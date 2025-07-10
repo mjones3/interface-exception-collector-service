@@ -9,6 +9,7 @@ export const irradiationResolver = (route: ActivatedRouteSnapshot) => {
     const configurationService = inject(ConfigurationService);
     const irradiationService = inject(IrradiationService);
     const USE_CHECK_DIGIT = 'USE_CHECK_DIGIT';
+    const YES = 'Y';
 
     const keys = [
         USE_CHECK_DIGIT
@@ -20,8 +21,7 @@ export const irradiationResolver = (route: ActivatedRouteSnapshot) => {
 
             const resolverData: IrradiationResolveData = {
                 useCheckDigit:
-                    data.readConfiguration.find((conf) => conf.key === USE_CHECK_DIGIT).value ===
-                    'Y'
+                    data.readConfiguration.find((conf) => conf.key === USE_CHECK_DIGIT).value === YES
             };
 
             configurationService.update(resolverData);
