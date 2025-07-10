@@ -158,4 +158,22 @@ public class GraphQLQueryMapper {
             }
             """, shipmentId);
     }
+
+    public static String getUnlabeledProductsQuery(Long shipmentItemId, String unitNumber, String facility) {
+        return String.format("""
+            query {
+                getUnlabeledProducts(shipmentItemId: %s, unitNumber: "%s", locationCode: "%s") {
+                    inventoryId
+                    unitNumber
+                    productCode
+                    aboRh
+                    productDescription
+                    productFamily
+                    productStatus
+                    isLabeled
+                    isLicensed
+                }
+            }
+            """, shipmentItemId, unitNumber, facility);
+    }
 }
