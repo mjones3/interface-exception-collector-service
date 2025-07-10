@@ -13,9 +13,9 @@ Feature: Fill Unlabeled Products for Internal Transfer order
             When I request all unlabeled products for the unit number "<UN>" in the line item 1.
             Then I should receive the product list with the products "<product_list>" available for the unit number "<UN>".
             Examples:
-                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                    | Temperature Category | Shipment Type     | Label Status | Quarantined Products  | UN            | product_list      |
-                | 452000016    | DO1         | Distribution Only | 10       | ANY       | PLASMA_TRANSFUSABLE              |  FROZEN              | INTERNAL_TRANSFER  | UNLABELED   | false                 | W036898786756 | GENERIC1,GENERIC2 |
-                | 452000017    | DO1         | Distribution Only | 5        | A         | APHERESIS_PLATELETS_LEUKOREDUCED |  ROOM_TEMPERATURE    | INTERNAL_TRANSFER  | UNLABELED   | true                  | W812530444002 | GENERIC1,GENERIC2 |
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily       | Temperature Category | Shipment Type     | Label Status | Quarantined Products | UN            | product_list          |
+                | 452000016    | DO1         | Distribution Only | 10       | ANY       | PLASMA_TRANSFUSABLE | FROZEN               | INTERNAL_TRANSFER | UNLABELED    | false                | W036898786756 | GENERIC1,GENERIC2     |
+                | 452000017    | DO1         | Distribution Only | 5        | ANY       | PLASMA_TRANSFUSABLE | FROZEN               | INTERNAL_TRANSFER | UNLABELED    | true                 | W036898786758 | LR_RBC,CPD PLS MI 24H |
 
 
         Rule: I should not be able to select products that have already been selected.
