@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    OnInit,
-    ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -18,7 +12,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     Description,
-    DescriptionCardComponent,
     NotificationDto,
     NotificationTypeMap,
     ProcessHeaderComponent,
@@ -40,7 +33,7 @@ import { catchError, finalize, take } from 'rxjs';
 import {
     RecordUnsatisfactoryVisualInspectionComponent,
     RecordUnsatisfactoryVisualInspectionData,
-    RecordUnsatisfactoryVisualInspectionResult,
+    RecordUnsatisfactoryVisualInspectionResult
 } from '../../../shared/components/record-unsatisfactory-visual-inspection/record-unsatisfactory-visual-inspection.component';
 import { DiscardRequestDTO } from '../../../shared/models/discard.model';
 import { InventoryDTO } from '../../../shared/models/inventory.model';
@@ -53,10 +46,12 @@ import {
     ShipmentItemPackedDTO,
     ShipmentItemResponseDTO,
     VerifyFilledProductDto,
-    VerifyProductDTO,
+    VerifyProductDTO
 } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
-import { EnterUnitNumberProductCodeComponent } from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
+import {
+    EnterUnitNumberProductCodeComponent
+} from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { ToastrService } from 'ngx-toastr';
 
@@ -65,7 +60,6 @@ import { ToastrService } from 'ngx-toastr';
     standalone: true,
     imports: [
         OrderWidgetsSidebarComponent,
-        DescriptionCardComponent,
         ProcessHeaderComponent,
         EnterUnitNumberProductCodeComponent,
         FuseCardComponent,
@@ -80,7 +74,7 @@ import { ToastrService } from 'ngx-toastr';
         ActionButtonComponent,
         ProgressBarComponent,
         OrderWidgetsSidebarComponent,
-        BasicButtonComponent,
+        BasicButtonComponent
     ],
     templateUrl: './fill-products.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -170,6 +164,10 @@ export class FillProductsComponent implements OnInit {
 
     get productId(): string {
         return this.route.snapshot.params?.productId;
+    }
+
+    get shipmentItemId(): number {
+        return parseInt(this.productId);
     }
 
     backToShipmentDetails() {
