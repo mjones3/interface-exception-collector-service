@@ -136,6 +136,9 @@ type ShipmentDetailResponseDTO {
     checkDigitActive: Boolean!
     visualInspectionActive: Boolean!
     secondVerificationActive: Boolean!
+    labelStatus:String
+    shipmentType:String
+    quarantinedProducts:Boolean
 }
 
 type ShipmentItemResponseDTO {
@@ -180,6 +183,7 @@ type ShipmentItemPackedDTO {
     ineligibleReason:String
     ineligibleMessage:String
     ineligibleAction:String
+    productStatus:String
 }
 
 input PackItemRequest {

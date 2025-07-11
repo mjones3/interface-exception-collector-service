@@ -108,6 +108,7 @@
                             [productName]="option.productCode"
                             [productDescription]="option.productDescription"
                             [visualInspection]="option.visualInspection"
+                            [ineligibleStatus]="getProductStatus(option)"
                             [iconName]="getIcon()"
                             [active]="selectedProducts.includes(option)"
                             (clickEvent)="toggleProduct(option)"
@@ -126,6 +127,9 @@
                     priority: shipmentInfo?.priority,
                     labelingProductCategory:
                         ProductCategoryMap[shipmentInfo?.productCategory],
+                    labelStatus:shipmentInfo?.labelStatus,
+                    quarantinedProducts:shipmentInfo?.quarantinedProducts,
+                    shipmentType:shipmentInfo?.shipmentType
                 }"
                 [comments]="shipmentInfo?.comments"
                 [shippingInput]="{
@@ -134,6 +138,7 @@
                     customerName: shipmentInfo?.shippingCustomerName,
                     status: shipmentInfo?.status,
                     method: shipmentInfo?.shippingMethod,
+                    shipmentType:shipmentInfo?.shipmentType
                 }"
                 [productInput]="{
                     temperatureCategory:

@@ -48,6 +48,9 @@ export interface ShipmentDetailResponseDTO {
     checkDigitActive?: boolean;
     visualInspectionActive?: boolean;
     secondVerificationActive?: boolean;
+    labelStatus?:string;
+    shipmentType?:string;
+    quarantinedProducts?:boolean;
 }
 
 export interface ShipmentItemResponseDTO {
@@ -105,6 +108,7 @@ export interface ShipmentItemPackedDTO {
     ineligibleReason?: string;
     ineligibleMessage?: string;
     ineligibleDetails?: string[];
+    productStatus?:string;
 }
 
 export interface VerifyProductDTO {

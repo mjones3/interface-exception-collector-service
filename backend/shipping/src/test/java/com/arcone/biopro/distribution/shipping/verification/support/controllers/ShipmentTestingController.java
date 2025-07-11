@@ -126,6 +126,26 @@ public class ShipmentTestingController {
         return orderId;
     }
 
+    public long createShippingRequest(String orderNumber, String priority, String shipDate
+        , String shipmentType, String labelStatus, boolean quarantinedProducts) throws Exception {
+        long orderId = Long.parseLong(orderNumber);
+        var resource = utils.getResource("order-fulfilled-with-parameters.json")
+            .replace("{order.number}", orderNumber)
+            .replace("{order.shipping_date}",shipDate)
+            .replace("{order.priority}",priority)
+            .replace("{LABEL_STATUS}",labelStatus)
+            .replace("{SHIPPING_METHOD}","FEDEX")
+            .replace("{SHIPMENT_TYPE}",shipmentType)
+            .replace("{QUARANTINED_PRODUCTS}",String.valueOf(quarantinedProducts));
+
+        kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
+        // Add sleep to wait for the message to be consumed.
+        Thread.sleep(kafkaWaitingTime);
+
+        log.debug("Message sent to create the order: {} payload {}", orderId,resource);
+        return orderId;
+    }
+
     public long getOrderShipmentId(long orderId) {
         var orders = this.listShipments();
         // Find the last order in the list with the same order number.
@@ -228,7 +248,11 @@ public class ShipmentTestingController {
                                                                                       String bloodTypes,
                                                                                       String productFamilies,
                                                                                       String unitNumbers,
-                                                                                      String productCodes) {
+                                                                                      String productCodes,
+                                                                                      String shipmentType,
+                                                                                      String labelStatus,
+                                                                                      Boolean quarantinedProducts
+                                                                                      ) {
 
         Assert.assertNotNull(quantities);
         Assert.assertNotNull(bloodTypes);
@@ -267,6 +291,9 @@ public class ShipmentTestingController {
             .shippingCustomerCode(shippingCustomerCode)
             .shippingCustomerName(shippingCustomerName)
             .comments("DISTRIBUTION COMMENTS")
+            .labelStatus(labelStatus)
+            .shipmentType(shipmentType)
+            .quarantinedProducts(quarantinedProducts)
             .items(new ArrayList<>())
             .build();
         if (!quantityList.isEmpty()) {
@@ -296,7 +323,19 @@ public class ShipmentTestingController {
     }
 
     public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
-        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "FROZEN", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
+        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "FROZEN", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode,"CUSTOMER","LABELED",false);
+    }
+
+    public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, String customerID, String customerName, String department
+        , String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType
+        , String quantity,String shipmentType,String labelStatus,Boolean quarantinedProducts,String temperatureCategory) {
+
+
+        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST"
+            , temperatureCategory, LocalDate.now(), department,customerName, "", "123456789", "FL"
+            , "33016", "US", "1", "Miami"
+            , "Miami", addressLine1, addressLine2, quantity, bloodType, productFamily, unitNumber, productCode
+            ,shipmentType,labelStatus,quarantinedProducts);
     }
 
     public boolean getCheckDigitConfiguration() {

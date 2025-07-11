@@ -153,6 +153,17 @@ public class Shipment implements Serializable, Persistable<Long> {
     @Column("complete_date")
     private ZonedDateTime completeDate;
 
+    @NotNull
+    @Column("shipment_type")
+    private String shipmentType;
+
+    @Column("quarantined_products")
+    private Boolean quarantinedProducts;
+
+    @Column("label_status")
+    private String labelStatus;
+
+
     @Override
     public boolean isNew() {
         return createDate == null;

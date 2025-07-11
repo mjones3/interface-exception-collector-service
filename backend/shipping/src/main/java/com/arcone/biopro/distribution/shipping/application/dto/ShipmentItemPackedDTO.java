@@ -30,7 +30,8 @@ public record ShipmentItemPackedDTO(
     String ineligibleAction,
     String ineligibleReason,
     String ineligibleMessage,
-    List<String> ineligibleDetails
+    List<String> ineligibleDetails,
+    String productStatus
 ) implements Serializable {
 
 }
