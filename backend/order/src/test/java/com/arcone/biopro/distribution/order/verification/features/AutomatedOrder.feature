@@ -1,10 +1,11 @@
-@api @AOA-152 @AOA-240 @AOA-128 @AOA-105
+@api @AOA-152 @AOA-240 @AOA-128 @AOA-105 @AOA-19
 Feature: Validate order
 
     Background:
-        Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524,114117922233525,114117922233526,114117922233527,11411792223353221,11411792223353222,11411792223353223,DIS323000000001,DIS336000000002,DIS336000000003,114117922233521,DIS337000000001".
+        Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524,114117922233525,114117922233526,114117922233527,11411792223353221,11411792223353222,11411792223353223,DIS323000000001,DIS336000000002,DIS336000000003,114117922233521,DIS337000000001,DIS440000000001,DIS440000000002".
 
-    @DIS-161 @DIS-92 @DIS-253 @bug @DIS-323 @DIS-336 @DIS-337 @R20-663
+    Rule: The system should create a Biopro internal transfer order when an internal transfer order is received through the third-party application.
+    @DIS-161 @DIS-92 @DIS-253 @bug @DIS-323 @DIS-336 @DIS-337 @R20-663 @DIS-440
     Scenario Outline: Creating a BioPro order from a valid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
         When The system process the order request.
@@ -20,6 +21,7 @@ Feature: Validate order
             | DIS336000000002 | order-inbound-scenario-DIS-336_apheresis-platelets.json      |
             | DIS336000000003 | order-inbound-scenario-DIS-336_prt-apheresis-platelets.json  |
             | DIS337000000001 | order-inbound-scenario-DIS-337_frozen-rbc.json               |
+            | DIS440000000001 | order-inbound-internal-transfer-scenario-1-happy-path.json   |
 
     @DIS-377 @rc
     Scenario Outline: Creating a BioPro order using a custom shipping method configuration from a valid order inbound request
@@ -30,7 +32,8 @@ Feature: Validate order
             | External ID     | JsonPayloadName                                     | Shipping Method |
             | 114117922233500 | order-inbound-scenario-shipment-method-default.json | DEFAULT         |
 
-    @DIS-92 @DIS-336
+    Rule: The system should reject internal transfers with invalid ship to locations.
+    @DIS-92 @DIS-336 @DIS-440
     Scenario Outline: Creating a BioPro order from an invalid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
         When The system process the order request.
@@ -46,7 +49,7 @@ Feature: Validate order
             | 114117922233518 | order-inbound-scenario-11-invalid_billing_customer.json                      |
             | 114117922233519 | order-inbound-scenario-12-invalid_family.json                                |
             | 114117922233520 | order-inbound-scenario-13_invalid_quantity.json                              |
-            | 114117922233521 | order-inbound-scenario-DIS-336_prt-apheresis-platelets_invalid_category.json |
+            | DIS440000000002 | order-inbound-internal-transfer-invalid-ship-to-location.json                |
 
     @DIS-92
     Scenario Outline: Creating a BioPro order with duplicated external ID
@@ -89,4 +92,4 @@ Feature: Validate order
             | 11411792223353223 | order-inbound-scenario-dis-322-create_date.json | 2099-04-25 20:09:01 | should not  |
 
         Scenario: Database clean up
-            Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524,114117922233525,114117922233526,114117922233527,11411792223353221,11411792223353222,11411792223353223,DIS323000000001,DIS336000000002,DIS336000000003,114117922233521,DIS337000000001".
+            Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524,114117922233525,114117922233526,114117922233527,11411792223353221,11411792223353222,11411792223353223,DIS323000000001,DIS336000000002,DIS336000000003,114117922233521,DIS337000000001,DIS440000000001,DIS440000000002".

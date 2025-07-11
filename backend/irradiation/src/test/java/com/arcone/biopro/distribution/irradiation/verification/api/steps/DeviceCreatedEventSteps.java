@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.verification.api.steps;
 
-import com.arcone.biopro.distribution.irradiation.adapter.in.listener.DeviceCreatedPayload;
+import com.arcone.biopro.distribution.irradiation.adapter.in.listener.CheckInCompleted;
 import com.arcone.biopro.distribution.irradiation.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.irradiation.application.usecase.CreateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Device;
@@ -42,8 +42,8 @@ public class DeviceCreatedEventSteps {
 
         this.currentDeviceId = id;
 
-        DeviceCreatedPayload payload = new DeviceCreatedPayload(id, location, deviceCategory, status);
-        EventMessage<DeviceCreatedPayload> eventMessage = new EventMessage<>("DeviceCreated", "1.0", payload);
+        CheckInCompleted payload = new CheckInCompleted(id, location, deviceCategory, status);
+        EventMessage<CheckInCompleted> eventMessage = new EventMessage<>("DeviceCreated", "1.0", payload);
 
         CreateDeviceUseCase.Input input = new CreateDeviceUseCase.Input(id, location, status, deviceCategory);
 

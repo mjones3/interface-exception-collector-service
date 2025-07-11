@@ -1,6 +1,9 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.config;
 
+import com.arcone.biopro.distribution.irradiation.adapter.in.listener.CheckInCompleted;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +41,11 @@ class KafkaConfiguration {
             .subscription(List.of(checkInCompletedTopic));
     }
 
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "CheckInCompleted",
+        description = "Check In Completed has been listened and products were modified/created",
+        payloadType = CheckInCompleted.class
+    ))
     @Bean(name = "CHECK_IN_COMPLETED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> checkInCompletedConsumerTemplate(
         @Qualifier("CHECK_IN_COMPLETED") ReceiverOptions<String, String> receiverOptions

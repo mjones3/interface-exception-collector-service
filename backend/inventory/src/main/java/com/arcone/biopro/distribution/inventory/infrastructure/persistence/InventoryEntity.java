@@ -140,6 +140,9 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @Column("expiration_timezone")
     String expirationTimeZone;
 
+    @Column("shipped_location")
+    String shippedLocation;
+
     @Column("volumes")
     List<Volume> volumes;
 

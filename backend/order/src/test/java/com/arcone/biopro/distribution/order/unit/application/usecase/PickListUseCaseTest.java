@@ -178,4 +178,36 @@ class PickListUseCaseTest {
 
         Mockito.verifyNoInteractions(applicationEventPublisher);
     }
+
+
+    @Test
+    public void shouldGeneratePickListWithoutAvailableInventories() {
+
+        var order = Mockito.mock(Order.class);
+
+        Mockito.when(orderService.findOneById(Mockito.eq(1L))).thenReturn(Mono.just(order));
+
+        var pickList = Mockito.mock(PickList.class);
+        Mockito.when(pickList.getOrderNumber()).thenReturn(1L);
+        Mockito.when(pickList.getOrderStatus()).thenReturn("OPEN");
+        Mockito.when(pickList.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+
+        var useCaseResponse = Mockito.mock(UseCaseResponseDTO.class);
+        Mockito.when(useCaseResponse.data()).thenReturn(pickList);
+
+        Mockito.when(pickListMapper.mapToUseCaseResponse(Mockito.any())).thenReturn(useCaseResponse);
+
+        var useCase = new PickListUseCase(applicationEventPublisher, orderService, inventoryService, pickListMapper, pickListCommandMapper);
+
+        StepVerifier.create(useCase.generatePickList(1L,Boolean.FALSE))
+            .consumeNextWith(detail -> {
+                    Assertions.assertEquals(1L,  detail.data().getOrderNumber());
+
+                }
+            )
+            .verifyComplete();
+
+        Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(PickListCreatedEvent.class));
+        Mockito.verifyNoInteractions(inventoryService);
+    }
 }

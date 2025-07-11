@@ -15,10 +15,10 @@ import { Router } from '@angular/router';
 import { MutationResult } from '@apollo/client';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { provideMockStore } from '@ngrx/store/testing';
-import { NotificationDto, ToastrImplService } from '@shared';
+import { NotificationDto } from '@shared';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { RuleResponseDTO } from 'app/shared/models/rule.model';
-import { ToastrModule } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { ExternalTransferItemDTO } from '../../models/external-transfer.dto';
 import { ExternalTransferService } from '../../services/external-transfer.service';
@@ -30,7 +30,7 @@ describe('ExternalTransfersComponent', () => {
     let fixture: ComponentFixture<ExternalTransfersComponent>;
     let dateInput: HTMLInputElement;
     let service: ExternalTransferService;
-    let toastr: ToastrImplService;
+    let toastr: ToastrService;
     const routerMock = {
         navigateByUrl: jest.fn(() => Promise.resolve(true)),
         navigate: jest.fn(),
@@ -84,7 +84,7 @@ describe('ExternalTransfersComponent', () => {
         jest.spyOn(service, 'customerInfo').mockReturnValue(of());
         jest.spyOn(service, 'verifyExternalTransferItem').mockReturnValue(of());
         jest.spyOn(service, 'completeExternalTransfer').mockReturnValue(of());
-        toastr = TestBed.inject(ToastrImplService);
+        toastr = TestBed.inject(ToastrService);
         fixture.detectChanges();
         dateInput = fixture.debugElement.query(By.css('input')).nativeElement;
         fuseConfirmationService = TestBed.inject(

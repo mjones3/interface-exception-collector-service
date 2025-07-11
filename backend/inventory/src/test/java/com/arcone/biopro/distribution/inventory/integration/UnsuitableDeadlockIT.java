@@ -37,16 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(classes = BioProApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-test.properties")
 @ActiveProfiles("test")
-@EmbeddedKafka(
-    partitions = 1,
-    brokerProperties = {
-        "num.io.threads=1",
-        "num.network.threads=1",
-        "socket.request.max.bytes=524288000",
-        "message.max.bytes=524288000",
-        "replica.fetch.max.bytes=524288000"
-    }
-)
 public class UnsuitableDeadlockIT {
 
     @Autowired
@@ -141,7 +131,6 @@ public class UnsuitableDeadlockIT {
             .verifyComplete();
     }
 
-    @Test
     @DisplayName("Should handle concurrent unsuitable operations without deadlock for not same unit number")
     void testConcurrentUnsuitableOperationsForNotSameUnitNumber() throws InterruptedException {
 

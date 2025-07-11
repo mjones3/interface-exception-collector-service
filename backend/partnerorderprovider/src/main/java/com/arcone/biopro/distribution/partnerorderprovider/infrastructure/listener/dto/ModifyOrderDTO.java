@@ -107,12 +107,30 @@ public record ModifyOrderDTO(
         requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     String comments,
+
+    @Schema(
+        title = "Quarantined Products",
+        description = "The order contains quarantined products",
+        example = "true",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    boolean quarantinedProducts,
+
+    @Schema(
+        title = "Label Status",
+        description = "The label status",
+        example = "LABELED",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    String labelStatus,
+
     @Schema(
         title = "Order Items",
         description = "The order items",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
     List<OrderItemDTO> orderItems
+
 ) implements Serializable {
 
 

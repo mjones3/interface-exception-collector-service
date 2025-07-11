@@ -12,8 +12,7 @@ import {
     Description,
     ProcessHeaderComponent,
     ProcessHeaderService,
-    SortService,
-    ToastrImplService,
+    SortService
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import {
@@ -26,7 +25,7 @@ import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { ProgressBarComponent } from 'app/shared/components/progress-bar/progress-bar.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
-import { ToastrModule } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -77,7 +76,7 @@ export class ShipmentDetailsComponent implements OnInit {
         public header: ProcessHeaderService,
         private route: ActivatedRoute,
         private shipmentService: ShipmentService,
-        private toaster: ToastrImplService,
+        private toaster: ToastrService,
         private sortService: SortService,
         private packingListService: PackingListService,
         private matDialog: MatDialog,

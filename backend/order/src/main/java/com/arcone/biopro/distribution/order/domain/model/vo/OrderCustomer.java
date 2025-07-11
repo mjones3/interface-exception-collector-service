@@ -16,12 +16,17 @@ public class OrderCustomer implements Validatable {
 
     private String code;
     private String name;
-    private final CustomerService customerService;
+    private CustomerService customerService;
 
     public OrderCustomer(String code, CustomerService customerService) {
         this.code = code;
         this.customerService = customerService;
         this.checkValid();
+    }
+
+    public OrderCustomer(String code, String name ) {
+        this.code = code;
+        this.name = name;
     }
 
     @Override

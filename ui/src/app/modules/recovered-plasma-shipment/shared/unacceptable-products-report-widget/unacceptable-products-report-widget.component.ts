@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Description, DescriptionCardComponent, ToastrImplService, WidgetComponent } from '@shared';
+import { Description, DescriptionCardComponent, WidgetComponent } from '@shared';
 import { LoadingSpinnerComponent } from 'app/shared/components/loading-spinner/loading-spinner.component';
 import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { DatePipe } from '@angular/common';
@@ -18,6 +18,7 @@ import {
     DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
     DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH
 } from '../../../../core/models/browser-printing.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'biopro-unacceptable-products-report-widget',
@@ -36,7 +37,7 @@ export class UnacceptableProductsReportWidgetComponent {
 
     datePipe = inject(DatePipe);
     recoveredPlasmaService = inject(RecoveredPlasmaService);
-    toastr = inject(ToastrImplService);
+    toastr = inject(ToastrService);
     matDialog = inject(MatDialog);
 
     loading = input<boolean>(false);

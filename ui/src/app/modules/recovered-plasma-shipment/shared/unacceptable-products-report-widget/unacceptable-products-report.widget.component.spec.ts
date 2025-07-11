@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UnacceptableProductsReportWidgetComponent } from './unacceptable-products-report-widget.component';
 import { DatePipe } from '@angular/common';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ToastrImplService } from '@shared';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import {
     ViewUnacceptableProductsComponent
@@ -13,12 +12,13 @@ import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasm
 import { UnacceptableUnitReportOutput } from '../../graphql/query-definitions/print-unacceptable-units-report.graphql';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { ToastrService } from 'ngx-toastr';
 
 describe('UnacceptableProductsReportWidgetComponent', () => {
   let component: UnacceptableProductsReportWidgetComponent;
   let fixture: ComponentFixture<UnacceptableProductsReportWidgetComponent>;
   let mockRecoveredPlasmaService: jest.Mocked<RecoveredPlasmaService>;
-  let mockToastr: jest.Mocked<ToastrImplService>;
+  let mockToastr: jest.Mocked<ToastrService>;
   let mockMatDialog: jest.Mocked<MatDialog>;
   let mockDatePipe: jest.Mocked<DatePipe>;
   let mockDialogRef: Partial<MatDialogRef<ViewUnacceptableProductsComponent, UnacceptableUnitReportOutput>>;
@@ -41,7 +41,7 @@ describe('UnacceptableProductsReportWidgetComponent', () => {
     mockToastr = {
       show: jest.fn(),
       error: jest.fn(),
-    } as unknown as jest.Mocked<ToastrImplService>;
+    } as unknown as jest.Mocked<ToastrService>;
 
     mockDialogRef = {
       afterOpened: jest.fn().mockReturnValue(of({}))
@@ -62,7 +62,7 @@ describe('UnacceptableProductsReportWidgetComponent', () => {
       ],
       providers: [
         { provide: RecoveredPlasmaService, useValue: mockRecoveredPlasmaService },
-        { provide: ToastrImplService, useValue: mockToastr },
+        { provide: ToastrService, useValue: mockToastr },
         { provide: MatDialog, useValue: mockMatDialog },
         { provide: DatePipe, useValue: mockDatePipe }
       ]

@@ -129,4 +129,94 @@ describe('OrderWidgetsSidebarComponent', () => {
             )
         ).toBeFalsy();
     });
+
+    describe('Label Status Display', () => {
+        it('should show label status when shipmentType is INTERNAL_TRANSFER and labelStatus is present', () => {
+            const testLabelStatus = 'TEST_STATUS';
+            componentRef.setInput('orderInput', {
+                shipmentType: 'INTERNAL_TRANSFER',
+                labelStatus: testLabelStatus
+            });
+            
+            fixture.detectChanges();
+            const orderInfoDescriptions = fixture.debugElement.nativeElement.querySelector(
+                '#orderInfoDescriptions'
+            ) as HTMLElement;
+            const labelStatusValue = orderInfoDescriptions.querySelector(
+                '#informationDetails-Label-Status-value'
+            ) as HTMLSpanElement;
+            expect(labelStatusValue).toBeTruthy();
+            expect(labelStatusValue.textContent).toContain(testLabelStatus);
+        });
+
+        it('should not show label status when shipmentType is not INTERNAL_TRANSFER', () => {
+            componentRef.setInput('orderInput', {
+                shipmentType: 'EXTERNAL',
+                labelStatus: 'TEST_STATUS'
+            });
+            
+            fixture.detectChanges();
+
+            const orderInfoDescriptions = fixture.debugElement.nativeElement.querySelector(
+                '#orderInfoDescriptions'
+            ) as HTMLElement;
+            const labelStatusValue = orderInfoDescriptions.querySelector(
+                '#informationDetails-Label-Status-value'
+            ) as HTMLSpanElement;
+            expect(labelStatusValue).toBeFalsy();
+        });
+
+        it('should not show label status when shipmentType is INTERNAL_TRANSFER but labelStatus is missing', () => {
+            componentRef.setInput('orderInput', {
+                shipmentType: 'INTERNAL_TRANSFER'
+            });
+            
+            fixture.detectChanges();
+            const orderInfoDescriptions = fixture.debugElement.nativeElement.querySelector(
+                '#orderInfoDescriptions'
+            ) as HTMLElement;
+            const labelStatusValue = orderInfoDescriptions.querySelector(
+                '#informationDetails-Label-Status-value'
+            ) as HTMLSpanElement;
+            expect(labelStatusValue).toBeFalsy();
+        });
+    });
+
+    describe('Quarantined Products Display', () => {
+        it('should show Quarantined Products when shipmentType is INTERNAL_TRANSFER and Quarantined Products is present', () => {
+            const quarantinedProducts = "YES";
+            componentRef.setInput('orderInput', {
+                shipmentType: 'INTERNAL_TRANSFER',
+                quarantinedProducts: quarantinedProducts
+            });
+            
+            fixture.detectChanges();
+            const orderInfoDescriptions = fixture.debugElement.nativeElement.querySelector(
+                '#orderInfoDescriptions'
+            ) as HTMLElement;
+            const quarantinedProductsalue = orderInfoDescriptions.querySelector(
+                '#informationDetails-Quarantined-Products-value'
+            ) as HTMLSpanElement;
+            expect(quarantinedProductsalue).toBeTruthy();
+            expect(quarantinedProductsalue.textContent).toContain(quarantinedProducts);
+        });
+
+        it('should not show Quarantined Products when shipmentType is not INTERNAL_TRANSFER', () => {
+            componentRef.setInput('orderInput', {
+                shipmentType: 'EXTERNAL',
+                quarantinedProducts: "NO"
+
+            });
+            
+            fixture.detectChanges();
+
+            const orderInfoDescriptions = fixture.debugElement.nativeElement.querySelector(
+                '#orderInfoDescriptions'
+            ) as HTMLElement;
+            const quarantinedProductsalue = orderInfoDescriptions.querySelector(
+                '#informationDetails-Quarantined-Products-value'
+            ) as HTMLSpanElement;
+            expect(quarantinedProductsalue).toBeFalsy();
+        });
+    });
 });

@@ -12,6 +12,7 @@ import com.arcone.biopro.distribution.order.domain.model.OrderItem;
 import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
+import com.arcone.biopro.distribution.order.domain.model.vo.ShipmentType;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.InventoryService;
@@ -138,10 +139,16 @@ public class OrderUseCaseTest {
 
         var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher,inventoryService, pickListCommandMapper);
 
+
+
         var orderMock = Mockito.mock(Order.class);
 
         var orderNumber = Mockito.mock(OrderNumber.class);
         Mockito.when(orderNumber.getOrderNumber()).thenReturn(1L);
+
+        var shipmentType = Mockito.mock(ShipmentType.class);
+        Mockito.when(shipmentType.getShipmentType()).thenReturn("CUSTOMER");
+        Mockito.when(orderMock.getShipmentType()).thenReturn(shipmentType);
 
         Mockito.when(orderMock.getOrderNumber()).thenReturn(orderNumber);
 
@@ -180,6 +187,9 @@ public class OrderUseCaseTest {
         var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher,inventoryService, pickListCommandMapper);
 
         var orderMock = Mockito.mock(Order.class);
+        var shipmentType = Mockito.mock(ShipmentType.class);
+        Mockito.when(shipmentType.getShipmentType()).thenReturn("CUSTOMER");
+        Mockito.when(orderMock.getShipmentType()).thenReturn(shipmentType);
 
         var orderNumber = Mockito.mock(OrderNumber.class);
         Mockito.when(orderNumber.getOrderNumber()).thenReturn(1L);
@@ -226,6 +236,10 @@ public class OrderUseCaseTest {
 
         var orderMock = Mockito.mock(Order.class);
 
+        var shipmentType = Mockito.mock(ShipmentType.class);
+        Mockito.when(shipmentType.getShipmentType()).thenReturn("CUSTOMER");
+        Mockito.when(orderMock.getShipmentType()).thenReturn(shipmentType);
+
         var orderNumber = Mockito.mock(OrderNumber.class);
         Mockito.when(orderNumber.getOrderNumber()).thenReturn(1L);
 
@@ -243,5 +257,45 @@ public class OrderUseCaseTest {
                 }
             )
             .verifyComplete();
+    }
+
+    @Test
+    void shouldSetAvailableInventoriesWhenInternalTransfer(){
+
+        var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher,inventoryService, pickListCommandMapper);
+
+        var orderMock = Mockito.mock(Order.class);
+        var shipmentType = Mockito.mock(ShipmentType.class);
+        Mockito.when(shipmentType.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+        Mockito.when(orderMock.getShipmentType()).thenReturn(shipmentType);
+
+        var orderNumber = Mockito.mock(OrderNumber.class);
+        Mockito.when(orderNumber.getOrderNumber()).thenReturn(1L);
+
+        Mockito.when(orderMock.getOrderNumber()).thenReturn(orderNumber);
+
+        var orderItem = Mockito.mock(OrderItem.class);
+
+        var bloodType = Mockito.mock(BloodType.class);
+        Mockito.when(bloodType.getBloodType()).thenReturn("AB");
+        Mockito.when(orderItem.getBloodType()).thenReturn(bloodType);
+
+        var productFamily = Mockito.mock(ProductFamily.class);
+        Mockito.when(productFamily.getProductFamily()).thenReturn("PRODUCT_FAMILY");
+        Mockito.when(orderItem.getProductFamily()).thenReturn(productFamily);
+
+        Mockito.when(orderMock.getOrderItems()).thenReturn(List.of(orderItem));
+
+        Mockito.when(orderRepository.findOneById(anyLong())).thenReturn(Mono.just(orderMock));
+
+        StepVerifier.create(useCase.findUseCaseResponseById(1L))
+            .consumeNextWith(detail -> {
+                    Assertions.assertEquals(1L,  detail.data().getOrderNumber().getOrderNumber());
+
+                }
+            )
+            .verifyComplete();
+
+        Mockito.verifyNoInteractions(inventoryService);
     }
 }

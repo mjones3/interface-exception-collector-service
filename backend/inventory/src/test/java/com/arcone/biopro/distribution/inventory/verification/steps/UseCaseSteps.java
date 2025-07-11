@@ -63,6 +63,8 @@ public class UseCaseSteps {
 
     private final ProductCompletedUseCase productCompletedUseCase;
 
+    private final ProductsReceivedUseCase productsReceivedUseCase;
+
     private final ProductModifiedUseCase productModifiedUseCase;
 
     private final ScenarioContext scenarioContext;
@@ -141,23 +143,7 @@ public class UseCaseSteps {
 
     @When("I received a Shipment Completed event with shipment type {string} for the following units:")
     public void iReceivedAShipmentCompletedEventForTheFollowingUnits(String shipmentType, DataTable dataTable) {
-        List<ShipmentCompletedInput.LineItem> lines = new ArrayList<>();
-        List<ShipmentCompletedInput.LineItem.Product> products = new ArrayList<>();
-        List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
-        for (Map<String, String> inventory : inventories) {
-            String unitNumber = inventory.get("Unit Number");
-            String productCode = inventory.get("Product Code");
-            products.add(new ShipmentCompletedInput.LineItem.Product(unitNumber, productCode));
-        }
-        lines.add(new ShipmentCompletedInput.LineItem(products));
-        var input = new ShipmentCompletedInput(
-            "a-shipment-id",
-            ShipmentType.valueOf(shipmentType),
-            "an-order-number",
-            "a-performed-by",
-            lines);
-        shipmentCompletedUseCase.execute(input).block();
-
+        this.iReceivedAShipmentCompletedEventWithShipmentTypeAndLocationCodeForTheFollowingUnits(shipmentType, null, dataTable);
     }
 
     @When("I received a Product Created event for the following products:")
@@ -517,5 +503,47 @@ public class UseCaseSteps {
             // Execute the use case
             productModifiedUseCase.execute(productModifiedInput).block();
         }
+    }
+
+    @When("I received a Shipment Completed event with shipment type {string} and location code {string} for the following units:")
+    public void iReceivedAShipmentCompletedEventWithShipmentTypeAndLocationCodeForTheFollowingUnits(String shipmentType, String locationCode, DataTable dataTable) {
+        List<ShipmentCompletedInput.LineItem> lines = new ArrayList<>();
+        List<ShipmentCompletedInput.LineItem.Product> products = new ArrayList<>();
+        List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> inventory : inventories) {
+            String unitNumber = inventory.get("Unit Number");
+            String productCode = inventory.get("Product Code");
+            products.add(new ShipmentCompletedInput.LineItem.Product(unitNumber, productCode));
+        }
+        lines.add(new ShipmentCompletedInput.LineItem(products));
+        var input = new ShipmentCompletedInput(
+            "a-shipment-id",
+            ShipmentType.valueOf(shipmentType),
+            "an-order-number",
+            "a-performed-by",
+            locationCode,
+            lines);
+        shipmentCompletedUseCase.execute(input).block();
+    }
+
+    @When("I received a Product Completed event with location code {string} for the following units:")
+    public void iReceivedAProductCompletedEventWithStatusAsAndLocationCodeForTheFollowingUnits(String location, DataTable dataTable) {
+        List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
+        List<ProductReceivedInput> products = new ArrayList<>();
+        for (Map<String, String> inventory : inventories) {
+            String unitNumber = inventory.get("Unit Number");
+            String productCode = inventory.get("Product Code");
+            products.add(ProductReceivedInput.builder()
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .inventoryLocation(location)
+                .quarantines("")
+                .build());
+        }
+        ProductsReceivedInput input = ProductsReceivedInput.builder()
+            .locationCode(location)
+            .products(products)
+            .build();
+        productsReceivedUseCase.execute(input).block();
     }
 }

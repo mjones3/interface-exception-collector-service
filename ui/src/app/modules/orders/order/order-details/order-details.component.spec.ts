@@ -13,6 +13,9 @@ import { of } from 'rxjs';
 import { OrderService } from '../../services/order.service';
 import { OrderDetailsComponent } from './order-details.component';
 import { AuthState } from 'app/core/state/auth/auth.reducer';
+import { TagComponent } from '../../../../shared/components/tag/tag.component';
+import { OrderDetailsDTO } from '../../models/order-details.dto';
+import { By } from '@angular/platform-browser';
 
 describe('OrderDetailsComponent', () => {
     let component: OrderDetailsComponent;
@@ -36,6 +39,7 @@ describe('OrderDetailsComponent', () => {
                 MatIconTestingModule,
                 TranslateModule.forRoot(),
                 ToastrModule.forRoot(),
+                TagComponent
             ],
             providers: [
                 provideHttpClient(),
@@ -91,5 +95,38 @@ describe('OrderDetailsComponent', () => {
         expect(component.getIcon(productFamily)).toBe(
             'WHOLE_BLOOD_LEUKOREDUCED'
         );
+    });
+
+    describe('inventory availability conditions', () => {
+        it('should show unavailable tag when shipmentType is INTERNAL_TRANSFER', () => {
+
+            const testProduct = {
+                quantityAvailable: null
+            };
+            component.orderDetails = {
+                shipmentType: 'INTERNAL_TRANSFER',
+                orderItems: [testProduct]
+            } as OrderDetailsDTO;
+            component.notifications = [];
+            
+            fixture.detectChanges();
+            const tagElement = fixture.debugElement.query(By.directive(TagComponent));
+            expect(tagElement).toBeTruthy();
+        });
+
+        it('should show quantity available when neither condition is true', () => {
+            const testProduct = {
+                quantityAvailable: 10
+            };
+            component.orderDetails = {
+                shipmentType: 'CUSTOMER',
+                orderItems: [testProduct]
+            } as OrderDetailsDTO;
+            component.notifications = [];
+            
+            fixture.detectChanges();
+            const tagElement = fixture.debugElement.query(By.directive(TagComponent));
+            expect(tagElement).toBeFalsy();
+        });
     });
 });

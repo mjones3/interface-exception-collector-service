@@ -166,7 +166,6 @@ def biopro_service():
             'postgresql-deployment',
             'kafka-deployment',
             'keycloak-deployment',
-            'opentelemetry-collector'
         ]
     )
 

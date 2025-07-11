@@ -15,6 +15,14 @@ export const SEARCH_ORDER_CRITERIA = gql<
                 optionValue
                 descriptionKey
             }
+            shipmentTypes{
+                optionValue
+                descriptionKey
+            }
+            locations{
+                code
+                name
+            }
             customers {
                 code
                 name

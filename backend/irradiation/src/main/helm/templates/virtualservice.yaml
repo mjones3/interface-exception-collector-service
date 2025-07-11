@@ -12,6 +12,23 @@ spec:
   http:
     - match:
         {{- toYaml .Values.istio.services | nindent 8 }}
+      corsPolicy:
+        allowCredentials: true
+        allowHeaders:
+          - Content-Type
+          - Authorization
+          - Accept
+          - x-rsa-time-zone
+        allowMethods:
+          - POST
+          - GET
+          - PUT
+          - DELETE
+        allowOrigins:
+          - exact: '*'
+        exposeHeaders:
+          - X-Total-Count
+        maxAge: 24h
       route:
         - destination:
             host: {{ include "api.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local

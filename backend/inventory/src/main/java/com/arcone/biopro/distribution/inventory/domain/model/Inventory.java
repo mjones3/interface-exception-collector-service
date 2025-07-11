@@ -84,6 +84,7 @@ public class Inventory {
 
     String expirationTimeZone;
 
+    String shippedLocation;
 
     @Builder.Default
     List<Volume> volumes = new ArrayList<>();
@@ -141,7 +142,6 @@ public class Inventory {
     }
 
     public Boolean isExpired(Boolean isTimeZone) {
-
         if(expirationDate == null) {
             return false;
         }
@@ -170,5 +170,4 @@ public class Inventory {
     public Boolean isQuarantined() {
         return !initializeIfNull(quarantines).isEmpty();
     }
-
 }
