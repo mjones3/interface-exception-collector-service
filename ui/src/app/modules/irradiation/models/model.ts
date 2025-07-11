@@ -1,5 +1,9 @@
 export const USE_CHECK_DIGIT = 'USE_CHECK_DIGIT';
 
+export interface IrradiationResolveData {
+    useCheckDigit: boolean;
+}
+
 export interface CheckDigitRequestDTO {
     unitNumber: string;
     checkDigit: string;
@@ -98,9 +102,7 @@ export interface ValidateUnitEvent {
 }
 
 export interface DeviceDTO {
-    bloodCenterId: string;
-    deviceType: string;
-    location: string;
+    validateDevice: boolean;
 }
 
 export interface IrradiationDeviceResponseDTO {
