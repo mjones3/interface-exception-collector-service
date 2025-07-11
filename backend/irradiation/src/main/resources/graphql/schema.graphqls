@@ -9,6 +9,8 @@ type Inventory {
     productCode: String
     location: String
     status: String
+    productDescription: String
+    productFamily: String
 }
 
 type  ConfigurationDTO {
