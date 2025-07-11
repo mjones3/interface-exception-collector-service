@@ -26,7 +26,6 @@ public class InventoryRSocketClient implements InventoryClient {
             .route("getInventoryByUnitNumber")
             .data(unitNumber.value())
             .retrieveFlux(InventoryOutput.class)
-            .log("sdsdsdsdsds")
             .map(mapper::toDomain);
     }
 }
