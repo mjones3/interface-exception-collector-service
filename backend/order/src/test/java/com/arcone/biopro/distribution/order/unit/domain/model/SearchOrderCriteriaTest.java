@@ -1,8 +1,10 @@
 package com.arcone.biopro.distribution.order.unit.domain.model;
 
+import com.arcone.biopro.distribution.order.domain.model.Location;
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.SearchOrderCriteria;
 import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
@@ -22,6 +24,8 @@ class SearchOrderCriteriaTest {
     LookupService lookupService;
     @MockBean
     CustomerService customerService;
+    @MockBean
+    LocationRepository locationRepository;
 
 
     @Test
@@ -40,7 +44,13 @@ class SearchOrderCriteriaTest {
 
         Mockito.when(customerService.getCustomers()).thenReturn(Flux.just(customer));
 
-        assertDoesNotThrow(() -> new SearchOrderCriteria(lookupService, customerService));
+        var locationMock = Mockito.mock(Location.class);
+        Mockito.when(locationMock.getCode()).thenReturn("code");
+        Mockito.when(locationMock.getName()).thenReturn("name");
+
+        Mockito.when(locationRepository.findAll()).thenReturn(Flux.just(locationMock));
+
+        assertDoesNotThrow(() -> new SearchOrderCriteria(lookupService, customerService,locationRepository));
 
     }
 
@@ -60,7 +70,7 @@ class SearchOrderCriteriaTest {
 
         Mockito.when(customerService.getCustomers()).thenReturn(Flux.just(customer));
 
-        assertThrows(IllegalArgumentException.class, () -> new SearchOrderCriteria(lookupService, customerService), "Name must not be null");
+        assertThrows(IllegalArgumentException.class, () -> new SearchOrderCriteria(lookupService, customerService,locationRepository), "Name must not be null");
 
     }
 }

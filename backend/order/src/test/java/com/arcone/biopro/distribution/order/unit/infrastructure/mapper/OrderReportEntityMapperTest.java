@@ -26,6 +26,7 @@ class OrderReportEntityMapperTest {
         Mockito.when(orderEntity.getDeliveryType()).thenReturn("DELIVERY_TYPE");
         Mockito.when(orderEntity.getCreateDate()).thenReturn(ZonedDateTime.now());
         Mockito.when(orderEntity.getDesiredShippingDate()).thenReturn(LocalDate.now());
+        Mockito.when(orderEntity.getShipmentType()).thenReturn("SHIPMENT_TYPE");
 
         var lookupEntity = Mockito.mock(LookupEntity.class);
         Mockito.when(lookupEntity.getOptionValue()).thenReturn("optionValue");
@@ -46,6 +47,7 @@ class OrderReportEntityMapperTest {
         Assertions.assertEquals("DELIVERY_TYPE",domain.getOrderPriorityReport().getPriority());
         Assertions.assertEquals("code",domain.getOrderCustomerReport().getCode());
         Assertions.assertEquals("name",domain.getOrderCustomerReport().getName());
+        Assertions.assertEquals("SHIPMENT_TYPE",domain.getShipmentType());
     }
 
 }

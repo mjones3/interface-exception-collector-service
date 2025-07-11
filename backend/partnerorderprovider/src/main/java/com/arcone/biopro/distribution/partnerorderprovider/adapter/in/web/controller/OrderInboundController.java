@@ -38,7 +38,6 @@ public class OrderInboundController {
     private static final String CANCEL_ORDER_INBOUND_DATA = "interface-schema/Cancel-Order-Inbound-1.0.0.json";
     private static final String MODIFY_ORDER_INBOUND_DATA = "interface-schema/Modify-Order-Inbound-1.0.0.json";
 
-    public static final String ORDER_DATA_INBOUND_STATUS_CREATE = "CREATED";
     public static final String ORDER_DATA_INBOUND_STATUS_ACCEPTED = "ACCEPTED";
 
     @Value("${application.clientApp.name}")
@@ -48,7 +47,7 @@ public class OrderInboundController {
      * {@code POST  /v1/orders} : Create an Order.
      *
      * @param orderInboundDTO  the Order Data DTO.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new OrderInboundDTO,
+     * @return the {@link ResponseEntity} with status {@code 202 (Accepted)} and with body the new OrderInboundDTO,
      * or with status {@code 400 (Bad Request)} if there is any broken validation.
      */
     @Operation(summary = "Creates a Order Data")
@@ -66,8 +65,8 @@ public class OrderInboundController {
             .timestamp(result.timestamp())
             .build();
 
-        return resultDto.status().equals(ORDER_DATA_INBOUND_STATUS_CREATE)
-            ? ResponseEntity.created(URI.create("/v1/partner-order-provider/orders/" + resultDto.id()))
+        return resultDto.status().equals(ORDER_DATA_INBOUND_STATUS_ACCEPTED)
+            ? ResponseEntity.accepted()
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, "ENTITY_NAME", resultDto.id()))
             .body(resultDto)
             : ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(resultDto);

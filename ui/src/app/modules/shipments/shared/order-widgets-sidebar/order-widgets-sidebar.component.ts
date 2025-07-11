@@ -9,6 +9,7 @@ import {
 } from '@shared';
 import { PriorityMap } from 'app/shared/models/product-family.model';
 import { OrderStatusMap } from '../../../../shared/models/order-status.model';
+import { ShipmentTypeMap } from '../../../../shared/models/shipment-type.model';
 
 @Component({
     standalone: true,
@@ -49,6 +50,9 @@ export class OrderWidgetsSidebarComponent {
             modifyDate: string;
             modifyReason: string;
             displayModificationDetails: boolean;
+            quarantinedProducts?:boolean;
+            labelStatus?:string;
+            shipmentType?: string;
         }>
     >();
 
@@ -61,6 +65,8 @@ export class OrderWidgetsSidebarComponent {
             customerName: string;
             status: string;
             method: string;
+            shipmentType: string;
+            shipToLocation?:string;
         }>
     >();
 
@@ -115,6 +121,22 @@ export class OrderWidgetsSidebarComponent {
                       value: this.orderInput()?.labelingProductCategory,
                   },
               ]
+            : []),
+        ...(this.orderInput()?.shipmentType === 'INTERNAL_TRANSFER' && this.orderInput()?.labelStatus
+            ? [
+                {
+                    label: 'Label Status',
+                    value: this.orderInput()?.labelStatus,
+                },
+            ]
+            : []),
+        ...(this.orderInput()?.shipmentType === 'INTERNAL_TRANSFER'
+            ? [
+                {
+                    label: 'Quarantined Products',
+                    value: this.orderInput()?.quarantinedProducts ? 'YES' : 'NO' ,
+                },
+            ]
             : []),
     ]);
 
@@ -177,6 +199,17 @@ export class OrderWidgetsSidebarComponent {
                       value: this.shippingInput()?.id.toString(),
                   },
               ]
+            : []),
+            ...(this.shippingInput()?.shipmentType
+            ? [
+                {
+                    label: 'Shipment Type',
+                    value:
+                        ShipmentTypeMap?.[this.shippingInput()?.shipmentType] ??
+                        'Unknown',
+
+                },
+            ]
             : []),
         ...(this.shippingInput()?.customerCode
             ? [

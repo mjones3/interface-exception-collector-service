@@ -23,6 +23,9 @@ public record ShipmentCompleted(
     @Schema(description = "User who performed the shipment completion")
     String performedBy,
 
+    @Schema(description = "Location code where the shipment was completed")
+    String locationCode,
+
     @Schema(description = "List of line items in the shipment")
     List<LineItem> lineItems) {
 
@@ -47,4 +50,3 @@ public record ShipmentCompleted(
         }
     }
 }
-

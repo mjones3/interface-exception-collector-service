@@ -1,10 +1,12 @@
 package com.arcone.biopro.distribution.order.domain.event;
 
 import com.arcone.biopro.distribution.order.domain.model.PickList;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@ToString
 public class PickListCreatedEvent implements DomainEvent{
     private final UUID eventId;
     private final Instant occurredOn;

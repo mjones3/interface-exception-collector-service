@@ -155,6 +155,33 @@ public class GraphQLQueryMapper {
             }
             """, locationCode, externalId);
     }
+    public static String listOrdersByCriteria(String criteria) {
+        return String.format("""
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        %s
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
+                }
+            }
+            """, criteria);
+    }
     public static String searchOrdersByCreateDate(String locationCode, String createDateFrom, String createDateTo) {
         return String.format("""
             query {
@@ -240,6 +267,21 @@ public class GraphQLQueryMapper {
                        }
                    }
             }
+            """, orderId);
+    }
+
+    public static String findOrderShipmentByOrderId(Integer orderId) {
+        return String.format("""
+            query  {
+                  findOrderShipmentByOrderId(orderId:%s) {
+                               id
+                               orderId
+                               shipmentId
+                               shipmentStatus
+                               createDate
+
+                       }
+                }
             """, orderId);
     }
 }

@@ -68,6 +68,9 @@ export const GET_ORDER_BY_ID = gql<
                 modifyReason
                 modifyByProcess
                 displayModificationDetails
+                quarantinedProducts
+                labelStatus
+
             }
         }
     }

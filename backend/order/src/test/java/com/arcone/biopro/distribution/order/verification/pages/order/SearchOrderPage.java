@@ -49,8 +49,6 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(xpath = "//h3/*[text()='Search Orders']")
     private WebElement searchOrdersTitle;
 
-    @FindBy(xpath = "//*[@class='p-datatable-loading-overlay']")
-    private WebElement tableLoadingOverlay;
 
     @FindBy(id = "filtersButtonId")
     private WebElement filterToggleButton;
@@ -90,8 +88,6 @@ public class SearchOrderPage extends CommonPageFactory {
 
 
 
-
-
     private static final String tableRows = "//biopro-table//tbody/tr";
 
     @FindAll({
@@ -123,6 +119,10 @@ public class SearchOrderPage extends CommonPageFactory {
     private String labelXpath(String fieldLabel) {
         return "//mat-label[contains(text(), '%s')]/parent::*".formatted(fieldLabel);
     }
+
+    private final By shipmentTypeField = By.id("shipmentTypeSelect");
+    private final By shipToLocationField = By.id("shipToLocationId");
+    private final By tableLoadingOverlay = By.xpath("//*[@class='p-datatable-loading-overlay']");
 
 
 
@@ -262,6 +262,8 @@ public class SearchOrderPage extends CommonPageFactory {
                 case "priority": theOrderPrioritiesFieldIsDisabled(); break;
                 case "ship to customer": theCustomersFieldIsDisabled(); break;
                 case "order number": theOrderFieldIsDisabled(); break;
+                case "shipment type": theShipmentTypeFieldIsDisabled(); break;
+                case "ship to location": theShipToLocationFieldIsDisabled(); break;
                 default:
                     Assert.fail("Field not found: " + valueField);
             }
@@ -275,6 +277,8 @@ public class SearchOrderPage extends CommonPageFactory {
                 case "priority": theOrderPrioritiesFieldIsEnabled(); break;
                 case "ship to customer": theCustomersFieldIsEnabled(); break;
                 case "order number": theOrderFieldIsEnabled(); break;
+                case "shipment type": theShipmentTypeFieldIsEnabled();
+                case "ship to location": theShipToLocationFieldIsEnabled(); break;
                 default:
                     Assert.fail("Field not found: " + valueField);
             }
@@ -461,6 +465,25 @@ public class SearchOrderPage extends CommonPageFactory {
     public void theOrderFieldIsDisabled() throws InterruptedException {
         sharedActions.waitForVisible(orderNumberField);
         assertFalse("Order field should be disabled",orderNumberField.isEnabled());
+    }
+
+    private void theShipmentTypeFieldIsDisabled() {
+        sharedActions.waitForVisible(shipmentTypeField);
+        Assert.assertFalse("ShipmentType field should be disabled", sharedActions.isElementEnabled(driver, shipmentTypeField));
+    }
+    private void theShipmentTypeFieldIsEnabled() {
+        sharedActions.waitForVisible(shipmentTypeField);
+        Assert.assertTrue("ShipmentType field should be disabled", sharedActions.isElementEnabled(driver, shipmentTypeField));
+    }
+
+    private void theShipToLocationFieldIsDisabled() {
+        sharedActions.waitForVisible(shipToLocationField);
+        Assert.assertFalse("ShipToLocation field should be disabled", sharedActions.isElementEnabled(driver, shipToLocationField));
+    }
+
+    private void theShipToLocationFieldIsEnabled() {
+        sharedActions.waitForVisible(shipToLocationField);
+        Assert.assertFalse("ShipToLocation field should be disabled", sharedActions.isElementEnabled(driver, shipToLocationField));
     }
 
     public void theOrderFieldIsEnabled() throws InterruptedException {

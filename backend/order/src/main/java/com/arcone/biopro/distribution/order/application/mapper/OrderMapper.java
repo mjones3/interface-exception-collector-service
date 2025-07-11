@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderDTO;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderResponseDTO;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
@@ -27,6 +28,7 @@ public class OrderMapper {
     private final LookupService lookupService;
     private final OrderConfigService orderConfigService;
     private final OrderShipmentService orderShipmentService;
+    private final LocationRepository locationRepository;
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public OrderResponseDTO  mapToDTO(final UseCaseResponseDTO<Order> useCaseResponse) {
@@ -52,13 +54,13 @@ public class OrderMapper {
             .id(order.getId())
             .orderNumber(order.getOrderNumber().getOrderNumber())
             .externalId(order.getOrderExternalId().getOrderExternalId())
-            .locationCode(order.getLocationCode())
+            .locationCode(order.getLocationFrom().getCode())
             .shipmentType(order.getShipmentType().getShipmentType())
             .shippingMethod(order.getShippingMethod().getShippingMethod())
-            .shippingCustomerName(order.getShippingCustomer().getName())
-            .shippingCustomerCode(order.getShippingCustomer().getCode())
-            .billingCustomerName(order.getBillingCustomer().getName())
-            .billingCustomerCode(order.getBillingCustomer().getCode())
+            .shippingCustomerName(order.getShippingCustomer() != null ? order.getShippingCustomer().getName() : null)
+            .shippingCustomerCode(order.getShippingCustomer() != null ? order.getShippingCustomer().getCode() : null)
+            .billingCustomerName(order.getBillingCustomer() != null ? order.getBillingCustomer().getName() : null)
+            .billingCustomerCode(order.getBillingCustomer() != null ? order.getBillingCustomer().getCode() : null)
             .desiredShippingDate(order.getDesiredShippingDate())
             .willCallPickup(order.getWillCallPickup())
             .phoneNumber(order.getPhoneNumber())
@@ -93,6 +95,8 @@ public class OrderMapper {
             .modifyByProcess(order.getModifiedByProcess())
             .modifyEmployeeId(order.getModifyEmployeeId())
             .transactionId(order.getTransactionId())
+            .quarantinedProducts(order.getQuarantinedProducts())
+            .labelStatus(order.getLabelStatus().value())
             .build();
     }
 
@@ -118,7 +122,11 @@ public class OrderMapper {
             orderDTO.createEmployeeId(),
             ofNullable(orderDTO.createDate()).map(dateTime -> DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(dateTime)).orElse(null),
             orderDTO.modificationDate(),
-            orderDTO.deleteDate());
+            orderDTO.deleteDate(),
+            orderDTO.quarantinedProducts(),
+            orderDTO.labelStatus(),
+            locationRepository
+            );
 
         order.setTransactionId(orderDTO.transactionId());
 

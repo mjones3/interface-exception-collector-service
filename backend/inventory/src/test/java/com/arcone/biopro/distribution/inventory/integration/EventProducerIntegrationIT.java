@@ -21,7 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.test.context.EmbeddedKafka;
@@ -63,7 +63,7 @@ public class EventProducerIntegrationIT {
     @Autowired
     private KafkaHelper kafkaHelper;
 
-    @MockBean
+    @MockitoBean
     private InventoryAggregateRepository inventoryAggregateRepository;
 
     @Autowired

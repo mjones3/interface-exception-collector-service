@@ -17,6 +17,7 @@ public record OrderQueryCommandDTO (
     LocalDate createDateTo,
     LocalDate desireShipDateFrom,
     LocalDate desireShipDateTo,
+    String shipmentType,
     QuerySortDTO querySort,
     Integer pageSize,
     Integer pageNumber

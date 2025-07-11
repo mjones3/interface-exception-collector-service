@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.infrastructure.mapper;
 
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
@@ -24,19 +25,20 @@ public class OrderEntityMapper {
     private final LookupService lookupService;
     private final OrderConfigService orderConfigService;
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private final LocationRepository locationRepository;
 
     public OrderEntity mapToEntity(final Order order) {
         return OrderEntity.builder()
             .id(order.getId())
             .orderNumber(order.getOrderNumber().getOrderNumber())
             .externalId(order.getOrderExternalId().getOrderExternalId())
-            .locationCode(order.getLocationCode())
+            .locationCode(order.getLocationFrom().getCode())
             .shipmentType(order.getShipmentType().getShipmentType())
             .shippingMethod(order.getShippingMethod().getShippingMethod())
-            .shippingCustomerName(order.getShippingCustomer().getName())
-            .shippingCustomerCode(order.getShippingCustomer().getCode())
-            .billingCustomerName(order.getBillingCustomer().getName())
-            .billingCustomerCode(order.getBillingCustomer().getCode())
+            .shippingCustomerName( order.getShippingCustomer() != null ? order.getShippingCustomer().getName() : null)
+            .shippingCustomerCode(order.getShippingCustomer() != null ? order.getShippingCustomer().getCode() : null)
+            .billingCustomerName(order.getBillingCustomer() != null ? order.getBillingCustomer().getName() : null)
+            .billingCustomerCode(order.getBillingCustomer() != null ? order.getBillingCustomer().getCode() : null)
             .desiredShippingDate(order.getDesiredShippingDate())
             .willCallPickup(order.getWillCallPickup())
             .phoneNumber(order.getPhoneNumber())
@@ -60,6 +62,8 @@ public class OrderEntityMapper {
             .modifyEmployeeId(order.getModifyEmployeeId())
             .modifyReason(order.getModifyReason())
             .transactionId(order.getTransactionId())
+            .quarantinedProducts(order.getQuarantinedProducts())
+            .labelStatus(order.getLabelStatus() != null ? order.getLabelStatus().value() : null)
             .build();
     }
 
@@ -86,7 +90,10 @@ public class OrderEntityMapper {
             orderEntity.getCreateEmployeeId(),
             ofNullable(orderEntity.getCreateDate()).map(dateTime -> DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(dateTime)).orElse(null),
             orderEntity.getModificationDate(),
-            orderEntity.getDeleteDate()
+            orderEntity.getDeleteDate(),
+            orderEntity.getQuarantinedProducts(),
+            orderEntity.getLabelStatus(),
+            locationRepository
         );
 
         ofNullable(orderItemEntities)

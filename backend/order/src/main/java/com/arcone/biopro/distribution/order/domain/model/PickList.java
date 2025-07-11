@@ -20,14 +20,21 @@ public class PickList implements Validatable {
     private List<PickListItem> pickListItems;
     private String orderComments;
     private String temperatureCategory;
+    private String shipmentType;
+    private Boolean quarantinedProducts;
+    private String labelStatus;
 
-    public PickList(Long orderNumber , String locationCode , String orderStatus, PickListCustomer customer , String orderComments , String temperatureCategory) {
+    public PickList(Long orderNumber , String locationCode , String orderStatus, PickListCustomer customer , String orderComments
+        , String temperatureCategory , String shipmentType , Boolean quarantinedProducts , String labelStatus ) {
         this.orderNumber = orderNumber;
         this.locationCode = locationCode;
         this.customer = customer;
         this.orderStatus = orderStatus;
         this.orderComments = orderComments;
         this.temperatureCategory = temperatureCategory;
+        this.labelStatus = labelStatus;
+        this.shipmentType = shipmentType;
+        this.quarantinedProducts= quarantinedProducts;
 
         checkValid();
     }
@@ -45,6 +52,12 @@ public class PickList implements Validatable {
 
         if (this.customer == null) {
             throw new IllegalArgumentException("customer cannot be null or blank");
+        }
+        if (this.shipmentType == null || this.shipmentType.isBlank()) {
+            throw new IllegalArgumentException("Shipment Type cannot be null or blank");
+        }
+        if (this.labelStatus == null || this.labelStatus.isBlank()) {
+            throw new IllegalArgumentException("Label Status cannot be null or blank");
         }
     }
 

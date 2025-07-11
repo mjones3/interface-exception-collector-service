@@ -2,8 +2,8 @@ import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { EnterProductInformationComponent } from './enter-product-information.component';
 import { Field } from './enter-product-information.component';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
-import { ProcessHeaderService, ToastrImplService } from '@shared';
+import { Toast, ToastrService } from 'ngx-toastr';
+import { ProcessHeaderService } from '@shared';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReceivingService } from '../../service/receiving.service';
@@ -20,7 +20,7 @@ import { By } from '@angular/platform-browser';
 describe('EnterProductInformationComponent', () => {
   let component: EnterProductInformationComponent;
   let fixture: ComponentFixture<EnterProductInformationComponent>;
-  let toastrService: jest.Mocked<ToastrService | ToastrImplService>;
+  let toastrService: jest.Mocked<ToastrService | ToastrService>;
   let router: jest.Mocked<Router>;
   let headerService: jest.Mocked<ProcessHeaderService>;
   let mockReceivingService: jest.Mocked<ReceivingService>

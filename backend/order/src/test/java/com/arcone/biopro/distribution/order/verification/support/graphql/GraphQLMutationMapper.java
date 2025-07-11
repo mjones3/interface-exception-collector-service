@@ -63,4 +63,42 @@ public class GraphQLMutationMapper {
     """, orderId, employeeId, comments, createBackOrder));
     }
 
+    public static String generatePickListMutation(Integer orderId, boolean skipServiceUnavailable) {
+        return (String.format("""
+            mutation {
+                generatePickList(orderId: %s , skipInventoryUnavailable: %s)
+                {
+            notifications {
+                name
+                notificationType
+                notificationMessage
+            }
+            data {
+                orderNumber
+                orderComments
+                shipmentType
+                quarantinedProducts
+                labelStatus
+                customer {
+                    code
+                    name
+                }
+                pickListItems {
+                    productFamily
+                    bloodType
+                    quantity
+                    comments
+                    shortDateList {
+                        unitNumber
+                        productCode
+                        aboRh
+                        storageLocation
+                    }
+                }
+            }
+       }
+     }
+    """, orderId, skipServiceUnavailable));
+    }
+
 }
