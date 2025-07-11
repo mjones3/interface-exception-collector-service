@@ -1,7 +1,10 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.ZonedDateTime;
@@ -20,10 +23,13 @@ public class DeviceEntity {
     @Column("status")
     private String status;
 
+    @CreatedDate
     @Column("create_date")
+    @InsertOnlyProperty
     private ZonedDateTime createDate;
 
     @Column("modification_date")
+    @LastModifiedDate
     private ZonedDateTime modificationDate;
 
     public DeviceEntity() {}

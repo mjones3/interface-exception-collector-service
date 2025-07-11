@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
@@ -30,6 +31,7 @@ public class ConfigurationEntity implements Serializable, Persistable<String> {
     @Column("active")
     Boolean active;
 
+    @CreatedDate
     @Column("create_date")
     @InsertOnlyProperty
     ZonedDateTime createDate;
