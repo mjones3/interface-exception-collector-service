@@ -10,7 +10,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
@@ -29,10 +29,10 @@ public class ConfigurationEntity implements Serializable, Persistable<String> {
     Boolean active;
     
     @Column("create_date")
-    LocalDateTime createDate;
+    ZonedDateTime createDate;
     
     @Column("modification_date")
-    LocalDateTime modificationDate;
+    ZonedDateTime modificationDate;
 
     @Override
     public String getId() {

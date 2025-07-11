@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -41,8 +41,8 @@ class ConfigurationServiceImplTest {
                 .key("test.key")
                 .value("test.value")
                 .active(true)
-                .createDate(LocalDateTime.now())
-                .modificationDate(LocalDateTime.now())
+                .createDate(ZonedDateTime.now())
+                .modificationDate(ZonedDateTime.now())
                 .build();
 
         Configuration config = Configuration.builder()
@@ -69,16 +69,16 @@ class ConfigurationServiceImplTest {
                 .key("key1")
                 .value("value1")
                 .active(true)
-                .createDate(LocalDateTime.now())
-                .modificationDate(LocalDateTime.now())
+                .createDate(ZonedDateTime.now())
+                .modificationDate(ZonedDateTime.now())
                 .build();
 
         ConfigurationEntity entity2 = ConfigurationEntity.builder()
                 .key("key2")
                 .value("value2")
                 .active(false)
-                .createDate(LocalDateTime.now())
-                .modificationDate(LocalDateTime.now())
+                .createDate(ZonedDateTime.now())
+                .modificationDate(ZonedDateTime.now())
                 .build();
 
         Configuration config1 = Configuration.builder()
