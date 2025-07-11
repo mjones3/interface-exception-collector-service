@@ -62,6 +62,7 @@ public class PackItemUseCase implements PackItemService {
     private final SecondVerificationService secondVerificationUseCase;
     private final ShipmentRepository shipmentRepository;
     private static final String INTERNAL_TRANSFER_TYPE = "INTERNAL_TRANSFER";
+    private static final String UNLABELED_STATUS = "UNLABELED";
 
     @Override
     @WithSpan("packItem")
@@ -124,9 +125,15 @@ public class PackItemUseCase implements PackItemService {
                         return Mono.just(inventoryValidationResponseDTO);
                     } else {
 
-                        if(hasOnlyQuarantineNotifications(inventoryValidationResponseDTO.inventoryNotificationsDTO())
+                        if(hasOnlyNotificationType(inventoryValidationResponseDTO.inventoryNotificationsDTO(),"INVENTORY_IS_QUARANTINED")
                             && INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
                             && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts()){
+                            return Mono.just(inventoryValidationResponseDTO);
+                        }
+
+                        if(hasOnlyNotificationType(inventoryValidationResponseDTO.inventoryNotificationsDTO(),"INVENTORY_IS_UNLABELED")
+                            && INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
+                            && UNLABELED_STATUS.equals(shipment.getLabelStatus())){
                             return Mono.just(inventoryValidationResponseDTO);
                         }
 
@@ -152,13 +159,17 @@ public class PackItemUseCase implements PackItemService {
 
     }
 
-    private boolean hasOnlyQuarantineNotifications(List<InventoryNotificationDTO> inventoryNotificationsDTO){
+    private boolean hasOnlyNotificationType(List<InventoryNotificationDTO> inventoryNotificationsDTO , String type) {
         if(inventoryNotificationsDTO == null){
             throw new IllegalArgumentException("inventoryNotificationsDTO is null");
         }
 
+        if(type == null ||  type.isBlank()){
+            throw new IllegalArgumentException("type is null");
+        }
+
         var countNotifications = inventoryNotificationsDTO.stream()
-        .filter(notificationDTO -> notificationDTO.errorName().equals("INVENTORY_IS_QUARANTINED"))
+        .filter(notificationDTO -> notificationDTO.errorName().equals(type))
         .count();
         return countNotifications == 1 && inventoryNotificationsDTO.size() == 1;
     }
@@ -205,6 +216,14 @@ public class PackItemUseCase implements PackItemService {
                                 .name("PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR")
                                 .statusCode(HttpStatus.BAD_REQUEST.value())
                                 .message(ShipmentServiceMessages.PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR)
+                                .notificationType(NotificationType.WARN.name())
+                                .build())));
+                        }else if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType()) && UNLABELED_STATUS.equals(shipment.getLabelStatus()) && CollectionUtils.isEmpty(inventoryValidationResponseDTO.inventoryNotificationsDTO()) ) {
+                            return Mono.error(new ProductValidationException(ShipmentServiceMessages.SHIPMENT_UNLABELED_ERROR, List.of(NotificationDTO
+                                .builder()
+                                .name("SHIPMENT_UNLABELED_ERROR")
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .message(ShipmentServiceMessages.SHIPMENT_UNLABELED_ERROR)
                                 .notificationType(NotificationType.WARN.name())
                                 .build())));
                         }
