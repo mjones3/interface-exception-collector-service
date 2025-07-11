@@ -24,9 +24,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public Flux<Configuration> readConfiguration(List<String> keys) {
-        log.info("Loading irradiation configurations");
+        log.info("Loading active irradiation configurations");
         return configurationEntityRepository
-            .findByKeyIn(keys)
+            .findByKeyInAndActiveTrue(keys)
             .map(configurationEntityMapper::toDomain);
     }
 
