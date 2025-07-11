@@ -42,6 +42,8 @@ public class ShipmentServiceMessages {
     public static final String ORDER_CRITERIA_DOES_NOT_MATCH_ERROR = "This unit does not match the order product criteria";
     public static final String UNIT_DOES_NOT_EXIST_ERROR = "This unit does not exist";
     public static final String ALL_PRODUCTS_SELECTED_ERROR = "All products associated with this unit have already been selected";
+    public static final String INVENTORY_UNLABELED_ERROR = "This product is not labeled and cannot be shipped";
+    public static final String SHIPMENT_UNLABELED_ERROR = "Shipment can only contain unlabeled products";
 
 
 

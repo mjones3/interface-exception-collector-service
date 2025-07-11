@@ -487,11 +487,16 @@ public class ShipmentTestingController {
         }
     }
 
-    public List<Map> getUnlabeledProducts(Long shipmentItemId, String unitNumber, String facility) {
+    public List<LinkedHashMap> getUnlabeledProducts(Long shipmentItemId, String unitNumber, String facility) {
         var payload = GraphQLQueryMapper.getUnlabeledProductsQuery(shipmentItemId, unitNumber, facility);
         var response = apiHelper.graphQlRequest(payload, "getUnlabeledProducts");
-        if (response.get("data") != null) {
-            return (List<Map>) response.get("data");
+        if (response.get("results") != null) {
+            var results = (LinkedHashMap) response.get("results");
+            if(results.get("results") != null) {
+                var itemZero = (List<LinkedHashMap>) results.get("results");
+                return (List<LinkedHashMap>) itemZero.get(0);
+            }
+            return null;
         } else {
             return null;
         }

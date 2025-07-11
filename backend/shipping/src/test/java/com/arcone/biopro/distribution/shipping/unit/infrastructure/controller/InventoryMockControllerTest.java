@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.Inv
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
@@ -104,7 +105,7 @@ class InventoryMockControllerTest {
         var target = new InventoryMockController(objectMapper);
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786757")
-            .productCode("E0701V00")
+            .productCode("E0713V00")
             .locationCode("123456789")
             .build());
 
@@ -114,7 +115,7 @@ class InventoryMockControllerTest {
                 assertNotNull(detail.inventoryResponseDTO());
                 assertNotNull(detail.inventoryNotificationsDTO().getFirst());
                 assertEquals(Optional.of(3), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
-                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
+                Assertions.assertTrue(detail.inventoryNotificationsDTO().getFirst().errorMessage().contains(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR));
             })
             .verifyComplete();
     }
@@ -126,7 +127,7 @@ class InventoryMockControllerTest {
 
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786756")
-            .productCode("E0701V00")
+            .productCode("E0707V00")
             .locationCode("123456789")
             .build());
 
@@ -208,6 +209,29 @@ class InventoryMockControllerTest {
             .expectNextMatches(detail -> detail.inventoryResponseDTO().unitNumber().equals("W036825809707") && detail.inventoryResponseDTO().productCode().equals("E4532V00") )
             .expectComplete()
             .verify();
+    }
+
+
+    @Test
+    public void shouldNotGetInventoryDetailsWhenItsUnlabeled(){
+
+        var target = new InventoryMockController(objectMapper);
+
+        var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
+            .unitNumber("W036825158906")
+            .productCode("E4532V00")
+            .locationCode("123456789")
+            .build());
+
+
+        StepVerifier.create(inventoryResponse)
+            .consumeNextWith(detail -> {
+                assertNotNull(detail.inventoryResponseDTO());
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(6), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_UNLABELED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
+            })
+            .verifyComplete();
     }
 
 }

@@ -45,7 +45,7 @@ public class ShipmentFulfillmentSteps {
 
     private List<ListShipmentsResponseType> orders;
     private ShipmentRequestDetailsResponseType order;
-    private List<Map> unlabeledProducts;
+    private List<LinkedHashMap> unlabeledProducts;
 
     @Autowired
     private SharedContext context;
@@ -612,7 +612,7 @@ public class ShipmentFulfillmentSteps {
         var productCodeList = TestUtils.getCommaSeparatedList(productCodes);
 
         for (var productCode : productCodeList) {
-            var match = unlabeledProducts.stream().anyMatch(item -> item.get("productCode").equals(productCode) && item.get("UnitNumber").equals(unitNumber));
+            var match = unlabeledProducts.stream().anyMatch(item -> item.get("productCode").equals(productCode) && item.get("unitNumber").equals(unitNumber));
             Assert.assertTrue(match);
         }
     }
