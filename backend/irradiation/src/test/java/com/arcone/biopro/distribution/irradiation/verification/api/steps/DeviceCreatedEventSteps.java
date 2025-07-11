@@ -39,7 +39,7 @@ public class DeviceCreatedEventSteps {
         String location = data.get("Location");
         String deviceCategory = data.get("Device Category");
         String status = data.get("Status");
-        
+
         this.currentDeviceId = id;
 
         DeviceCreatedPayload payload = new DeviceCreatedPayload(id, location, deviceCategory, status);
@@ -69,7 +69,7 @@ public class DeviceCreatedEventSteps {
         StepVerifier.create(deviceRepository.findByDeviceId(DeviceId.of(expectedDeviceId)))
             .assertNext(device -> {
                 assertEquals(expectedDeviceId, device.getDeviceId().getValue());
-                assertEquals(expectedLocation, device.getLocation().getValue());
+                assertEquals(expectedLocation, device.getLocation().value());
                 assertEquals(expectedStatus, device.getStatus());
             })
             .verifyComplete();

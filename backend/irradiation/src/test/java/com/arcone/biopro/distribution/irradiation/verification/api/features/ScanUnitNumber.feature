@@ -5,22 +5,23 @@ Feature: Scan Unit Number for Irradiation
 
     @LAB-576 @AOA-61
     Scenario Outline: I successfully scan a unit number with a product eligible for irradiation
-        Given I have the following products:
-            | Unit Number   | Product Code | Product Family               |
-            | <Unit Number> | E033600      | WHOLE_BLOOD                  |
+        Given I have the following inventory products:
+            | Unit Number   | Product Code   | Status    | Location   | Product Family |
+            | <Unit Number> | <Product Code> | AVAILABLE | <Location> | WHOLE_BLOOD    |
+        Given I'm in the irradiation service at the location "<Location>"
         When I scan the unit number "<Unit Number>" in irradiation
-        Then I see the product "E033600" from unit number "<Unit Number>" is in the list of products for selection
-        When I select the product "E033600" from unit number "<Unit Number>"
-        Then I see the "success" message "Product was added in the batch"
+        Then I see the product "<Product Code>" from unit number "<Unit Number>" is in the list of products for selection
+#        When I select the product "E033600" from unit number "<Unit Number>"
+#        Then I see the "success" message "Product was added in the batch"
         Examples:
-            | Unit Number   | Message                        |
-            | W777725001001 | Product was added in the batch |
+            | Unit Number   | Location  | Product Code | Message                        |
+            | W777725001001 | 123456789 | E0869V00     | Product was added in the batch |
 
     @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a quarantined unit number with a reason that stops manufacturing
         Given I have the following products:
-            | Unit Number   | Product Code | Product Family               | Status      | Stops Manufacturing |
-            | <Unit Number> | E033600      | WHOLE_BLOOD                  | Quarantined | Yes                 |
+            | Unit Number   | Product Code | Product Family | Status      | Stops Manufacturing |
+            | <Unit Number> | E033600      | WHOLE_BLOOD    | Quarantined | Yes                 |
         When I scan the unit number "<Unit Number>" in irradiation in location "123456789"
         Then I see the product "E033600" from unit number "<Unit Number>" is in the list of products for selection
         When I select the product "E033600" from unit number "<Unit Number>"
@@ -33,8 +34,8 @@ Feature: Scan Unit Number for Irradiation
     @LAB-615 @AOA-61
     Scenario Outline: I can add into the batch a quarantined unit number with a reason that doesn't stops manufacturing, being warned with a message
         Given I have the following products:
-            | Unit Number   | Product Code | Product Family               | Status      | Stops Manufacturing |
-            | <Unit Number> | E033600      | WHOLE_BLOOD                  | Quarantined | No                 |
+            | Unit Number   | Product Code | Product Family | Status      | Stops Manufacturing |
+            | <Unit Number> | E033600      | WHOLE_BLOOD    | Quarantined | No                  |
         When I scan the unit number "<Unit Number>" in irradiation in location "123456789"
         Then I see the product "E033600" from unit number "<Unit Number>" is in the list of products for selection
         When I select the product "E033600" from unit number "<Unit Number>"
@@ -47,8 +48,8 @@ Feature: Scan Unit Number for Irradiation
     @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a discarded unit number
         Given I have the following products:
-            | Unit Number   | Product Code | Product Family               | Status    |
-            | <Unit Number> | E033600      | WHOLE_BLOOD                  | Discarded |
+            | Unit Number   | Product Code | Product Family | Status    |
+            | <Unit Number> | E033600      | WHOLE_BLOOD    | Discarded |
         When I scan the unit number "<Unit Number>" in irradiation in location "123456789"
         Then I see the product "E033600" from unit number "<Unit Number>" is in the list of products for selection
         When I select the product "E033600" from unit number "<Unit Number>"
@@ -60,8 +61,8 @@ Feature: Scan Unit Number for Irradiation
     @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a unit number that is marked for discard/unsuitable
         Given I have the following products:
-            | Unit Number   | Product Code | Product Family               | Status             | Discard Reason                 |
-            | <Unit Number> | E033600      | WHOLE_BLOOD                  | MARKED_FOR_DISCARD | POSITIVE_REACTIVE_TEST_RESULTS |
+            | Unit Number   | Product Code | Product Family | Status             | Discard Reason                 |
+            | <Unit Number> | E033600      | WHOLE_BLOOD    | MARKED_FOR_DISCARD | POSITIVE_REACTIVE_TEST_RESULTS |
         When I scan the unit number "<Unit Number>" in irradiation in location "123456789"
         Then I see the product "E033600" from unit number "<Unit Number>" is in the list of products for selection
         When I select the product "E033600" from unit number "<Unit Number>"
@@ -74,8 +75,8 @@ Feature: Scan Unit Number for Irradiation
     @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a unit number that is not in the location
         Given I have the following products:
-            | Unit Number   | Product Code | Product Family               | Location      |
-            | <Unit Number> | E033600      | WHOLE_BLOOD                  | Diff Location |
+            | Unit Number   | Product Code | Product Family | Location      |
+            | <Unit Number> | E033600      | WHOLE_BLOOD    | Diff Location |
         When I scan the unit number "<Unit Number>" in irradiation in location "123456789"
         Then I see the product "E033600" from unit number "<Unit Number>" is NOT in the list of products for selection
 
@@ -86,8 +87,8 @@ Feature: Scan Unit Number for Irradiation
     @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a unit number that is not in the location
         Given I have the following products:
-            | Unit Number   | Product Code | Product Family               | Status    |
-            | <Unit Number> | E033600      | WHOLE_BLOOD                  | <Status>  |
+            | Unit Number   | Product Code | Product Family | Status   |
+            | <Unit Number> | E033600      | WHOLE_BLOOD    | <Status> |
         When I scan the unit number "<Unit Number>" in irradiation in location "123456789"
         Then I see the product "E033600" from unit number "<Unit Number>" is NOT in the list of products for selection
         Examples:

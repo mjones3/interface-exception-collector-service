@@ -1,8 +1,8 @@
 {
   "request" : {
-    "routePath" : "getInventoryByUnitNumberAndProductCode"
+    "routePath" : "getInventoryByUnitNumber"
   },
   "response" : {
-    "bodyFileName" : "getInventoryByUnitNumberAndProductCode.json"
+    "bodyFileName" : "getInventoriesByUnitNumber.json"
   }
 }
