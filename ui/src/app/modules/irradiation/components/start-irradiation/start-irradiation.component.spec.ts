@@ -121,7 +121,7 @@ describe('StartIrradiationComponent', () => {
     });
 
     it('should initialize form with required validators', () => {
-        expect(component.form.get('irradiationId')?.hasError('required')).toBeTruthy();
+        expect(component.form.get('irradiatorId')?.hasError('required')).toBeTruthy();
         expect(component.form.get('lotNumber')?.hasError('required')).toBeTruthy();
     });
 

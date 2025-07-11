@@ -1,3 +1,4 @@
+@api @LAB-574 @AOA-61
 Feature: Scan Irradiation Device
     As a distribution specialist
     I want to scan the irradiator device and validate the irradiator is not already in use

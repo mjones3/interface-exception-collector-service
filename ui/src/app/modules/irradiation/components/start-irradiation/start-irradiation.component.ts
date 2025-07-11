@@ -98,7 +98,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         });
 
         this.form = this.formBuilder.group({
-            irradiationId: [null, [Validators.required]],
+            irradiatorId: [null, [Validators.required]],
             lotNumber: [null, [Validators.required]]
         });
     }
@@ -113,7 +113,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     get irradiation() {
-        return this.form.get('irradiationId');
+        return this.form.get('irradiatorId');
     }
 
     get lotNumber() {
