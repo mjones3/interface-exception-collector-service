@@ -10,6 +10,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -23,6 +24,15 @@ public class ConfigurationEntity implements Serializable, Persistable<String> {
 
     @Column("value")
     String value;
+    
+    @Column("active")
+    Boolean active;
+    
+    @Column("create_date")
+    LocalDateTime createDate;
+    
+    @Column("modification_date")
+    LocalDateTime modificationDate;
 
     @Override
     public String getId() {

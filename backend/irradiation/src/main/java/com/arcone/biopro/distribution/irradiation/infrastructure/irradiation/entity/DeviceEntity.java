@@ -4,6 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDateTime;
+
 @Table("bld_device")
 public class DeviceEntity {
     @Id
@@ -17,6 +19,12 @@ public class DeviceEntity {
     
     @Column("status")
     private String status;
+    
+    @Column("create_date")
+    private LocalDateTime createDate;
+    
+    @Column("modification_date")
+    private LocalDateTime modificationDate;
 
     public DeviceEntity() {}
 
@@ -24,6 +32,8 @@ public class DeviceEntity {
         this.deviceId = deviceId;
         this.location = location;
         this.status = status;
+        this.createDate = LocalDateTime.now();
+        this.modificationDate = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -56,5 +66,21 @@ public class DeviceEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public LocalDateTime getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
+    }
+
+    public LocalDateTime getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(LocalDateTime modificationDate) {
+        this.modificationDate = modificationDate;
     }
 }

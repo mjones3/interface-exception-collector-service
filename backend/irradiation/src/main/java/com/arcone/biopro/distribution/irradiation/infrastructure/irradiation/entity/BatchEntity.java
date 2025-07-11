@@ -19,6 +19,12 @@ public class BatchEntity {
     
     @Column("end_time")
     private LocalDateTime endTime;
+    
+    @Column("create_date")
+    private LocalDateTime createDate;
+    
+    @Column("modification_date")
+    private LocalDateTime modificationDate;
 
     public BatchEntity() {}
 
@@ -26,6 +32,8 @@ public class BatchEntity {
         this.deviceId = deviceId;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.createDate = LocalDateTime.now();
+        this.modificationDate = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -58,5 +66,21 @@ public class BatchEntity {
 
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
+    }
+
+    public LocalDateTime getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
+    }
+
+    public LocalDateTime getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(LocalDateTime modificationDate) {
+        this.modificationDate = modificationDate;
     }
 }
