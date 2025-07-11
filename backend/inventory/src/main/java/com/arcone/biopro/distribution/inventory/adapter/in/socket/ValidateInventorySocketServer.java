@@ -1,9 +1,11 @@
 package com.arcone.biopro.distribution.inventory.adapter.in.socket;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.InventoryValidationByUnitNumberRequest;
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.InventoryValidationRequest;
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.InventoryValidationResponseDTO;
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.mapper.GetAllAvailableMapper;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
+import com.arcone.biopro.distribution.inventory.application.dto.ValidateInventoryByUnitNumberInput;
 import com.arcone.biopro.distribution.inventory.application.dto.ValidateInventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.usecase.UseCase;
 import lombok.AccessLevel;
@@ -16,7 +18,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.List;
 
 /**
  * Controller for the Validate an Inventory using RSocket.
@@ -29,6 +30,8 @@ public class ValidateInventorySocketServer {
 
     UseCase<Mono<ValidateInventoryOutput>, InventoryInput> useCase;
 
+    UseCase<Flux<ValidateInventoryOutput>, ValidateInventoryByUnitNumberInput> validateInventoryByUnitNumberUseCase;
+
     GetAllAvailableMapper mapper;
 
     @MessageMapping("validateInventory")
@@ -37,6 +40,15 @@ public class ValidateInventorySocketServer {
         return useCase.execute(mapper.toInput(dto))
             .map(mapper::toResponse)
             .doOnSuccess(response -> log.debug("response: {}", response.toString()));
+    }
+
+    @MessageMapping("validateInventoryByUnitNumber")
+    public Flux<InventoryValidationResponseDTO> validateInventoryByUnitNumber(InventoryValidationByUnitNumberRequest dto) {
+        log.info("validateInventoryByUnitNumber to validate inventory with request: {}", dto.toString());
+        return validateInventoryByUnitNumberUseCase.execute(mapper.toValidateInventoryByUnitNumberInput(dto))
+            .map(mapper::toResponse)
+            .doOnError(error ->
+                log.error("Error processing inventory validation: {}", error.getMessage()));
     }
 
     @MessageMapping("validateInventoryBatch")

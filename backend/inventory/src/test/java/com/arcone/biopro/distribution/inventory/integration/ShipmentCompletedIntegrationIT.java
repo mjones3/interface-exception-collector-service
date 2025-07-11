@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -42,7 +42,7 @@ public class ShipmentCompletedIntegrationIT {
     @Autowired
     private KafkaHelper kafkaHelper;
 
-    @MockBean
+    @MockitoBean
     private ShipmentCompletedUseCase shipmentCompletedUseCase;
 
     @Autowired
@@ -67,9 +67,8 @@ public class ShipmentCompletedIntegrationIT {
         assertThat(capturedInput.shipmentId()).isEqualTo(payloadJson.path(PAYLOAD).path("shipmentId").asText());
         assertThat(capturedInput.orderNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("orderNumber").asText());
         assertThat(capturedInput.shipmentType().name()).isEqualTo(payloadJson.path(PAYLOAD).path("shipmentType").asText());
+        assertThat(capturedInput.locationCode()).isEqualTo(payloadJson.path(PAYLOAD).path("locationCode").asText());
         assertThat(capturedInput.performedBy()).isEqualTo(payloadJson.path(PAYLOAD).path("performedBy").asText());
-        assertThat(capturedInput.shipmentId()).isEqualTo(payloadJson.path(PAYLOAD).path("shipmentId").asText());
-        assertThat(capturedInput.shipmentId()).isEqualTo(payloadJson.path(PAYLOAD).path("shipmentId").asText());
 
         assertThat(capturedInput.lineItems()).hasSize(payloadJson.path(PAYLOAD).path("lineItems").size());
         for (int i = 0; i < payloadJson.path(PAYLOAD).path("lineItems").size(); i++) {

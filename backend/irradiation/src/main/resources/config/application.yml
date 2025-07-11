@@ -28,7 +28,7 @@ spring:
       on-profile: '!telemetry'
   rsocket:
     server:
-      port: 7002
+      port: 7001
 otel:
     sdk:
         disabled: true
@@ -132,6 +132,7 @@ spring:
   messages:
     basename: i18n/messages
   graphql:
+    path: /irradiation/graphql
     graphiql:
       enabled: true
   r2dbc:

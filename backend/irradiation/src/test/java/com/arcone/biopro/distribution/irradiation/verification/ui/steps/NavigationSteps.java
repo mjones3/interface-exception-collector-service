@@ -20,14 +20,9 @@ public class NavigationSteps {
     private static final Logger log = LoggerFactory.getLogger(NavigationSteps.class);
     private final HomePage homePage;
 
-    @Given("I login to Manufacturing module")
-    public void iNavigateToManufacturingModule() {
+    @Given("I login to Distribution module")
+    public void iNavigateToDistributionModule() {
         homePage.goTo();
-    }
-
-    @When("I select the location {string}")
-    public void iSelectLocation(String location) {
-        homePage.selectLocation(location);
     }
 
     @And("I navigate to {string}")
@@ -50,4 +45,9 @@ public class NavigationSteps {
         assertEquals(page, actualSubTitle, "The page sub-title is not equal to: " + page);
     }
 
+    @When("I navigate to {string} in {string}")
+    public void iNavigateToIn(String subProcess, String process) throws Exception {
+        homePage.goToProcess(process);
+        homePage.goToProcess(subProcess);
+    }
 }

@@ -70,5 +70,14 @@
         "pathRewrite": {
             "^/discard/graphql": ""
         }
+    },
+    {
+        "context": ["/irradiation/graphql"],
+        "target": "http://api.local.gd/irradiation/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/irradiation/graphql": ""
+        }
     }
 ]

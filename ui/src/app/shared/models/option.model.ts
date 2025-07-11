@@ -14,3 +14,14 @@ export interface SelectOptionDto {
     optionParentKey?: string;
     optionDescription: string;
 }
+
+export interface OptionPicker {
+    disabled?: boolean;
+    icon?: string;
+    statuses?: OptionStatus[];
+}
+
+export interface OptionStatus {
+    classes: string;
+    value: string;
+}

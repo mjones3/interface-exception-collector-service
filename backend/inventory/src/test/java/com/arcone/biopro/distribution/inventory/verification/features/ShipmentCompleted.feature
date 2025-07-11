@@ -22,6 +22,7 @@ Feature: Shipment Completed Event - API
             | W777725012003 | E1624V00     | SHIPPED   |
             | W777725012004 | E1624V00     | AVAILABLE |
 
+    @LAB-289
     Scenario: Update the inventory status of multiple inventories after receiving a Shipment Completed event for internal transfer shipment type.
         Given I have the following inventories:
             | Unit Number   | Product Code | Status    |
@@ -29,15 +30,15 @@ Feature: Shipment Completed Event - API
             | W777725012006 | RBC          | AVAILABLE |
             | W777725012007 | PLASMA       | AVAILABLE |
             | W777725012008 | PLASAPHP     | AVAILABLE |
-        When I received a Shipment Completed event with shipment type "INTERNAL_TRANSFER" for the following units:
+        When I received a Shipment Completed event with shipment type "INTERNAL_TRANSFER" and location code "1FS" for the following units:
             | Unit Number   | Product Code |
             | W777725012005 | WHOLEBLOOD   |
             | W777725012006 | RBC          |
             | W777725012007 | PLASMA       |
         Then the inventory statuses should be updated as follows:
-            | Unit Number   | Product Code | Status     |
-            | W777725012005 | WHOLEBLOOD   | IN_TRANSIT |
-            | W777725012006 | RBC          | IN_TRANSIT |
-            | W777725012007 | PLASMA       | IN_TRANSIT |
-            | W777725012008 | PLASAPHP     | AVAILABLE  |
+            | Unit Number   | Product Code | Status     | Shipped Location |
+            | W777725012005 | WHOLEBLOOD   | IN_TRANSIT | 1FS              |
+            | W777725012006 | RBC          | IN_TRANSIT | 1FS              |
+            | W777725012007 | PLASMA       | IN_TRANSIT | 1FS              |
+            | W777725012008 | PLASAPHP     | AVAILABLE  |                  |
 

@@ -131,6 +131,9 @@ class KafkaConfiguration {
     @Value("${topic.products-imported.name}")
     private String productsImportedTopic;
 
+    @Value("${topic.products-received.name}")
+    private String productsReceivedTopic;
+
     @Bean
     @Qualifier("UNSUITABLE")
     ReceiverOptions<String, String> unsuitableReceiverOptions(KafkaProperties kafkaProperties) {
@@ -510,6 +513,13 @@ class KafkaConfiguration {
             .subscription(List.of(productsImportedTopic));
     }
 
+    @Bean
+    @Qualifier("PRODUCTS_RECEIVED")
+    ReceiverOptions<String, String> productsReceivedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productsReceivedTopic));
+    }
+
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ProductsImported",
         description = "Products have been imported.",
@@ -518,6 +528,18 @@ class KafkaConfiguration {
     @Bean(name = "PRODUCTS_IMPORTED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productsImportedConsumerTemplate(
         @Qualifier("PRODUCTS_IMPORTED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductsReceived",
+        description = "Products have been received.",
+        payloadType = com.arcone.biopro.distribution.inventory.adapter.in.listener.received.ProductsReceived.class
+    ))
+    @Bean(name = "PRODUCTS_RECEIVED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productsReceivedConsumerTemplate(
+        @Qualifier("PRODUCTS_RECEIVED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }

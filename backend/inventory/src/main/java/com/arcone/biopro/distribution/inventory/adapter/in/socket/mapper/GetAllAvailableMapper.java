@@ -30,6 +30,9 @@ public interface GetAllAvailableMapper {
     @Mapping(target = "weight", ignore = true)
     InventoryInput toInput(InventoryValidationRequest dto);
 
+    @Mapping(target = "inventoryLocation", source = "locationCode")
+    ValidateInventoryByUnitNumberInput toValidateInventoryByUnitNumberInput(InventoryValidationByUnitNumberRequest dto);
+
     @Mapping(target = "inventoryResponseDTO", source = "inventoryOutput")
     @Mapping(target = "inventoryNotificationsDTO", source = "notificationMessages")
     InventoryValidationResponseDTO toResponse(ValidateInventoryOutput output);

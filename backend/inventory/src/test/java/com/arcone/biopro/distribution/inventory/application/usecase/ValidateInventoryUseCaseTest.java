@@ -114,7 +114,7 @@ class ValidateInventoryUseCaseTest {
             .inventoryLocation(LOCATION_1)
             .build();
 
-        var inventoryAggregate = createInventoryAggregate(InventoryStatus.SHIPPED, LocalDateTime.now().plusDays(1));
+        var inventoryAggregate = createInventoryAggregate(InventoryStatus.AVAILABLE, LocalDateTime.now().plusDays(1));
         inventoryAggregate.getInventory().setIsLabeled(Boolean.FALSE);
         inventoryAggregate.getInventory().setQuarantines(TestUtil.createQuarantines());
         inventoryAggregate.populateProperties(List.of(Property.builder().key(PropertyKey.QUARANTINED.name()).value("Y").build()));
@@ -127,7 +127,7 @@ class ValidateInventoryUseCaseTest {
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.notificationMessages().size()).isEqualTo(1);
+                assertThat(output.notificationMessages().size()).isEqualTo(2);
                 assertThat(output.notificationMessages().getFirst().name()).isEqualTo(MessageType.INVENTORY_IS_QUARANTINED.name());
             })
             .verifyComplete();
