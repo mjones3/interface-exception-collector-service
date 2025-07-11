@@ -55,7 +55,7 @@ export class SelectProductPickerModalComponent implements OnInit {
         );
     }
 
-    private getItemIcon(productFamily: string) {
+    getItemIcon(productFamily: string) {
         return this.productIconsService.getIconByProductFamily(productFamily);
     }
 
