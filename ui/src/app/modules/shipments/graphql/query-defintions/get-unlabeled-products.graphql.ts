@@ -8,7 +8,7 @@ export interface ProductResponseDTO {
     aboRh: string;
     productDescription: string;
     productFamily: string;
-    productStatus: string;
+    status: string;
     isLabeled: boolean;
     isLicensed: boolean;
 }
