@@ -1,4 +1,4 @@
-import { Component, computed, effect, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { AsyncPipe } from '@angular/common';
 import { FuseCardComponent } from '../../../../../@fuse';
@@ -6,14 +6,13 @@ import { LookUpDto, NotificationTypeMap, ProcessHeaderComponent, ProcessHeaderSe
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFabButton } from '@angular/material/button';
-import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
-import { MatError, MatFormField, MatHint, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
 import { ReceivingService } from '../../service/receiving.service';
 import { Store } from '@ngrx/store';
 import { getAuthState } from '../../../../core/state/auth/auth.selectors';
-import { catchError, combineLatestWith, EMPTY, first, map, Observable, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, first, map, Observable, switchMap, tap } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { ApolloError } from '@apollo/client';
 import {
@@ -24,17 +23,16 @@ import { consumeUseCaseNotifications } from '../../../../shared/utils/notificati
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { DeviceIdValidator } from '../../validators/device-id.validator';
 import { ToastrService } from 'ngx-toastr';
-import { GlobalMessageComponent } from '../../../../shared/components/global-message/global-message.component';
 import { UseCaseNotificationDTO } from '../../../../shared/models/use-case-response.dto';
-import {
-    TransitTimeFormGroupValidator,
-    TransitTimeValidationModel
-} from '../../validators/transit-time-form-group.validator';
+
 import { DateTime } from 'luxon';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
 import { TemperatureProductCategoryIconMap } from '../../models/product-information.dto';
+import { TransitTimeValidationModel } from 'app/shared/forms/transit-time-form-group.validator';
+import { TemperatureFormComponent } from 'app/shared/components/temperature-form/temperature-form.component';
+import { TransitTimeFormComponent } from 'app/shared/components/transit-time-form/transit-time-form.component';
+import { DeviceIdValidator } from 'app/shared/forms/device-id.validator';
 
 @Component({
   selector: 'biopro-imports-enter-shipment-information',
@@ -47,18 +45,15 @@ import { TemperatureProductCategoryIconMap } from '../../models/product-informat
         ReactiveFormsModule,
         MatFormField,
         MatLabel,
-        MatDatepickerToggle,
         MatHint,
-        MatSuffix,
         MatInput,
-        MatDatepicker,
-        MatDatepickerInput,
         MatIcon,
         MatFabButton,
         MatSelect,
         MatOption,
         MatError,
-        GlobalMessageComponent
+        TransitTimeFormComponent,
+        TemperatureFormComponent
     ],
   templateUrl: './imports-enter-shipment-information.component.html',
     styleUrls: [ './imports-enter-shipment-information.component.scss' ],
@@ -76,23 +71,11 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     receivingService = inject(ReceivingService);
     cookieService = inject(CookieService);
 
-    thermometerField = viewChild<ElementRef<HTMLInputElement>>('thermometerId');
-    temperatureField = viewChild<ElementRef<HTMLInputElement>>('temperature');
+    transitTimeFormComponent = viewChild<TransitTimeFormComponent>('transitTimeForm');
+    temperatureFormComponent = viewChild<TemperatureFormComponent>('temperatureForm');
 
     form = this.formBuilder.group({
         temperatureProductCategory: ['', [ Validators.required ]],
-        transitTime: this.formBuilder.group({
-            startDate: [null as DateTime, { updateOn: 'blur' }],
-            startTime: ['', { updateOn: 'blur' }],
-            startZone: ['', { updateOn: 'blur' }],
-            endDate: [null as DateTime, { updateOn: 'blur' }],
-            endTime: ['', { updateOn: 'blur' }],
-            endZone: ['', { updateOn: 'blur' }],
-        }),
-        temperature: this.formBuilder.group({
-            thermometerId: ['', { updateOn: 'blur' }],
-            temperature: [0, { updateOn: 'blur' }],
-        }),
         comments: ['', []]
     });
 
@@ -105,44 +88,8 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     availableTimeZonesSignal = computed<LookUpDto[]>(() => this.shippingInformationSignal()?.transitTimeZoneList ?? []);
 
     transitTimeHumanReadableSignal = signal<string>(null);
-    transitTimeValueSignal = toSignal(this.form.controls.transitTime.valueChanges); // Binding valueChanges once no status is used here
     transitTimeQuarantineSignal = signal<UseCaseNotificationDTO>(null);
-    transitTimeValueChangeEffect = effect(() => {
-        const transitTime = this.transitTimeValueSignal();
-        if (this.form.controls.transitTime.touched && this.form.controls.transitTime.valid) {
-            this.triggerValidateTransitTime(this.form.controls.temperatureProductCategory.value, transitTime as TransitTimeValidationModel).subscribe();
-        } else {
-            this.transitTimeQuarantineSignal.set(null);
-            this.transitTimeHumanReadableSignal.set(null);
-        }
-    }, { allowSignalWrites: true });
-
-    thermometerIdStatusChangeSignal = toSignal(this.form.controls.temperature.controls.thermometerId.statusChanges); // Binding statusChanges once no changed value is used here
-    thermometerIdStatusChangeEffect = effect(() => {
-        const status = this.thermometerIdStatusChangeSignal();
-        this.form.controls.temperature.controls.temperature.reset();
-        if (this.form.controls.temperature.controls.thermometerId.touched && status === 'VALID') {
-            this.form.controls.temperature.controls.temperature.enable();
-            this.temperatureField()?.nativeElement?.focus();
-        } else {
-            this.form.controls.temperature.controls.temperature.disable();
-            if (this.form.controls.temperature.controls.thermometerId.touched) {
-                this.thermometerField()?.nativeElement?.focus();
-            }
-        }
-    });
-
-    temperatureValueSignal = toSignal(this.form.controls.temperature.controls.temperature.statusChanges
-        .pipe(combineLatestWith(this.form.controls.temperature.controls.temperature.valueChanges)));
     temperatureQuarantineSignal = signal<UseCaseNotificationDTO>(null);
-    temperatureValueChangeEffect = effect(() => {
-        const [ status, value ] = this.temperatureValueSignal();
-        if (status === 'VALID' && value !== null && value !== undefined && isFinite(value)) {
-            this.triggerValidateTemperature(this.form.controls.temperatureProductCategory.value, value).subscribe();
-        } else if (!value) {
-            this.temperatureQuarantineSignal.set(null);
-        }
-    }, { allowSignalWrites: true });
 
     ngOnInit() {
         this.form.reset();
@@ -155,6 +102,8 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
 
     cancel(): void {
         this.form.reset();
+        this.transitTimeFormComponent()?.reset();
+        this.temperatureFormComponent()?.reset();
     }
 
     fetchLookups(): Observable<LookUpDto[]> {
@@ -240,15 +189,18 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     }
 
     triggerCreateImport() {
+        const transitTimeForm = this.transitTimeFormComponent()?.formGroup();
+        const temperatureForm = this.temperatureFormComponent()?.formGroup();
+        
         return this.receivingService
             .createImport({
                 temperatureCategory: this.form.controls?.temperatureProductCategory?.value,
-                transitStartDateTime: this.buildLuxonDateTimeWithParsedTimeField(this.form.controls?.transitTime?.controls?.startDate?.value, this.form.controls?.transitTime?.controls?.startTime?.value)?.toISO(),
-                transitStartTimeZone: this.form.controls?.transitTime?.controls?.startZone?.value,
-                transitEndDateTime: this.buildLuxonDateTimeWithParsedTimeField(this.form.controls?.transitTime?.controls?.endDate?.value, this.form.controls?.transitTime?.controls?.endTime?.value)?.toISO(),
-                transitEndTimeZone: this.form.controls?.transitTime?.controls?.endZone?.value,
-                temperature: this.form.controls?.temperature?.controls?.temperature?.value,
-                thermometerCode: this.form.controls?.temperature?.controls?.thermometerId?.value,
+                transitStartDateTime: this.buildLuxonDateTimeWithParsedTimeField(transitTimeForm?.controls?.startDate?.value, transitTimeForm?.controls?.startTime?.value)?.toISO(),
+                transitStartTimeZone: transitTimeForm?.controls?.startZone?.value,
+                transitEndDateTime: this.buildLuxonDateTimeWithParsedTimeField(transitTimeForm?.controls?.endDate?.value, transitTimeForm?.controls?.endTime?.value)?.toISO(),
+                transitEndTimeZone: transitTimeForm?.controls?.endZone?.value,
+                temperature: temperatureForm?.controls?.temperature?.value,
+                thermometerCode: temperatureForm?.controls?.thermometerId?.value,
                 locationCode: this.locationCodeComputed(),
                 comments: this.form.controls?.comments?.value,
                 employeeId: this.employeeIdComputed(),
@@ -272,11 +224,13 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
 
     selectCategory(temperatureProductCategory: string): void {
         this.form.reset();
+        this.transitTimeFormComponent()?.reset();
+        this.temperatureFormComponent()?.reset();
         this.triggerQueryEnterShippingInformation(temperatureProductCategory)
             .subscribe(shippingInformationDTO => {
                 this.updateFormValidators(shippingInformationDTO);
                 this.form.controls.temperatureProductCategory.setValue(temperatureProductCategory);
-                this.form.controls.transitTime.controls.endZone.setValue(shippingInformationDTO.defaultTimeZone);
+                this.transitTimeFormComponent()?.setEndZone(shippingInformationDTO.defaultTimeZone);
                 this.form.updateValueAndValidity();
             });
     }
@@ -292,42 +246,29 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     }
 
     updateFormValidationForTransitTime(useTransitTime: boolean) {
-        if (useTransitTime) {
-            this.form.controls.transitTime.enable();
-            this.form.controls.transitTime.setValidators([ TransitTimeFormGroupValidator.validator ])
-            this.form.controls.transitTime.controls.startDate.setValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.startTime.setValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.startZone.setValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.endDate.setValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.endTime.setValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.endZone.setValidators([ Validators.required ]);
-            this.form.controls.transitTime.setAsyncValidators([]);
-        } else {
-            this.form.controls.transitTime.setValidators([])
-            this.form.controls.transitTime.controls.startDate.setValidators([]);
-            this.form.controls.transitTime.controls.startTime.setValidators([]);
-            this.form.controls.transitTime.controls.startZone.setValidators([]);
-            this.form.controls.transitTime.controls.endDate.setValidators([]);
-            this.form.controls.transitTime.controls.endTime.setValidators([]);
-            this.form.controls.transitTime.controls.endZone.setValidators([]);
-            this.form.controls.transitTime.setAsyncValidators([]);
-            this.form.controls.transitTime.disable();
-        }
+        this.transitTimeFormComponent()?.updateValidators(useTransitTime);
     }
 
     updateFormValidationForTemperature(useTemperature: boolean) {
-        if (useTemperature) {
-            this.form.controls.temperature.enable();
-            this.form.controls.temperature.controls.thermometerId.setValidators([ Validators.required ]);
-            this.form.controls.temperature.controls.thermometerId.setAsyncValidators([ DeviceIdValidator.asyncValidatorUsing(this.toastrService, this.receivingService, this.locationCodeComputed()) ]);
-            this.form.controls.temperature.controls.temperature.setValidators([ Validators.required, Validators.min(-273), Validators.max(99) ]);
-            this.form.controls.temperature.controls.temperature.disable(); // Temperature should start as disabled field
-        } else {
-            this.form.controls.temperature.controls.thermometerId.setValidators([]);
-            this.form.controls.temperature.controls.thermometerId.setAsyncValidators([]);
-            this.form.controls.temperature.controls.temperature.setValidators([]);
-            this.form.controls.temperature.disable();
-        }
+        const deviceIdValidator = DeviceIdValidator.asyncValidatorUsing(this.toastrService, this.receivingService, this.locationCodeComputed());
+        setTimeout(() => {
+            this.temperatureFormComponent()?.updateValidators(useTemperature, deviceIdValidator);
+        });
+    }
+
+    onTransitTimeChange(transitTime: TransitTimeValidationModel): void {
+        this.triggerValidateTransitTime(this.form.controls.temperatureProductCategory.value, transitTime).subscribe();
+    }
+
+    onTemperatureChange(data: { temperatureProductCategory: string; temperature: number }): void {
+        this.triggerValidateTemperature(this.form.controls.temperatureProductCategory.value, data.temperature).subscribe();
+    }
+
+    isFormValid(): boolean {
+        const internalTransferFormValid = this.form.valid;
+        const transitTimeValid = !this.shippingInformationSignal()?.displayTransitInformation || this.transitTimeFormComponent()?.formGroup().valid;
+        const temperatureValid = !this.shippingInformationSignal()?.displayTemperature || this.temperatureFormComponent()?.formGroup().valid;
+        return internalTransferFormValid && transitTimeValid && temperatureValid;
     }
 
     buildLuxonDateTimeWithParsedTimeField(date: DateTime, hh24mm60TimeSeparatedByColon: string): DateTime<boolean> {

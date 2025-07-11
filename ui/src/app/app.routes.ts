@@ -40,7 +40,6 @@ export const appRoutes: Route[] = [
                         'app/modules/external-transfer/external-transfer.routes'
                     ),
             },
-
             {
                 path: 'recovered-plasma',
                 canActivate: [AuthGuard],
@@ -49,12 +48,17 @@ export const appRoutes: Route[] = [
                         'app/modules/recovered-plasma-shipment/recovered-plasma-shipment.routes'
                     ),
             },
-
             {
-                path: 'receiving',
+                path: 'imports',
                 canActivate: [AuthGuard],
                 loadChildren: () =>
-                    import('app/modules/receiving/receiving.routes'),
+                    import('./modules/imports/receiving.routes'),
+            },
+            {
+                path: 'transfer-receipt',
+                canActivate: [AuthGuard],
+                loadChildren: () =>
+                    import('app/modules/transfer-receipt/transfer-receipt.routes'),
             },
 
             {

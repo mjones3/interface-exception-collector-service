@@ -1,0 +1,93 @@
+<div class="flex flex-auto flex-col">
+    <biopro-process-header
+        [subTitle]="processHeaderService.subTitle | async"
+        [title]="processHeaderService.title | async"
+        [buttons]="actionButtonsTpl"
+    />
+
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row gap-2">
+            <biopro-action-button
+                id="transferReceiptCancel"
+                btnId="transferReceiptCancelActionButton"
+                label="Cancel"
+                color="secondary"
+                icon="heroicons_outline:x-circle"
+                (clickEvent)="cancel()"
+            />
+            <biopro-action-button
+                id="transferReceiptContinue"
+                btnId="transferReceiptContinueActionButton"
+                label="Continue"
+                color="primary"
+                icon="heroicons_outline:arrow-right-circle"
+                (clickEvent)="transferContinue()"
+            />
+        </div>
+    </ng-template>
+
+    <div class="flex flex-col md:flex-row p-4 items-start min-h-[calc(100vh-240px)]">
+        <fuse-card class="flex flex-col w-full h-full">
+            <div class="border-b text-lg font-bold p-4">Packing Information</div>
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 md:p-8">
+                <!-- Transfer Order Number -->
+                <mat-form-field class="md:col-span-3" [formGroup]="transferInformationForm">
+                    <mat-label>Transfer Order Number</mat-label>
+                        <input 
+                            data-testid="transfer-order-nummber"
+                            formControlName="transferOrderNumber"
+                            matInput
+                            required
+                            (keydown.enter)="this.triggerElementBlur($event)"
+                        />
+                    @if (transferInformationForm.controls.transferOrderNumber.hasError('required')) { <mat-error>Transfer Order Number is required</mat-error> }
+                </mat-form-field>
+
+                <!-- Temperature Category -->
+                <mat-form-field class="md:col-span-3" [formGroup]="transferInformationForm">
+                    <mat-label>Temperature Category</mat-label>
+                        <input 
+                        data-testid="temperature-category"
+                        formControlName="temperatureCategory"
+                        matInput
+                        (keydown.enter)="this.triggerElementBlur($event)"
+                        />
+                </mat-form-field>
+
+                    <div class="md:col-span-6">
+                        <biopro-transit-time-form
+                            #transitTimeForm
+                            [availableTimeZones]="availableTimeZonesSignal()"
+                            [quarantineNotification]="transitTimeQuarantineSignal()"
+                            [humanReadableTime]="transitTimeHumanReadableSignal()"
+                            (transitTimeChange)="onTransitTimeChange($event)"
+                        />
+                    </div>
+
+                    <div class="md:col-span-6">
+                        <biopro-temperature-form
+                            #temperatureForm
+                            [quarantineNotification]="temperatureQuarantineSignal()"
+                            (temperatureValidation)="onTemperatureChange($event)"
+                        />
+                    </div>
+
+                <!-- Comments -->
+                <mat-form-field class="md:col-span-6" [formGroup]="transferInformationForm">
+                    <mat-label>Comments</mat-label>
+                    <textarea
+                        data-testid="comments"
+                        formControlName="comments"
+                        matInput
+                        rows="3"
+                        autocomplete="off"
+                    ></textarea>
+                    <mat-hint align="end">
+                        {{ transferInformationForm.controls['comments'].value?.length }} /
+                        {{ commentsMaxLength }}
+                    </mat-hint>
+                </mat-form-field>
+            </div>
+        </fuse-card>
+    </div>
+</div>

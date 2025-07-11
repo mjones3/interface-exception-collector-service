@@ -1,0 +1,98 @@
+<div class="flex flex-auto flex-col">
+    <biopro-process-header
+        [subTitle]="processHeaderService.subTitle | async"
+        [title]="processHeaderService.title | async"
+        [buttons]="actionButtonsTpl"
+    />
+
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row gap-2">
+            <biopro-action-button
+                id="importsEnterShipmentInformationCancelAction"
+                btnId="importsEnterShipmentInformationCancelActionButton"
+                label="Cancel"
+                color="secondary"
+                icon="heroicons_outline:x-circle"
+                (clickEvent)="cancel()"
+            />
+            <biopro-action-button
+                id="importsEnterShipmentInformationContinueAction"
+                btnId="importsEnterShipmentInformationContinueActionButton"
+                label="Continue"
+                color="primary"
+                icon="heroicons_outline:arrow-right-circle"
+                (clickEvent)="createImport()"
+                [disabled]="!isFormValid()"
+            />
+        </div>
+    </ng-template>
+
+    @if (productCategoryLookupsSignal()?.length) {
+    <div class="flex flex-col md:flex-row gap-4 md:gap-6 p-4 md:p-6 items-start min-h-[calc(100vh-240px)]">
+        <!-- SELECT TEMPERATURE PRODUCT CATEGORY -->
+        <fuse-card class="flex flex-col w-full md:w-3/12">
+            <div class="border-b text-lg font-bold p-4">Temperature Product Category</div>
+            <div class="flex flex-col p-4 md:p-8 gap-4 md:gap-8 justify-center">
+                @for (productCategoryLookup of productCategoryLookupsSignal(); track $index) {
+                    <button type="button"
+                            mat-fab
+                            class="flex flex-row flex-1 justify-start gap-2 m-0 px-4 py-8 overflow-hidden"
+                            [attr.data-testid]="'select-temperature-category-' + productCategoryLookup.optionValue"
+                            [class.selected]="form.controls.temperatureProductCategory?.value === productCategoryLookup.optionValue"
+                            [extended]="true"
+                            (click)="selectCategoryFromLookup(productCategoryLookup)"
+                    >
+                        <mat-icon [svgIcon]="TemperatureProductCategoryIconMap[productCategoryLookup.optionValue]" class="!min-w-[48px] !w-[48px] !min-h-[48px] !h-[48px]" />
+                        <span class="whitespace-nowrap">{{ productCategoryLookup.descriptionKey }}</span>
+                    </button>
+                }
+            </div>
+        </fuse-card>
+
+        <!-- PACKING INFORMATION AND CONDITIONS -->
+        <fuse-card class="flex flex-col w-full md:w-9/12 h-full">
+            <div class="border-b text-lg font-bold p-4">Packing Information</div>
+            @if (!form.controls.temperatureProductCategory?.value || !shippingInformationSignal()) {
+            <span data-testid="no-category-selected-message" class="flex flex-col items-center justify-center w-full h-full text-secondary">Select Temperature Category</span>
+            } @else {
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 md:p-8">
+                @if (shippingInformationSignal()?.displayTransitInformation) {
+                <div class="md:col-span-6">
+                    <biopro-transit-time-form
+                        #transitTimeForm
+                        [availableTimeZones]="availableTimeZonesSignal()"
+                        [quarantineNotification]="transitTimeQuarantineSignal()"
+                        [humanReadableTime]="transitTimeHumanReadableSignal()"
+                        (transitTimeChange)="onTransitTimeChange($event)"
+                    />
+                </div>
+                }
+
+                @if (shippingInformationSignal()?.displayTemperature) {
+                <div class="md:col-span-6">
+                    <biopro-temperature-form
+                        #temperatureForm
+                        [quarantineNotification]="temperatureQuarantineSignal()"
+                        (temperatureValidation)="onTemperatureChange($event)"
+                    />
+                </div>
+                }
+
+
+                <!-- Comments -->
+                <mat-form-field class="md:col-span-6" [formGroup]="form">
+                    <mat-label>Comments</mat-label>
+                    <textarea
+                        data-testid="comments"
+                        formControlName="comments"
+                        matInput
+                        rows="3"
+                        autocomplete="off"
+                    ></textarea>
+                </mat-form-field>
+            </div>
+            }
+        </fuse-card>
+    </div>
+    }
+</div>

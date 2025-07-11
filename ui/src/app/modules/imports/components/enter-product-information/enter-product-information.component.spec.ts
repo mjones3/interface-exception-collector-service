@@ -1,8 +1,8 @@
-import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EnterProductInformationComponent } from './enter-product-information.component';
 import { Field } from './enter-product-information.component';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Toast, ToastrService } from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
 import { ProcessHeaderService } from '@shared';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -634,7 +634,7 @@ describe('EnterProductInformationComponent', () => {
         data: {
           cancelImport: {
             _links: {
-              next: 'receiving/imports-enter-shipment-information' 
+              next: 'imports/imports-enter-shipment-information' 
             },
             data: null,
             notifications: [
@@ -657,7 +657,7 @@ describe('EnterProductInformationComponent', () => {
         cancelEmployeeId: mockEmployeeId
       });
       expect(toastrService.show).toHaveBeenCalled();
-      expect(router.navigateByUrl).toHaveBeenCalledWith('receiving/imports-enter-shipment-information');
+      expect(router.navigateByUrl).toHaveBeenCalledWith('imports/imports-enter-shipment-information');
     });
 
     it('should not trigger cancel process when dialog is dismissed', () => {

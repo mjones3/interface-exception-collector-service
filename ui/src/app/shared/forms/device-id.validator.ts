@@ -1,9 +1,9 @@
 import { AbstractControl, AsyncValidatorFn, ValidationErrors } from '@angular/forms';
 import { catchError, first, map, Observable, of } from 'rxjs';
-import { ReceivingService } from '../service/receiving.service';
 import { ToastrService } from 'ngx-toastr';
 import { ApolloError } from '@apollo/client';
-import handleApolloError from '../../../shared/utils/apollo-error-handling';
+import handleApolloError from '../utils/apollo-error-handling';
+import { ReceivingService } from 'app/modules/imports/service/receiving.service';
 
 export class DeviceIdValidator {
 
