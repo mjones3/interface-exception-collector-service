@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,8 +23,8 @@ class ConfigurationEntityMapperTest {
                 .key("test.key")
                 .value("test.value")
                 .active(true)
-                .createDate(LocalDateTime.now())
-                .modificationDate(LocalDateTime.now())
+                .createDate(ZonedDateTime.now())
+                .modificationDate(ZonedDateTime.now())
                 .build();
 
         Configuration result = mapper.toDomain(entity);
