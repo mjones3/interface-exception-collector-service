@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.irradiation.domain.irradiation.entity;
 
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.Location;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.UnitNumber;
-import com.arcone.biopro.distribution.irradiation.domain.model.enumeration.InventoryStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,7 +11,7 @@ public class Inventory {
     private final UnitNumber unitNumber;
     private final String productCode;
     private final Location location;
-    private InventoryStatus status;
+    private final String status;
     private final String productDescription;
     private final String productFamily;
     private final String statusReason;
@@ -21,7 +20,7 @@ public class Inventory {
 
 
     public boolean isAvailable() {
-        return InventoryStatus.AVAILABLE.equals(status);
+        return "AVAILABLE".equals(status);
     }
 
     public boolean isAtLocation(Location targetLocation) {

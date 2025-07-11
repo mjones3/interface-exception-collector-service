@@ -30,7 +30,7 @@ public class InventoryServerMock {
                 .shortDescription("Type A Sample")
                 .isLabeled(true)
                 .statusReason("In Stock")
-                .unsuitableReason(null)
+                .unsuitableReason("Missing Test Results")
                 .expired(false)
                 .build(),
 

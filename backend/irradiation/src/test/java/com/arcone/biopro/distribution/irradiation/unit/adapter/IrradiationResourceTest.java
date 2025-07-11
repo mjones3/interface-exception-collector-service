@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.irradiation.adapter.in.web.controller.erro
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.ConfigurationResponseDTO;
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.mapper.ConfigurationDTOMapper;
 import com.arcone.biopro.distribution.irradiation.adapter.irradiation.IrradiationResource;
+import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
@@ -50,7 +51,6 @@ class IrradiationResourceTest {
     private IrradiationResource irradiationResource;
 
 
-
     @Test
     @DisplayName("Should return configuration response DTOs")
     void readConfiguration_Success() {
@@ -58,15 +58,15 @@ class IrradiationResourceTest {
         ConfigurationResponseDTO responseDTO = ConfigurationResponseDTO.builder().build();
 
         when(configurationService.readConfiguration(anyList()))
-                .thenReturn(Flux.just(config));
+            .thenReturn(Flux.just(config));
         when(configurationDTOMapper.toResponseDTO(any(Configuration.class)))
-                .thenReturn(responseDTO);
+            .thenReturn(responseDTO);
 
         Flux<ConfigurationResponseDTO> result = irradiationResource.readConfiguration(List.of("key1"));
 
         StepVerifier.create(result)
-                .expectNext(responseDTO)
-                .verifyComplete();
+            .expectNext(responseDTO)
+            .verifyComplete();
     }
 
     @Test
@@ -79,8 +79,8 @@ class IrradiationResourceTest {
         Mono<Boolean> result = irradiationResource.validateDevice(deviceId, location);
 
         StepVerifier.create(result)
-                .expectNext(true)
-                .verifyComplete();
+            .expectNext(true)
+            .verifyComplete();
     }
 
     @Test
@@ -89,13 +89,13 @@ class IrradiationResourceTest {
         String deviceId = "INVALID-DEVICE";
         String location = "123456789";
         when(validateDeviceUseCase.execute(deviceId, location))
-                .thenReturn(Mono.error(new DeviceValidationFailureException("Device not found")));
+            .thenReturn(Mono.error(new DeviceValidationFailureException("Device not found")));
 
         Mono<Boolean> result = irradiationResource.validateDevice(deviceId, location);
 
         StepVerifier.create(result)
-                .expectError(DeviceValidationFailureException.class)
-                .verify();
+            .expectError(DeviceValidationFailureException.class)
+            .verify();
     }
 
     @Test
@@ -104,15 +104,15 @@ class IrradiationResourceTest {
         String deviceId = "AUTO-DEVICE005";
         String location = "123456789";
         when(validateDeviceUseCase.execute(deviceId, location))
-                .thenReturn(Mono.error(new DeviceValidationFailureException("Device not in current location")));
+            .thenReturn(Mono.error(new DeviceValidationFailureException("Device not in current location")));
 
         Mono<Boolean> result = irradiationResource.validateDevice(deviceId, location);
 
         StepVerifier.create(result)
-                .expectErrorMatches(throwable ->
-                    throwable instanceof DeviceValidationFailureException &&
+            .expectErrorMatches(throwable ->
+                throwable instanceof DeviceValidationFailureException &&
                     throwable.getMessage().equals("Device not in current location"))
-                .verify();
+            .verify();
     }
 
     @Test
@@ -121,15 +121,15 @@ class IrradiationResourceTest {
         String deviceId = "AUTO-DEVICE007";
         String location = "DEFAULT_LOCATION";
         when(validateDeviceUseCase.execute(deviceId, location))
-                .thenReturn(Mono.error(new DeviceValidationFailureException("Device already in use")));
+            .thenReturn(Mono.error(new DeviceValidationFailureException("Device already in use")));
 
         Mono<Boolean> result = irradiationResource.validateDevice(deviceId, location);
 
         StepVerifier.create(result)
-                .expectErrorMatches(throwable ->
-                    throwable instanceof DeviceValidationFailureException &&
+            .expectErrorMatches(throwable ->
+                throwable instanceof DeviceValidationFailureException &&
                     throwable.getMessage().equals("Device already in use"))
-                .verify();
+            .verify();
     }
 
     @Test
@@ -139,37 +139,34 @@ class IrradiationResourceTest {
         String unitNumber = "W777725001001";
         String location = "123456789";
 
-        UnitNumber unitNum = new UnitNumber(unitNumber);
-        Location loc = new Location(location);
-
-        List<Inventory> expectedInventories = Arrays.asList(
-            Inventory.builder()
-                .unitNumber(new UnitNumber("W777725001001"))
+        List<IrradiationInventoryOutput> expectedInventories = Arrays.asList(
+            IrradiationInventoryOutput.builder()
+                .unitNumber("W777725001001")
                 .productCode("E0867V00")
-                .location(new Location("123456789"))
-                .status(InventoryStatus.AVAILABLE)
+                .location("123456789")
+                .status("AVAILABLE")
                 .productDescription("Blood Sample Type A")
                 .productFamily("BLOOD_SAMPLES")
                 .statusReason("Quality Check In Progress")
                 .unsuitableReason(null)
                 .expired(false)
                 .build(),
-            Inventory.builder()
-                .unitNumber(new UnitNumber("W777725001001"))
+            IrradiationInventoryOutput.builder()
+                .unitNumber("W777725001001")
                 .productCode("E0868V00")
-                .location(new Location("123456789"))
-                .status(InventoryStatus.DISCARDED)
+                .location("123456789")
+                .status("DISCARDED")
                 .productDescription("Blood Sample Type A")
                 .productFamily("BLOOD_SAMPLES")
                 .statusReason("Quality Check In Progress")
                 .unsuitableReason(null)
                 .expired(false)
                 .build(),
-            Inventory.builder()
-                .unitNumber(new UnitNumber("W777725001001"))
+            IrradiationInventoryOutput.builder()
+                .unitNumber("W777725001001")
                 .productCode("E0869V00")
-                .location(new Location("123456789"))
-                .status(InventoryStatus.IN_TRANSIT)
+                .location("123456789")
+                .status("IN_TRANSIT")
                 .productDescription("Blood Sample Type A")
                 .productFamily("BLOOD_SAMPLES")
                 .statusReason("Quality Check In Progress")
@@ -182,7 +179,7 @@ class IrradiationResourceTest {
         when(validateUnitNumberUseCase.execute(unitNumber, location))
             .thenReturn(Flux.fromIterable(expectedInventories));
 
-        Flux<Inventory> result = irradiationResource.validateUnit(unitNumber, location);
+        Flux<IrradiationInventoryOutput> result = irradiationResource.validateUnit(unitNumber, location);
 
         // Then
         StepVerifier.create(result)
@@ -194,19 +191,18 @@ class IrradiationResourceTest {
         verify(validateUnitNumberUseCase).execute(unitNumber, location);
     }
 
-
     @Test
     @DisplayName("Should return empty flux when no inventory found")
     void validateUnit_ShouldReturnEmptyFlux_WhenNoInventoryFound() {
         String unitNumber = "INVALID-UNIT";
         String location = "123456789";
         when(validateUnitNumberUseCase.execute(unitNumber, location))
-                .thenReturn(Flux.empty());
+            .thenReturn(Flux.empty());
 
-        Flux<Inventory> result = irradiationResource.validateUnit(unitNumber, location);
+        Flux<IrradiationInventoryOutput> result = irradiationResource.validateUnit(unitNumber, location);
 
         StepVerifier.create(result)
-                .verifyComplete();
+            .verifyComplete();
     }
 
     @Test
@@ -215,12 +211,12 @@ class IrradiationResourceTest {
         String unitNumber = "W777725001001";
         String location = "123456789";
         when(validateUnitNumberUseCase.execute(unitNumber, location))
-                .thenReturn(Flux.error(new RuntimeException("Validation failed")));
+            .thenReturn(Flux.error(new RuntimeException("Validation failed")));
 
-        Flux<Inventory> result = irradiationResource.validateUnit(unitNumber, location);
+        Flux<IrradiationInventoryOutput> result = irradiationResource.validateUnit(unitNumber, location);
 
         StepVerifier.create(result)
-                .expectError(RuntimeException.class)
-                .verify();
+            .expectError(RuntimeException.class)
+            .verify();
     }
 }
