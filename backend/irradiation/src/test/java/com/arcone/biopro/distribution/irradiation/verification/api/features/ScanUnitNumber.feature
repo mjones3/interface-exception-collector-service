@@ -6,16 +6,19 @@ Feature: Scan Unit Number for Irradiation
     @LAB-576 @AOA-61
     Scenario Outline: I successfully scan a unit number with a product eligible for irradiation
         Given I have the following inventory products:
-            | Unit Number   | Product Code   | Status    | Location   | Product Family |
-            | <Unit Number> | <Product Code> | AVAILABLE | <Location> | WHOLE_BLOOD    |
+            | Unit Number   | Product Code | Status     | Location  | Product Family |
+            | W777725001001 | E0869V00     | AVAILABLE  | 123456789 | WHOLE_BLOOD    |
+            | W777725001001 | E0868V00     | IN_TRANSIT | 123456789 | WHOLE_BLOOD    |
+            | W777725001001 | E0867V00     | SHIPPED    | 123456789 | WHOLE_BLOOD    |
         Given I'm in the irradiation service at the location "<Location>"
         When I scan the unit number "<Unit Number>" in irradiation
+        Then I verify that there are only 1 product(s) eligible for irradiation for the unit number "<Unit Number>"
         Then I see the product "<Product Code>" from unit number "<Unit Number>" is in the list of products for selection
 #        When I select the product "E033600" from unit number "<Unit Number>"
 #        Then I see the "success" message "Product was added in the batch"
         Examples:
-            | Unit Number   | Location  | Product Code | Message                        |
-            | W777725001001 | 123456789 | E0869V00     | Product was added in the batch |
+            | Unit Number   | Location  | Product Code |
+            | W777725001001 | 123456789 | E0869V00     |
 
     @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a quarantined unit number with a reason that stops manufacturing

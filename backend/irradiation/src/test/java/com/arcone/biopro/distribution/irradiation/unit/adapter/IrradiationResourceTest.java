@@ -10,7 +10,9 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inve
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.Location;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.UnitNumber;
 import com.arcone.biopro.distribution.irradiation.domain.model.Configuration;
+import com.arcone.biopro.distribution.irradiation.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.irradiation.domain.repository.ConfigurationService;
+import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.client.InventoryOutput;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,10 +23,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -131,20 +135,65 @@ class IrradiationResourceTest {
     @Test
     @DisplayName("Should return inventory list when unit validation succeeds")
     void validateUnit_ShouldReturnInventoryList_WhenValidationSucceeds() {
+        // Given
         String unitNumber = "W777725001001";
         String location = "123456789";
+
+        UnitNumber unitNum = new UnitNumber(unitNumber);
+        Location loc = new Location(location);
+
+        List<Inventory> expectedInventories = Arrays.asList(
+            Inventory.builder()
+                .unitNumber(new UnitNumber("W777725001001"))
+                .productCode("E0867V00")
+                .location(new Location("123456789"))
+                .status(InventoryStatus.AVAILABLE)
+                .productDescription("Blood Sample Type A")
+                .productFamily("BLOOD_SAMPLES")
+                .statusReason("Quality Check In Progress")
+                .unsuitableReason(null)
+                .expired(false)
+                .build(),
+            Inventory.builder()
+                .unitNumber(new UnitNumber("W777725001001"))
+                .productCode("E0868V00")
+                .location(new Location("123456789"))
+                .status(InventoryStatus.DISCARDED)
+                .productDescription("Blood Sample Type A")
+                .productFamily("BLOOD_SAMPLES")
+                .statusReason("Quality Check In Progress")
+                .unsuitableReason(null)
+                .expired(false)
+                .build(),
+            Inventory.builder()
+                .unitNumber(new UnitNumber("W777725001001"))
+                .productCode("E0869V00")
+                .location(new Location("123456789"))
+                .status(InventoryStatus.IN_TRANSIT)
+                .productDescription("Blood Sample Type A")
+                .productFamily("BLOOD_SAMPLES")
+                .statusReason("Quality Check In Progress")
+                .unsuitableReason(null)
+                .expired(false)
+                .build()
+        );
+
+        // When
         when(validateUnitNumberUseCase.execute(unitNumber, location))
-                .thenReturn(Flux.just(
-                    new Inventory(UnitNumber.of("W777725001001"), "PROD001", Location.of("123456789"), "AVAILABLE"),
-                    new Inventory(UnitNumber.of("W777725001002"), "PROD002", Location.of("123456789"), "AVAILABLE")
-                ));
+            .thenReturn(Flux.fromIterable(expectedInventories));
 
         Flux<Inventory> result = irradiationResource.validateUnit(unitNumber, location);
 
+        // Then
         StepVerifier.create(result)
-                .expectNextCount(2)
-                .verifyComplete();
+            .expectNext(expectedInventories.get(0))
+            .expectNext(expectedInventories.get(1))
+            .expectNext(expectedInventories.get(2))
+            .verifyComplete();
+
+        verify(validateUnitNumberUseCase).execute(unitNumber, location);
     }
+
 
     @Test
     @DisplayName("Should return empty flux when no inventory found")

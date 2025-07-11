@@ -19,8 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 import java.time.Duration;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ContextConfiguration
 public class IrradiationSteps {
@@ -61,5 +60,10 @@ public class IrradiationSteps {
     @Given("I have the following inventory products:")
     public void iHaveTheFollowingInventoryProducts(DataTable dataTable) {
         log.info("faking inventory products");
+    }
+
+    @Then("I verify that there are only {int} product\\(s) eligible for irradiation for the unit number {string}")
+    public void iVerifyThatThereAreOnlyProductSEligibleForIrradiationForTheUnitNumber(int numberOfProducts, String unitNumber) {
+        assertEquals(irradiationContext.getInventoryList().stream().toList().size(), numberOfProducts);
     }
 }
