@@ -35,15 +35,15 @@
                 <biopro-input
                     [inputWidth]="'w-90'"
                     id="irradiationId"
-                    label="Irradiation Id"
+                    label="Irradiator ID"
                     [inputFocus]="true"
                     [inputId]="'irradiationIdInput'"
-                    formControlName="irradiationId"
+                    formControlName="irradiatorId"
                     (tabOrEnterPressed)="
                         irradiation.valid && loadIrradiationId($event)
                     "
                     required
-                    [customErrors]="{ required: 'Irradiation is required.' }"
+                    [customErrors]="{ required: 'Irradiator is required.' }"
                 ></biopro-input>
                 <div class="mt-1 w-90">
                     <biopro-scan-unit-number-check-digit
@@ -114,7 +114,7 @@
             <div id="optionButtons" class="grid-container">
                 @if (products.length === 0) {
                     <p>
-                        Enter irradiation ID then scan or enter unit numbers
+                        Enter irradiator ID then scan or enter unit numbers
                     </p>
                 } @else {
                     @for (option of products; track $index) {
