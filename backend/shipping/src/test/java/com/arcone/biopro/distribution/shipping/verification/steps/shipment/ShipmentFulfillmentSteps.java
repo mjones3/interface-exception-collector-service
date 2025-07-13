@@ -616,5 +616,24 @@ public class ShipmentFulfillmentSteps {
             Assert.assertTrue(match);
         }
     }
+
+    @When("I add the unit {string}.")
+    public void iAddTheUnit(String unitNumber) throws InterruptedException {
+        fillProductsPage.addUnit(unitNumber);
+        context.setUnitNumber(TestUtils.removeUnitNumberScanDigits(unitNumber));
+    }
+
+    @Then("I should see the product selection option with the products {string}.")
+    public void iShouldSeeTheProductSelectionOptionWithTheProducts(String products) {
+        var productList = TestUtils.getCommaSeparatedList(products);
+        for (var product : productList) {
+            fillProductsPage.checkAvailableProductButton(product);
+        }
+    }
+
+    @When("I select the product {string}.")
+    public void iSelectTheProduct(String product) {
+        fillProductsPage.selectAvailableProduct(product);
+    }
 }
 
