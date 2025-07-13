@@ -146,7 +146,7 @@ public class InventoryMockController {
                     .errorType("INFO")
                     .errorName("INVENTORY_IS_SHIPPED")
                     .errorCode(4)
-                    .errorMessage(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR)
+                    .errorMessage(ShipmentServiceMessages.INVENTORY_SHIPPED)
                     .build()))
                 .build();
             case "LABELED" -> InventoryValidationResponseDTO
