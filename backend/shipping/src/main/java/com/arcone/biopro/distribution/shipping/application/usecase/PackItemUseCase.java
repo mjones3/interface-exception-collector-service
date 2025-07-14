@@ -125,16 +125,16 @@ public class PackItemUseCase implements PackItemService {
                         return Mono.just(inventoryValidationResponseDTO);
                     } else {
 
-                        if(hasOnlyNotificationType(inventoryValidationResponseDTO.inventoryNotificationsDTO(),"INVENTORY_IS_QUARANTINED")
+                        if(inventoryValidationResponseDTO.hasOnlyNotificationType("INVENTORY_IS_QUARANTINED")
                             && INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
                             && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts()){
-                            return Mono.just(inventoryValidationResponseDTO);
+                            return Mono.just(transformQuarantinedInventoryResponseDTO(inventoryValidationResponseDTO));
                         }
 
-                        if(hasOnlyNotificationType(inventoryValidationResponseDTO.inventoryNotificationsDTO(),"INVENTORY_IS_UNLABELED")
+                        if(inventoryValidationResponseDTO.hasOnlyNotificationType("INVENTORY_IS_UNLABELED")
                             && INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
                             && UNLABELED_STATUS.equals(shipment.getLabelStatus())){
-                            return Mono.just(inventoryValidationResponseDTO);
+                            return Mono.just(transformUnlabeledInventoryResponseDTO(inventoryValidationResponseDTO));
                         }
 
                         return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
@@ -157,21 +157,6 @@ public class PackItemUseCase implements PackItemService {
             }
         );
 
-    }
-
-    private boolean hasOnlyNotificationType(List<InventoryNotificationDTO> inventoryNotificationsDTO , String type) {
-        if(inventoryNotificationsDTO == null){
-            throw new IllegalArgumentException("inventoryNotificationsDTO is null");
-        }
-
-        if(type == null ||  type.isBlank()){
-            throw new IllegalArgumentException("type is null");
-        }
-
-        var countNotifications = inventoryNotificationsDTO.stream()
-        .filter(notificationDTO -> notificationDTO.errorName().equals(type))
-        .count();
-        return countNotifications == 1 && inventoryNotificationsDTO.size() == 1;
     }
 
     private Mono<ShipmentItemPacked> validateProductCriteria(PackItemRequest request, InventoryValidationResponseDTO inventoryValidationResponseDTO, Boolean visualInspectionFlag, Boolean secondVerificationFlag) {
@@ -339,5 +324,39 @@ public class PackItemUseCase implements PackItemService {
             .flatMap(secondVerificationUseCase::resetVerification)
             .thenReturn(shipmentItemPacked);
 
+    }
+
+    private InventoryValidationResponseDTO transformQuarantinedInventoryResponseDTO(InventoryValidationResponseDTO inventoryValidationResponseDTO) {
+
+        return InventoryValidationResponseDTO.builder()
+            .inventoryResponseDTO(transformInventoryResponseDTOWithStatus(inventoryValidationResponseDTO.inventoryResponseDTO(),"QUARANTINED"))
+            .inventoryNotificationsDTO(inventoryValidationResponseDTO.inventoryNotificationsDTO())
+            .build();
+
+    }
+
+    private InventoryValidationResponseDTO transformUnlabeledInventoryResponseDTO(InventoryValidationResponseDTO inventoryValidationResponseDTO) {
+
+        return InventoryValidationResponseDTO.builder()
+            .inventoryResponseDTO(transformInventoryResponseDTOWithStatus(inventoryValidationResponseDTO.inventoryResponseDTO(),"UNLABELED"))
+            .inventoryNotificationsDTO(inventoryValidationResponseDTO.inventoryNotificationsDTO())
+            .build();
+
+    }
+
+    private InventoryResponseDTO transformInventoryResponseDTOWithStatus(InventoryResponseDTO inventoryResponseDTO , String status) {
+        return InventoryResponseDTO.builder()
+            .unitNumber(inventoryResponseDTO.unitNumber())
+            .productDescription(inventoryResponseDTO.productDescription())
+            .productCode(inventoryResponseDTO.productCode())
+            .temperatureCategory(inventoryResponseDTO.temperatureCategory())
+            .productFamily(inventoryResponseDTO.productFamily())
+            .expirationDate(inventoryResponseDTO.expirationDate())
+            .expirationDate(inventoryResponseDTO.expirationDate())
+            .aboRh(inventoryResponseDTO.aboRh())
+            .isLabeled(inventoryResponseDTO.isLabeled())
+            .isLicensed(inventoryResponseDTO.isLicensed())
+            .status(status)
+            .build();
     }
 }

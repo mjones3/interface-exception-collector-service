@@ -1,10 +1,10 @@
-@AOA-6 @AOA-40 @AOA-152 @AOA-128 @AOA-105 @AOA-240
+@AOA-6 @AOA-40 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19
 Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
     Background:
         Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327,W812530106090,W812530107002,W812530107001,W812530106099,W036898786759,W812530107008,W812530107009,W8125301070010,W812530107012".
-        And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116,117,254001,254002,254003,1125,336001,336002,336003,337001".
+        And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116,117,254001,254002,254003,1125,336001,336002,336003,337001,4450001,4450002".
 
         Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
         Rule: I should see a success message when the shipment is completed.
@@ -120,6 +120,40 @@ Feature: Complete Shipment Feature
             Examples:
                 | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Message Type | Message                                                                               | Ineligible Type        | Ineligible Message                                                                                                                                                                                                                                                                                                                                          |
                 | 1125          | E0685V00     | W822530106094 | E0713V00        | W036898786759 | CONFIRMATION | One or more products have changed status. You must rescan the products to be removed. | INVENTORY_IS_DISCARDED | This product is discarded and cannot be shippedLorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec. |
+
+
+       Rule: I should not be able to mix quarantined and not quarantined products in the internal transfer shipment.
+       @api @DIS-445
+       Scenario Outline: Cannot mix quarantined and unquarantined products in shipment
+           Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>,<Unquarantined UN>" and product codes "<Quarantined Code>,<Unquarantined Code>" "verified"
+           And The second verification configuration is "enabled".
+           When I request to complete a shipment.
+           Then I should receive a "<Message Type>" message response "<Message>".
+           And I should receive the unit "<Unquarantined UN>", product code "<Unquarantined Code>" flagged as "INVENTORY_IS_NOT_QUARANTINED"
+           Examples:
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily       | Category | Shipment Type     | Label Status | Quarantined Products | Quarantined UN | Quarantined Code | Unquarantined UN | Unquarantined Code | Message Type | Message                                                                               |
+                | 4450001      | DO1         | Distribution Only |  2       | ANY       | PLASMA_TRANSFUSABLE | FROZEN   | INTERNAL_TRANSFER | LABELED      |    true              | W036898445758  | E0701V00         |  W036898445760   |  E0701V00          | CONFIRMATION | One or more products have changed status. You must rescan the products to be removed. |
+
+
+
+
+        Rule: I should be able to complete a shipment with labeled quarantine products when requested.
+        Rule: I should see a success message when the shipment is completed.
+        @api @DIS-445
+        Scenario Outline: Complete shipment with labeled quarantine products
+            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>" and product codes "<Quarantined Code>" "verified"
+            And The second verification configuration is "enabled".
+            When I request to complete a shipment.
+            Then I should receive a "<Message Type>" message response "<Message>".
+            Examples:
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily       | Category | Shipment Type     | Label Status | Quarantined Products | Quarantined UN              | Quarantined Code  | Message Type | Message            |
+                | 4450002      | DO1         | Distribution Only |  2       | ANY       | PLASMA_TRANSFUSABLE | FROZEN   | INTERNAL_TRANSFER | LABELED      |    true              | W036898445758,W036898445759 | E0701V00,E0701V00 |  success     | Shipment completed |
+
+
+
+
+
+
 
 
 

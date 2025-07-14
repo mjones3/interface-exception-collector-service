@@ -173,6 +173,9 @@
                         externalId: shipment?.externalId,
                         labelingProductCategory:
                             ProductCategoryMap[shipment?.productCategory],
+                       labelStatus:shipment?.labelStatus,
+                        quarantinedProducts:shipment?.quarantinedProducts,
+                        shipmentType:shipment?.shipmentType,
                     }"
                     [comments]="shipment?.comments"
                     [shippingInput]="{
@@ -181,6 +184,7 @@
                         customerName: shipment?.shippingCustomerName,
                         status: shipment?.status,
                         method: shipment?.shippingMethod,
+                        shipmentType:shipment?.shipmentType
                     }"
                 />
             }
