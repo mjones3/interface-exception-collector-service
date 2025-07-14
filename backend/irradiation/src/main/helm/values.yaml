@@ -124,6 +124,8 @@ defaultEnv:
         key: password
   - name: SPRING_KAFKA_SECURITY_PROTOCOL
     value: "SSL"
+  - name: INVENTORY_SERVICE
+    value: inventory.api.svc.cluster.local
 
 additionalEnv: []
 
