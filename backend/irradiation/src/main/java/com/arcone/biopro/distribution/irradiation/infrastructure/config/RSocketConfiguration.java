@@ -37,6 +37,7 @@ public class RSocketConfiguration {
 
     @Bean
     public RSocketRequester inventoryRSocketRequester(RSocketStrategies strategies) {
+        log.info("Creating RSocketRequester for host {} and port {}", inventoryHost, inventoryPort);
         return RSocketRequester.builder()
             .rsocketStrategies(strategies)
             .rsocketConnector(connector -> connector
