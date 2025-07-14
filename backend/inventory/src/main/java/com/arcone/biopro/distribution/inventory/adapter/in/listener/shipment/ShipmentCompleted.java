@@ -26,6 +26,9 @@ public record ShipmentCompleted(
     @Schema(description = "Location code where the shipment was completed")
     String locationCode,
 
+    @Schema(description = "Shipped location")
+    String shippedLocation,
+
     @Schema(description = "List of line items in the shipment")
     List<LineItem> lineItems) {
 

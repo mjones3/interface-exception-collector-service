@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.application.dto;
 
+import com.arcone.biopro.distribution.inventory.domain.model.Property;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
@@ -10,6 +11,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Builder
@@ -44,5 +46,6 @@ public record InventoryOutput(
     Boolean expired,
     List<Volume> volumes,
     List<InputProduct> inputProducts,
-    List<Quarantine> quarantines) {
+    List<Quarantine> quarantines,
+    List<Property> properties) {
 }
