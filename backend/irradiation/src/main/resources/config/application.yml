@@ -273,8 +273,8 @@ application:
         - api://default
 
 topic:
-  check-in:
-    completed:
-      name: CheckInCompleted
+  device:
+    created:
+      name: DeviceCreated
 
 
