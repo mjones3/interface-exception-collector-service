@@ -71,6 +71,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     products: IrradiationProductDTO[] = [];
     initialProductsState: IrradiationProductDTO[] = [];
     allProducts: IrradiationProductDTO[] = [];
+    deviceId: string;
     currentDateTime: string;
 
     @Input() showCheckDigit = true;
@@ -224,6 +225,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                     if (inventories) {
                         const irradiationProducts: IrradiationProductDTO[] = inventories.map(inventory => ({
                             unitNumber: unitNumber,
+                            expired: inventory.expired,
                             productCode: inventory.productCode,
                             productDescription: inventory.productDescription,
                             status: inventory.status,
@@ -238,8 +240,9 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                             ],
                             location: this.currentLocation,
                             comments: '',
-                            statusReason: '',
-                            unsuitableReason: ''
+                            statusReason: inventory.statusReason,
+                            unsuitableReason: inventory.unsuitableReason,
+                            quarantines: inventory.quarantines
                         }))
 
                         const defaults = {
@@ -255,8 +258,10 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                         }).afterClosed()
                             .subscribe((selectedOption) => {
                                 if (selectedOption) {
-                                    this.validateProduct(selectedOption);
-                                    this.populateCentrifugationBatch(selectedOption);
+                                    const isValid = this.validateProduct(selectedOption);
+                                    if(isValid) {
+                                        this.populateIrradiationBatch(selectedOption);
+                                    }
                                 }
                             });
 
@@ -270,35 +275,46 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
     }
 
-    private validateProduct(selectedOption: IrradiationProductDTO) {
+    private validateProduct(selectedOption: IrradiationProductDTO): boolean {
         switch (selectedOption.status) {
             case DISCARDED:
-                return this.discardProduct(selectedOption);
-            case QUARANTINED:
-                return this.handleQuarantine(selectedOption);
-            case UNSUITABLE:
-                return this.handleUnsuitableProduct(selectedOption);
+                this.showMessage(MessageType.ERROR, 'This product has already been discarded for ' + selectedOption.statusReason + ' in the system. Place in biohazard container.')
+                return false;
+            case AVAILABLE:
+                if(selectedOption.unsuitableReason) {
+                    this.discardProduct(selectedOption, selectedOption.unsuitableReason)
+                    return false;
+                }
+                if(selectedOption.expired) {
+                    this.discardProduct(selectedOption, 'EXPIRED')
+                    return false;
+                }
+                if(selectedOption.quarantines) {
+                    return this.handleQuarantine(selectedOption);
+                }
+                return true;
             default:
-                return this.toaster.error(selectedOption.statusReason);
+                return true;
         }
     }
 
     private handleQuarantine(product: IrradiationProductDTO) {
-        console.log('handleQuarantine', product);
+        if (product.quarantines?.some(q => q.stopsManufacturing)) {
+            this.showMessage(MessageType.ERROR, 'This product has been quarantined and cannot be irradiated');
+            return false;
+        }
+        product.status = 'Quarantined';
+        return true;
     }
 
-    private handleUnsuitableProduct(product: IrradiationProductDTO) {
-        this.discardProduct(product);
-    }
-
-    private discardProduct(product: IrradiationProductDTO) {
+    private discardProduct(product: IrradiationProductDTO, reason: string) {
         const discardRequestDTO = {
             unitNumber: product.unitNumber,
             productCode: product.productCode,
             productShortDescription: product.productDescription,
             productFamily: product.productFamily,
             locationCode: product.location,
-            reasonDescriptionKey: product.statusReason,
+            reasonDescriptionKey: reason,
             employeeId: '4c973896-5761-41fc-8217-07c5d13a004b',
             triggeredBy: 'IRRADIATION',
             comments: ''
@@ -319,7 +335,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         const dialogRef = this.confirmationService.open({
             title:
                 selectedProduct.productDescription || 'Acknowledge message',
-            message: selectedProduct.statusReason,
+            message: 'This product has been discarded for ' + selectedProduct.statusReason + '. Place in biohazard container',
             dismissible: false,
             icon: {
                 name: 'heroicons_outline:question-mark-circle',
@@ -348,7 +364,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         });
     }
 
-    private populateCentrifugationBatch(irradiationProductDTO: IrradiationProductDTO) {
+    private populateIrradiationBatch(irradiationProductDTO: IrradiationProductDTO) {
         const irradiationProducts: IrradiationProductDTO[] = [irradiationProductDTO];
         const notAddedProducts = irradiationProducts.filter((p) =>
             this.notInProductList(p)
