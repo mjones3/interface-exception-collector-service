@@ -27,6 +27,11 @@ const VALIDATE_UNIT = gql`
             statusReason
             unsuitableReason
             expired
+            quarantines {
+                reason
+                comments
+                stopsManufacturing
+            }
         }
     }
 `;

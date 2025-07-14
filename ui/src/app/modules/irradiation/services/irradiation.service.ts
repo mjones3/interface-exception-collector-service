@@ -66,7 +66,7 @@ export class IrradiationService {
         return this.dynamicGraphqlPathService.executeMutation(
             this.servicePath,
             START_IRRADIATION_SUBMIT_BATCH,
-            startIrradiationSubmitBatchRequestDTO
+            { input: startIrradiationSubmitBatchRequestDTO }
         );
     }
 

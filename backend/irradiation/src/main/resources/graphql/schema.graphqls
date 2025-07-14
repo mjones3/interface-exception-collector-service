@@ -18,11 +18,18 @@ type Inventory {
     statusReason: String
     unsuitableReason: String
     expired: Boolean
+    quarantines: [InventoryQuarantine]
 }
 
 type ConfigurationDTO {
     key: String
     value: String
+}
+
+type InventoryQuarantine {
+    reason: String!,
+    comments: String,
+    stopsManufacturing: Boolean!
 }
 
 input SubmitBatchInput {
