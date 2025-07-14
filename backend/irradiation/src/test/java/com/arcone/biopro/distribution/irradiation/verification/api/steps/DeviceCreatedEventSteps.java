@@ -69,7 +69,7 @@ public class DeviceCreatedEventSteps {
         StepVerifier.create(deviceRepository.findByDeviceId(DeviceId.of(expectedDeviceId)))
             .assertNext(device -> {
                 assertEquals(expectedDeviceId, device.getDeviceId().getValue());
-                assertEquals(expectedLocation, device.getLocation().getValue());
+                assertEquals(expectedLocation, device.getLocation().value());
                 assertEquals(expectedStatus, device.getStatus());
             })
             .verifyComplete();

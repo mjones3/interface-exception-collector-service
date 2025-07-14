@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Batc
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Device;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.Location;
+
 import java.util.List;
 
 public class IrradiationAggregate {
@@ -25,11 +26,17 @@ public class IrradiationAggregate {
         return batch != null && batch.isActive();
     }
 
-    public List<Inventory> getValidInventories(Location targetLocation) {
+    public List<Inventory> getValidInventoriesForIrradiation(Location targetLocation) {
         return inventories.stream()
-                .filter(inventory -> inventory.isAvailable() && inventory.isAtLocation(targetLocation))
-                .toList();
+            .filter(inventory -> isValidInventoryForIrradiation(inventory, targetLocation))
+            .toList();
     }
+
+    private boolean isValidInventoryForIrradiation(Inventory inventory, Location targetLocation) {
+        return "AVAILABLE".equals(inventory.getStatus()) &&
+            inventory.getLocation().equals(targetLocation);
+    }
+
 
     public Device getDevice() {
         return device;

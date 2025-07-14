@@ -9,9 +9,15 @@ type Inventory {
     productCode: String
     location: String
     status: String
+    productDescription: String
+    productFamily: String
+    statusReason: String
+    unsuitableReason: String
+    expired: Boolean
 }
 
-type  ConfigurationDTO {
-    key: String,
+type ConfigurationDTO {
+    key: String
     value: String
 }
+

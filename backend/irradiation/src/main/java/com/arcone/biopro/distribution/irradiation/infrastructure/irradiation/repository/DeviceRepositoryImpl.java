@@ -26,18 +26,18 @@ public class DeviceRepositoryImpl implements DeviceRepository {
         return repository.findByDeviceId(deviceId.getValue())
                 .map(entity -> new Device(
                         DeviceId.of(entity.getDeviceId()),
-                        Location.of(entity.getLocation()),
+                        new Location(entity.getLocation()),
                         entity.getStatus()
                 ));
     }
 
     @Override
     public Mono<Device> save(Device device) {
-        DeviceEntity entity = new DeviceEntity(device.getDeviceId().getValue(), device.getLocation().getValue(), device.getStatus());
+        DeviceEntity entity = new DeviceEntity(device.getDeviceId().getValue(), device.getLocation().value(), device.getStatus());
         return repository.save(entity)
                 .map(savedEntity -> new Device(
                         DeviceId.of(savedEntity.getDeviceId()),
-                        Location.of(savedEntity.getLocation()),
+                        new Location(savedEntity.getLocation()),
                         savedEntity.getStatus()
                 ));
     }

@@ -28,7 +28,10 @@ spring:
       on-profile: '!telemetry'
   rsocket:
     server:
-      port: 7001
+      port: 7002
+    inventory:
+      host: localhost
+      port: 7002
 otel:
     sdk:
         disabled: true
