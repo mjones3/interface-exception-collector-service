@@ -155,6 +155,16 @@ implements AfterViewInit {
       ($event.target as HTMLInputElement).blur();
       this.onTabEnterPressed($event);
   }
+  
+  /**
+   * Sets focus on the input element
+   */
+  focus() {
+      const inputElement = this.el.nativeElement.querySelector('input');
+      if (inputElement) {
+          inputElement.focus();
+      }
+  }
 
   normalizeValue(value: string) {
       let normalizedValue = value ?? '';

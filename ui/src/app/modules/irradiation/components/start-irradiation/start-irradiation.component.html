@@ -33,6 +33,7 @@
                 class="w-full flex flex-row gap-4 justify-start p-4"
             >
                 <biopro-input
+                    #irradiationIdInput
                     [inputWidth]="'w-90'"
                     id="irradiationId"
                     label="Irradiator ID"
@@ -46,6 +47,7 @@
                     [customErrors]="{ required: 'Irradiator is required.' }"
                 ></biopro-input>
                 <biopro-input
+                    #lotNumberInput
                     [inputWidth]="'w-90'"
                     id="lotNumber"
                     label="Indicator lot number"
