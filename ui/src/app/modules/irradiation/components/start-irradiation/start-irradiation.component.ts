@@ -286,7 +286,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                     return false;
                 }
                 if(selectedOption.expired) {
-                    this.discardProduct(selectedOption, 'EXPIRED')
+                    this.discardProduct(selectedOption, EXPIRED)
                     return false;
                 }
                 if(selectedOption.quarantines) {
@@ -356,10 +356,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
-                console.log('Confirm');
-                // this.router.navigateByUrl(
-                //     `/labeling/temperature-category/scan-unit-number/${this.categoryId}`
-                // );
+                this.redirect();
             }
         });
     }
@@ -524,7 +521,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     redirect() {
-        this.router.navigateByUrl('irradiation');
+        this.router.navigateByUrl('irradiation/start-irradiation');
     }
 
     private showMessage(messageType: MessageType, message: string) {
