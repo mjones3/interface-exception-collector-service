@@ -20,6 +20,9 @@ public record ShipmentCompletedPayloadDTO(
     String customerType,
     String departmentCode,
     ZonedDateTime createDate,
+    String shipmentType,
+    String labelStatus,
+    Boolean quarantinedProducts,
     List<ShipmentCompletedItemPayloadDTO> lineItems,
     List<ShipmentCompletedServicePayloadDTO> services
 
