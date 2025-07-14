@@ -30,7 +30,7 @@ spring:
     server:
       port: 7002
     inventory:
-      host: localhost
+      host: ${inventory-service:localhost}
       port: 7002
 otel:
     sdk:
