@@ -4,6 +4,10 @@ type Query {
     readConfiguration(keys: [String]): [ConfigurationDTO]
 }
 
+type Mutation {
+    submitBatch(input: SubmitBatchInput!): BatchSubmissionResult!
+}
+
 type Inventory {
     unitNumber: String
     productCode: String
@@ -21,3 +25,20 @@ type ConfigurationDTO {
     value: String
 }
 
+input SubmitBatchInput {
+    deviceId: String!
+    startTime: String!
+    batchItems: [BatchItemInput!]!
+}
+
+input BatchItemInput {
+    unitNumber: String!
+    productCode: String!
+    lotNumber: String!
+}
+
+type BatchSubmissionResult {
+    batchId: ID!
+    message: String!
+    success: Boolean!
+}

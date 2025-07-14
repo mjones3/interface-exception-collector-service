@@ -23,6 +23,15 @@ public class Inventory {
         return "AVAILABLE".equals(status);
     }
 
+    public boolean isEligibleForIrradiation() {
+        // Exclude converted, modified, in transit, shipped products
+        return isAvailable() && 
+               !"CONVERTED".equals(status) &&
+               !"MODIFIED".equals(status) &&
+               !"IN_TRANSIT".equals(status) &&
+               !"SHIPPED".equals(status);
+    }
+
     public boolean isAtLocation(Location targetLocation) {
         return this.location.equals(targetLocation);
     }
