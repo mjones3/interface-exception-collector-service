@@ -188,30 +188,38 @@ describe('StartIrradiationComponent', () => {
     });
 
     it('should reset all data on cancel', () => {
+        // Setup test data
         component.products = [{ unitNumber: 'test' } as IrradiationProductDTO];
         component.selectedProducts = [{ unitNumber: 'test' } as IrradiationProductDTO];
         component.initialProductsState = [{ unitNumber: 'test' } as IrradiationProductDTO];
         component.allProducts = [{ unitNumber: 'test' } as IrradiationProductDTO];
 
-        // Mock the form reset methods
+        // Mock form methods
         jest.spyOn(component.irradiation, 'reset');
         jest.spyOn(component.lotNumber, 'reset');
 
-        // Mock the unitNumberComponent
+        // Mock unitNumberComponent
         component.unitNumberComponent = {
-            reset: jest.fn(),
-            form: { disable: jest.fn() }
+            controlUnitNumber: { reset: jest.fn() },
+            reset: jest.fn()
         } as any;
 
+        // Mock focusOnIrradiationInput
+        component.focusOnIrradiationInput = jest.fn();
+
+        // Call the method under test
         component['cancel']();
 
+        // Verify arrays are cleared
         expect(component.products).toEqual([]);
         expect(component.selectedProducts).toEqual([]);
         expect(component.initialProductsState).toEqual([]);
         expect(component.allProducts).toEqual([]);
+        
+        // Verify form resets
         expect(component.irradiation.reset).toHaveBeenCalled();
         expect(component.lotNumber.reset).toHaveBeenCalled();
-        expect(component.unitNumberComponent.reset).toHaveBeenCalled();
+        expect(component.unitNumberComponent.controlUnitNumber.reset).toHaveBeenCalled();
     });
 
     it('should get number of units', () => {

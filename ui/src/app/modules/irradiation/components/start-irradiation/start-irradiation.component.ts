@@ -82,6 +82,12 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
 
+    @ViewChild('irradiationIdInput')
+    irradiationInput: InputComponent;
+
+    @ViewChild('lotNumberInput')
+    lotNumberInput: InputComponent;
+
     form: FormGroup;
     currentLocation: string;
 
@@ -115,7 +121,28 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        setTimeout(() => this.unitNumberComponent.form.disable());
+        setTimeout(() => {
+            this.unitNumberComponent.form.disable();
+            this.focusOnIrradiationInput();
+        });
+    }
+
+    /**
+     * Sets focus on the irradiator ID input field
+     */
+    focusOnIrradiationInput(): void {
+        if (this.irradiationInput) {
+            this.irradiationInput.focus();
+        }
+    }
+
+    /**
+     * Sets focus on the lot number input field
+     */
+    focusOnLotNumberInput(): void {
+        if (this.lotNumberInput) {
+            this.lotNumberInput.focus();
+        }
     }
 
     get irradiation() {
@@ -164,9 +191,10 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         this.selectedProducts = [];
         this.allProducts = [];
         this.irradiation.reset();
+        this.irradiation.enable()
         this.lotNumber.reset();
-        this.unitNumberComponent.reset();
-        //this.redirect();
+        this.unitNumberComponent.controlUnitNumber.reset();
+        setTimeout(() => this.focusOnIrradiationInput(), 1);
     }
 
     isSubmitEnabled(): boolean {
@@ -391,9 +419,11 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         if (inventory.expired) {
             return EXPIRED;
         }
-
         if (inventory.unsuitableReason) {
             return UNSUITABLE;
+        }
+        if (inventory.quarantines.length !==0) {
+            return QUARANTINED;
         }
         return AVAILABLE;
     }
@@ -522,6 +552,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                    const validDevice = result.data.validateDevice;
                    if (validDevice) {
                        this.irradiation.disable();
+                       this.lotNumber.enable();
+                       setTimeout(() => this.focusOnLotNumberInput(), 0);
                    }
                },
                error: (error) => {
@@ -548,5 +580,6 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     validateLotNumber($event: string) {
        console.log('validateLotNumber', $event);
         this.unitNumberComponent.controlUnitNumber.enable();
+        setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
     }
 }
