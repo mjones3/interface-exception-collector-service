@@ -15,6 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import java.time.Duration;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -57,5 +58,10 @@ public class IrradiationSteps {
     @Then("I verify that there are only {int} product\\(s) eligible for irradiation for the unit number {string}")
     public void iVerifyThatThereAreOnlyProductSEligibleForIrradiationForTheUnitNumber(int numberOfProducts, String unitNumber) {
         assertEquals(irradiationContext.getInventoryList().stream().toList().size(), numberOfProducts);
+    }
+
+    @Then("I see the product {string} from unit number {string} is NOT in the list of products for selection")
+    public void iSeeTheProductFromUnitNumberIsNOTInTheListOfProductsForSelection(String productCode, String unitNumber) {
+        assertFalse(irradiationContext.getInventoryList().stream().anyMatch(i-> i.productCode().equals(productCode) && i.unitNumber().equals(unitNumber)));
     }
 }
