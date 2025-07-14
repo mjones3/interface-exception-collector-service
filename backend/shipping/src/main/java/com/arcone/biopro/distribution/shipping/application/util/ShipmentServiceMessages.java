@@ -44,7 +44,6 @@ public class ShipmentServiceMessages {
     public static final String ALL_PRODUCTS_SELECTED_ERROR = "All products associated with this unit have already been selected";
     public static final String INVENTORY_UNLABELED_ERROR = "This product is not labeled and cannot be shipped";
     public static final String SHIPMENT_UNLABELED_ERROR = "Shipment can only contain unlabeled products";
-    public static final String INVENTORY_SHIPPED = "This product was previously shipped";
 
 
 
