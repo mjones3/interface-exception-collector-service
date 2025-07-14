@@ -37,7 +37,7 @@ public class IrradiationAggregate {
     }
 
     private boolean isValidInventoryForIrradiation(Inventory inventory, Location targetLocation) {
-        return "AVAILABLE".equals(inventory.getStatus()) &&
+        return ("AVAILABLE".equals(inventory.getStatus()) || "DISCARDED".equals(inventory.getStatus())) &&
             inventory.getLocation().equals(targetLocation);
     }
 
