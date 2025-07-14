@@ -206,7 +206,7 @@ public class InventoryAggregate {
     }
 
     public boolean getIsLabeled() {
-        return this.inventory.getIsLabeled();
+        return Objects.nonNull(this.inventory.getIsLabeled()) && this.inventory.getIsLabeled();
     }
 
     public InventoryAggregate convertProduct() {

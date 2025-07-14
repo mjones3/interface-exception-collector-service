@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.adapter.in.socket.dto;
 
 import com.arcone.biopro.distribution.inventory.domain.model.Property;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
 import lombok.Builder;
 
@@ -30,6 +31,8 @@ public record InventoryResponseDTO(
     String collectionTimeZone,
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
+    Boolean isLabeled,
+    InventoryStatus status,
     List<Volume> volumes,
     List<Property> properties
 ) implements Serializable {

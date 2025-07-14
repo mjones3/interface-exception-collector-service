@@ -13,6 +13,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMess
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
 import com.arcone.biopro.distribution.inventory.domain.service.TextConfigService;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.mapstruct.Mapper;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -51,7 +53,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "location", source = "domain.inventoryLocation")
     @Mapping(target = "productDescription", source = "domain.shortDescription")
     @Mapping(target = "expired", source = "isExpired")
-    public abstract InventoryOutput toOutput(Inventory domain, Boolean isExpired);
+    public abstract InventoryOutput toOutput(Inventory domain, Boolean isExpired, List<Property> properties);
 
     @Mapping(target = "productFamily", source = "productFamily")
     @Mapping(target = "aboRh", source = "aboRh")
@@ -77,10 +79,12 @@ public abstract class InventoryOutputMapper {
         }
     }
 
-    @Mapping(target = "inventoryOutput", source = "inventory")
-    @Mapping(target = "inventoryOutput.properties", source = "properties")
+    @Mapping(target = "inventoryOutput", expression = "java(toOutput(inventory, properties))")
     @Mapping(target = "notificationMessages.message", expression = "java(toOutput(notificationMessage.message()))")
-    public abstract ValidateInventoryOutput toValidateInventoryOutput(InventoryAggregate inventoryAggregate);
+    public abstract ValidateInventoryOutput toValidateInventoryOutput(Inventory inventory, List<Property> properties, List<NotificationMessage> notificationMessages);
+
+
+
 
     @Mapping(target = "message", expression = "java(textConfigService.getText(notificationMessage.name(), notificationMessage.message()))")
     @Mapping(target = "details", expression = "java(toDetails(notificationMessage.details(), notificationMessage.name()))")

@@ -227,6 +227,24 @@ public class RsocketSteps {
                 assertThat(message.inventoryResponseDTO().collectionTimeZone()).isEqualTo(row.get("Collection TimeZone"));
             }
 
+            if (row.get("Properties") != null) {
+                List<String> properties = Arrays.stream(row.get("Properties").split(","))
+                    .map(String::trim)
+                    .toList();
+
+                assertThat(message.inventoryResponseDTO().properties().isEmpty()).isFalse();
+                assertThat(message.inventoryResponseDTO().properties().size()).isEqualTo(properties.size());
+
+                for(String property: properties) {
+                    var propertyFields = property.split("=");
+                    assertTrue( message.inventoryResponseDTO().properties().stream()
+                        .filter(p -> p.getKey().equals(propertyFields[0].trim()))
+                        .findFirst()
+                        .map(p -> Objects.equals(p.getValue(), propertyFields[1].trim()))
+                        .orElse(false));
+                }
+            }
+
         } else {
             assertThat(message.inventoryResponseDTO()).isNull();
         }

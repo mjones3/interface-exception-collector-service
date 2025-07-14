@@ -32,7 +32,7 @@ public class ProductCompletedUseCase implements UseCase<Mono<InventoryOutput>, P
             .flatMap(inventoryAggregate -> inventoryAggregateRepository
                 .saveInventory(inventoryAggregate.completeProduct(volumeInputMapper.toDomain(productCompletedInput.volumes()), productCompletedInput.aboRh()))
             .map(InventoryAggregate::getInventory)
-            .map(inventory -> inventoryOutputMapper.toOutput(inventory,inventoryAggregate.getProperties()))
+            .map(inventory -> inventoryOutputMapper.toOutput(inventory, inventoryAggregate.getProperties()))
             .doOnSuccess(response -> log.info("Product volume was updated to completed: {}", response))
             .doOnError(e -> log.error("Error occurred during product completed. Input: {}, error: {}", productCompletedInput, e.getMessage(), e)));
 

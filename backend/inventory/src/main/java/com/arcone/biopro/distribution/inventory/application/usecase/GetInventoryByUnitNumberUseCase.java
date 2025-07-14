@@ -21,6 +21,6 @@ public class GetInventoryByUnitNumberUseCase implements UseCase<Flux<InventoryOu
     @Override
     public Flux<InventoryOutput> execute(String unitNumber) {
         return inventoryRepository.findByUnitNumber(unitNumber)
-            .map(ia -> mapper.toOutput(ia.getInventory(), ia.isExpired()));
+            .map(ia -> mapper.toOutput(ia.getInventory(), ia.isExpired(), ia.getProperties()));
     }
 }

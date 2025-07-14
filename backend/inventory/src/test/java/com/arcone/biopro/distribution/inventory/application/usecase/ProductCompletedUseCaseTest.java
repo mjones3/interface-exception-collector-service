@@ -117,7 +117,7 @@ class ProductCompletedUseCaseTest {
         when(inventoryAggregateRepository.saveInventory(any()))
             .thenReturn(Mono.just(inventoryAggregate));
 
-        when(inventoryOutputMapper.toOutput(any(Inventory.class)))
+        when(inventoryOutputMapper.toOutput(any(Inventory.class), anyList()))
             .thenReturn(expectedInventoryOutput);
 
         when(volumeInputMapper.toDomain(anyList())).thenReturn(List.of());
@@ -172,7 +172,7 @@ class ProductCompletedUseCaseTest {
         when(inventoryAggregateRepository.saveInventory(any()))
             .thenReturn(Mono.just(inventoryAggregate));
 
-        when(inventoryOutputMapper.toOutput(any(Inventory.class)))
+        when(inventoryOutputMapper.toOutput(any(Inventory.class), anyList()))
             .thenReturn(expectedInventoryOutput);
 
         var volume = Volume.builder()
@@ -200,6 +200,4 @@ class ProductCompletedUseCaseTest {
             .expectNextMatches(output -> output.equals(expectedInventoryOutput))
             .verifyComplete();
     }
-
-
 }
