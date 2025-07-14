@@ -65,7 +65,7 @@ export class NotificationComponent {
             },
             INVENTORY_IS_NOT_QUARANTINED: {
                 tabName: 'Other Events',
-                label: 'Non Quarantined',
+                label: 'Not Quarantined',
             },
         };
 

@@ -8,7 +8,7 @@ public enum IneligibleStatus {
     ,  INVENTORY_IS_DISCARDED("Discarded")
     , INVENTORY_NOT_EXIST("Inventory Not Exist")
     , INVENTORY_IS_SHIPPED("Already Shipped")
-    , INVENTORY_IS_NOT_QUARANTINED("Non Quarantined");
+    , INVENTORY_IS_NOT_QUARANTINED("Not Quarantined");
 
     public final String label;
 

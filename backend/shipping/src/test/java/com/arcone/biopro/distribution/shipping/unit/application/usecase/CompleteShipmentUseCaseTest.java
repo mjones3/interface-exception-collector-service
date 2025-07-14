@@ -511,4 +511,173 @@ class CompleteShipmentUseCaseTest {
 
     }
 
+
+    @Test
+    public void shouldNotCompleteShipmentWhenInternalTransferWithNonQuarantinedProducts(){
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+        Mockito.when(shipmentMock.getId()).thenReturn(1L);
+        Mockito.when(shipmentMock.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+        Mockito.when(shipmentMock.getQuarantinedProducts()).thenReturn(true);
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipmentMock));
+
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        Mockito.when(shipmentItemPackedRepository.countVerificationPendingByShipmentId(1L)).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(1L)).thenReturn(Mono.just(0));
+
+
+
+        var completePackedItem = Mockito.mock(ShipmentItemPacked.class);
+        Mockito.when(completePackedItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
+        Mockito.when(completePackedItem.getProductCode()).thenReturn("ABCD");
+        Mockito.when(completePackedItem.getProductFamily()).thenReturn("PRODUCT_FAMILY");
+        Mockito.when(completePackedItem.getProductDescription()).thenReturn("PRODUCT_DESCRIPTION");
+        Mockito.when(completePackedItem.getSecondVerification()).thenReturn(SecondVerification.COMPLETED);
+        Mockito.when(completePackedItem.getVerifiedByEmployeeId()).thenReturn("VERIFY_EMPLOYEE_ID");
+        Mockito.when(completePackedItem.getPackedByEmployeeId()).thenReturn("PACK_EMPLOYEE_ID");
+
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(completePackedItem));
+
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(completePackedItem));
+
+
+        InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
+
+        Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
+
+        Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
+            .shipmentId(1L)
+            .employeeId("test")
+            .build());
+
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+
+                var inventoryValidationResponseDTO = (InventoryValidationResponseDTO) detail.results().get("validations").getFirst();
+
+                var inventoryNotification = inventoryValidationResponseDTO.inventoryNotificationsDTO().getFirst();
+
+                assertEquals("This product is not quarantined and cannot be used for quarantined shipments.", inventoryNotification.errorMessage());
+                assertEquals("INVENTORY_IS_NOT_QUARANTINED", inventoryNotification.errorName());
+
+                var inventoryResponseDTO = (InventoryResponseDTO) inventoryValidationResponseDTO.inventoryResponseDTO();
+
+                assertEquals("ABCD", inventoryResponseDTO.productCode());
+                assertEquals("UNIT_NUMBER", inventoryResponseDTO.unitNumber());
+                assertEquals("PRODUCT_FAMILY", inventoryResponseDTO.productFamily());
+                assertEquals("PRODUCT_DESCRIPTION", inventoryResponseDTO.productDescription());
+
+
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals(NotificationType.CONFIRMATION.name(), firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.SHIPMENT_VALIDATION_COMPLETED_ERROR, firstNotification.message());
+                assertEquals("/shipment/1/verify-products", detail._links().get("next"));
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldCompleteShipmentWhenInternalTransferWithQuarantinedProducts(){
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+        Mockito.when(shipmentMock.getId()).thenReturn(1L);
+        Mockito.when(shipmentMock.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+        Mockito.when(shipmentMock.getQuarantinedProducts()).thenReturn(true);
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipmentMock));
+
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        Mockito.when(shipmentItemPackedRepository.countVerificationPendingByShipmentId(1L)).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(1L)).thenReturn(Mono.just(0));
+
+
+
+        var completePackedItem = Mockito.mock(ShipmentItemPacked.class);
+        Mockito.when(completePackedItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
+        Mockito.when(completePackedItem.getProductCode()).thenReturn("ABCD");
+        Mockito.when(completePackedItem.getProductFamily()).thenReturn("PRODUCT_FAMILY");
+        Mockito.when(completePackedItem.getProductDescription()).thenReturn("PRODUCT_DESCRIPTION");
+        Mockito.when(completePackedItem.getSecondVerification()).thenReturn(SecondVerification.COMPLETED);
+        Mockito.when(completePackedItem.getVerifiedByEmployeeId()).thenReturn("VERIFY_EMPLOYEE_ID");
+        Mockito.when(completePackedItem.getPackedByEmployeeId()).thenReturn("PACK_EMPLOYEE_ID");
+
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(completePackedItem));
+
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(completePackedItem));
+
+
+        InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
+
+        Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
+            .builder()
+            .productFamily("PLASMA_TRANSFUSABLE")
+            .id(UUID.randomUUID())
+            .aboRh("AB")
+            .locationCode("123456789")
+            .productCode("E0701V00")
+            .collectionDate(ZonedDateTime.now())
+            .unitNumber("W036898786756")
+            .productDescription("PRODUCT_DESCRIPTION")
+            .expirationDate(LocalDateTime.now())
+            .build());
+
+        Mockito.when(validationResponseDTO.inventoryNotificationsDTO()).thenReturn(List.of(InventoryNotificationDTO.builder()
+            .errorMessage(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR)
+            .reason("REASON")
+            .errorType("INVENTORY_IS_QUARANTINED")
+            .errorName("INVENTORY_IS_QUARANTINED")
+            .action("ACTION")
+            .errorCode(1)
+            .build()));
+
+        Mockito.when(validationResponseDTO.hasOnlyNotificationType(Mockito.eq("INVENTORY_IS_QUARANTINED"))).thenReturn(true);
+
+        Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
+
+        Mockito.when(shipmentRepository.save(Mockito.any(Shipment.class))).thenReturn(Mono.just(Shipment.builder()
+            .id(1L)
+            .status(ShipmentStatus.COMPLETED)
+            .locationCode("LOCATION_CODE")
+            .build()));
+
+        Mockito.when(facilityServiceMock.getFacilityId(Mockito.anyString())).thenReturn(Mono.just(FacilityDTO.builder()
+            .name("Facility Name")
+            .build()));
+
+        Mockito.when(shipmentService.getShipmentById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentDetailResponseDTO
+            .builder()
+            .id(1L)
+            .build()));
+
+        Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
+            .shipmentId(1L)
+            .employeeId("test")
+            .build());
+
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+
+                assertEquals(HttpStatus.OK, detail.ruleCode());
+                assertEquals(HttpStatus.OK.value(), firstNotification.statusCode());
+                assertEquals("success", firstNotification.notificationType());
+                assertEquals("/shipment/1/shipment-details", detail._links().get("next"));
+                assertEquals(ShipmentServiceMessages.SHIPMENT_COMPLETED_SUCCESS, firstNotification.message());
+            })
+            .verifyComplete();
+
+        Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(ShipmentCompletedEvent.class));
+
+    }
+
 }
