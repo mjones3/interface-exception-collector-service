@@ -380,14 +380,18 @@ public class ShipmentTestingController {
     }
 
     public Long createPackedShipment(String orderNumber, List<String> unitNumbers, List<String> productCodes, String itemStatus, String productFamily, String bloodType, Integer totalRequested) {
+        return createPackedShipment(orderNumber,"B2346","Advanced Medical Center","FROZEN","CUSTOMER","LABELED",false,unitNumbers,productCodes,itemStatus,productFamily,bloodType,totalRequested);
+    }
+
+    public Long createPackedShipment(String orderNumber,String customerCode , String customerName , String temperatureCategory , String shipmentType , String labelStatus , boolean quarantinedProducts, List<String> unitNumbers, List<String> productCodes, String itemStatus, String productFamily, String bloodType, Integer totalRequested) {
 
         var insertShipment = "INSERT INTO bld_shipment " +
             "(order_number, customer_code, customer_name, customer_phone_number, location_code, delivery_type, priority, shipment_method, product_category, status, state, postal_code, country" +
             " , country_code, city, district, address_line1, address_line2, address_contact_name, shipping_date, create_date, modification_date, delete_date, \"comments\", department_name, created_by_employee_id" +
-            " , completed_by_employee_id, complete_date, external_id) " +
-            " VALUES(%s,'B2346', 'Advanced Medical Center', '234-567-8901', '123456789', 'STAT', 'STAT', 'FEDEX', 'FROZEN', 'OPEN', 'CA', '90210', 'US', 'US', 'Beverly Hills', 'LA', '456 Elm Street', 'Suite 200', NULL, '2024-10-07', '2024-10-07 12:45:34.084', '2024-10-07 12:45:34.084', NULL, '', 'Cardiology', 'mock-employee-id', NULL, NULL, 'DST108');";
+            " , completed_by_employee_id, complete_date, external_id , label_status , shipment_type , quarantined_products) " +
+            " VALUES(%s,'%s', '%s', '234-567-8901', '123456789', 'STAT', 'STAT', 'FEDEX', '%s', 'OPEN', 'CA', '90210', 'US', 'US', 'Beverly Hills', 'LA', '456 Elm Street', 'Suite 200', NULL, '2024-10-07', '2024-10-07 12:45:34.084', '2024-10-07 12:45:34.084', NULL, '', 'Cardiology', 'mock-employee-id', NULL, NULL, 'DST108','%s','%s',%s);";
 
-        databaseService.executeSql(String.format(insertShipment, orderNumber)).block();
+        databaseService.executeSql(String.format(insertShipment, orderNumber,customerCode,customerName,temperatureCategory,labelStatus,shipmentType,quarantinedProducts)).block();
 
         var createdShipment = databaseService.fetchData(String.format("select id from bld_shipment where order_number = %s ", orderNumber)).first().block();
         if (createdShipment != null) {

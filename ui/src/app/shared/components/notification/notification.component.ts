@@ -63,6 +63,10 @@ export class NotificationComponent {
                 tabName: 'Quarantined',
                 label: 'Quarantined',
             },
+            INVENTORY_IS_NOT_QUARANTINED: {
+                tabName: 'Other Events',
+                label: 'Non Quarantined',
+            },
         };
 
         return data?.data?.results?.validations.reduce(
