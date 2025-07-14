@@ -253,7 +253,8 @@ public class InventoryAggregate {
         if(Objects.nonNull(aboRh)) {
             inventory.setAboRh(aboRh);
         }
-       return this;
+        addProperty(PropertyKey.COMPLETED, "Y");
+        return this;
     }
 
     public InventoryAggregate putInTheCarton(String cartonNumber) {

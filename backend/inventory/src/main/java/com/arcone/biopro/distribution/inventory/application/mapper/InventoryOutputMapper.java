@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.BioProConstants;
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.Property;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
@@ -23,6 +24,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 
 @Setter
 @Mapper(imports = {InventoryStatus.class})
@@ -36,6 +38,13 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "location", source = "inventoryLocation")
     @Mapping(target = "productDescription", source = "shortDescription")
     public abstract InventoryOutput toOutput(Inventory domain);
+
+    @Mapping(target = "unitNumber", source = "domain.unitNumber.value")
+    @Mapping(target = "productCode", source = "domain.productCode.value")
+    @Mapping(target = "location", source = "domain.inventoryLocation")
+    @Mapping(target = "productDescription", source = "domain.shortDescription")
+    @Mapping(target = "properties", source = "properties")
+    public abstract InventoryOutput toOutput(Inventory domain, List<Property> properties);
 
     @Mapping(target = "unitNumber", source = "domain.unitNumber.value")
     @Mapping(target = "productCode", source = "domain.productCode.value")
@@ -69,6 +78,7 @@ public abstract class InventoryOutputMapper {
     }
 
     @Mapping(target = "inventoryOutput", source = "inventory")
+    @Mapping(target = "inventoryOutput.properties", source = "properties")
     @Mapping(target = "notificationMessages.message", expression = "java(toOutput(notificationMessage.message()))")
     public abstract ValidateInventoryOutput toValidateInventoryOutput(InventoryAggregate inventoryAggregate);
 
