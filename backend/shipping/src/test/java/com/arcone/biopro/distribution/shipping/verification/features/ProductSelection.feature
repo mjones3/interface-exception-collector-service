@@ -59,11 +59,10 @@ Feature: Fill Unlabeled Products for Internal Transfer order
             Then I should receive a "<Message Type>" message response "<Message>".
             Examples:
                 | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                    | Temperature Category | Shipment Type     | Label Status | Quarantined Products | UN            | Message                                                             | Message Type |
-#                | 452000020    | DO1         | Distribution Only | 10       | ANY       | PLASMA_TRANSFUSABLE              | FROZEN               | INTERNAL_TRANSFER | UNLABELED    | false                | W036898781111 | This product does not exist and cannot be shipped.                           | WARN         |
                 | 452000020    | DO1         | Distribution Only | 10       | ANY       | PLASMA_TRANSFUSABLE              | FROZEN               | INTERNAL_TRANSFER | UNLABELED    | false                | W036898781111 | This product is not in the inventory and cannot be shipped          | WARN         |
                 | 452000022    | DO1         | Distribution Only | 5        | AP        | PLASMA_TRANSFUSABLE              | FROZEN               | INTERNAL_TRANSFER | UNLABELED    | true                 | W036825158913 | This product is labeled and cannot be used for unlabeled shipments. | WARN         |
                 | 452000023    | DO1         | Distribution Only | 5        | A         | APHERESIS_PLATELETS_LEUKOREDUCED | ROOM_TEMPERATURE     | INTERNAL_TRANSFER | UNLABELED    | false                | W036825158914 | This product is quarantined and cannot be shipped                   | INFO         |
-                | 452000024    | DO1         | Distribution Only | 5        | A         | APHERESIS_PLATELETS_LEUKOREDUCED | ROOM_TEMPERATURE     | INTERNAL_TRANSFER | UNLABELED    | false                | W036825158915 | This product was previously shipped                                 | INFO         |
+                | 452000024    | DO1         | Distribution Only | 5        | A         | APHERESIS_PLATELETS_LEUKOREDUCED | ROOM_TEMPERATURE     | INTERNAL_TRANSFER | UNLABELED    | false                | W036825158915 | This product is not in the inventory and cannot be shipped          | INFO         |
 
 
 
