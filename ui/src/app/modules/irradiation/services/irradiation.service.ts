@@ -53,7 +53,7 @@ export class IrradiationService {
     public validateUnit(
         unitNumber: string, location: string
     ): Observable<
-        ApolloQueryResult<{ products: IrradiationProductDTO[] }>
+        ApolloQueryResult<{ validateUnit: IrradiationProductDTO[] }>
     > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
