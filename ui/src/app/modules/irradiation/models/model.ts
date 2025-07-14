@@ -62,17 +62,15 @@ export const MessageType = {
 
 export type MessageType = keyof typeof MessageType;
 
-export interface CentrifugationProcessDTO {
-    id: number;
-    descriptionKey?: string;
-    icon?: string;
-}
-
 export interface IrradiationProductDTO {
     unitNumber: string;
     productCode: string;
     productDescription: string;
     productFamily: string;
+    location: string;
+    comments: string;
+    statusReason: string;
+    unsuitableReason: string;
     status: string;
     statusClasses?: string;
     icon?: string;
@@ -147,10 +145,4 @@ export interface ValidateUnitNumberResponseDTO {
 
 export interface UnitNumberResponseDTO {
     enterUnitNumberForCentrifugation: ValidateUnitNumberResponseDTO;
-}
-
-export interface ValidateUnitEvent {
-    unitNumber: string;
-    checkDigit: string;
-    scanner: boolean;
 }

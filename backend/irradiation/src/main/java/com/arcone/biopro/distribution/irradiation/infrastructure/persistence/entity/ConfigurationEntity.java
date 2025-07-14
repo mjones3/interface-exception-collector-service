@@ -4,12 +4,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
@@ -23,6 +27,18 @@ public class ConfigurationEntity implements Serializable, Persistable<String> {
 
     @Column("value")
     String value;
+
+    @Column("active")
+    Boolean active;
+
+    @CreatedDate
+    @Column("create_date")
+    @InsertOnlyProperty
+    ZonedDateTime createDate;
+
+    @Column("modification_date")
+    @LastModifiedDate
+    ZonedDateTime modificationDate;
 
     @Override
     public String getId() {

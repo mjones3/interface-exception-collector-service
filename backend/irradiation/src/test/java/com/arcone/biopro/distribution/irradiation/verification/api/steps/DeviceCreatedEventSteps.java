@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.verification.api.steps;
 
-import com.arcone.biopro.distribution.irradiation.adapter.in.listener.CheckInCompleted;
+import com.arcone.biopro.distribution.irradiation.adapter.in.listener.DeviceCreated;
 import com.arcone.biopro.distribution.irradiation.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.irradiation.application.usecase.CreateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Device;
@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.test.StepVerifier;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -42,8 +43,8 @@ public class DeviceCreatedEventSteps {
 
         this.currentDeviceId = id;
 
-        CheckInCompleted payload = new CheckInCompleted(id, location, deviceCategory, status);
-        EventMessage<CheckInCompleted> eventMessage = new EventMessage<>("DeviceCreated", "1.0", payload);
+        DeviceCreated payload = new DeviceCreated(id, location, deviceCategory, status, ZonedDateTime.now(), ZonedDateTime.now());
+        EventMessage<DeviceCreated> eventMessage = new EventMessage<>("DeviceCreated", "1.0", payload);
 
         CreateDeviceUseCase.Input input = new CreateDeviceUseCase.Input(id, location, status, deviceCategory);
 
@@ -69,7 +70,7 @@ public class DeviceCreatedEventSteps {
         StepVerifier.create(deviceRepository.findByDeviceId(DeviceId.of(expectedDeviceId)))
             .assertNext(device -> {
                 assertEquals(expectedDeviceId, device.getDeviceId().getValue());
-                assertEquals(expectedLocation, device.getLocation().getValue());
+                assertEquals(expectedLocation, device.getLocation().value());
                 assertEquals(expectedStatus, device.getStatus());
             })
             .verifyComplete();

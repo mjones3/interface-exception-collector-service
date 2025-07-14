@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.irradiation.verification.ui.steps;
 
 import com.arcone.biopro.distribution.irradiation.verification.ui.pages.StartIrradiationPage;
 import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.AllArgsConstructor;

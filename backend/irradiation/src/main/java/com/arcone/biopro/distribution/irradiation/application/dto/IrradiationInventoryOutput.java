@@ -1,13 +1,13 @@
-package com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.client;
+package com.arcone.biopro.distribution.irradiation.application.dto;
 
 import lombok.Builder;
 
 @Builder
-public record InventoryOutput(
+public record IrradiationInventoryOutput(
     String unitNumber,
     String productCode,
     String location,
-    String inventoryStatus,
+    String status,
     String productDescription,
     String productFamily,
     String shortDescription,

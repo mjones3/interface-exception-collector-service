@@ -19,7 +19,7 @@ public class ValidateDeviceUseCase {
 
     public Mono<Boolean> execute(String deviceId, String location) {
         DeviceId deviceIdObj = DeviceId.of(deviceId);
-        Location locationObj = Location.of(location);
+        Location locationObj = new Location(location);
 
         return deviceRepository.findByDeviceId(deviceIdObj)
             .switchIfEmpty(Mono.error(new DeviceValidationFailureException("Device not found")))

@@ -46,6 +46,8 @@ public class DatabaseConfiguration {
         converters.add(BitSetReadConverter.INSTANCE);
         converters.add(DurationWriteConverter.INSTANCE);
         converters.add(DurationReadConverter.INSTANCE);
+        converters.add(ZonedDateTimeReadConverter.INSTANCE);
+        converters.add(ZonedDateTimeWriteConverter.INSTANCE);
         return R2dbcCustomConversions.of(dialect, converters);
     }
 
