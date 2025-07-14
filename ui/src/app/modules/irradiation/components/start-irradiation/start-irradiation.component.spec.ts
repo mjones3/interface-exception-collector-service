@@ -337,12 +337,17 @@ describe('StartIrradiationComponent', () => {
     });
 
     it('should convert status to color class', () => {
-        expect(component['statusToColorClass'](AVAILABLE)).toBe('bg-green-500 text-white');
-        expect(component['statusToColorClass'](QUARANTINED)).toBe('bg-orange-500 text-white');
-        expect(component['statusToColorClass'](EXPIRED)).toBe('bg-red-500 text-white');
-        expect(component['statusToColorClass'](UNSUITABLE)).toBe('bg-red-500 text-white');
-        expect(component['statusToColorClass'](DISCARDED)).toBe('bg-red-500 text-white');
-        expect(component['statusToColorClass'](SHIPPED)).toBe('bg-orange-500 text-white');
+        // Test expired product
+        expect(component['statusToColorClass']({ expired: true } as IrradiationProductDTO)).toBe('bg-red-500 text-white');
+        
+        // Test unsuitable product
+        expect(component['statusToColorClass']({ unsuitableReason: 'Some reason' } as IrradiationProductDTO)).toBe('bg-red-500 text-white');
+        
+        // Test quarantined product
+        expect(component['statusToColorClass']({ quarantines: [{}] } as IrradiationProductDTO)).toBe('bg-orange-500 text-white');
+        
+        // Test available product (default case)
+        expect(component['statusToColorClass']({} as IrradiationProductDTO)).toBe('bg-green-500 text-white');
     });
 
     it('should enable unit number control when lot number is validated', () => {

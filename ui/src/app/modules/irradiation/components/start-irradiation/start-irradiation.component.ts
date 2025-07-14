@@ -71,8 +71,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     products: IrradiationProductDTO[] = [];
     initialProductsState: IrradiationProductDTO[] = [];
     allProducts: IrradiationProductDTO[] = [];
-    deviceId: string;
     currentDateTime: string;
+    startTime: string
 
     @Input() showCheckDigit = true;
 
@@ -188,14 +188,15 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
             const request: StartIrradiationSubmitBatchRequestDTO = {
                 deviceId: this.irradiation.value,
-                startTime: new Date().toISOString(),
+                startTime: this.startTime,
                 batchItems: batchItems
             };
 
             this.irradiationService.startIrradiationSubmitBatch(request).subscribe({
                 next: (result) => {
-                    this.showMessage(MessageType.SUCCESS, result.data.response.submitBatch.message);
+                    this.showMessage(MessageType.SUCCESS, (result.data as any).submitBatch.message);
                     this.resetAllData();
+                    this.currentDateTime = '';
                 },
                 error: (error) => {
                     this.showMessage(MessageType.ERROR, error.message || 'Failed to submit irradiation batch');
@@ -219,6 +220,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                 hour12: false
             });
 
+            this.startTime = now.toISOString().slice(0, 19);
+
             this.irradiationService.validateUnit(unitNumber,this.currentLocation).subscribe({
                 next: (result) => {
                     const inventories = result.data.validateUnit;
@@ -234,8 +237,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                             order: inventory.order || 1,
                             statuses: [
                                 {
-                                    value: inventory.status,
-                                    classes: this.statusToColorClass(inventory.status),
+                                    value: this.getFinalStatus(inventory),
+                                    classes: this.statusToColorClass(inventory),
                                 },
                             ],
                             location: this.currentLocation,
@@ -384,21 +387,29 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         return this._productIconService.getIconByProductFamily(productFamily);
     }
 
-    private statusToColorClass(status: string) {
-        switch (status) {
-            case SHIPPED:
-                return 'bg-orange-500 text-white';
-            case QUARANTINED:
-                return 'bg-orange-500 text-white';
-            case AVAILABLE:
-                return 'bg-green-500 text-white';
-            case UNSUITABLE:
-            case DISCARDED:
-            case EXPIRED:
-                return 'bg-red-500 text-white';
-
-
+    private getFinalStatus(inventory: IrradiationProductDTO) {
+        if (inventory.expired) {
+            return EXPIRED;
         }
+
+        if (inventory.unsuitableReason) {
+            return UNSUITABLE;
+        }
+        return AVAILABLE;
+    }
+
+    private statusToColorClass(inventory: IrradiationProductDTO) {
+        if (inventory.expired) {
+            return 'bg-red-500 text-white';
+        }
+        if (inventory.unsuitableReason) {
+            return 'bg-red-500 text-white';
+        }
+        if (inventory.quarantines) {
+            return 'bg-orange-500 text-white';
+        }
+        return 'bg-green-500 text-white';
+
     }
 
     private addProductToList(newProduct: IrradiationProductDTO) {
