@@ -1,0 +1,7 @@
+mutation submitBatch($input: SubmitBatchInput!) {
+    submitBatch(input: $input) {
+        batchId
+        message
+        success
+    }
+}

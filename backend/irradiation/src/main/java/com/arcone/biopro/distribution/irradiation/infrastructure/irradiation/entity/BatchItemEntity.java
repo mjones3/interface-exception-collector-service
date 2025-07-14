@@ -16,26 +16,26 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
-@Table("bld_batch")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BatchEntity implements Serializable, Persistable<Long> {
+@Table("bld_batch_item")
+public class BatchItemEntity implements Serializable, Persistable<Long> {
     @Id
     private Long id;
 
-    @Column("device_id")
-    private String deviceId;
+    @Column("batch_id")
+    private Long batchId;
 
-    @Column("start_time")
-    private LocalDateTime startTime;
+    @Column("unit_number")
+    private String unitNumber;
 
-    @Column("end_time")
-    private LocalDateTime endTime;
+    @Column("product_code")
+    private String productCode;
 
-    @Column("delete_date")
-    private LocalDateTime deleteDate;
+    @Column("lot_number")
+    private String lotNumber;
 
     @CreatedDate
     @Column("create_date")
@@ -46,13 +46,8 @@ public class BatchEntity implements Serializable, Persistable<Long> {
     @LastModifiedDate
     private ZonedDateTime modificationDate;
 
-    public BatchEntity(String deviceId, LocalDateTime startTime, LocalDateTime endTime) {
-        this.deviceId = deviceId;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.createDate = ZonedDateTime.now();
-        this.modificationDate = ZonedDateTime.now();
-    }
+    @Column("delete_date")
+    private LocalDateTime deleteDate;
 
     @Override
     public boolean isNew() {

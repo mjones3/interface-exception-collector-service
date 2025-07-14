@@ -96,27 +96,6 @@ public class DatabaseConfiguration {
         }
     }
 
-    @ReadingConverter
-    public enum ZonedDateTimeReadConverter implements Converter<LocalDateTime, ZonedDateTime> {
-        INSTANCE;
-
-        @Override
-        public ZonedDateTime convert(LocalDateTime localDateTime) {
-            // Be aware - we are using the UTC timezone
-            return ZonedDateTime.of(localDateTime, ZoneOffset.UTC);
-        }
-    }
-
-    @WritingConverter
-    public enum ZonedDateTimeWriteConverter implements Converter<ZonedDateTime, LocalDateTime> {
-        INSTANCE;
-
-        @Override
-        public LocalDateTime convert(ZonedDateTime zonedDateTime) {
-            return zonedDateTime.toLocalDateTime();
-        }
-    }
-
     @WritingConverter
     public enum DurationWriteConverter implements Converter<Duration, Long> {
         INSTANCE;
