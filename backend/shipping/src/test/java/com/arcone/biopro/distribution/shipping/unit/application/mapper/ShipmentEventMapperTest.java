@@ -22,6 +22,9 @@ class ShipmentEventMapperTest {
 
         var dto = Mockito.mock(ShipmentDetailResponseDTO.class);
         Mockito.when(dto.id()).thenReturn(1L);
+        Mockito.when(dto.shipmentType()).thenReturn("SHIPMENT_TYPE");
+        Mockito.when(dto.labelStatus()).thenReturn("LABEL_STATUS");
+        Mockito.when(dto.quarantinedProducts()).thenReturn(true);
 
         Mockito.when(dto.items()).thenReturn(List.of(ShipmentItemResponseDTO
             .builder()
@@ -51,6 +54,10 @@ class ShipmentEventMapperTest {
         Assertions.assertEquals("AP",payload.lineItems().getFirst().products().getFirst().aboRh());
         Assertions.assertNotNull(payload.lineItems().getFirst().products().getFirst().collectionDate());
         Assertions.assertNotNull(payload.lineItems().getFirst().products().getFirst().expirationDate());
+
+        Assertions.assertEquals("LABEL_STATUS",payload.labelStatus());
+        Assertions.assertEquals("SHIPMENT_TYPE",payload.shipmentType());
+        Assertions.assertEquals(true,payload.quarantinedProducts());
 
     }
 
