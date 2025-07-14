@@ -17,10 +17,10 @@ Feature: Prevent filling a shipment with unsuitable products
         And I should not see the unit "<UN>" with product code "<Code>" added to the filled products table.
 
         Examples:
-            | UN               | Code       | Inspection   | Message                                                                       | Message Type           | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                                                          | Family Description           |
-            | =W03689878675600 | =<E0701V00 | Satisfactory | This product is expired and has been discarded. Place in biohazard container. | Acknowledgment Message | 999771      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          |
-            | =W03689878675800 | =<E0703V00 | Satisfactory | This product is quarantined and cannot be shipped                             | Acknowledgment Message | 999778      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED |
-            | =W03689878676300 | =<E0703V00 | Satisfactory | This product is not in the inventory and cannot be shipped                    | Warning                | 999779      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          |
+            | UN               | Code           | Inspection   | Message                                                                       | Message Type           | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                                                          | Family Description           |
+            | =W03689878675600 | =<E0707V00     | Satisfactory | This product is expired and has been discarded. Place in biohazard container. | Acknowledgment Message | 999771      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          |
+            | =W03689878675800 | =<GENERIC_CODE | Satisfactory | This product is quarantined and cannot be shipped                             | Acknowledgment Message | 999778      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED |
+            | =W03689878676300 | =<E0703V00     | Satisfactory | This product is not in the inventory and cannot be shipped                    | Warning                | 999779      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          |
 
 
     @ui @DIS-78 @DIS-56
@@ -51,9 +51,6 @@ Feature: Prevent filling a shipment with unsuitable products
         Rule: I should be able to fill an internal transfer order with quarantined products as requested.
         Rule: I should not be able to fill the same internal order with both quarantined and not quarantined products.
         Rule: I should not be able to select an unlabeled product when the the internal transfer is for labeled products.
-
-        ## TODO ADD NEW ACS from DIS-452
-
         @api @DIS-254 @bug @DIS-321 @DIS-336 @DIS-337 @DIS-444 @DIS-452
         Scenario Outline: Fill shipments with ineligible Products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Temperature Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".

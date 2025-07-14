@@ -135,7 +135,7 @@ Feature: Second Verification of Units Feature
             And The second verification configuration is "enabled".
             And I am on the verify products page.
             When I choose to complete the Shipment.
-            Then I should see a notification dialog with the message "One or more products have changed status. You must rescan the products to be removed".
+            Then I should see a notification dialog with the message "One or more products have changed status. You must rescan the products to be removed.".
             And The shipment status for order "<Order Number>" should be "open".
             And I should have an option to acknowledge the notification.
             And I should see a list of products grouped by the following statuses:
