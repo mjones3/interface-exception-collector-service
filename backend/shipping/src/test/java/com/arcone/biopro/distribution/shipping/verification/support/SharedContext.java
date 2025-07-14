@@ -32,6 +32,7 @@ public class SharedContext {
 
     // Shipment data
     private Long shipmentId;
+    private List<Map> shipmentItems;
 
     // Product data
     private String unitNumber;
