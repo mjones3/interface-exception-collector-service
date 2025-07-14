@@ -27,6 +27,7 @@ public record InventoryResponseDTO(
     String productFamily,
     ZonedDateTime collectionDate,
     String storageLocation,
+    String deviceStored,
     String collectionLocation,
     String collectionTimeZone,
     ZonedDateTime createDate,
