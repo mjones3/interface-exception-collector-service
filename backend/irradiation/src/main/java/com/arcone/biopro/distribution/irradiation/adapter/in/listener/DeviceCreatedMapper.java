@@ -4,10 +4,10 @@ import com.arcone.biopro.distribution.irradiation.application.usecase.CreateDevi
 import org.springframework.stereotype.Component;
 
 @Component
-public class DeviceCreatedMapper implements MessageMapper<CreateDeviceUseCase.Input, CheckInCompleted> {
+public class DeviceCreatedMapper implements MessageMapper<CreateDeviceUseCase.Input, DeviceCreated> {
 
     @Override
-    public CreateDeviceUseCase.Input toInput(CheckInCompleted payload) {
+    public CreateDeviceUseCase.Input toInput(DeviceCreated payload) {
         return new CreateDeviceUseCase.Input(payload.id(), payload.location(), payload.status(), payload.deviceCategory());
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DeviceCreatedListener extends AbstractListener<CreateDeviceUseCase.Input, Device, CheckInCompleted> {
+public class DeviceCreatedListener extends AbstractListener<CreateDeviceUseCase.Input, Device, DeviceCreated> {
 
     public DeviceCreatedListener(ReactiveKafkaConsumerTemplate<String, String> consumer,
                                 ObjectMapper objectMapper,
@@ -20,7 +20,7 @@ public class DeviceCreatedListener extends AbstractListener<CreateDeviceUseCase.
     }
 
     @Override
-    protected TypeReference<EventMessage<CheckInCompleted>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<CheckInCompleted>>() {};
+    protected TypeReference<EventMessage<DeviceCreated>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<DeviceCreated>>() {};
     }
 }
