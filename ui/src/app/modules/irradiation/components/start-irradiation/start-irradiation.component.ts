@@ -71,7 +71,6 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     products: IrradiationProductDTO[] = [];
     initialProductsState: IrradiationProductDTO[] = [];
     allProducts: IrradiationProductDTO[] = [];
-    deviceId: string;
     currentDateTime: string;
 
     @Input() showCheckDigit = true;
