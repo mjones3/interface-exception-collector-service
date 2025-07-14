@@ -34,6 +34,10 @@ public interface ShipmentItemPackedRepository extends ReactiveCrudRepository<Shi
     @Query("select count(*) from bld_shipment_item_packed where ineligible_status is not null and shipment_item_id in (select id from bld_shipment_item bsi where shipment_id  = :shipmentId)")
     Mono<Integer> countIneligibleByShipmentId(@Param("shipmentId") Long shipmentId);
 
+
+    @Query("select * from bld_shipment_item_packed where ineligible_status is null and shipment_item_id in (select id from bld_shipment_item bsi where shipment_id  = :shipmentId)")
+    Flux<ShipmentItemPacked> listAllEligibleByShipmentId(@Param("shipmentId") Long shipmentId);
+
 }
 
 

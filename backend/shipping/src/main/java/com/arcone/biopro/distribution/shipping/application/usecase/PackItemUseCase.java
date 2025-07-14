@@ -125,13 +125,13 @@ public class PackItemUseCase implements PackItemService {
                         return Mono.just(inventoryValidationResponseDTO);
                     } else {
 
-                        if(hasOnlyNotificationType(inventoryValidationResponseDTO.inventoryNotificationsDTO(),"INVENTORY_IS_QUARANTINED")
+                        if(inventoryValidationResponseDTO.hasOnlyNotificationType("INVENTORY_IS_QUARANTINED")
                             && INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
                             && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts()){
                             return Mono.just(inventoryValidationResponseDTO);
                         }
 
-                        if(hasOnlyNotificationType(inventoryValidationResponseDTO.inventoryNotificationsDTO(),"INVENTORY_IS_UNLABELED")
+                        if(inventoryValidationResponseDTO.hasOnlyNotificationType("INVENTORY_IS_UNLABELED")
                             && INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
                             && UNLABELED_STATUS.equals(shipment.getLabelStatus())){
                             return Mono.just(inventoryValidationResponseDTO);
@@ -157,21 +157,6 @@ public class PackItemUseCase implements PackItemService {
             }
         );
 
-    }
-
-    private boolean hasOnlyNotificationType(List<InventoryNotificationDTO> inventoryNotificationsDTO , String type) {
-        if(inventoryNotificationsDTO == null){
-            throw new IllegalArgumentException("inventoryNotificationsDTO is null");
-        }
-
-        if(type == null ||  type.isBlank()){
-            throw new IllegalArgumentException("type is null");
-        }
-
-        var countNotifications = inventoryNotificationsDTO.stream()
-        .filter(notificationDTO -> notificationDTO.errorName().equals(type))
-        .count();
-        return countNotifications == 1 && inventoryNotificationsDTO.size() == 1;
     }
 
     private Mono<ShipmentItemPacked> validateProductCriteria(PackItemRequest request, InventoryValidationResponseDTO inventoryValidationResponseDTO, Boolean visualInspectionFlag, Boolean secondVerificationFlag) {
