@@ -129,6 +129,7 @@ Feature: Complete Shipment Feature
            And The second verification configuration is "enabled".
            When I request to complete a shipment.
            Then I should receive a "<Message Type>" message response "<Message>".
+           And I should receive the unit "<Unquarantined UN>", product code "<Unquarantined Code>" flagged as "INVENTORY_IS_NOT_QUARANTINED"
            Examples:
                 | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily       | Category | Shipment Type     | Label Status | Quarantined Products | Quarantined UN | Quarantined Code | Unquarantined UN | Unquarantined Code | Message Type | Message                                                                               |
                 | 4450001      | DO1         | Distribution Only |  2       | ANY       | PLASMA_TRANSFUSABLE | FROZEN   | INTERNAL_TRANSFER | LABELED      |    true              | W036898445758  | E0701V00         |  W036898445760   |  E0701V00          | CONFIRMATION | One or more products have changed status. You must rescan the products to be removed. |

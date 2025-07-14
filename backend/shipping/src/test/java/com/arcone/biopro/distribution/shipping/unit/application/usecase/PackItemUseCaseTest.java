@@ -864,6 +864,8 @@ class PackItemUseCaseTest {
             .details(Arrays.asList("REASON1", "REASON2", "REASON3"))
             .build()));
 
+        Mockito.when(validationResponseDTO.hasOnlyNotificationType(Mockito.eq("INVENTORY_IS_QUARANTINED"))).thenReturn(true);
+
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("PLASMA_TRANSFUSABLE")
@@ -1220,6 +1222,8 @@ class PackItemUseCaseTest {
 
         Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
 
+
+        Mockito.when(validationResponseDTO.hasOnlyNotificationType(Mockito.eq("INVENTORY_IS_UNLABELED"))).thenReturn(true);
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("PLASMA_TRANSFUSABLE")

@@ -209,6 +209,8 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                                         .unitNumber(itemPacked.getUnitNumber())
                                                         .aboRh(itemPacked.getAboRh())
                                                         .productCode(itemPacked.getProductCode())
+                                                        .productDescription(itemPacked.getProductDescription())
+                                                        .status(IneligibleStatus.INVENTORY_IS_NOT_QUARANTINED.name())
                                                         .build())
                                                 .build()));
                                     }
