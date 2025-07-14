@@ -122,7 +122,7 @@ Feature: Complete Shipment Feature
                 | 1125          | E0685V00     | W822530106094 | E0713V00        | W036898786759 | CONFIRMATION | One or more products have changed status. You must rescan the products to be removed. | INVENTORY_IS_DISCARDED | This product is discarded and cannot be shippedLorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec. |
 
 
-       Rule: I should not be able to mix quarantined and unquarantined products in the internal transfer shipment.
+       Rule: I should not be able to mix quarantined and not quarantined products in the internal transfer shipment.
        @api @DIS-445
        Scenario Outline: Cannot mix quarantined and unquarantined products in shipment
            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>,<Unquarantined UN>" and product codes "<Quarantined Code>,<Unquarantined Code>" "verified"
