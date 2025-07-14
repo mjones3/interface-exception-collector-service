@@ -497,7 +497,11 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 productFamily: 'WHOLE_BLOOD',
                 icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
-                statuses: this.getStatuses(AVAILABLE)
+                statuses: this.getStatuses(AVAILABLE),
+                location: '',
+                comments: '',
+                statusReason: '',
+                unsuitableReason: ''
             },
             {
                 unitNumber: "W036825314134",
@@ -507,7 +511,11 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 productFamily: 'WHOLE_BLOOD',
                 icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
-                statuses: this.getStatuses(QUARANTINED)
+                statuses: this.getStatuses(QUARANTINED),
+                location: '',
+                comments: '',
+                statusReason: '',
+                unsuitableReason: ''
             },
             {
                 unitNumber: "W036825314135",
@@ -517,7 +525,11 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 productFamily: 'WHOLE_BLOOD',
                 icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
-                statuses: this.getStatuses(QUARANTINED)
+                statuses: this.getStatuses(QUARANTINED),
+                location: '',
+                comments: '',
+                statusReason: '',
+                unsuitableReason: ''
             },
         ];
 
