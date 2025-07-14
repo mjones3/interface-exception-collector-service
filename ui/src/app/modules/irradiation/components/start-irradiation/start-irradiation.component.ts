@@ -25,7 +25,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {
     IrradiationProductDTO,
-    MessageType, ValidateUnitEvent, ValidationDataDTO
+    MessageType, StartIrradiationSubmitBatchRequestDTO, ValidateUnitEvent, ValidationDataDTO
 } from "../../models/model";
 import {ProductIconsService} from "../../../../shared/services/product-icon.service";
 import {FuseConfirmationService} from "../../../../../@fuse/services/confirmation";
@@ -71,7 +71,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     products: IrradiationProductDTO[] = [];
     initialProductsState: IrradiationProductDTO[] = [];
     allProducts: IrradiationProductDTO[] = [];
-    deviceId: string;
+    currentDateTime: string;
 
     @Input() showCheckDigit = true;
 
@@ -178,17 +178,46 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     submit() {
-        const unitNumbers = this.products.map((product) => product.unitNumber);
-        const requestDTO = {
-            unitNumbers: unitNumbers,
-            location: this.facilityService.getFacilityCode(),
-            deviceId: this.deviceId,
-        };
+        if (this.isSubmitEnabled()) {
+            const batchItems = this.products.map(product => ({
+                unitNumber: product.unitNumber,
+                productCode: product.productCode,
+                lotNumber: this.lotNumber.value
+            }));
+
+            const request: StartIrradiationSubmitBatchRequestDTO = {
+                deviceId: this.irradiation.value,
+                startTime: new Date().toISOString(),
+                batchItems: batchItems
+            };
+
+            this.irradiationService.startIrradiationSubmitBatch(request).subscribe({
+                next: (result) => {
+                    this.showMessage(MessageType.SUCCESS, result.data.response.submitBatch.message);
+                    this.resetAllData();
+                },
+                error: (error) => {
+                    this.showMessage(MessageType.ERROR, error.message || 'Failed to submit irradiation batch');
+                }
+            });
+        }
     }
 
     validateUnit(event: ValidateUnitEvent) {
         const unitNumber = event.unitNumber;
         if (unitNumber) {
+            // Update current date and time in MM/DD/YYYY HH:MM format
+            const now = new Date();
+            this.currentDateTime = now.toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric'
+            }) + ' ' + now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
             this.irradiationService.validateUnit(unitNumber,this.currentLocation).subscribe({
                 next: (result) => {
                     const inventories = result.data.validateUnit;
@@ -250,7 +279,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
             case UNSUITABLE:
                 return this.handleUnsuitableProduct(selectedOption);
             default:
-                return;
+                return this.toaster.error(selectedOption.statusReason);
         }
     }
 
