@@ -191,7 +191,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         if (unitNumber) {
             this.irradiationService.validateUnit(unitNumber,this.currentLocation).subscribe({
                 next: (result) => {
-                    const inventories = result.data.products;
+                    const inventories = result.data.validateUnit;
                     if (inventories) {
                         const irradiationProducts: IrradiationProductDTO[] = inventories.map(inventory => ({
                             unitNumber: unitNumber,
@@ -250,7 +250,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
             case UNSUITABLE:
                 return this.handleUnsuitableProduct(selectedOption);
             default:
-                return this.toaster.error(selectedOption.statusReason);
+                return;
         }
     }
 

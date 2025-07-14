@@ -295,11 +295,6 @@ describe('StartIrradiationComponent', () => {
         const unsuitableProduct = { status: UNSUITABLE } as IrradiationProductDTO;
         component['validateProduct'](unsuitableProduct);
         expect(component['handleUnsuitableProduct']).toHaveBeenCalledWith(unsuitableProduct);
-
-        // Test default case
-        const otherProduct = { status: 'OTHER', statusReason: 'Some reason' } as IrradiationProductDTO;
-        component['validateProduct'](otherProduct);
-        expect(toastrService.error).toHaveBeenCalledWith('Some reason');
     });
 
     it('should discard product', () => {
