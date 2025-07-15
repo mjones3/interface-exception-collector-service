@@ -16,10 +16,10 @@ import java.time.Duration;
 @Slf4j
 public class RSocketConfiguration {
 
-    @Value("${spring.rsocket.inventory.host}")
+    @Value("${spring.rsocket.inventory.host:inventory-service}")
     private String inventoryHost;
 
-    @Value("${spring.rsocket.inventory.port}")
+    @Value("${spring.rsocket.inventory.port:7002}")
     private int inventoryPort;
 
     @Bean
@@ -37,6 +37,7 @@ public class RSocketConfiguration {
 
     @Bean
     public RSocketRequester inventoryRSocketRequester(RSocketStrategies strategies) {
+        log.info("Creating RSocketRequester for host {} and port {}", inventoryHost, inventoryPort);
         return RSocketRequester.builder()
             .rsocketStrategies(strategies)
             .rsocketConnector(connector -> connector

@@ -4,6 +4,10 @@ type Query {
     readConfiguration(keys: [String]): [ConfigurationDTO]
 }
 
+type Mutation {
+    submitBatch(input: SubmitBatchInput!): BatchSubmissionResult!
+}
+
 type Inventory {
     unitNumber: String
     productCode: String
@@ -14,6 +18,7 @@ type Inventory {
     statusReason: String
     unsuitableReason: String
     expired: Boolean
+    quarantines: [InventoryQuarantine]
 }
 
 type ConfigurationDTO {
@@ -21,3 +26,26 @@ type ConfigurationDTO {
     value: String
 }
 
+type InventoryQuarantine {
+    reason: String!,
+    comments: String,
+    stopsManufacturing: Boolean!
+}
+
+input SubmitBatchInput {
+    deviceId: String!
+    startTime: String!
+    batchItems: [BatchItemInput!]!
+}
+
+input BatchItemInput {
+    unitNumber: String!
+    productCode: String!
+    lotNumber: String!
+}
+
+type BatchSubmissionResult {
+    batchId: ID!
+    message: String!
+    success: Boolean!
+}

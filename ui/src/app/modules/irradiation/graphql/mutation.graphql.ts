@@ -1,15 +1,14 @@
 import { gql } from '@apollo/client/core';
 
-const SUBMIT_IRRADIATION_BATCH = gql`
-    mutation SubmitIrradiationBatch(
-        $dto: SubmitIrradiationBatchRequestDTO!
-    ) {
-        submitIrradiationBatch(dto: $dto) {
+const START_IRRADIATION_SUBMIT_BATCH = gql`
+    mutation  submitBatch($input: SubmitBatchInput!) {
+        submitBatch(input: $input) {
             batchId
+            message
         }
     }
 `;
 
 export {
-    SUBMIT_IRRADIATION_BATCH,
+    START_IRRADIATION_SUBMIT_BATCH,
 };

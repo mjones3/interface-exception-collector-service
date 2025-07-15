@@ -5,6 +5,8 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class Inventory {
@@ -17,10 +19,20 @@ public class Inventory {
     private final String statusReason;
     private final String unsuitableReason;
     private final Boolean expired;
+    private final List<InventoryQuarantine> quarantines;
 
 
     public boolean isAvailable() {
         return "AVAILABLE".equals(status);
+    }
+
+    public boolean isEligibleForIrradiation() {
+        // Exclude converted, modified, in transit, shipped products
+        return isAvailable() &&
+               !"CONVERTED".equals(status) &&
+               !"MODIFIED".equals(status) &&
+               !"IN_TRANSIT".equals(status) &&
+               !"SHIPPED".equals(status);
     }
 
     public boolean isAtLocation(Location targetLocation) {

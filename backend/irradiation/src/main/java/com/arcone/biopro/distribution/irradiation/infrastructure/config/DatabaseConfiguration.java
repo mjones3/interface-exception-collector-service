@@ -46,8 +46,6 @@ public class DatabaseConfiguration {
         converters.add(BitSetReadConverter.INSTANCE);
         converters.add(DurationWriteConverter.INSTANCE);
         converters.add(DurationReadConverter.INSTANCE);
-        converters.add(ZonedDateTimeReadConverter.INSTANCE);
-        converters.add(ZonedDateTimeWriteConverter.INSTANCE);
         return R2dbcCustomConversions.of(dialect, converters);
     }
 
@@ -93,27 +91,6 @@ public class DatabaseConfiguration {
         @Override
         public Boolean convert(BitSet bitSet) {
             return bitSet.get(0);
-        }
-    }
-
-    @ReadingConverter
-    public enum ZonedDateTimeReadConverter implements Converter<LocalDateTime, ZonedDateTime> {
-        INSTANCE;
-
-        @Override
-        public ZonedDateTime convert(LocalDateTime localDateTime) {
-            // Be aware - we are using the UTC timezone
-            return ZonedDateTime.of(localDateTime, ZoneOffset.UTC);
-        }
-    }
-
-    @WritingConverter
-    public enum ZonedDateTimeWriteConverter implements Converter<ZonedDateTime, LocalDateTime> {
-        INSTANCE;
-
-        @Override
-        public LocalDateTime convert(ZonedDateTime zonedDateTime) {
-            return zonedDateTime.toLocalDateTime();
         }
     }
 

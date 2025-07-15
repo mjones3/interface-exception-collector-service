@@ -16,6 +16,13 @@ public class DeviceId {
         return new DeviceId(value.trim());
     }
 
+    public static DeviceId of(Long value) {
+        if (value == null) {
+            throw new IllegalArgumentException("DeviceId cannot be null");
+        }
+        return new DeviceId(value.toString());
+    }
+
     public String getValue() {
         return value;
     }

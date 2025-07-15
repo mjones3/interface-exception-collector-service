@@ -78,6 +78,14 @@ export interface IrradiationProductDTO {
     visualInspection?: VisualInspectionRequestDTO;
     statuses?: { value: string; classes: string }[];
     disabled?: boolean;
+    expired: boolean;
+    quarantines: IrradiationProductQuarantineDTO[];
+}
+
+export interface IrradiationProductQuarantineDTO {
+    reason: string;
+    comments: string;
+    stopsManufacturing: boolean;
 }
 
 export interface CentrifugationResolveData {
@@ -120,14 +128,24 @@ export interface UnitNumberRequestDTO {
     location: string;
 }
 
-export interface SubmitIrradiationBatchRequestDTO {
-    unitNumbers: string[];
-    location: string;
-    deviceId: string;
+export interface StartIrradiationBatchItemDTO {
+    unitNumber: string;
+    productCode: string;
+    lotNumber: string
 }
 
-export interface CentrifugationResponseDTO {
-    batchId: string;
+export interface StartIrradiationSubmitBatchRequestDTO {
+    deviceId: string;
+    startTime: string;
+    batchItems: StartIrradiationBatchItemDTO[];
+}
+
+export interface StartIrradiationSubmitBatchResponseDTO {
+    submitBatch: SubmitBatchDTO;
+}
+
+export interface SubmitBatchDTO {
+    message: string;
 }
 
 export interface ProductDataDTO {
@@ -145,4 +163,8 @@ export interface ValidateUnitNumberResponseDTO {
 
 export interface UnitNumberResponseDTO {
     enterUnitNumberForCentrifugation: ValidateUnitNumberResponseDTO;
+}
+
+export interface QuarantineDTO {
+    stopsManufacturing: boolean;
 }

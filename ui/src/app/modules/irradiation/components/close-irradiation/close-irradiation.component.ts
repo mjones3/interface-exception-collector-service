@@ -177,25 +177,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     submit() {
-        const unitNumbers = this.products.map((product) => product.unitNumber);
-        const requestDTO = {
-            unitNumbers: unitNumbers,
-            location: this.facilityService.getFacilityCode(),
-            deviceId: this.deviceId,
-        };
-        this.irradiationService
-            .submitCentrifugationBatch(requestDTO)
-            .subscribe((response) => {
-                if (response.errors && response.errors.length > 0) {
-                    //this.irradiationService.handleErrors(response);
-                } else {
-                    this.showMessage(
-                        MessageType.SUCCESS,
-                        'Start irradiation successfully completed'
-                    );
-                    this.redirect();
-                }
-            });
+       console.log()
     }
 
 
@@ -501,7 +483,9 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 location: '',
                 comments: '',
                 statusReason: '',
-                unsuitableReason: ''
+                unsuitableReason: '',
+                expired: false,
+                quarantines: null
             },
             {
                 unitNumber: "W036825314134",
@@ -515,7 +499,9 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 location: '',
                 comments: '',
                 statusReason: '',
-                unsuitableReason: ''
+                unsuitableReason: '',
+                expired: false,
+                quarantines: null
             },
             {
                 unitNumber: "W036825314135",
@@ -529,7 +515,9 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 location: '',
                 comments: '',
                 statusReason: '',
-                unsuitableReason: ''
+                unsuitableReason: '',
+                expired: false,
+                quarantines: null
             },
         ];
 

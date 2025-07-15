@@ -25,5 +25,16 @@
         "pathRewrite": {
             "^/graphql": ""
         }
+    },
+    {
+        "context": [
+            "/irradiation/graphql"
+        ],
+        "target": "http://localhost:8080/irradiation/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/irradiation/graphql": ""
+        }
     }
 ]
