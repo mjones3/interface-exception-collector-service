@@ -40,6 +40,7 @@ const provideApollo = (): Provider[] => [
                 '/discard/graphql',
                 '/recoveredplasmashipping/graphql',
                 '/receiving/graphql',
+                '/irradiation/graphql',
             ].reduce(
                 (instances: NamedOptions, path: string) => ({
                     ...instances,

@@ -1,5 +1,9 @@
 export const USE_CHECK_DIGIT = 'USE_CHECK_DIGIT';
 
+export interface IrradiationResolveData {
+    useCheckDigit: boolean;
+}
+
 export interface CheckDigitRequestDTO {
     unitNumber: string;
     checkDigit: string;
@@ -58,17 +62,15 @@ export const MessageType = {
 
 export type MessageType = keyof typeof MessageType;
 
-export interface CentrifugationProcessDTO {
-    id: number;
-    descriptionKey?: string;
-    icon?: string;
-}
-
 export interface IrradiationProductDTO {
     unitNumber: string;
     productCode: string;
     productDescription: string;
     productFamily: string;
+    location: string;
+    comments: string;
+    statusReason: string;
+    unsuitableReason: string;
     status: string;
     statusClasses?: string;
     icon?: string;
@@ -76,6 +78,14 @@ export interface IrradiationProductDTO {
     visualInspection?: VisualInspectionRequestDTO;
     statuses?: { value: string; classes: string }[];
     disabled?: boolean;
+    expired: boolean;
+    quarantines: IrradiationProductQuarantineDTO[];
+}
+
+export interface IrradiationProductQuarantineDTO {
+    reason: string;
+    comments: string;
+    stopsManufacturing: boolean;
 }
 
 export interface CentrifugationResolveData {
@@ -98,9 +108,7 @@ export interface ValidateUnitEvent {
 }
 
 export interface DeviceDTO {
-    bloodCenterId: string;
-    deviceType: string;
-    location: string;
+    validateDevice: boolean;
 }
 
 export interface IrradiationDeviceResponseDTO {
@@ -120,14 +128,24 @@ export interface UnitNumberRequestDTO {
     location: string;
 }
 
-export interface SubmitIrradiationBatchRequestDTO {
-    unitNumbers: string[];
-    location: string;
-    deviceId: string;
+export interface StartIrradiationBatchItemDTO {
+    unitNumber: string;
+    productCode: string;
+    lotNumber: string
 }
 
-export interface CentrifugationResponseDTO {
-    batchId: string;
+export interface StartIrradiationSubmitBatchRequestDTO {
+    deviceId: string;
+    startTime: string;
+    batchItems: StartIrradiationBatchItemDTO[];
+}
+
+export interface StartIrradiationSubmitBatchResponseDTO {
+    submitBatch: SubmitBatchDTO;
+}
+
+export interface SubmitBatchDTO {
+    message: string;
 }
 
 export interface ProductDataDTO {
@@ -147,8 +165,6 @@ export interface UnitNumberResponseDTO {
     enterUnitNumberForCentrifugation: ValidateUnitNumberResponseDTO;
 }
 
-export interface ValidateUnitEvent {
-    unitNumber: string;
-    checkDigit: string;
-    scanner: boolean;
+export interface QuarantineDTO {
+    stopsManufacturing: boolean;
 }

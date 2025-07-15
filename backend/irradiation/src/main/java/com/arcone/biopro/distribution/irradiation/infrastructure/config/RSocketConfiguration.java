@@ -2,29 +2,32 @@ package com.arcone.biopro.distribution.irradiation.infrastructure.config;
 
 import io.rsocket.core.Resume;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.rsocket.server.RSocketServerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.rsocket.RSocketRequester;
+import org.springframework.messaging.rsocket.RSocketStrategies;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
 
 @Configuration
 @Slf4j
-class RSocketConfiguration {
+public class RSocketConfiguration {
 
+    @Value("${spring.rsocket.inventory.host:inventory-service}")
+    private String inventoryHost;
 
-    /**
-     * Add resume ability for RSocketServer
-     *
-     * @return RSocketServerCustomizer
-     */
+    @Value("${spring.rsocket.inventory.port:7002}")
+    private int inventoryPort;
+
     @Bean
     RSocketServerCustomizer resumeServerCustomizer() {
         return rSocketServer ->
             rSocketServer.resume(new Resume()
-                .streamTimeout(Duration.ofSeconds(60))
-                .sessionDuration(Duration.ofMinutes(5))
+                .streamTimeout(Duration.ofSeconds(5))
+                .sessionDuration(Duration.ofSeconds(5))
                 .retry(
                     Retry.fixedDelay(Long.MAX_VALUE, Duration.ofSeconds(5))
                         .doBeforeRetry(s -> log.warn("Client disconnected. Trying to resume connection..."))
@@ -32,4 +35,15 @@ class RSocketConfiguration {
             );
     }
 
+    @Bean
+    public RSocketRequester inventoryRSocketRequester(RSocketStrategies strategies) {
+        log.info("Creating RSocketRequester for host {} and port {}", inventoryHost, inventoryPort);
+        return RSocketRequester.builder()
+            .rsocketStrategies(strategies)
+            .rsocketConnector(connector -> connector
+                .reconnect(Retry.fixedDelay(Long.MAX_VALUE, Duration.ofSeconds(5))
+                    .doBeforeRetry(s -> log.warn("Disconnected from inventory service. Trying to reconnect...")))
+            )
+            .tcp(inventoryHost, inventoryPort);
+    }
 }

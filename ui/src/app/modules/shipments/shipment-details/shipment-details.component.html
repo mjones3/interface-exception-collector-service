@@ -55,6 +55,9 @@
                     externalId: shipmentInfo?.externalId,
                     labelingProductCategory:
                         ProductCategoryMap[shipmentInfo?.productCategory],
+                    quarantinedProducts:shipmentInfo?.quarantinedProducts,
+                    shipmentType:shipmentInfo?.shipmentType,
+                    labelStatus:shipmentInfo?.labelStatus
                 }"
                 [comments]="shipmentInfo?.comments"
                 [shippingInput]="{
@@ -63,6 +66,7 @@
                     customerName: shipmentInfo?.shippingCustomerName,
                     status: shipmentInfo?.status,
                     method: shipmentInfo?.shippingMethod,
+                    shipmentType:shipmentInfo?.shipmentType,
                 }"
             />
         </div>

@@ -28,6 +28,7 @@ public class ShipmentMapper {
             .productCode(shipmentItemPacked.getProductCode())
             .unitNumber(shipmentItemPacked.getUnitNumber())
             .productFamily(shipmentItemPacked.getProductFamily())
+            .productStatus(shipmentItemPacked.getProductStatus())
             .productDescription(shipmentItemPacked.getProductDescription())
             .collectionDate(shipmentItemPacked.getCollectionDate())
             .packedByEmployeeId(shipmentItemPacked.getPackedByEmployeeId())
@@ -40,6 +41,7 @@ public class ShipmentMapper {
             .ineligibleReason(shipmentItemPacked.getIneligibleReason())
             .ineligibleMessage(shipmentItemPacked.getIneligibleMessage())
             .ineligibleDetails(!StringUtils.isEmpty(shipmentItemPacked.getIneligibleDetails()) ? Arrays.asList(shipmentItemPacked.getIneligibleDetails().split(",")) : null)
+            .productStatus(shipmentItemPacked.getProductStatus())
 
             .build();
     }

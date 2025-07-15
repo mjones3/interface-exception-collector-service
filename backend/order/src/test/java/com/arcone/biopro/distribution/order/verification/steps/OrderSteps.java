@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -131,6 +132,8 @@ public class OrderSteps {
     private static final String CURRENT_DATE_TIME = "CURRENT_DATE_TIME";
 
     private JsonNode originalOrder;
+
+    private Map pickListResponse;
 
     @When("I want to list orders for location {string}.")
     public void searchOrders(String locationCode) {
@@ -575,12 +578,13 @@ public class OrderSteps {
 
     //    Common methods
 
-    private void createShipmentCreatedRequest(String jsonContent, ShipmentCreatedEventDTO eventPayload) throws JSONException {
+    private void createShipmentCreatedRequest(String jsonContent, ShipmentCreatedEventDTO eventPayload) throws JSONException, InterruptedException {
         orderShipment = new JSONObject(jsonContent);
         log.info("JSON PAYLOAD :{}", orderShipment);
         Assert.assertNotNull(orderShipment);
         var event = kafkaHelper.sendEvent(eventPayload.eventId().toString(), eventPayload, Topics.SHIPMENT_CREATED).block();
         Assert.assertNotNull(event);
+        Thread.sleep(kafkaWaitingTime);
     }
 
     private void createShipmentCompletedRequest(String jsonContent, ShipmentCompletedEventDTO eventPayload) throws JSONException {
@@ -1439,5 +1443,45 @@ public class OrderSteps {
             })
             .toList();
         Assert.assertEquals(0, orders.size());
+    }
+
+    @When("I request to generate the Pick List.")
+    public void iRequestToGenerateThePickList() {
+        var response = orderController.generatePickList(context.getOrderId(),false);
+        Assert.assertNotNull(response);
+        this.pickListResponse = (Map) response.get("data");
+    }
+
+    @Then("I have received the pick list details.")
+    public void iHaveReceivedThePickListDetails() {
+        Assert.assertNotNull(pickListResponse);
+    }
+
+    @And("I {string} received the short date product details.")
+    public void iReceivedTheShortDateProductDetails(String shouldShouldNot) {
+        var picklistItems = (List) pickListResponse.get("pickListItems");
+        Assert.assertNotNull(picklistItems);
+        var item = (Map) picklistItems.get(0);
+        var shortDateList = (List) item.get("shortDateList");
+        if("SHOULD".equalsIgnoreCase(shouldShouldNot)){
+            Assert.assertNotNull(item);
+            Assert.assertFalse(shortDateList.isEmpty());
+        }else{
+            Assert.assertTrue(shortDateList.isEmpty());
+        }
+    }
+
+    @And("The order status in the API response is {string}.")
+    public void theOrderStatusInTheAPIResponseIs(String orderStatus) {
+        var orderDetails = orderController.getOrderDetailsMap(context.getOrderId());
+        Assert.assertNotNull(orderDetails);
+        Assert.assertEquals(orderStatus, orderDetails.get("status"));
+    }
+
+    @And("I should not have multiple shipments generated.")
+    public void iShouldNotHaveMultipleShipmentsGenerated() {
+        var shipmentDetails = orderController.getOrderShipmentDetailsMap(context.getOrderId());
+        Assert.assertNotNull(shipmentDetails);
+        Assert.assertEquals(context.getOrderId(), shipmentDetails.get("orderId"));
     }
 }

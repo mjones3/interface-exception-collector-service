@@ -13,8 +13,6 @@ import org.springframework.test.context.TestPropertySource;
 
 @CucumberContextConfiguration
 @SpringBootTest(classes = BioProApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(locations = "classpath:application-test.properties")
-@ActiveProfiles("test")
 @AutoConfigureHttpGraphQlTester
 @ComponentScan(basePackages = {
     "com.arcone.biopro.distribution.irradiation",

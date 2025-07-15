@@ -3,10 +3,17 @@ import {DynamicGraphqlPathService} from "../../../core/services/dynamic-graphql-
 import {Observable} from "rxjs";
 import {ApolloQueryResult} from "@apollo/client";
 import {MutationResult} from "apollo-angular";
-import {DeviceDTO, SubmitIrradiationBatchRequestDTO} from "../models/model";
-import {GET_IRRADIATION_DEVICE_BY_ID} from "../graphql/query.graphql";
-import {RuleResponseDTO} from "../../../shared/models/rule.model";
-import {SUBMIT_IRRADIATION_BATCH} from "../graphql/mutation.graphql";
+import {
+    IrradiationProductDTO,
+    ReadConfigurationGraphQL,
+    StartIrradiationSubmitBatchRequestDTO, StartIrradiationSubmitBatchResponseDTO
+} from "../models/model";
+import {
+    GET_CONFIGURATIONS,
+    GET_IRRADIATION_DEVICE_BY_ID,
+    VALIDATE_UNIT
+} from "../graphql/query.graphql";
+import {START_IRRADIATION_SUBMIT_BATCH} from "../graphql/mutation.graphql";
 
 @Injectable({
   providedIn: 'root'
@@ -17,22 +24,49 @@ export class IrradiationService {
 
     constructor(private dynamicGraphqlPathService: DynamicGraphqlPathService) {}
 
-    public loadDeviceById(): Observable<
-        ApolloQueryResult<{ dto: DeviceDTO }>
+    public readConfiguration(
+        configurationKeys: string[]
+    ): Observable<
+        ApolloQueryResult<{ readConfiguration: ReadConfigurationGraphQL }>
     > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
-            GET_IRRADIATION_DEVICE_BY_ID
+            GET_CONFIGURATIONS,
+            { keys: configurationKeys }
         );
     }
 
-    public submitCentrifugationBatch(
-        dto: SubmitIrradiationBatchRequestDTO
-    ): Observable<MutationResult<{ packItem: RuleResponseDTO }>> {
+    public loadDeviceById(
+        deviceId: string, location: string
+    ): Observable<
+        ApolloQueryResult<{ validateDevice: boolean }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            GET_IRRADIATION_DEVICE_BY_ID,
+            { deviceId, location }
+        );
+    }
+
+    public validateUnit(
+        unitNumber: string, location: string
+    ): Observable<
+        ApolloQueryResult<{ validateUnit: IrradiationProductDTO[] }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            VALIDATE_UNIT,
+            { unitNumber, location }
+        );
+    }
+
+    public startIrradiationSubmitBatch(
+        startIrradiationSubmitBatchRequestDTO: StartIrradiationSubmitBatchRequestDTO
+    ): Observable<MutationResult<{ response: StartIrradiationSubmitBatchResponseDTO }>> {
         return this.dynamicGraphqlPathService.executeMutation(
             this.servicePath,
-            SUBMIT_IRRADIATION_BATCH,
-            dto
+            START_IRRADIATION_SUBMIT_BATCH,
+            { input: startIrradiationSubmitBatchRequestDTO }
         );
     }
 

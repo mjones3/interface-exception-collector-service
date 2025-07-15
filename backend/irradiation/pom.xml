@@ -19,7 +19,7 @@
         <sonar.organization>arc-one</sonar.organization>
 
         <!-- Build properties -->
-        <start-class>com.arcone.biopro.distribution.inventory.BioProApplication</start-class>
+        <start-class>com.arcone.biopro.distribution.irradiation.BioProApplication</start-class>
         <checkstyle.version>10.15.0</checkstyle.version>
         <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
         <profile.api-docs/>

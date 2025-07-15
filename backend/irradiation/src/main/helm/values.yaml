@@ -26,7 +26,7 @@ istio:
   gateway: rsa-gateway
   services:
     - uri:
-        prefix: /v1/irradiation
+        prefix: /irradiation/graphql
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -124,6 +124,8 @@ defaultEnv:
         key: password
   - name: SPRING_KAFKA_SECURITY_PROTOCOL
     value: "SSL"
+  - name: INVENTORY_SERVICE
+    value: inventory.api.svc.cluster.local
 
 additionalEnv: []
 

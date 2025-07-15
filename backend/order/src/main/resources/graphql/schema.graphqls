@@ -250,6 +250,9 @@ type PickListResponseDTO {
 
 type PickListDTO {
     orderNumber:Int
+    shipmentType:String
+    quarantinedProducts:Boolean
+    labelStatus:String
     customer:PickListCustomerDTO
     pickListItems:[PickListItemDTO]
     orderComments:String

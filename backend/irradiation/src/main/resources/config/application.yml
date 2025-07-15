@@ -29,6 +29,9 @@ spring:
   rsocket:
     server:
       port: 7002
+    inventory:
+      host: ${inventory-service:localhost}
+      port: 7002
 otel:
     sdk:
         disabled: true
@@ -132,6 +135,7 @@ spring:
   messages:
     basename: i18n/messages
   graphql:
+    path: /irradiation/graphql
     graphiql:
       enabled: true
   r2dbc:
@@ -272,8 +276,8 @@ application:
         - api://default
 
 topic:
-  check-in:
-    completed:
-      name: CheckInCompleted
+  device:
+    created:
+      name: DeviceCreated
 
 

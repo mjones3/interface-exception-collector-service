@@ -103,7 +103,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         });
 
         this.form = this.formBuilder.group({
-            irradiationId: [null, [Validators.required]],
+            irradiatorId: [null, [Validators.required]],
             lotNumber: [null, [Validators.required]]
         });
     }
@@ -119,7 +119,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     get irradiation() {
-        return this.form.get('irradiationId');
+        return this.form.get('irradiatorId');
     }
 
     get lotNumber() {
@@ -177,25 +177,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     submit() {
-        const unitNumbers = this.products.map((product) => product.unitNumber);
-        const requestDTO = {
-            unitNumbers: unitNumbers,
-            location: this.facilityService.getFacilityCode(),
-            deviceId: this.deviceId,
-        };
-        this.irradiationService
-            .submitCentrifugationBatch(requestDTO)
-            .subscribe((response) => {
-                if (response.errors && response.errors.length > 0) {
-                    //this.irradiationService.handleErrors(response);
-                } else {
-                    this.showMessage(
-                        MessageType.SUCCESS,
-                        'Start irradiation successfully completed'
-                    );
-                    this.redirect();
-                }
-            });
+       console.log()
     }
 
 
@@ -497,7 +479,13 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 productFamily: 'WHOLE_BLOOD',
                 icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
-                statuses: this.getStatuses(AVAILABLE)
+                statuses: this.getStatuses(AVAILABLE),
+                location: '',
+                comments: '',
+                statusReason: '',
+                unsuitableReason: '',
+                expired: false,
+                quarantines: null
             },
             {
                 unitNumber: "W036825314134",
@@ -507,7 +495,13 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 productFamily: 'WHOLE_BLOOD',
                 icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
-                statuses: this.getStatuses(QUARANTINED)
+                statuses: this.getStatuses(QUARANTINED),
+                location: '',
+                comments: '',
+                statusReason: '',
+                unsuitableReason: '',
+                expired: false,
+                quarantines: null
             },
             {
                 unitNumber: "W036825314135",
@@ -517,7 +511,13 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 productFamily: 'WHOLE_BLOOD',
                 icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
                 order: 1,
-                statuses: this.getStatuses(QUARANTINED)
+                statuses: this.getStatuses(QUARANTINED),
+                location: '',
+                comments: '',
+                statusReason: '',
+                unsuitableReason: '',
+                expired: false,
+                quarantines: null
             },
         ];
 
