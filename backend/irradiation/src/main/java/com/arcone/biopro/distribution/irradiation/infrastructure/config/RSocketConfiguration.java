@@ -24,6 +24,7 @@ public class RSocketConfiguration {
 
     @Bean
     RSocketServerCustomizer resumeServerCustomizer() {
+        log.info("RSocketServerCustomizer for host {} and port {}", inventoryHost, inventoryPort);
         return rSocketServer ->
             rSocketServer.resume(new Resume()
                 .streamTimeout(Duration.ofSeconds(5))

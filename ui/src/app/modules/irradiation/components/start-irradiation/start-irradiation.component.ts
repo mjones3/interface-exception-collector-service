@@ -422,7 +422,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         if (inventory.unsuitableReason) {
             return UNSUITABLE;
         }
-        if (inventory.quarantines.length !==0) {
+        if (inventory.quarantines && inventory.quarantines.length !==0) {
             return QUARANTINED;
         }
         return AVAILABLE;

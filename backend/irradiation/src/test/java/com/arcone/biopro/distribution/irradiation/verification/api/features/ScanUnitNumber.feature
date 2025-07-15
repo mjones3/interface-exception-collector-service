@@ -10,6 +10,10 @@ Feature: Scan Unit Number for Irradiation
             | W777725001001 | E0869V00     | AVAILABLE  | 123456789 | WHOLE_BLOOD    |
             | W777725001001 | E0868V00     | IN_TRANSIT | 123456789 | WHOLE_BLOOD    |
             | W777725001001 | E0867V00     | SHIPPED    | 123456789 | WHOLE_BLOOD    |
+            | W777725001001 | E0866V00     | CONVERTED  | 123456789 | WHOLE_BLOOD    |
+            | W777725001001 | E0865V00     | MODIFIED   | 123456789 | WHOLE_BLOOD    |
+            | W777725001001 | E0864V00     | AVAILABLE  | 234567891 | WHOLE_BLOOD    |
+
         And I'm in the irradiation service at the location "<Location>"
         When I scan the unit number "<Unit Number>" in irradiation
         Then I verify that there are only 1 product(s) eligible for irradiation for the unit number "<Unit Number>"
