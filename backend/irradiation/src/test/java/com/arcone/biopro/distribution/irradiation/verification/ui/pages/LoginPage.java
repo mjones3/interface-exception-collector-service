@@ -1,9 +1,11 @@
 package com.arcone.biopro.distribution.irradiation.verification.ui.pages;
 
+import com.arcone.biopro.common.utils.Retry;
 import com.arcone.biopro.testing.frontend.core.CommonPageFactory;
 import com.arcone.biopro.testing.frontend.core.PageElement;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriverException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -32,25 +34,37 @@ public class LoginPage extends CommonPageFactory {
     //    Page Actions
     @Override
     public boolean isLoaded() {
-        PageElement loginForm = driver.waitForElement(loginFormLocator);
-        loginForm.waitForVisible();
-        return loginForm.isDisplayed();
+        try{
+            Retry.retryOnException(()->{
+                driver.getDriver();
+                PageElement loginForm = driver.waitForElement(loginFormLocator,5);
+                loginForm.waitForVisible(5);
+            }, WebDriverException.class);
+            PageElement loginForm = driver.waitForElement(loginFormLocator);
+            loginForm.waitForVisible();
+            return loginForm.isDisplayed();
+        } catch (Exception ex) {
+            log.error("Unable to login", ex);
+            throw new RuntimeException(ex);
+        }
     }
 
     public void login() {
         try {
             assertTrue(this.isLoaded());
-            PageElement usernameInput = driver.waitForElement(usernameInputLocator);
-            usernameInput.waitForVisible();
+            PageElement usernameInput = driver.waitForElement(usernameInputLocator,5);
+            usernameInput.waitForVisible(5);
+            usernameInput.waitForClickable();
             usernameInput.sendKeys(username);
-            PageElement passwordInput = driver.waitForElement(passwordInputLocator);
+            PageElement passwordInput = driver.waitForElement(passwordInputLocator,3);
             passwordInput.waitForVisible();
+            passwordInput.waitForClickable();
             passwordInput.sendKeys(password);
             PageElement loginButton = driver.waitForElement(loginButtonLocator);
             loginButton.waitForVisible();
             loginButton.click();
         } catch (Exception e) {
-            log.info("Unable to go to login to Manufacturing Application");
+            log.error("Unable to login", e);
             throw e;
         }
     }
