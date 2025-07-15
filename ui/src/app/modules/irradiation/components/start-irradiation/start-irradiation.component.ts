@@ -234,7 +234,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     validateUnit(event: ValidateUnitEvent) {
-        const unitNumber = event.unitNumber;
+        const unitNumber = event.
+            unitNumber;
         if (unitNumber) {
             // Update current date and time in MM/DD/YYYY HH:MM format
             const now = new Date();
@@ -422,20 +423,20 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         if (inventory.unsuitableReason) {
             return UNSUITABLE;
         }
-        if (inventory.quarantines.length !==0) {
+        if (inventory.quarantines && inventory.quarantines.length !==0) {
             return QUARANTINED;
+        }
+        if (inventory.status === DISCARDED) {
+            return DISCARDED;
         }
         return AVAILABLE;
     }
 
     private statusToColorClass(inventory: IrradiationProductDTO) {
-        if (inventory.expired) {
+        if (inventory.expired || inventory.unsuitableReason || inventory.status === DISCARDED) {
             return 'bg-red-500 text-white';
         }
-        if (inventory.unsuitableReason) {
-            return 'bg-red-500 text-white';
-        }
-        if (inventory.quarantines) {
+        if (inventory.quarantines && inventory.quarantines.length !==0) {
             return 'bg-orange-500 text-white';
         }
         return 'bg-green-500 text-white';
