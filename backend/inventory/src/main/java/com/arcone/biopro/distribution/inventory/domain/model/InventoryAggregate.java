@@ -206,7 +206,7 @@ public class InventoryAggregate {
     }
 
     public boolean getIsLabeled() {
-        return this.inventory.getIsLabeled();
+        return Objects.nonNull(this.inventory.getIsLabeled()) && this.inventory.getIsLabeled();
     }
 
     public InventoryAggregate convertProduct() {
@@ -253,7 +253,8 @@ public class InventoryAggregate {
         if(Objects.nonNull(aboRh)) {
             inventory.setAboRh(aboRh);
         }
-       return this;
+        addProperty(PropertyKey.COMPLETED, "Y");
+        return this;
     }
 
     public InventoryAggregate putInTheCarton(String cartonNumber) {
