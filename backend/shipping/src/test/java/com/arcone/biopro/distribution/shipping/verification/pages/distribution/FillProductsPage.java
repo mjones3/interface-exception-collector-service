@@ -98,6 +98,10 @@ public class FillProductsPage extends CommonPageFactory {
         return String.format("//biopro-unit-number-card[@ng-reflect-visual-inspection='%s']", inspection.toUpperCase());
     }
 
+    private String formatProductStatusLocator(String status) {
+        return String.format("//biopro-unit-number-card[@ng-reflect-ineligible-status='%s']", status.toUpperCase());
+    }
+
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         log.info("Adding unit {} with product code {}.", unit, productCode);
         sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unit);
@@ -267,5 +271,14 @@ public class FillProductsPage extends CommonPageFactory {
     public void clickRemoveProductsButton() throws InterruptedException {
         log.debug("Clicking remove products button.");
         sharedActions.click(this.driver, By.id(removeButtonLocator));
+    }
+
+    public void assertProductStatusIs(String productStatus,boolean visible) {
+        log.debug("Asserting product status is {}.", productStatus);
+        if(visible){
+            sharedActions.waitForVisible(By.xpath(formatProductStatusLocator(productStatus)));
+        }else {
+            sharedActions.waitForNotVisible(By.xpath(formatProductStatusLocator(productStatus)));
+        }
     }
 }

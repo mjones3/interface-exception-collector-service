@@ -1,8 +1,8 @@
-@ui @AOA-6 @AOA-152
+@ui @AOA-6 @AOA-152 @AOA-19
 Feature: Access Shipment Details Page
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999996,999997,999998,999999,999990,999991,999992,999998300".
+        Given I cleaned up from the database, all shipments with order number "999996,999997,999998,999999,999990,999991,999992,999998300,4440003,4440004,4440005".
 
     Rule: I should be able to view order information, shipping information, and order criteria( Pick List)
         @DIS-148 @DIS-195
@@ -83,4 +83,20 @@ Feature: Access Shipment Details Page
                 | 999998300    | 10                 | ABP        | RED_BLOOD_CELLS_LEUKOREDUCED | COMPLETED       | W812530106089               | E0685V00          | should not            |
 
 
+        Rule:I should be able to see internal transfer details.
+        @ui @DIS-444
+        Scenario Outline: Selecting and accessing an Internal Transfer shipment details
+            Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
+            And I have received a shipment fulfillment request with above details.
+            When I am on the Shipment Fulfillment Details page.
+            Then I can see the Order Information, the Shipping Information, and Order Criteria.
+            And I can see the Internal Transfer details with Shipment type as "<Expected Shipment Type>", Label Status as "<Label Status>", Quarantined Products as "<Expected Quarantined Products>".
+            When I choose to fill product of family "<expectedFamily>" and blood type "<expectedBloodType>".
+            Then I can see the order comment "DISTRIBUTION COMMENTS".
+            And I can navigate back to the Order "<orderNumber>" Details page.
+            Examples:
+                | orderNumber | Customer ID | Customer Name             | Quantity | BloodType | ProductFamily                                                                           | expectedFamily              | expectedBloodType | Category | Shipment Type    | Label Status | Quarantined Products | Expected Shipment Type | Expected Quarantined Products |
+                | 4440003     | DL1         | Distribution and Labeling | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          | AP                | FROZEN   | INTERNAL_TRANSFER | LABELED      | false                | INTERNAL TRANSFER      |        NO                      |
+                | 4440004     | 234567891   | MDL Hub 2                 | 2,2,10   | ABP,AN,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ABP               | FROZEN   | INTERNAL_TRANSFER | LABELED      | true                 | INTERNAL TRANSFER      |        YES                     |
+                | 4440005     | DO1         | Distribution Only         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          | AP                | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | INTERNAL TRANSFER      |        YES                    |
 

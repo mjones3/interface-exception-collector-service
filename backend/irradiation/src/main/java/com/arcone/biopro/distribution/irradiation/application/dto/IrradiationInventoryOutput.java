@@ -1,6 +1,9 @@
 package com.arcone.biopro.distribution.irradiation.application.dto;
 
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.InventoryQuarantine;
 import lombok.Builder;
+
+import java.util.List;
 
 @Builder
 public record IrradiationInventoryOutput(
@@ -14,6 +17,7 @@ public record IrradiationInventoryOutput(
     boolean isLabeled,
     String statusReason,
     String unsuitableReason,
-    Boolean expired) {
+    Boolean expired,
+    List<InventoryQuarantine> quarantines) {
 }
 

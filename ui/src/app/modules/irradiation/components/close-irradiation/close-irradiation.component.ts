@@ -483,7 +483,9 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 location: '',
                 comments: '',
                 statusReason: '',
-                unsuitableReason: ''
+                unsuitableReason: '',
+                expired: false,
+                quarantines: null
             },
             {
                 unitNumber: "W036825314134",
@@ -497,7 +499,9 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 location: '',
                 comments: '',
                 statusReason: '',
-                unsuitableReason: ''
+                unsuitableReason: '',
+                expired: false,
+                quarantines: null
             },
             {
                 unitNumber: "W036825314135",
@@ -511,7 +515,9 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 location: '',
                 comments: '',
                 statusReason: '',
-                unsuitableReason: ''
+                unsuitableReason: '',
+                expired: false,
+                quarantines: null
             },
         ];
 

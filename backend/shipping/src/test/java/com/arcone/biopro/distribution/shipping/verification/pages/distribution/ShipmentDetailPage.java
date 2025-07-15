@@ -245,4 +245,18 @@ public class ShipmentDetailPage extends CommonPageFactory {
             sharedActions.waitForNotVisible(manageProductButton(family, bloodType));
         }
     }
+
+    private String shippingInformationDetail(String param) {
+        return String.format("//*[@id='shippingInfoDescriptions']/*//span[normalize-space()='%s']", param);
+    }
+
+    private String orderInformationDetail(String param) {
+        return String.format("//*[@id='orderInfoDescriptions']/*//span[normalize-space()='%s']", param);
+    }
+
+    public void verifyInternalTransferInformation(String shipmentType, String labelStatus, String quarantinedProducts) {
+        sharedActions.waitForVisible(By.xpath(shippingInformationDetail(shipmentType)));
+        sharedActions.waitForVisible(By.xpath(orderInformationDetail(labelStatus)));
+        sharedActions.waitForVisible(By.xpath(orderInformationDetail(quarantinedProducts)));
+    }
 }

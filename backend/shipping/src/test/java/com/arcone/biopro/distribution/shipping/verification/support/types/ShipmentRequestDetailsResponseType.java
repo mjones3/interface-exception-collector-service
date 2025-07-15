@@ -40,6 +40,8 @@ public class ShipmentRequestDetailsResponseType {
     String customerAddressAddressLine2;
     String customerAddressAddressComplement;
     String comments;
-
     List<ShipmentFulfillmentRequest> items;
+    String shipmentType;
+    String labelStatus;
+    Boolean quarantinedProducts;
 }

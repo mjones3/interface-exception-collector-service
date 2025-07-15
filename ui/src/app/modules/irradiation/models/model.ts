@@ -78,6 +78,14 @@ export interface IrradiationProductDTO {
     visualInspection?: VisualInspectionRequestDTO;
     statuses?: { value: string; classes: string }[];
     disabled?: boolean;
+    expired: boolean;
+    quarantines: IrradiationProductQuarantineDTO[];
+}
+
+export interface IrradiationProductQuarantineDTO {
+    reason: string;
+    comments: string;
+    stopsManufacturing: boolean;
 }
 
 export interface CentrifugationResolveData {
@@ -155,4 +163,8 @@ export interface ValidateUnitNumberResponseDTO {
 
 export interface UnitNumberResponseDTO {
     enterUnitNumberForCentrifugation: ValidateUnitNumberResponseDTO;
+}
+
+export interface QuarantineDTO {
+    stopsManufacturing: boolean;
 }
