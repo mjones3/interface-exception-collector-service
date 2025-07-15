@@ -35,6 +35,7 @@ export const GET_SHIPMENT_VERIFICATION_DETAILS_BY_ID = gql<
                 ineligibleReason
                 ineligibleMessage
                 ineligibleAction
+                productStatus
             }
             verifiedItems {
                 id
@@ -56,6 +57,7 @@ export const GET_SHIPMENT_VERIFICATION_DETAILS_BY_ID = gql<
                 ineligibleReason
                 ineligibleMessage
                 ineligibleAction
+                productStatus
             }
         }
     }

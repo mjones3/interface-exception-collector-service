@@ -146,8 +146,7 @@
                                                 getItemIcon(verifiedItem)
                                             "
                                             [showVisualInspection]="false"
-                                            [ineligibleStatus]="
-                                                verifiedItem.ineligibleStatus
+                                            [ineligibleStatus]="getProductStatus(verifiedItem)
                                             "
                                         />
                                     }
