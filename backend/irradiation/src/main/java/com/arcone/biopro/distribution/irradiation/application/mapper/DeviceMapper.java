@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 public interface DeviceMapper {
 
     @Mapping(target = "deviceId", expression = "java(DeviceId.of(input.deviceId()))")
-    @Mapping(target = "location", expression = "java(Location.of(input.location()))")
+    @Mapping(target = "location.value", source = "location")
     @Mapping(target = "status", source = "status")
     Device toDevice(CreateDeviceUseCase.Input input);
 }

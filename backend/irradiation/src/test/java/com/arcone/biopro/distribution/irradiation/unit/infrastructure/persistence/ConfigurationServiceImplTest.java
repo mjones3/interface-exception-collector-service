@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +40,9 @@ class ConfigurationServiceImplTest {
         ConfigurationEntity entity = ConfigurationEntity.builder()
                 .key("test.key")
                 .value("test.value")
+                .active(true)
+                .createDate(ZonedDateTime.now())
+                .modificationDate(ZonedDateTime.now())
                 .build();
 
         Configuration config = Configuration.builder()
@@ -46,7 +50,7 @@ class ConfigurationServiceImplTest {
                 .value("test.value")
                 .build();
 
-        when(configurationEntityRepository.findByKeyIn(anyList()))
+        when(configurationEntityRepository.findByKeyInAndActiveTrue(anyList()))
                 .thenReturn(Flux.just(entity));
         when(configurationEntityMapper.toDomain(any(ConfigurationEntity.class)))
                 .thenReturn(config);
@@ -64,11 +68,17 @@ class ConfigurationServiceImplTest {
         ConfigurationEntity entity1 = ConfigurationEntity.builder()
                 .key("key1")
                 .value("value1")
+                .active(true)
+                .createDate(ZonedDateTime.now())
+                .modificationDate(ZonedDateTime.now())
                 .build();
 
         ConfigurationEntity entity2 = ConfigurationEntity.builder()
                 .key("key2")
                 .value("value2")
+                .active(false)
+                .createDate(ZonedDateTime.now())
+                .modificationDate(ZonedDateTime.now())
                 .build();
 
         Configuration config1 = Configuration.builder()
@@ -81,7 +91,7 @@ class ConfigurationServiceImplTest {
                 .value("value2")
                 .build();
 
-        when(configurationEntityRepository.findByKeyIn(anyList()))
+        when(configurationEntityRepository.findByKeyInAndActiveTrue(anyList()))
                 .thenReturn(Flux.just(entity1, entity2));
         when(configurationEntityMapper.toDomain(entity1))
                 .thenReturn(config1);

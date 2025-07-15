@@ -15,7 +15,29 @@ const GET_CONFIGURATIONS = gql`
     }
 `;
 
+const VALIDATE_UNIT = gql`
+    query  validateUnit($unitNumber: String!, $location: String!) {
+        validateUnit(unitNumber: $unitNumber, location: $location) {
+            unitNumber
+            productCode
+            location
+            status
+            productDescription
+            productFamily
+            statusReason
+            unsuitableReason
+            expired
+            quarantines {
+                reason
+                comments
+                stopsManufacturing
+            }
+        }
+    }
+`;
+
 export {
     GET_IRRADIATION_DEVICE_BY_ID,
-    GET_CONFIGURATIONS
+    GET_CONFIGURATIONS,
+    VALIDATE_UNIT
 };

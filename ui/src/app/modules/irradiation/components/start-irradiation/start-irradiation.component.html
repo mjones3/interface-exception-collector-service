@@ -33,19 +33,21 @@
                 class="w-full flex flex-row gap-4 justify-start p-4"
             >
                 <biopro-input
+                    #irradiationIdInput
                     [inputWidth]="'w-90'"
                     id="irradiationId"
                     label="Irradiator ID"
                     [inputFocus]="true"
                     [inputId]="'irradiationIdInput'"
-                    formControlName="irradiationId"
+                    formControlName="irradiatorId"
                     (tabOrEnterPressed)="
                         irradiation.valid && loadIrradiationId($event)
                     "
                     required
-                    [customErrors]="{ required: 'Irradiation is required.' }"
+                    [customErrors]="{ required: 'Irradiator is required.' }"
                 ></biopro-input>
                 <biopro-input
+                    #lotNumberInput
                     [inputWidth]="'w-90'"
                     id="lotNumber"
                     label="Indicator lot number"
@@ -66,7 +68,7 @@
             </fuse-card>
             <fuse-card class="w-full p-4 flex flex-row items-center justify-center">
                 <strong>Time Removed From Storage:&nbsp;</strong>
-                <span>01/01/2025 23:59</span>
+                <span>{{ currentDateTime }}</span>
             </fuse-card>
         </div>
 
@@ -116,7 +118,7 @@
             <div id="optionButtons" class="grid-container">
                 @if (products.length === 0) {
                     <p>
-                        Enter irradiation ID then scan or enter unit numbers
+                        Enter irradiator ID then scan or enter unit numbers
                     </p>
                 } @else {
                     @for (option of products; track $index) {

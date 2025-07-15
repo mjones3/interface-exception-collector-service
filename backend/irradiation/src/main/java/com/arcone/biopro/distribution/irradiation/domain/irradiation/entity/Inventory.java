@@ -2,41 +2,41 @@ package com.arcone.biopro.distribution.irradiation.domain.irradiation.entity;
 
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.Location;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.UnitNumber;
+import lombok.Builder;
+import lombok.Data;
 
+import java.util.List;
+
+@Data
+@Builder
 public class Inventory {
     private final UnitNumber unitNumber;
     private final String productCode;
     private final Location location;
     private final String status;
+    private final String productDescription;
+    private final String productFamily;
+    private final String statusReason;
+    private final String unsuitableReason;
+    private final Boolean expired;
+    private final List<InventoryQuarantine> quarantines;
 
-    public Inventory(UnitNumber unitNumber, String productCode, Location location, String status) {
-        this.unitNumber = unitNumber;
-        this.productCode = productCode;
-        this.location = location;
-        this.status = status;
-    }
 
     public boolean isAvailable() {
         return "AVAILABLE".equals(status);
+    }
+
+    public boolean isEligibleForIrradiation() {
+        // Exclude converted, modified, in transit, shipped products
+        return isAvailable() &&
+               !"CONVERTED".equals(status) &&
+               !"MODIFIED".equals(status) &&
+               !"IN_TRANSIT".equals(status) &&
+               !"SHIPPED".equals(status);
     }
 
     public boolean isAtLocation(Location targetLocation) {
         return this.location.equals(targetLocation);
     }
 
-    public UnitNumber getUnitNumber() {
-        return unitNumber;
-    }
-
-    public String getProductCode() {
-        return productCode;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public String getStatus() {
-        return status;
-    }
 }

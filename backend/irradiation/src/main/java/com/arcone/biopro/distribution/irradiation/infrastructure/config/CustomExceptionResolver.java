@@ -33,3 +33,5 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
             .build();
     }
 }
+
+

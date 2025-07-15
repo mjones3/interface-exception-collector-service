@@ -1,49 +1,22 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.client;
 
-public class InventoryOutput {
-    private String unitNumber;
-    private String productCode;
-    private String location;
-    private String status;
+import lombok.Builder;
 
-    public InventoryOutput() {}
+import java.util.List;
 
-    public InventoryOutput(String unitNumber, String productCode, String location, String status) {
-        this.unitNumber = unitNumber;
-        this.productCode = productCode;
-        this.location = location;
-        this.status = status;
-    }
-
-    public String getUnitNumber() {
-        return unitNumber;
-    }
-
-    public void setUnitNumber(String unitNumber) {
-        this.unitNumber = unitNumber;
-    }
-
-    public String getProductCode() {
-        return productCode;
-    }
-
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+@Builder
+public record InventoryOutput(
+    String unitNumber,
+    String productCode,
+    String location,
+    String inventoryStatus,
+    String productDescription,
+    String productFamily,
+    String shortDescription,
+    boolean isLabeled,
+    String statusReason,
+    String unsuitableReason,
+    Boolean expired,
+    List<InventoryQuarantineOutput> quarantines) {
 }
+

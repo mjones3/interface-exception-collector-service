@@ -10,6 +10,6 @@ import java.util.List;
 @GraphQlRepository
 public interface ConfigurationEntityRepository extends ReactiveCrudRepository<ConfigurationEntity, String> {
 
-    Flux<ConfigurationEntity> findByKeyIn(List<String> keys);
+    Flux<ConfigurationEntity> findByKeyInAndActiveTrue(List<String> keys);
 
 }
