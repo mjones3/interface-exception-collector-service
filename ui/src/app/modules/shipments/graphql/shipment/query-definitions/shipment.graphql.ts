@@ -50,6 +50,9 @@ const GET_SHIPMENT_BY_ID = gql<
             checkDigitActive
             visualInspectionActive
             secondVerificationActive
+            labelStatus
+            shipmentType
+            quarantinedProducts
             items {
                 id
                 shipmentId
@@ -80,6 +83,7 @@ const GET_SHIPMENT_BY_ID = gql<
                     collectionDate
                     packedByEmployeeId
                     visualInspection
+                    productStatus
                 }
             }
         }

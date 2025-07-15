@@ -1,0 +1,59 @@
+{
+  "eventId":"a0135914-b5fb-4b9c-b7b5-f97b7ad80e5b" ,
+  "occurredOn":"" ,
+  "eventVersion":"1.0",
+  "eventType": "OrderFulfilled",
+  "payload": {
+    "orderNumber": {order.number},
+    "externalId": "EXTERNAL_ID",
+    "priority": "{order.priority}",
+    "status": "OPEN",
+    "shippingCustomerCode": "1",
+    "locationCode": "123456789",
+    "deliveryType": "TEST",
+    "shippingMethod": "{SHIPPING_METHOD}",
+    "productCategory": "FROZEN",
+    "shippingDate": "{order.shipping_date}",
+    "shippingCustomerName": "Testing Customer",
+    "customerPhoneNumber": "3056778756",
+    "customerAddressState": "FL",
+    "customerAddressPostalCode": "33016",
+    "customerAddressCountry": "US",
+    "customerAddressCountryCode": "1",
+    "customerAddressCity": "Miami",
+    "customerAddressDistrict": "Miami-Dade",
+    "customerAddressAddressLine1": "36544 SW 27th St",
+    "customerAddressAddressLine2": "North Miami",
+    "comments": "Distribution Comments",
+    "departmentName": "Department",
+    "departmentCode": "Department Code",
+    "labelStatus": "{LABEL_STATUS}",
+    "shipmentType": "{SHIPMENT_TYPE}",
+    "quarantinedProducts": {QUARANTINED_PRODUCTS},
+    "items": [
+      {
+        "productFamily": "PLASMA_TRANSFUSABLE",
+        "bloodType": "A",
+        "quantity": 10,
+        "totalAvailable": 10,
+        "comments": "Needs to be shipped ASAP",
+        "shortDateProducts": []
+      },
+      {
+        "productFamily": "PLASMA_TRANSFUSABLE",
+        "bloodType": "B",
+        "quantity": 5,
+        "totalAvailable": 10,
+        "comments": "Contact the customer before shipping",
+        "shortDateProducts": []
+      },
+      {
+        "productFamily": "PLASMA_TRANSFUSABLE",
+        "bloodType": "O",
+        "quantity": 8,
+        "shortDateProducts": []
+      }
+    ]
+  }
+}
+
