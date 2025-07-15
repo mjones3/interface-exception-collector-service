@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodTyp
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
+import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.Topics;
 import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
@@ -60,6 +61,9 @@ public class ShipmentTestingController {
     @Autowired
     private DatabaseService databaseService;
 
+    @Autowired
+    private SharedContext sharedContext;
+
     private static final Map<String, String> ineligibleStatusMap = Map.of(
         "Inventory Not Found", "INVENTORY_NOT_FOUND_IN_LOCATION",
         "Expired", "INVENTORY_IS_EXPIRED",
@@ -71,7 +75,7 @@ public class ShipmentTestingController {
     );
 
 
-    public long createShippingRequest(ShipmentRequestDetailsResponseType shipmentDetail) throws Exception {
+    public void createShippingRequest(ShipmentRequestDetailsResponseType shipmentDetail) throws Exception {
 
         var fulfilledMessage = OrderFulfilledEventType.
             builder()
@@ -85,18 +89,19 @@ public class ShipmentTestingController {
         // Add sleep to wait for the message to be consumed.
         Thread.sleep(kafkaWaitingTime);
 
-        log.info("Message sent to create the order: {}", shipmentDetail.getOrderNumber());
-        return shipmentDetail.getOrderNumber();
+        log.debug("Message sent to create the order: {}", shipmentDetail.getOrderNumber());
+        sharedContext.setOrderNumber(shipmentDetail.getOrderNumber());
+        sharedContext.setShipmentId(this.getShipmentId(sharedContext.getOrderNumber()));
     }
 
-    public long createShippingRequest(long orderNumber, String priority , String shippingDate, String shippingMethod) throws Exception {
+    public long createShippingRequest(long orderNumber, String priority, String shippingDate, String shippingMethod) throws Exception {
 
-        var shippingDateFormat = Optional.ofNullable(shippingDate).map(shippingDateMap -> "\""+shippingDateMap+"\"").orElse("null");
+        var shippingDateFormat = Optional.ofNullable(shippingDate).map(shippingDateMap -> "\"" + shippingDateMap + "\"").orElse("null");
 
         var resource = utils.getResource("order-fulfilled.json")
             .replace("{order.number}", String.valueOf(orderNumber))
-            .replace("{order.priority}",priority)
-            .replace("\"{order.shipping_date}\"",shippingDateFormat);
+            .replace("{order.priority}", priority)
+            .replace("\"{order.shipping_date}\"", shippingDateFormat);
 
         if (shippingMethod != null && !shippingMethod.isBlank()) {
             resource = resource.replace("{SHIPPING_METHOD}", shippingMethod);
@@ -108,21 +113,22 @@ public class ShipmentTestingController {
         // Add sleep to wait for the message to be consumed.
         Thread.sleep(3000);
 
-        log.info("Message sent to create the order: {}", orderNumber);
+        log.debug("Message sent to create the order: {}", orderNumber);
         return orderNumber;
     }
+
     public long createShippingRequest() throws Exception {
         long orderId = new Random().nextInt(10000);
         var resource = utils.getResource("order-fulfilled.json")
             .replace("{order.number}", String.valueOf(orderId))
-            .replace("{order.shipping_date}","2025-12-31")
-            .replace("{order.priority}","ASAP");
+            .replace("{order.shipping_date}", "2025-12-31")
+            .replace("{order.priority}", "ASAP");
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.
         Thread.sleep(3000);
 
-        log.info("Message sent to create the order: {}", orderId);
+        log.debug("Message sent to create the order: {}", orderId);
         return orderId;
     }
 
@@ -131,28 +137,28 @@ public class ShipmentTestingController {
         long orderId = Long.parseLong(orderNumber);
         var resource = utils.getResource("order-fulfilled-with-parameters.json")
             .replace("{order.number}", orderNumber)
-            .replace("{order.shipping_date}",shipDate)
-            .replace("{order.priority}",priority)
-            .replace("{LABEL_STATUS}",labelStatus)
-            .replace("{SHIPPING_METHOD}","FEDEX")
-            .replace("{SHIPMENT_TYPE}",shipmentType)
-            .replace("{QUARANTINED_PRODUCTS}",String.valueOf(quarantinedProducts));
+            .replace("{order.shipping_date}", shipDate)
+            .replace("{order.priority}", priority)
+            .replace("{LABEL_STATUS}", labelStatus)
+            .replace("{SHIPPING_METHOD}", "FEDEX")
+            .replace("{SHIPMENT_TYPE}", shipmentType)
+            .replace("{QUARANTINED_PRODUCTS}", String.valueOf(quarantinedProducts));
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.
         Thread.sleep(kafkaWaitingTime);
 
-        log.debug("Message sent to create the order: {} payload {}", orderId,resource);
+        log.debug("Message sent to create the order: {} payload {}", orderId, resource);
         return orderId;
     }
 
-    public long getOrderShipmentId(long orderId) {
+    public long getShipmentId(long orderNumber) {
         var orders = this.listShipments();
         // Find the last order in the list with the same order number.
-        var orderFilter = orders.stream().filter(x -> x.getOrderNumber().equals(orderId)).reduce((first, second) -> second).orElse(null);
+        var orderFilter = orders.stream().filter(x -> x.getOrderNumber().equals(orderNumber)).reduce((first, second) -> second).orElse(null);
         if (orderFilter != null) {
             var shipmentId = orderFilter.getId();
-            log.info("Found Shipment by Order Number");
+            log.debug("Found Shipment by Order Number");
             return shipmentId;
         } else {
             throw new RuntimeException("Shipments not found.");
@@ -160,7 +166,7 @@ public class ShipmentTestingController {
     }
 
     public List<ListShipmentsResponseType> listShipments() {
-        log.info("Listing orders.");
+        log.debug("Listing orders.");
         var response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listShipmentsQuery(), "listShipments");
         List<ListShipmentsResponseType> responseTypeList = new ArrayList<>();
         Arrays.stream(response).toList().forEach(o -> {
@@ -174,12 +180,12 @@ public class ShipmentTestingController {
                 .build());
 
         });
-
+        log.debug("List orders response: {}", responseTypeList);
         return responseTypeList;
     }
 
     public Map getShipmentRequestDetails(long shipmentId) {
-        log.info("Getting order details for order: {}", shipmentId);
+        log.debug("Getting order details for order: {}", shipmentId);
         return apiHelper.graphQlRequest(GraphQLQueryMapper.shipmentDetailsQuery(shipmentId), "getShipmentDetailsById");
     }
 
@@ -252,7 +258,7 @@ public class ShipmentTestingController {
                                                                                       String shipmentType,
                                                                                       String labelStatus,
                                                                                       Boolean quarantinedProducts
-                                                                                      ) {
+    ) {
 
         Assert.assertNotNull(quantities);
         Assert.assertNotNull(bloodTypes);
@@ -323,19 +329,19 @@ public class ShipmentTestingController {
     }
 
     public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
-        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "FROZEN", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode,"CUSTOMER","LABELED",false);
+        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "FROZEN", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode, "CUSTOMER", "LABELED", false);
     }
 
     public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, String customerID, String customerName, String department
         , String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType
-        , String quantity,String shipmentType,String labelStatus,Boolean quarantinedProducts,String temperatureCategory) {
+        , String quantity, String shipmentType, String labelStatus, Boolean quarantinedProducts, String temperatureCategory) {
 
 
         return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST"
-            , temperatureCategory, LocalDate.now(), department,customerName, "", "123456789", "FL"
+            , temperatureCategory, LocalDate.now(), department, customerName, "", "123456789", "FL"
             , "33016", "US", "1", "Miami"
             , "Miami", addressLine1, addressLine2, quantity, bloodType, productFamily, unitNumber, productCode
-            ,shipmentType,labelStatus,quarantinedProducts);
+            , shipmentType, labelStatus, quarantinedProducts);
     }
 
     public boolean getCheckDigitConfiguration() {
@@ -366,25 +372,29 @@ public class ShipmentTestingController {
         return records.get("option_value").equals("true");
     }
 
-    public String getConfiguredDiscardReasons(){
+    public String getConfiguredDiscardReasons() {
         var query = "SELECT reason_key from lk_reason WHERE type = 'VISUAL_INSPECTION_FAILED' AND active = true ORDER BY order_number";
         var reasonsList = databaseService.fetchData(query);
         var records = reasonsList.all().switchIfEmpty(Flux.empty()).collectList().block();
-        return String.join(",", records.stream().map(x-> x.get("reason_key").toString().replace("_"," ")).toList());
+        return String.join(",", records.stream().map(x -> x.get("reason_key").toString().replace("_", " ")).toList());
     }
 
     public Long createPackedShipment(String orderNumber, List<String> unitNumbers, List<String> productCodes, String itemStatus, String productFamily, String bloodType, Integer totalRequested) {
+        return createPackedShipment(orderNumber,"B2346","Advanced Medical Center","FROZEN","CUSTOMER","LABELED",false,unitNumbers,productCodes,itemStatus,productFamily,bloodType,totalRequested);
+    }
+
+    public Long createPackedShipment(String orderNumber,String customerCode , String customerName , String temperatureCategory , String shipmentType , String labelStatus , boolean quarantinedProducts, List<String> unitNumbers, List<String> productCodes, String itemStatus, String productFamily, String bloodType, Integer totalRequested) {
 
         var insertShipment = "INSERT INTO bld_shipment " +
             "(order_number, customer_code, customer_name, customer_phone_number, location_code, delivery_type, priority, shipment_method, product_category, status, state, postal_code, country" +
             " , country_code, city, district, address_line1, address_line2, address_contact_name, shipping_date, create_date, modification_date, delete_date, \"comments\", department_name, created_by_employee_id" +
-            " , completed_by_employee_id, complete_date, external_id) " +
-            " VALUES(%s,'B2346', 'Advanced Medical Center', '234-567-8901', '123456789', 'STAT', 'STAT', 'FEDEX', 'FROZEN', 'OPEN', 'CA', '90210', 'US', 'US', 'Beverly Hills', 'LA', '456 Elm Street', 'Suite 200', NULL, '2024-10-07', '2024-10-07 12:45:34.084', '2024-10-07 12:45:34.084', NULL, '', 'Cardiology', 'mock-employee-id', NULL, NULL, 'DST108');";
+            " , completed_by_employee_id, complete_date, external_id , label_status , shipment_type , quarantined_products) " +
+            " VALUES(%s,'%s', '%s', '234-567-8901', '123456789', 'STAT', 'STAT', 'FEDEX', '%s', 'OPEN', 'CA', '90210', 'US', 'US', 'Beverly Hills', 'LA', '456 Elm Street', 'Suite 200', NULL, '2024-10-07', '2024-10-07 12:45:34.084', '2024-10-07 12:45:34.084', NULL, '', 'Cardiology', 'mock-employee-id', NULL, NULL, 'DST108','%s','%s',%s);";
 
-        databaseService.executeSql(String.format(insertShipment, orderNumber)).block();
+        databaseService.executeSql(String.format(insertShipment, orderNumber,customerCode,customerName,temperatureCategory,labelStatus,shipmentType,quarantinedProducts)).block();
 
         var createdShipment = databaseService.fetchData(String.format("select id from bld_shipment where order_number = %s ", orderNumber)).first().block();
-        if(createdShipment != null){
+        if (createdShipment != null) {
 
             var shipmentId = createdShipment.get("id");
 
@@ -392,19 +402,19 @@ public class ShipmentTestingController {
                 "(shipment_id, product_family, blood_type, quantity, \"comments\", create_date, modification_date) " +
                 "VALUES(%s, '%s', '%s', %s, 'For neonatal use', now(), now());";
 
-            databaseService.executeSql(String.format(insertShipItem, shipmentId,productFamily,bloodType, totalRequested)).block();
+            databaseService.executeSql(String.format(insertShipItem, shipmentId, productFamily, bloodType, totalRequested)).block();
 
 
             var createdShipmentItem = databaseService.fetchData(String.format("select id from bld_shipment_item where shipment_id = %s limit 1", createdShipment.get("id"))).first().block();
 
-            if(createdShipmentItem != null){
+            if (createdShipmentItem != null) {
 
                 for (int i = 0; i < unitNumbers.size(); i++) {
                     if (itemStatus.equalsIgnoreCase("packed")) {
                         createPackedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
                     } else if (itemStatus.equalsIgnoreCase("verified")) {
                         createVerifiedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
-                    }else if (itemStatus.equalsIgnoreCase("unsuitable-verified")) {
+                    } else if (itemStatus.equalsIgnoreCase("unsuitable-verified")) {
                         createUnsuitableVerifiedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
                     }
                 }
@@ -414,31 +424,31 @@ public class ShipmentTestingController {
         return null;
     }
 
-    private void createPackedItem(String shipmentItemId,String unitNumber, String productCode){
+    private void createPackedItem(String shipmentItemId, String unitNumber, String productCode) {
 
-            var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
-                "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id) " +
-                " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','PENDING',null , null);";
+        var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
+            "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id) " +
+            " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','PENDING',null , null);";
 
-            databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
+        databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber, productCode)).block();
     }
 
-    private void createUnsuitableVerifiedItem(String shipmentItemId,String unitNumber, String productCode){
+    private void createUnsuitableVerifiedItem(String shipmentItemId, String unitNumber, String productCode) {
 
-            var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
-                "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id, ineligible_status, ineligible_action, ineligible_reason, ineligible_message) " +
-                " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','COMPLETED',now() , '5db1da0b-6392-45ff-86d0-17265ea33226', STATUS, ACTION, REASON, MESSAGE);";
+        var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
+            "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id, ineligible_status, ineligible_action, ineligible_reason, ineligible_message) " +
+            " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','COMPLETED',now() , '5db1da0b-6392-45ff-86d0-17265ea33226', STATUS, ACTION, REASON, MESSAGE);";
 
-            databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
+        databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber, productCode)).block();
     }
 
-    private void createVerifiedItem(String shipmentItemId,String unitNumber, String productCode){
+    private void createVerifiedItem(String shipmentItemId, String unitNumber, String productCode) {
 
         var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
             "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id) " +
             " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','COMPLETED',now() , '5db1da0b-6392-45ff-86d0-17265ea33226');";
 
-        databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
+        databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber, productCode)).block();
     }
 
     public void updateShipmentItemStatus(Long shipmentId, String unitNumber, String status, String message) {
@@ -454,8 +464,8 @@ public class ShipmentTestingController {
 
         var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem, facility
             , TestUtils.removeUnitNumberScanDigits(unitNumber), "test-emplyee-id", TestUtils.removeProductCodeScanDigits(productCode), inspection), "packItem");
-        if (!unsuitable){
-        Assert.assertEquals("200 OK", response.get("ruleCode"));
+        if (!unsuitable) {
+            Assert.assertEquals("200 OK", response.get("ruleCode"));
         }
         Thread.sleep(kafkaWaitingTime);
         return response;
@@ -467,5 +477,32 @@ public class ShipmentTestingController {
         var records = shipmentItem.first().block();
         assert records != null;
         return Long.valueOf(records.get("id").toString());
+    }
+
+    public List<Map> getShipmentItems(Long shipmentId) {
+        var shipmentDetails = this.getShipmentRequestDetails(shipmentId);
+        try {
+            sharedContext.setShipmentItems((List<Map>) shipmentDetails.get("items"));
+            log.debug("Shipment items: {}", sharedContext.getShipmentItems());
+            return sharedContext.getShipmentItems();
+        } catch (Exception e) {
+            log.debug("Error getting shipment items: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    public List<LinkedHashMap> getUnlabeledProducts(Long shipmentItemId, String unitNumber, String facility) {
+        var payload = GraphQLQueryMapper.getUnlabeledProductsQuery(shipmentItemId, unitNumber, facility);
+        var response = apiHelper.graphQlRequest(payload, "getUnlabeledProducts");
+        if (response.get("results") != null) {
+            var results = (LinkedHashMap) response.get("results");
+            if(results.get("results") != null) {
+                var itemZero = (List<LinkedHashMap>) results.get("results");
+                return (List<LinkedHashMap>) itemZero.get(0);
+            }
+            return null;
+        } else {
+            return null;
+        }
     }
 }

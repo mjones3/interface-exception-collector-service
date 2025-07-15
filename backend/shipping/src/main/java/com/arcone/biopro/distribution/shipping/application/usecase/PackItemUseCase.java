@@ -62,6 +62,7 @@ public class PackItemUseCase implements PackItemService {
     private final SecondVerificationService secondVerificationUseCase;
     private final ShipmentRepository shipmentRepository;
     private static final String INTERNAL_TRANSFER_TYPE = "INTERNAL_TRANSFER";
+    private static final String UNLABELED_STATUS = "UNLABELED";
 
     @Override
     @WithSpan("packItem")
@@ -124,10 +125,16 @@ public class PackItemUseCase implements PackItemService {
                         return Mono.just(inventoryValidationResponseDTO);
                     } else {
 
-                        if(hasOnlyQuarantineNotifications(inventoryValidationResponseDTO.inventoryNotificationsDTO())
+                        if(inventoryValidationResponseDTO.hasOnlyNotificationType("INVENTORY_IS_QUARANTINED")
                             && INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
                             && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts()){
-                            return Mono.just(inventoryValidationResponseDTO);
+                            return Mono.just(transformQuarantinedInventoryResponseDTO(inventoryValidationResponseDTO));
+                        }
+
+                        if(inventoryValidationResponseDTO.hasOnlyNotificationType("INVENTORY_IS_UNLABELED")
+                            && INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
+                            && UNLABELED_STATUS.equals(shipment.getLabelStatus())){
+                            return Mono.just(transformUnlabeledInventoryResponseDTO(inventoryValidationResponseDTO));
                         }
 
                         return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
@@ -150,17 +157,6 @@ public class PackItemUseCase implements PackItemService {
             }
         );
 
-    }
-
-    private boolean hasOnlyQuarantineNotifications(List<InventoryNotificationDTO> inventoryNotificationsDTO){
-        if(inventoryNotificationsDTO == null){
-            throw new IllegalArgumentException("inventoryNotificationsDTO is null");
-        }
-
-        var countNotifications = inventoryNotificationsDTO.stream()
-        .filter(notificationDTO -> notificationDTO.errorName().equals("INVENTORY_IS_QUARANTINED"))
-        .count();
-        return countNotifications == 1 && inventoryNotificationsDTO.size() == 1;
     }
 
     private Mono<ShipmentItemPacked> validateProductCriteria(PackItemRequest request, InventoryValidationResponseDTO inventoryValidationResponseDTO, Boolean visualInspectionFlag, Boolean secondVerificationFlag) {
@@ -205,6 +201,14 @@ public class PackItemUseCase implements PackItemService {
                                 .name("PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR")
                                 .statusCode(HttpStatus.BAD_REQUEST.value())
                                 .message(ShipmentServiceMessages.PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR)
+                                .notificationType(NotificationType.WARN.name())
+                                .build())));
+                        }else if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType()) && UNLABELED_STATUS.equals(shipment.getLabelStatus()) && CollectionUtils.isEmpty(inventoryValidationResponseDTO.inventoryNotificationsDTO()) ) {
+                            return Mono.error(new ProductValidationException(ShipmentServiceMessages.SHIPMENT_UNLABELED_ERROR, List.of(NotificationDTO
+                                .builder()
+                                .name("SHIPMENT_UNLABELED_ERROR")
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .message(ShipmentServiceMessages.SHIPMENT_UNLABELED_ERROR)
                                 .notificationType(NotificationType.WARN.name())
                                 .build())));
                         }
@@ -320,5 +324,39 @@ public class PackItemUseCase implements PackItemService {
             .flatMap(secondVerificationUseCase::resetVerification)
             .thenReturn(shipmentItemPacked);
 
+    }
+
+    private InventoryValidationResponseDTO transformQuarantinedInventoryResponseDTO(InventoryValidationResponseDTO inventoryValidationResponseDTO) {
+
+        return InventoryValidationResponseDTO.builder()
+            .inventoryResponseDTO(transformInventoryResponseDTOWithStatus(inventoryValidationResponseDTO.inventoryResponseDTO(),"QUARANTINED"))
+            .inventoryNotificationsDTO(inventoryValidationResponseDTO.inventoryNotificationsDTO())
+            .build();
+
+    }
+
+    private InventoryValidationResponseDTO transformUnlabeledInventoryResponseDTO(InventoryValidationResponseDTO inventoryValidationResponseDTO) {
+
+        return InventoryValidationResponseDTO.builder()
+            .inventoryResponseDTO(transformInventoryResponseDTOWithStatus(inventoryValidationResponseDTO.inventoryResponseDTO(),"UNLABELED"))
+            .inventoryNotificationsDTO(inventoryValidationResponseDTO.inventoryNotificationsDTO())
+            .build();
+
+    }
+
+    private InventoryResponseDTO transformInventoryResponseDTOWithStatus(InventoryResponseDTO inventoryResponseDTO , String status) {
+        return InventoryResponseDTO.builder()
+            .unitNumber(inventoryResponseDTO.unitNumber())
+            .productDescription(inventoryResponseDTO.productDescription())
+            .productCode(inventoryResponseDTO.productCode())
+            .temperatureCategory(inventoryResponseDTO.temperatureCategory())
+            .productFamily(inventoryResponseDTO.productFamily())
+            .expirationDate(inventoryResponseDTO.expirationDate())
+            .expirationDate(inventoryResponseDTO.expirationDate())
+            .aboRh(inventoryResponseDTO.aboRh())
+            .isLabeled(inventoryResponseDTO.isLabeled())
+            .isLicensed(inventoryResponseDTO.isLicensed())
+            .status(status)
+            .build();
     }
 }

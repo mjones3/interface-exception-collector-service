@@ -15,6 +15,10 @@ type Query {
 
     # Searches over all Customers
     findAllCustomers: [CustomerDTO]!
+
+    getUnlabeledProducts(getUnlabeledProductsRequest:GetUnlabeledProductsRequestDTO!): RuleResponseDTO!
+
+
 }
 
 type Mutation {
@@ -335,4 +339,10 @@ type ExternalTransferDTO {
 type CustomerDTO {
     code:String
     name:String
+}
+
+input GetUnlabeledProductsRequestDTO {
+    shipmentItemId:ID!
+    unitNumber:String!
+    locationCode:String!
 }

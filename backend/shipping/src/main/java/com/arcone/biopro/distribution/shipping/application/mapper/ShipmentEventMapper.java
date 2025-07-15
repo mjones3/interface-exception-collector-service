@@ -36,6 +36,9 @@ public class ShipmentEventMapper {
             .departmentCode(dto.departmentCode())
             .createDate(dto.createDate())
             .lineItems(buildLineItems(dto.items()))
+            .labelStatus(dto.labelStatus())
+            .shipmentType(dto.shipmentType())
+            .quarantinedProducts(dto.quarantinedProducts())
             .build());
     }
 
