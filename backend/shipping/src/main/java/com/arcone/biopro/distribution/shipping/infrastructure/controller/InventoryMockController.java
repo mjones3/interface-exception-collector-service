@@ -191,6 +191,28 @@ public class InventoryMockController {
                     .errorMessage(ShipmentServiceMessages.INVENTORY_UNLABELED_ERROR)
                     .build()))
                 .build();
+            case "EXPIRED_UNLABELED" -> InventoryValidationResponseDTO
+                .builder()
+                .inventoryResponseDTO(inventoryResponseDTO)
+                .inventoryNotificationsDTO(List.of(
+                    InventoryNotificationDTO
+                        .builder()
+                        .errorType("WARN")
+                        .errorName("INVENTORY_IS_UNLABELED")
+                        .errorCode(6)
+                        .errorMessage(ShipmentServiceMessages.INVENTORY_UNLABELED_ERROR)
+                        .build(),
+                    InventoryNotificationDTO
+                        .builder()
+                        .errorName("INVENTORY_IS_EXPIRED")
+                        .errorType("INFO")
+                        .errorCode(2)
+                        .errorMessage(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR)
+                        .action("TRIGGER_DISCARD")
+                        .reason("EXPIRED")
+                        .build()
+                ))
+                .build();
             default -> InventoryValidationResponseDTO
                 .builder()
                 .inventoryResponseDTO(inventoryResponseDTO)

@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Boolean.FALSE;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -198,7 +200,7 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
 
     private List<InventoryResponseDTO> applyUnlabeledCriteria(List<InventoryResponseDTO> inventoryResponseDTOList) {
         var filteredList = inventoryResponseDTOList.stream()
-            .filter(inventoryResponseDTO -> !inventoryResponseDTO.isLabeled())
+            .filter(inventoryResponseDTO -> FALSE.equals(inventoryResponseDTO.isLabeled()))
             .toList();
 
         if (filteredList.isEmpty()) {

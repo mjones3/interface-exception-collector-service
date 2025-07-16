@@ -50,6 +50,7 @@ Feature: Fill Unlabeled Products for Internal Transfer order
         Rule: I should not be able to enter a unit number if it is part of another order or shipment.
         Rule: I should be able to fill an internal transfer order with quarantined products as requested.
         Rule: I should not be able to fill the same internal order with both quarantined and quarantined products.
+        Rule: I should see only one notification at a time.
 
         @api @DIS-452
         Scenario Outline: Product Selection Unlabeled Products unavailable products.
@@ -63,6 +64,7 @@ Feature: Fill Unlabeled Products for Internal Transfer order
                 | 452000022    | DO1         | Distribution Only | 5        | AP        | PLASMA_TRANSFUSABLE              | FROZEN               | INTERNAL_TRANSFER | UNLABELED    | true                 | W036825158913 | This product is labeled and cannot be used for unlabeled shipments. | WARN         |
                 | 452000023    | DO1         | Distribution Only | 5        | A         | APHERESIS_PLATELETS_LEUKOREDUCED | ROOM_TEMPERATURE     | INTERNAL_TRANSFER | UNLABELED    | false                | W036825158914 | This product is quarantined and cannot be shipped                   | INFO         |
                 | 452000024    | DO1         | Distribution Only | 5        | A         | APHERESIS_PLATELETS_LEUKOREDUCED | ROOM_TEMPERATURE     | INTERNAL_TRANSFER | UNLABELED    | false                | W036825158915 | This product is not in the inventory and cannot be shipped          | INFO         |
+                | 452000025    | DO1         | Distribution Only | 10       | ANY       | PLASMA_TRANSFUSABLE              | FROZEN               | INTERNAL_TRANSFER | UNLABELED    | false                | W036898445761 | This product is quarantined and cannot be shipped                   | INFO         |
 
 
 
