@@ -2,13 +2,11 @@ package com.arcone.biopro.distribution.irradiation.verification.ui.steps.modals;
 
 import com.arcone.biopro.distribution.irradiation.verification.ui.pages.modals.PopUpPage;
 import io.cucumber.java.en.Then;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@Slf4j
 public class popUpSteps {
 
     @Autowired
