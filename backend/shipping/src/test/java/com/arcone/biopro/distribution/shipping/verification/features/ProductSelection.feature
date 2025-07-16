@@ -67,6 +67,39 @@ Feature: Fill Unlabeled Products for Internal Transfer order
                 | 452000025    | DO1         | Distribution Only | 10       | ANY       | PLASMA_TRANSFUSABLE              | FROZEN               | INTERNAL_TRANSFER | UNLABELED    | false                | W036898445761 | This unit does not match the order product criteria | WARN         |
 
 
+        Rule: I should be able to see all the previously filled products for a given unit number.
+        @api @DIS-453
+        Scenario Outline: Product Selection Verify Unlabeled Products.
+            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>,<Unquarantined UN>" and product codes "<Quarantined Code>,<Unquarantined Code>" "packed"
+            And The second verification configuration is "enabled".
+            When I request all packed unlabeled products for the unit number "<UN>".
+            Then I should receive the product list with the products "<product_list>" available for the unit number "<UN>".
+            Examples:
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | Category | Shipment Type     | Label Status | Quarantined Products | UN            | product_list  |
+                | 45300001    | DO1         | Distribution Only | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | W036825185915 | LR_RBC,LR_RBB |
+                | 45300002    | DO1         | Distribution Only | 5        | ANY       | PLASMA_TRANSFUSABLE          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | W036825158907 | BAG-A,BAG-B   |
+
+
+        Rule: I should not see the products that I have already verified.
+        @api @DIS-453
+        Scenario Outline: Product Selection Verify Unlabeled Products Filtering out verified products.
+            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>,<Unquarantined UN>" and product codes "<Quarantined Code>,<Unquarantined Code>" "packed"
+            And The second verification configuration is "enabled".
+            When I request all packed unlabeled products for the unit number "<UN>".
+            Then I should receive the product list with the products "<product_list_1>" available for the unit number "<UN>".
+            When I fill a product with the unit number "<UN>", product code "<Code_1>".
+            Then The product unit number "<UN>" and product code "<Code_1>" should be verified in the shipment.
+            When I request all packed unlabeled products for the unit number "<UN>".
+            Then I should receive the product list with the products "<product_list_2>" available for the unit number "<UN>".
+            Examples:
+                | Order Number | Customer ID | Customer Name             | Quantity | BloodType | ProductFamily                    | UN            | Code_1 | Category | Shipment Type     | Label Status | Quarantined Products | product_list_1 | product_list_2 |
+                | 45300003     |DL1          | Distribution and Labeling | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W036825185915 | LR_RBC | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | LR_RBC,LR_RBB  | LR_RBB         |
+                | 45300004     |DO1          | Distribution Only         | 5        | ANY       | PLASMA_TRANSFUSABLE              | W036825158907 | BAG-A  | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | BAG-A,BAG-B    | BAG-B          |
+
+
+
+
+
 
 
 
