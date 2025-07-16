@@ -69,12 +69,10 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     private readonly _productIconService = inject(ProductIconsService);
     isCheckDigitVisible = true;
     numOfMaxUnits = 0;
-    selectedFilter = 'all';
     selectedProducts: IrradiationProductDTO[] = [];
     products: IrradiationProductDTO[] = [];
     initialProductsState: IrradiationProductDTO[] = [];
     allProducts: IrradiationProductDTO[] = [];
-    deviceId: string;
 
     @Input() showCheckDigit = true;
 
@@ -90,13 +88,10 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         private readonly router: Router,
         private readonly formBuilder: FormBuilder,
         private readonly processHeaderService: ProcessHeaderService,
-        private readonly irradiationService: IrradiationService,
         private readonly confirmationService: FuseConfirmationService,
         private readonly toaster: ToastrService,
-        private readonly facilityService: FacilityService,
         private readonly activatedRoute: ActivatedRoute,
         private readonly matDialog: MatDialog,
-        private readonly changeDetectorRef: ChangeDetectorRef
     ) {
         effect(() => {
             this.processHeaderService.setActions(this.buttons);
