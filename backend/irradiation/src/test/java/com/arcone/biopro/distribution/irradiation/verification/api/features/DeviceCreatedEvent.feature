@@ -23,5 +23,5 @@ Feature: Device Created Event
             Then the device should not be created and a message should be logged
 
             Examples:
-                | Id            | Location  | Device Category | Status |
+                | Id             | Location  | Device Category | Status |
                 | AUTO-DEVICE003 | 123456789 | PRINTER         | ACTIVE |

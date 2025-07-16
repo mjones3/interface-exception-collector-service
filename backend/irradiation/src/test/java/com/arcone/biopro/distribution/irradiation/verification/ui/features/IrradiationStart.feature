@@ -7,6 +7,10 @@ Feature: Starts Irradiation Process
         @LAB-576 @LAB-575 @LAB-574
         Scenario Outline: I can start an irradiation batch.
             Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code | Status    | Location  | Product Family               |
+                | W777725002001 | E033600      | AVAILABLE | 123456789 | RED_BLOOD_CELLS_LEUKOREDUCED |
+                | W777725002002 | E068600      | AVAILABLE | 123456789 | RED_BLOOD_CELLS_LEUKOREDUCED |
             And I login to Distribution module
             And I select the location "MDL Hub 1"
 
@@ -30,7 +34,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number 1>00" in the irradiation page
             Then I verify the product "<Product Code 1>" is displayed for selection
 
-#            When I select the product "<Product Code 1>"
+            When I select the product "<Product Code 1>"
             Then I verify that the unit number "<Unit Number 1>" with product "<Description 1>" was added to the batch
             And I verify that I am "Able" to "Submit"
             And I verify that the "Irradiator Id" field is "disabled"
@@ -41,15 +45,18 @@ Feature: Starts Irradiation Process
             Then I verify that the unit number "<Unit Number 2>" with product "<Description 2>" was added to the batch
 
             And I choose to "Submit"
-            And I see the "Success" message "Start irradiation successfully complete"
+            And I see the "Success" message "Batch submitted successfully"
 
             Examples:
                 | Unit Number 1 | Product Code 1 | Description 1 | Unit Number 2 | Product Code 2 | Description 2     | Blood Center Id | Location  | Lot Number 1 | Lot Number 2 |
-                | W777725002001 | E033600        | AS1 LR RBC    | W777725002002 | E068600        | APH AS3 LR RBC C2 | IRRAD0123       | 123456789 | Lot1234      | Lot5678      |
+                | W777725002001 | E033600        | AS1 LR RBC    | W777725002002 | E068600        | APH AS3 LR RBC C2 | AUTO-IRRAD001   | 123456789 | Lot1234      | Lot5678      |
 
         @disabled @LAB-615
         Scenario Outline: I should be notified if the product selected has a Quarantine that stops manufacturing
             Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code | Status     | Stop Manufacturing | Location  | Product Family               |
+                | W777725002003 | E033600      | QUARANTINE | Yes                | 123456789 | RED_BLOOD_CELLS_LEUKOREDUCED |
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
@@ -57,18 +64,20 @@ Feature: Starts Irradiation Process
             And I scan the lot number "<Lot Number 1>"
 
             When I scan the unit number "=<Unit Number 1>00" in the irradiation page
-            # TO DO: how can we set a quarantine with stops manufacturing ????
             And I select the product "<Product Code 1>"
 
             Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
 
             Examples:
                 | Unit Number 1 | Product Code 1 | Blood Center Id | Location  | Lot Number 1 |
-                | W777725002001 | E033600        | IRRAD0123       | 123456789 | Lot1234      |
+                | W777725002003 | E033600        | AUTO-IRRAD002   | 123456789 | Lot1234      |
 
         @disabled @LAB-615
         Scenario Outline: I should see an acknowledgement message if the product selected is an Unsuitable Product.
             Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code | Status     | Location  | Product Family               |
+                | W777725002004 | E033600      | UNSUITABLE | 123456789 | RED_BLOOD_CELLS_LEUKOREDUCED |
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
@@ -76,7 +85,6 @@ Feature: Starts Irradiation Process
             And I scan the lot number "<Lot Number 1>"
 
             When I scan the unit number "=<Unit Number 1>00" in the irradiation page
-            # TO DO: how can we set the product as unsuitable ????
             And I select the product "<Product Code 1>"
 
             Then I see the confirmation message with title "Discarded" and message "This product is unsuitable with the reason Positive Reactive Test Results. Place in biohazard container"
@@ -84,4 +92,4 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number 1 | Product Code 1 | Blood Center Id | Location  | Lot Number 1 |
-                | W777725002001 | E033600        | IRRAD0123       | 123456789 | Lot1234      |
+                | W777725002004 | E033600        | AUTO-IRRAD003   | 123456789 | Lot1234      |
