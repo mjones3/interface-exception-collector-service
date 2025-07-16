@@ -90,7 +90,7 @@ public class HomePage extends CommonPageFactory {
             PageElement menu = driver.waitForElement(getMenuItemLocator(process));
             menu.safeClick();
         } catch (Exception e) {
-            log.info("Unable to go to Whole Blood process");
+            log.info("Unable to go to {} process",process);
             throw e;
         }
     }

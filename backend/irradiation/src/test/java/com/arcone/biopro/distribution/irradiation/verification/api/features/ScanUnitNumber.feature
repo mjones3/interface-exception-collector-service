@@ -6,13 +6,13 @@ Feature: Scan Unit Number for Irradiation
     @LAB-576 @AOA-61
     Scenario Outline: I successfully scan a unit number with a product eligible for irradiation
         Given I have the following inventory products:
-            | Unit Number   | Product Code | Status     | Location  | Product Family |
-            | W777725001001 | E0869V00     | AVAILABLE  | 123456789 | WHOLE_BLOOD    |
-            | W777725001001 | E0868V00     | IN_TRANSIT | 123456789 | WHOLE_BLOOD    |
-            | W777725001001 | E0867V00     | SHIPPED    | 123456789 | WHOLE_BLOOD    |
-            | W777725001001 | E0866V00     | CONVERTED  | 123456789 | WHOLE_BLOOD    |
-            | W777725001001 | E0865V00     | MODIFIED   | 123456789 | WHOLE_BLOOD    |
-            | W777725001001 | E0864V00     | AVAILABLE  | 234567891 | WHOLE_BLOOD    |
+            | Unit Number   | Product Code | Status     | Location  | Product Family               |
+            | W777725001001 | E0869V00     | AVAILABLE  | 123456789 | PLASMA_TRANSFUSABLE          |
+            | W777725001001 | E1624V00     | IN_TRANSIT | 123456789 | PLASMA_TRANSFUSABLE          |
+            | W777725001001 | E4689V00     | SHIPPED    | 123456789 | PLASMA_TRANSFUSABLE          |
+            | W777725001001 | E0686V00     | CONVERTED  | 123456789 | RED_BLOOD_CELLS_LEUKOREDUCED |
+            | W777725001001 | E2555V00     | MODIFIED   | 123456789 | PLASMA_TRANSFUSABLE          |
+            | W777725001001 | E7644V00     | AVAILABLE  | 234567891 | PLASMA_TRANSFUSABLE          |
 
         And I'm in the irradiation service at the location "<Location>"
         When I scan the unit number "<Unit Number>" in irradiation
@@ -22,7 +22,7 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Location  | Product Code |
             | W777725001001 | 123456789 | E0869V00     |
 
-    @LAB-615 @AOA-61 @disabled
+    @disabled @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a quarantined unit number with a reason that stops manufacturing
         Given I have the following inventory products:
             | Unit Number   | Product Code | Product Family | Status      | Stops Manufacturing |
@@ -37,7 +37,7 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Error Message                                                        |
             | W777725001002 | This unit has been quarantined and manufacturing cannot be completed |
 
-    @LAB-615 @AOA-61 @disabled
+    @disabled @LAB-615 @AOA-61
     Scenario Outline: I can add into the batch a quarantined unit number with a reason that doesn't stops manufacturing, being warned with a message
         Given I have the following inventory products:
             | Unit Number   | Product Code | Product Family | Status      | Stops Manufacturing |
@@ -52,7 +52,7 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Message                        |
             | W777725001003 | Product was added in the batch |
 
-    @LAB-615 @AOA-61 @disabled
+    @disabled @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a discarded unit number
         Given I have the following inventory products:
             | Unit Number   | Product Code | Product Family | Status    |
@@ -66,7 +66,7 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Error Message                                                                                    |
             | W777725001004 | This unit has been discarded and manufacturing cannot be completed. Place in biohazard container |
 
-    @LAB-615 @AOA-61 @disabled
+    @disabled @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a unit number that is marked for discard/unsuitable
         Given I have the following inventory products:
             | Unit Number   | Product Code | Product Family | Status             | Discard Reason                 |
@@ -81,7 +81,7 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Error Message                                                                                           |
             | W777725001005 | This product is unsuitable with the reason Positive Reactive Test Results. Place in biohazard container |
 
-    @LAB-615 @AOA-61 @disabled
+    @disabled @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a unit number that is not in the location
         Given I have the following inventory products:
             | Unit Number   | Product Code | Product Family | Location      |
@@ -94,7 +94,7 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   |
             | W777725001006 |
 
-    @LAB-615 @AOA-61 @disabled
+    @disabled @LAB-615 @AOA-61
     Scenario Outline: I cannot add into the batch a unit number that is not in the location
         Given I have the following inventory products:
             | Unit Number   | Product Code | Product Family | Status   |
