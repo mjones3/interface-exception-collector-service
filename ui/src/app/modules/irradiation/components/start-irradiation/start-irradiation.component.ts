@@ -14,7 +14,6 @@ import {FuseCardComponent} from "../../../../../@fuse";
 import {MatDivider} from "@angular/material/divider";
 import {UnitNumberCardComponent} from "../../../../shared/components/unit-number-card/unit-number-card.component";
 import {
-    FacilityService,
     ProcessHeaderComponent,
     ProcessHeaderService,
     ScanUnitNumberCheckDigitComponent
@@ -41,7 +40,6 @@ const AVAILABLE = 'AVAILABLE';
 const QUARANTINED = 'QUARANTINED';
 const UNSUITABLE = 'UNSUITABLE';
 const DISCARDED = 'DISCARDED';
-const SHIPPED = 'SHIPPED';
 const EXPIRED = 'EXPIRED';
 
 @Component({
@@ -73,6 +71,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     allProducts: IrradiationProductDTO[] = [];
     currentDateTime: string;
     startTime: string
+    private isDialogOpen = false;
 
     @Input() showCheckDigit = true;
 
@@ -98,7 +97,6 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         private readonly irradiationService: IrradiationService,
         private readonly confirmationService: FuseConfirmationService,
         private readonly toaster: ToastrService,
-        private readonly facilityService: FacilityService,
         private readonly activatedRoute: ActivatedRoute,
         private readonly matDialog: MatDialog,
         private cookieService: CookieService,
@@ -194,6 +192,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         this.irradiation.enable()
         this.lotNumber.reset();
         this.unitNumberComponent.controlUnitNumber.reset();
+        this.isDialogOpen = false;
         setTimeout(() => this.focusOnIrradiationInput(), 1);
     }
 
@@ -234,8 +233,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     validateUnit(event: ValidateUnitEvent) {
-        const unitNumber = event.
-            unitNumber;
+        const unitNumber = event.unitNumber;
         if (unitNumber) {
             // Update current date and time in MM/DD/YYYY HH:MM format
             const now = new Date();
@@ -277,29 +275,36 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                             quarantines: inventory.quarantines
                         }))
 
-                        const defaults = {
-                            height: 'auto',
-                            data: {
-                                options: irradiationProducts,
-                                optionsLabel: 'productDescription'
-                            }
-                        };
+                        // Only open dialog if one is not already open
+                        if (!this.isDialogOpen) {
+                            this.isDialogOpen = true;
 
-                        this.matDialog.open(IrradiationSelectProductModal, {
-                            ...defaults
-                        }).afterClosed()
-                            .subscribe((selectedOption) => {
-                                if (selectedOption) {
-                                    const isValid = this.validateProduct(selectedOption);
-                                    if(isValid) {
-                                        this.populateIrradiationBatch(selectedOption);
-                                    }
+                            const defaults = {
+                                height: 'auto',
+                                data: {
+                                    options: irradiationProducts,
+                                    optionsLabel: 'productDescription'
                                 }
-                            });
+                            };
+
+                            this.matDialog.open(IrradiationSelectProductModal, {
+                                ...defaults
+                            }).afterClosed()
+                                .subscribe((selectedOption) => {
+                                    this.isDialogOpen = false;
+                                    if (selectedOption) {
+                                        const isValid = this.validateProduct(selectedOption);
+                                        if(isValid) {
+                                            this.populateIrradiationBatch(selectedOption);
+                                        }
+                                    }
+                                });
+                        }
 
                     }
                 },
                 error: (error) => {
+                    this.isDialogOpen = false;
                     this.showMessage(MessageType.ERROR, error.message)
                 }
             })

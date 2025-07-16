@@ -16,9 +16,8 @@ export interface CheckDigitResponseDTO {
 }
 
 export interface RecordVisualInpectionResult {
-    successful: boolean;
+    irradiated: boolean;
     comment: string;
-    reasons: ReasonDTO[];
 }
 
 export interface ReasonDTO {
