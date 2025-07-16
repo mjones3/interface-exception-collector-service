@@ -30,7 +30,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number 1>00" in the irradiation page
             Then I verify the product "<Product Code 1>" is displayed for selection
 
-            When I select the product "<Product Code 1>"
+#            When I select the product "<Product Code 1>"
             Then I verify that the unit number "<Unit Number 1>" with product "<Description 1>" was added to the batch
             And I verify that I am "Able" to "Submit"
             And I verify that the "Irradiator Id" field is "disabled"
@@ -44,10 +44,10 @@ Feature: Starts Irradiation Process
             And I see the "Success" message "Start irradiation successfully complete"
 
             Examples:
-                | Unit Number 1 | Product Code 1 | Description 1 | Unit Number 2 | Product Code 2 | Description 2 |Blood Center Id | Location  | Lot Number 1 | Lot Number 2 |
-                | W777725002001 | E033600        |               | W777725002002 | E068600        |                |IRRAD0123       | 123456789 | Lot1234      | Lot5678      |
+                | Unit Number 1 | Product Code 1 | Description 1 | Unit Number 2 | Product Code 2 | Description 2     | Blood Center Id | Location  | Lot Number 1 | Lot Number 2 |
+                | W777725002001 | E033600        | AS1 LR RBC    | W777725002002 | E068600        | APH AS3 LR RBC C2 | IRRAD0123       | 123456789 | Lot1234      | Lot5678      |
 
-        @LAB-615 @disabled
+        @disabled @LAB-615
         Scenario Outline: I should be notified if the product selected has a Quarantine that stops manufacturing
             Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
             And I login to Distribution module
@@ -66,7 +66,7 @@ Feature: Starts Irradiation Process
                 | Unit Number 1 | Product Code 1 | Blood Center Id | Location  | Lot Number 1 |
                 | W777725002001 | E033600        | IRRAD0123       | 123456789 | Lot1234      |
 
-        @LAB-615 @disabled
+        @disabled @LAB-615
         Scenario Outline: I should see an acknowledgement message if the product selected is an Unsuitable Product.
             Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
             And I login to Distribution module
