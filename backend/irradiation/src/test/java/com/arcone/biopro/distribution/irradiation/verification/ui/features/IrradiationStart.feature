@@ -1,6 +1,6 @@
 # Feature Unit Number reference: W777725002xxx
 
-@ui @LAB-576 @AOA-61
+@ui @LAB-576 @AOA-61 @hzd9
 Feature: Starts Irradiation Process
 
     Rule: As a distribution specialist, I want to add products into an irradiation batch so that I can start the irradiation process

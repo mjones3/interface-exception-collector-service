@@ -1,6 +1,6 @@
 # Feature Unit Number reference: W777725001xxx
 
-@api
+@api @hzd9
 Feature: Scan Unit Number for Irradiation
 
     @LAB-576 @AOA-61

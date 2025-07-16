@@ -1,6 +1,6 @@
 # Feature Unit Number reference: W777725003xxx
 
-@api @LAB-575
+@api @LAB-575 @hzd9
 Feature: Submit Batch for Irradiation
 
     Scenario: I successfully submit a batch with valid parameters
