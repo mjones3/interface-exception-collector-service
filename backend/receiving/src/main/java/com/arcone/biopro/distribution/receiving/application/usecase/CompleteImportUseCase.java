@@ -30,7 +30,7 @@ public class CompleteImportUseCase implements CompleteImportService {
     private final ImportRepository importRepository;
     private final ImportOutputMapper importOutputMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private static final String IMPORT_SHIPPING_INFORMATION_URL = "receiving/imports-enter-shipment-information";
+    private static final String IMPORT_SHIPPING_INFORMATION_URL = "imports/imports-enter-shipment-information";
 
     @Override
     @Transactional

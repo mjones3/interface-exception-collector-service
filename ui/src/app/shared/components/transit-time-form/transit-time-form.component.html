@@ -47,6 +47,7 @@
              formControlName="endDate"
              [matDatepicker]="transitTimeEndDatePicker"
              [min]="formGroup().controls?.startDate?.value || now"
+             [max]="now" 
              matInput
              required
              (keydown.enter)="triggerElementBlur($event)"

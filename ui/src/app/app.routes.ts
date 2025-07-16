@@ -58,7 +58,7 @@ export const appRoutes: Route[] = [
                 path: 'transfer-receipt',
                 canActivate: [AuthGuard],
                 loadChildren: () =>
-                    import('app/modules/transfer-receipt/transfer-receipt.routes'),
+                    import('./modules/transfer-receipt/transfer-receipt.routes'),
             },
 
             {

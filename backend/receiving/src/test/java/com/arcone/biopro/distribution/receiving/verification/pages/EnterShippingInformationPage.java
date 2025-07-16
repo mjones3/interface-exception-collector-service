@@ -63,7 +63,7 @@ public class EnterShippingInformationPage extends CommonPageFactory {
             homePage.goTo();
         }
 
-        sharedActions.navigateTo("/receiving/imports-enter-shipment-information");
+        sharedActions.navigateTo("/imports/imports-enter-shipment-information");
     }
 
     public void selectTemperatureCategory(String temperatureCategory) {

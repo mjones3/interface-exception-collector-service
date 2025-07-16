@@ -97,7 +97,7 @@ class CreateImportUseCaseTest {
                 assertEquals(1, output.notifications().size());
                 assertEquals(UseCaseMessageType.IMPORT_CREATE_SUCCESS.getMessage(),
                     output.notifications().get(0).useCaseMessage().message());
-                assertEquals("receiving/1/product-information", output._links().get("next"));
+                assertEquals("imports/1/product-information", output._links().get("next"));
 
             })
             .verifyComplete();
