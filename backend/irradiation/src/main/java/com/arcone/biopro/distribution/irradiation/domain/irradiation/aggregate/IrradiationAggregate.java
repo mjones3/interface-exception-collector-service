@@ -5,21 +5,33 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Devi
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchItem;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.Location;
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.ProductCode;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.UnitNumber;
+import com.arcone.biopro.distribution.irradiation.domain.service.ProductDeterminationService;
 import lombok.Getter;
 
 import java.util.List;
+import reactor.core.publisher.Mono;
 
 @Getter
 public class IrradiationAggregate {
     private final Device device;
     private final List<Inventory> inventories;
     private final Batch batch;
+    private final ProductDeterminationService productDeterminationService;
+
+    public IrradiationAggregate(Device device, List<Inventory> inventories, Batch batch, ProductDeterminationService productDeterminationService) {
+        this.device = device;
+        this.inventories = inventories;
+        this.batch = batch;
+        this.productDeterminationService = productDeterminationService;
+    }
 
     public IrradiationAggregate(Device device, List<Inventory> inventories, Batch batch) {
         this.device = device;
         this.inventories = inventories;
         this.batch = batch;
+        this.productDeterminationService = null;
     }
 
     public boolean validateDevice(Location targetLocation) {
@@ -56,5 +68,12 @@ public class IrradiationAggregate {
                 .toList();
 
         return availableUnitNumbers.containsAll(requestedUnitNumbers);
+    }
+
+    public Mono<ProductCode> determineTargetProduct(ProductCode sourceProductCode) {
+        if (productDeterminationService == null) {
+            throw new UnsupportedOperationException("Missing productDeterminationService");
+        }
+        return productDeterminationService.determineTargetProduct(sourceProductCode);
     }
 }
