@@ -59,15 +59,15 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
                     .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
                     .zipWith(shipmentItemPackedRepository.listAllByShipmentId(shipmentItem.getShipmentId()).switchIfEmpty(Flux.empty()).collectList())
                     .flatMap(tuple -> {
-                        if(!UNLABELED_STATUS.equals(tuple.getT1().getLabelStatus())) {
+                        if (!UNLABELED_STATUS.equals(tuple.getT1().getLabelStatus())) {
                             return Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_LABEL_STATUS_ERROR));
                         }
 
-                        if(!INTERNAL_TRANSFER_TYPE.equals(tuple.getT1().getShipmentType())) {
+                        if (!INTERNAL_TRANSFER_TYPE.equals(tuple.getT1().getShipmentType())) {
                             return Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_TYPE_NOT_MATCH_ERROR));
                         }
 
-                        return buildAvailableInventoryResponse(getUnlabeledProductsRequest,shipmentItem,tuple.getT1(),tuple.getT2());
+                        return buildAvailableInventoryResponse(getUnlabeledProductsRequest, shipmentItem, tuple.getT1(), tuple.getT2());
                     });
             }).onErrorResume(error -> {
                 log.error("Not able to getUnlabeledProducts error", error);
@@ -89,42 +89,42 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
                     .notificationType(NotificationType.SYSTEM.name())
                     .build()))
                 .build());
-        }else if(error instanceof ProductValidationException exception) {
-                Map<String, List<?>> results = new HashMap<>();
-                if (((ProductValidationException) error).getInventoryResponseDTO() != null) {
-                    results.put("inventory", List.of(((ProductValidationException) error).getInventoryResponseDTO()));
-                } else {
-                    results.put("inventory", List.of(Collections.emptyList()));
-                }
-
-                return Mono.just(RuleResponseDTO.builder()
-                    .ruleCode(HttpStatus.BAD_REQUEST)
-                    .results(results)
-                    .notifications(exception.getNotifications())
-                    .build());
-
+        } else if (error instanceof ProductValidationException exception) {
+            Map<String, List<?>> results = new HashMap<>();
+            if (((ProductValidationException) error).getInventoryResponseDTO() != null) {
+                results.put("inventory", List.of(((ProductValidationException) error).getInventoryResponseDTO()));
             } else {
-                return Mono.just(RuleResponseDTO.builder()
-                    .ruleCode(HttpStatus.BAD_REQUEST)
-                    .notifications(List.of(NotificationDTO
-                        .builder()
-                        .code(HttpStatus.BAD_REQUEST.value())
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .name(HttpStatus.BAD_REQUEST.name())
-                        .message(error.getMessage())
-                        .notificationType(NotificationType.WARN.name())
-                        .build()))
-                    .build());
+                results.put("inventory", List.of(Collections.emptyList()));
             }
+
+            return Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.BAD_REQUEST)
+                .results(results)
+                .notifications(exception.getNotifications())
+                .build());
+
+        } else {
+            return Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.BAD_REQUEST)
+                .notifications(List.of(NotificationDTO
+                    .builder()
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .name(HttpStatus.BAD_REQUEST.name())
+                    .message(error.getMessage())
+                    .notificationType(NotificationType.WARN.name())
+                    .build()))
+                .build());
+        }
 
     }
 
-    private Mono<RuleResponseDTO> buildAvailableInventoryResponse(GetUnlabeledProductsRequest getUnlabeledProductsRequest , ShipmentItem shipmentItem , Shipment shipment , List<ShipmentItemPacked> packedList) {
-        return applyIneligibleCriteria(getUnlabeledProductsRequest,shipment)
+    private Mono<RuleResponseDTO> buildAvailableInventoryResponse(GetUnlabeledProductsRequest getUnlabeledProductsRequest, ShipmentItem shipmentItem, Shipment shipment, List<ShipmentItemPacked> packedList) {
+        return applyIneligibleCriteria(getUnlabeledProductsRequest, shipment)
             .collectList()
-            .map(ineligibleList -> applyOrderCriteria(ineligibleList,shipment,shipmentItem))
+            .map(ineligibleList -> applyOrderCriteria(ineligibleList, shipment, shipmentItem))
             .map(this::applyUnlabeledCriteria)
-            .map(unlabeledList -> applyProductAlreadySelectedCriteria(unlabeledList,packedList))
+            .map(unlabeledList -> applyProductAlreadySelectedCriteria(unlabeledList, packedList))
             .map(productResponseMapper::toResponseDTO)
             .map(productList -> RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.OK)
@@ -133,13 +133,13 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
 
     }
 
-    private Flux<InventoryResponseDTO> applyIneligibleCriteria(GetUnlabeledProductsRequest getUnlabeledProductsRequest, Shipment shipment){
+    private Flux<InventoryResponseDTO> applyIneligibleCriteria(GetUnlabeledProductsRequest getUnlabeledProductsRequest, Shipment shipment) {
 
         var ineligibleList = new ArrayList<>(List.of("INVENTORY_NOT_FOUND_IN_LOCATION", "INVENTORY_IS_SHIPPED"
             , "INVENTORY_IS_UNSUITABLE", "INVENTORY_IS_DISCARDED"
             , "INVENTORY_IS_PACKED", "INVENTORY_NOT_EXIST"));
 
-        if(shipment.getQuarantinedProducts() != null && !shipment.getQuarantinedProducts()){
+        if (shipment.getQuarantinedProducts() != null && !shipment.getQuarantinedProducts()) {
             ineligibleList.add("INVENTORY_IS_QUARANTINED");
         }
 
@@ -150,42 +150,41 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
                 .build())
             .filter(inventoryValidationResponseDTO -> inventoryValidationResponseDTO.inventoryNotificationsDTO() != null && !inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty())
             .flatMap(inventoryValidationResponseDTO -> {
-                var firstMarch = CollectionUtils.findFirstMatch(ineligibleList,inventoryValidationResponseDTO.inventoryNotificationsDTO().stream().map(InventoryNotificationDTO::errorName).toList());
-                if(firstMarch != null){
+                var firstMarch = CollectionUtils.findFirstMatch(ineligibleList, inventoryValidationResponseDTO.inventoryNotificationsDTO().stream().map(InventoryNotificationDTO::errorName).toList());
+                if (firstMarch != null) {
+                    var notification = inventoryValidationResponseDTO.inventoryNotificationsDTO().getFirst();
                     return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
                         , inventoryValidationResponseDTO.inventoryResponseDTO()
-                        , inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
-                        .map(inventoryNotificationDTO -> NotificationDTO
-                            .builder()
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .name(inventoryNotificationDTO.errorName())
-                            .message(inventoryNotificationDTO.errorMessage())
-                            .code(inventoryNotificationDTO.errorCode())
-                            .action(inventoryNotificationDTO.action())
-                            .notificationType(inventoryNotificationDTO.errorType())
-                            .reason(inventoryNotificationDTO.reason())
-                            .details(inventoryNotificationDTO.details())
-                            .build())
-                        .toList()));
+                        , List.of(NotificationDTO
+                        .builder()
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .name(notification.errorName())
+                        .message(notification.errorMessage())
+                        .code(notification.errorCode())
+                        .action(notification.action())
+                        .notificationType(notification.errorType())
+                        .reason(notification.reason())
+                        .details(notification.details())
+                        .build())));
                 }
                 return Mono.just(inventoryValidationResponseDTO);
             })
-            .filter(inventoryValidationResponseDTO -> Collections.disjoint(ineligibleList,inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
+            .filter(inventoryValidationResponseDTO -> Collections.disjoint(ineligibleList, inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
                 .map(InventoryNotificationDTO::errorName).toList()))
             .switchIfEmpty(Flux.error(new RuntimeException(ShipmentServiceMessages.UNIT_DOES_NOT_EXIST_ERROR)))
             .flatMap(inventoryValidationResponseDTO -> Mono.just(inventoryValidationResponseDTO.inventoryResponseDTO()));
     }
 
-    private List<InventoryResponseDTO> applyOrderCriteria(List<InventoryResponseDTO> inventoryResponseDTOList, Shipment shipment , ShipmentItem shipmentItem){
+    private List<InventoryResponseDTO> applyOrderCriteria(List<InventoryResponseDTO> inventoryResponseDTOList, Shipment shipment, ShipmentItem shipmentItem) {
         var fielterdList = inventoryResponseDTOList.stream()
             .filter(inventoryResponseDTO -> {
-                return inventoryResponseDTO.productFamily().equals(shipmentItem.getProductFamily())
-                    && inventoryResponseDTO.temperatureCategory().equals(shipment.getProductCategory())
+                return inventoryResponseDTO.productFamily() != null && inventoryResponseDTO.productFamily().equals(shipmentItem.getProductFamily())
+                    && inventoryResponseDTO.temperatureCategory() != null && inventoryResponseDTO.temperatureCategory().equals(shipment.getProductCategory())
                     && (BloodType.ANY.equals(shipmentItem.getBloodType()) || inventoryResponseDTO.aboRh().contains(shipmentItem.getBloodType().name()));
             })
             .toList();
 
-        if(fielterdList.isEmpty()){
+        if (fielterdList.isEmpty()) {
             throw new ProductValidationException(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR, List.of(NotificationDTO
                 .builder()
                 .notificationType(NotificationType.WARN.name())
@@ -197,12 +196,12 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
         return fielterdList;
     }
 
-    private List<InventoryResponseDTO> applyUnlabeledCriteria(List<InventoryResponseDTO> inventoryResponseDTOList){
-        var filteredList =  inventoryResponseDTOList.stream()
+    private List<InventoryResponseDTO> applyUnlabeledCriteria(List<InventoryResponseDTO> inventoryResponseDTOList) {
+        var filteredList = inventoryResponseDTOList.stream()
             .filter(inventoryResponseDTO -> !inventoryResponseDTO.isLabeled())
             .toList();
 
-        if(filteredList.isEmpty()){
+        if (filteredList.isEmpty()) {
             throw new ProductValidationException(ShipmentServiceMessages.INVENTORY_LABELED_ERROR, List.of(NotificationDTO
                 .builder()
                 .notificationType(NotificationType.WARN.name())
@@ -215,13 +214,13 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
 
     }
 
-    private List<InventoryResponseDTO> applyProductAlreadySelectedCriteria(List<InventoryResponseDTO> inventoryResponseDTOList , List<ShipmentItemPacked> packedList) {
+    private List<InventoryResponseDTO> applyProductAlreadySelectedCriteria(List<InventoryResponseDTO> inventoryResponseDTOList, List<ShipmentItemPacked> packedList) {
 
         var packedItemsKey = packedList.stream()
             .map(shipmentItemPacked -> shipmentItemPacked.getUnitNumber() + ":" + shipmentItemPacked.getProductCode())
             .toList();
 
-        var filteredList =  inventoryResponseDTOList.stream()
+        var filteredList = inventoryResponseDTOList.stream()
             .filter(inventoryResponseDTO -> !packedItemsKey.contains(inventoryResponseDTO.unitNumber() + ":" + inventoryResponseDTO.productCode()))
             .toList();
 
