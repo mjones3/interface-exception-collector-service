@@ -33,6 +33,7 @@ import { TransitTimeValidationModel } from 'app/shared/forms/transit-time-form-g
 import { TemperatureFormComponent } from 'app/shared/components/temperature-form/temperature-form.component';
 import { TransitTimeFormComponent } from 'app/shared/components/transit-time-form/transit-time-form.component';
 import { DeviceIdValidator } from 'app/shared/forms/device-id.validator';
+import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
 
 @Component({
   selector: 'biopro-imports-enter-shipment-information',
@@ -53,6 +54,7 @@ import { DeviceIdValidator } from 'app/shared/forms/device-id.validator';
         MatOption,
         MatError,
         TransitTimeFormComponent,
+        GlobalMessageComponent,
         TemperatureFormComponent
     ],
   templateUrl: './imports-enter-shipment-information.component.html',

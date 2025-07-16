@@ -28,9 +28,6 @@ export class TemperatureFormComponent {
   protected readonly NotificationTypeMap = NotificationTypeMap;
   
   formBuilder = inject(FormBuilder);
-  
-  quarantineNotification = input<UseCaseNotificationDTO>(null);
-  
   thermometerIdValidation = output<string>();
   temperatureValidation = output<{ temperatureProductCategory: string; temperature: number }>();
   
@@ -94,5 +91,4 @@ export class TemperatureFormComponent {
     const element = event.target as HTMLElement;
     element.blur();
   }
-
 }

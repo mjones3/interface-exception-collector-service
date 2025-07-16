@@ -1,14 +1,4 @@
 <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-    @if (quarantineNotification()) {
-      <div class="md:col-span-6">
-        <biopro-global-message
-          [messageType]="NotificationTypeMap[quarantineNotification().type].type"
-          [message]="quarantineNotification().message"
-          [appearance]="'border'"
-        />
-      </div>
-    }
-
     <!-- START TRANSIT TIME -->
     <mat-form-field class="md:col-span-2" [formGroup]="formGroup()">
       <mat-label>Transit Start Date</mat-label>

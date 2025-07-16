@@ -1,11 +1,10 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ImportsEnterShipmentInformationComponent } from './imports-enter-shipment-information.component';
 import { Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ProcessHeaderService } from '@shared';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ReceivingService } from '../../service/receiving.service';
 import { CookieService } from 'ngx-cookie-service';
-import { Observable, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -17,15 +16,13 @@ import { ToastrService } from 'ngx-toastr';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { DateTime } from 'luxon';
-import { By } from '@angular/platform-browser';
 import { DeviceIdValidator } from 'app/shared/forms/device-id.validator';
 
-xdescribe('ImportsEnterShipmentInformationComponent', () => {
+describe('ImportsEnterShipmentInformationComponent', () => {
     let component: ImportsEnterShipmentInformationComponent;
     let fixture: ComponentFixture<ImportsEnterShipmentInformationComponent>;
     let mockRouter: jest.Mocked<Router>;
     let mockToastr: jest.Mocked<ToastrService>;
-    let mockHeader: jest.Mocked<ProcessHeaderService>;
     let mockReceivingService: jest.Mocked<ReceivingService>;
     let mockCookieService: jest.Mocked<CookieService>;
 
@@ -39,19 +36,25 @@ xdescribe('ImportsEnterShipmentInformationComponent', () => {
             { descriptionKey: 'UTC' },
             { descriptionKey: 'GMT' }
         ],
+        visualInspectionList: [],
+        defaultTimeZone: '',
         displayTransitInformation: true,
+        productCategory: "ROOM_TEMPERATURE",
+        temperatureUnit: "celsius",
         displayTemperature: true
     };
 
     beforeEach(async () => {
-        mockRouter = { navigate: jest.fn() } as any;
+        mockRouter = { 
+            navigate: jest.fn(), 
+            navigateByUrl: jest.fn()
+        } as any;
         mockToastr = {
             show: jest.fn(),
             success: jest.fn(),
             error: jest.fn(),
             warning: jest.fn()
         } as any;
-        mockHeader = {} as any;
         mockReceivingService = {
             findAllLookupsByType: jest.fn().mockReturnValue(of({ data: { findAllLookupsByType: mockLookups } })),
             queryEnterShippingInformation: jest.fn().mockReturnValue(of({
@@ -71,7 +74,6 @@ xdescribe('ImportsEnterShipmentInformationComponent', () => {
             get: jest.fn().mockReturnValue('testFacility')
         } as any;
 
-        // Mock DeviceValidator
         jest.spyOn(DeviceIdValidator, 'asyncValidatorUsing').mockReturnValue(() => of(null));
 
         await TestBed.configureTestingModule({
@@ -94,7 +96,6 @@ xdescribe('ImportsEnterShipmentInformationComponent', () => {
                 }),
                 { provide: Router, useValue: mockRouter },
                 { provide: ToastrService, useValue: mockToastr },
-                { provide: ProcessHeaderService, useValue: mockHeader },
                 { provide: ReceivingService, useValue: mockReceivingService },
                 { provide: CookieService, useValue: mockCookieService }
             ]
@@ -111,14 +112,6 @@ xdescribe('ImportsEnterShipmentInformationComponent', () => {
 
     it('should initialize form with empty values', () => {
         expect(component.form.get('temperatureProductCategory').value).toBeNull();
-        expect(component.form.get('transitTime.startDate').value).toBeNull();
-        expect(component.form.get('transitTime.startTime').value).toBeNull();
-        expect(component.form.get('transitTime.startZone').value).toBeNull();
-        expect(component.form.get('transitTime.endDate').value).toBeNull();
-        expect(component.form.get('transitTime.endTime').value).toBeNull();
-        expect(component.form.get('transitTime.endZone').value).toBeNull();
-        expect(component.form.get('temperature.temperature').value).toBeNull();
-        expect(component.form.get('temperature.thermometerId').value).toBeNull();
         expect(component.form.get('comments').value).toBeNull();
     });
 
@@ -140,51 +133,6 @@ xdescribe('ImportsEnterShipmentInformationComponent', () => {
         expect(component.form.get('temperatureProductCategory').value).toBe(productCategory);
     });
 
-    it('should update form validators based on shipping information', () => {
-        component.selectCategory('ROOM_TEMPERATURE');
-
-        // Transit time validators should be required
-        expect(component.form.get('transitTime.startDate').hasValidator(Validators.required)).toBeTruthy();
-        expect(component.form.get('transitTime.startTime').hasValidator(Validators.required)).toBeTruthy();
-        expect(component.form.get('transitTime.startZone').hasValidator(Validators.required)).toBeTruthy();
-        expect(component.form.get('transitTime.endDate').hasValidator(Validators.required)).toBeTruthy();
-        expect(component.form.get('transitTime.endTime').hasValidator(Validators.required)).toBeTruthy();
-        expect(component.form.get('transitTime.endZone').hasValidator(Validators.required)).toBeTruthy();
-
-        // Temperature validators should be required
-        expect(component.form.get('temperature.temperature').hasValidator(Validators.required)).toBeTruthy();
-        expect(component.form.get('temperature.thermometerId').hasValidator(Validators.required)).toBeTruthy();
-    });
-
-    it('should clear form validators when display flags are false', () => {
-        mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(of({
-            data: {
-                enterShippingInformation: {
-                    data: {
-                        ...mockShippingInfo,
-                        displayTransitInformation: false,
-                        displayTemperature: false
-                    } as unknown as ShippingInformationDTO,
-                    notifications: []
-                }
-            }
-        } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
-
-        component.selectCategory('ROOM_TEMPERATURE');
-
-        // Transit time validators should be cleared
-        expect(component.form.get('transitTime.startDate').hasValidator(Validators.required)).toBeFalsy();
-        expect(component.form.get('transitTime.startTime').hasValidator(Validators.required)).toBeFalsy();
-        expect(component.form.get('transitTime.startZone').hasValidator(Validators.required)).toBeFalsy();
-        expect(component.form.get('transitTime.endDate').hasValidator(Validators.required)).toBeFalsy();
-        expect(component.form.get('transitTime.endTime').hasValidator(Validators.required)).toBeFalsy();
-        expect(component.form.get('transitTime.endZone').hasValidator(Validators.required)).toBeFalsy();
-
-        // Temperature validators should be cleared
-        expect(component.form.get('temperature.temperature').hasValidator(Validators.required)).toBeFalsy();
-        expect(component.form.get('temperature.thermometerId').hasValidator(Validators.required)).toBeFalsy();
-    });
-
     it('should get location code from cookie', () => {
         expect(component.locationCodeComputed()).toBe('testFacility');
         expect(mockCookieService.get).toHaveBeenCalledWith(Cookie.XFacility);
@@ -194,227 +142,203 @@ xdescribe('ImportsEnterShipmentInformationComponent', () => {
         expect(component.employeeIdComputed()).toBe('testEmployeeId');
     });
 
+    it('should update form validators based on shipping information', () => {
+        const mockUpdateFormValidators =  jest.spyOn(component, 'updateFormValidators');
+        component.selectCategory('ROOM_TEMPERATURE');
+        expect(mockUpdateFormValidators).toHaveBeenCalled()
+    });
+
+    it('should call updateFormValidationForTransitTime and updateFormValidationForTemperature', () => {
+        const mockUpdateFormValidationForTransitTime =  jest.spyOn(component, 'updateFormValidationForTransitTime');
+        const mockUpdateFormValidationForTemperature = jest.spyOn(component, 'updateFormValidationForTemperature');
+        component.updateFormValidators({} as ShippingInformationDTO);
+        expect(mockUpdateFormValidationForTransitTime).toHaveBeenCalled();
+        expect(mockUpdateFormValidationForTemperature).toHaveBeenCalled();
+    });
+
+    it('should call updateValidators for temperature when useTemperature is true', fakeAsync(() => {
+        const mockUpdateValidators = jest.fn();
+        const mockTemperatureComponent = { updateValidators: mockUpdateValidators };
+        
+        // Mock the viewChild signals to return the mock components
+        Object.defineProperty(component, 'temperatureFormComponent', {
+            value: () => mockTemperatureComponent,
+            writable: true
+        });
+        component.updateFormValidationForTemperature(true);
+        tick();
+        expect(mockUpdateValidators).toHaveBeenCalled();
+    }));
+
     it('should update available time zones when shipping information changes', fakeAsync(() => {
         component.selectCategory('ROOM_TEMPERATURE');
-        tick(); // Wait for async operations
+        tick();
         expect(component.availableTimeZonesSignal()).toEqual([
             { descriptionKey: 'UTC' },
             { descriptionKey: 'GMT' },
         ]);
     }));
 
-    xdescribe('thermometer validation effect', () => {
-        it('should disable temperature input when thermometer ID is invalid', () => {
-            // First set it to valid state
-            component.form.get('temperature.thermometerId').setValue('VALID_ID');
-            component.form.get('temperature.thermometerId').setErrors(null);
-
-            // Then make it invalid
-            component.form.get('temperature.thermometerId').setValue('');
-            component.form.get('temperature.thermometerId').setErrors({ required: true });
-
-            // Temperature input should be disabled
-            expect(component.form.get('temperature.temperature').disabled).toBeTruthy();
-        });
-
-        it('should disable temperature input when thermometer ID is cleared', () => {
-            // First set it to valid state
-            component.form.get('temperature.thermometerId').setValue('VALID_ID');
-            component.form.get('temperature.thermometerId').setErrors(null);
-
-            // Then clear the value
-            component.form.get('temperature.thermometerId').setValue(null);
-
-            // Temperature input should be disabled
-            expect(component.form.get('temperature.temperature').disabled).toBeTruthy();
+    describe('selectCategoryFromLookup', () => {
+        it('should call selectCategory with lookup option value', () => {
+            const mockLookup = { id: 1, descriptionKey: 'Test', optionValue: 'TEST_VALUE', type: '', active: true };
+            jest.spyOn(component, 'selectCategory');
+            
+            component.selectCategoryFromLookup(mockLookup);
+            
+            expect(component.selectCategory).toHaveBeenCalledWith('TEST_VALUE');
         });
     });
 
-    xdescribe('form validation with temperature requirements', () => {
+    describe('cancel', () => {
+        it('should reset all forms', () => {
+            jest.spyOn(component.form, 'reset');
+            const mockTransitTimeReset = jest.fn();
+            const mockTemperatureReset = jest.fn();
+            
+            const mockTransitTimeComponent = { reset: mockTransitTimeReset };
+            const mockTemperatureComponent = { reset: mockTemperatureReset };
+            
+            // Mock the viewChild signals to return the mock components
+            Object.defineProperty(component, 'transitTimeFormComponent', {
+                value: () => mockTransitTimeComponent,
+                writable: true
+            });
+            Object.defineProperty(component, 'temperatureFormComponent', {
+                value: () => mockTemperatureComponent,
+                writable: true
+            });
+            
+            component.cancel();
+            expect(component.form.reset).toHaveBeenCalled();
+            expect(mockTransitTimeReset).toHaveBeenCalled();
+            expect(mockTemperatureReset).toHaveBeenCalled();
+        });
+    });
+
+    describe('createImport', () => {
+        it('should call triggerCreateImport', () => {
+            jest.spyOn(component, 'triggerCreateImport').mockReturnValue(of());
+            component.createImport();
+            expect(component.triggerCreateImport).toHaveBeenCalled();
+        });
+    });
+
+    describe('isFormValid', () => {
+        it('should return false when main form is invalid', () => {
+            component.form.setErrors({ invalid: true });
+            expect(component.isFormValid()).toBeFalsy();
+        });
+    });
+
+    describe('onTransitTimeChange', () => {
+        it('should trigger transit time validation', () => {
+            const mockTransitTime = {
+                startDate: DateTime.fromISO('2023-12-25'),
+                startTime: '09:00',
+                startZone: 'UTC',
+                endDate: DateTime.fromISO('2023-12-26'),
+                endTime: '10:00',
+                endZone: 'UTC'
+            };
+            component.form.controls.temperatureProductCategory.setValue('ROOM_TEMPERATURE');
+            jest.spyOn(component, 'triggerValidateTransitTime').mockReturnValue(of({}));
+            component.onTransitTimeChange(mockTransitTime);
+            expect(component.triggerValidateTransitTime).toHaveBeenCalledWith('ROOM_TEMPERATURE', mockTransitTime);
+        });
+    });
+
+    describe('onTemperatureChange', () => {
+        it('should trigger temperature validation', () => {
+            const mockData = { temperatureProductCategory: 'ROOM_TEMPERATURE', temperature: 25 };
+            component.form.controls.temperatureProductCategory.setValue('ROOM_TEMPERATURE');
+            jest.spyOn(component, 'triggerValidateTemperature').mockReturnValue(of({}));
+            component.onTemperatureChange(mockData);
+            expect(component.triggerValidateTemperature).toHaveBeenCalledWith('ROOM_TEMPERATURE', 25);
+        });
+    });
+
+    describe('triggerCreateImport', () => {
         beforeEach(() => {
-            // Setup shipping info with temperature requirements
-            mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(of({
-                data: {
-                    enterShippingInformation: {
-                        data: {
-                            ...mockShippingInfo,
-                            displayTemperature: true
-                        } as unknown as ShippingInformationDTO,
-                        notifications: []
+            const mockTransitTimeComponent = {
+                formGroup: () => ({
+                    controls: {
+                        startDate: { value: DateTime.fromISO('2023-12-25') },
+                        startTime: { value: '09:00' },
+                        startZone: { value: 'UTC' },
+                        endDate: { value: DateTime.fromISO('2023-12-26') },
+                        endTime: { value: '10:00' },
+                        endZone: { value: 'UTC' }
                     }
-                }
-            } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
-
-            component.selectCategory('ROOM_TEMPERATURE');
+                })
+            };
+            const mockTemperatureComponent = {
+                formGroup: () => ({
+                    controls: {
+                        temperature: { value: 25 },
+                        thermometerId: { value: 'THERM001' }
+                    }
+                })
+            };
+           // Mock the viewChild signals
+           Object.defineProperty(component, 'transitTimeFormComponent', {
+            value: () => mockTransitTimeComponent,
+            writable: true
+            });
+            Object.defineProperty(component, 'temperatureFormComponent', {
+                value: () => mockTemperatureComponent,
+                writable: true
+            });
+            component.form.controls.temperatureProductCategory.setValue('ROOM_TEMPERATURE');
+            component.form.controls.comments.setValue('Test comment');
         });
 
-        it('should add async validators for temperature when temperature is required', () => {
-            const thermometerControl = component.form.get('temperature.thermometerId');
-            const temperatureControl = component.form.get('temperature.temperature');
-
-            expect(thermometerControl.hasValidator(Validators.required)).toBeTruthy();
-            expect(thermometerControl.hasAsyncValidator(DeviceIdValidator.asyncValidatorUsing(mockToastr, mockReceivingService, 'testFacility'))).toBeTruthy();
-            expect(temperatureControl.hasValidator(Validators.required)).toBeTruthy();
-        });
-
-        it('should clear async validators when temperature is not required', () => {
-            // Change shipping info to not require temperature
-            mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(of({
+        it('should create import with correct parameters', () => {
+            mockReceivingService.createImport.mockReturnValue(of({
                 data: {
-                    enterShippingInformation: {
-                        data: {
-                            ...mockShippingInfo,
-                            displayTemperature: false
-                        } as unknown as ShippingInformationDTO,
-                        notifications: []
+                    createImport: {
+                        notifications: [{ type: 'SUCCESS', message: 'Import created' }],
+                        _links: { next: '/next-page' }
                     }
                 }
-            } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
-
-            component.selectCategory('ROOM_TEMPERATURE');
-
-            const thermometerControl = component.form.get('temperature.thermometerId');
-            const temperatureControl = component.form.get('temperature.temperature');
-
-            expect(thermometerControl.hasValidator(Validators.required)).toBeFalsy();
-            expect(thermometerControl.asyncValidator).toBeNull();
-            expect(temperatureControl.hasValidator(Validators.required)).toBeFalsy();
-            expect(thermometerControl.disabled).toBeTruthy();
-            expect(temperatureControl.disabled).toBeTruthy();
+            }));
+            
+            component.triggerCreateImport().subscribe();
+            
+            expect(mockReceivingService.createImport).toHaveBeenCalledWith({
+                temperatureCategory: 'ROOM_TEMPERATURE',
+                transitStartDateTime: expect.any(String),
+                transitStartTimeZone: 'UTC',
+                transitEndDateTime: expect.any(String),
+                transitEndTimeZone: 'UTC',
+                temperature: 25,
+                thermometerCode: 'THERM001',
+                locationCode: 'testFacility',
+                comments: 'Test comment',
+                employeeId: 'testEmployeeId'
+            });
         });
 
-        it('should properly handle form state when updating validators', () => {
-            const thermometerControl = component.form.get('temperature.thermometerId');
-            const temperatureControl = component.form.get('temperature.temperature');
-
-            // Set initial values
-            thermometerControl.setValue('VALID_ID');
-            thermometerControl.setErrors(null);
-            temperatureControl.setValue(20);
-            fixture.detectChanges();
-
-            // Simulate changing to a category that doesn't require temperature
-            mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(of({
+        it('should navigate on successful import creation', () => {
+            mockReceivingService.createImport.mockReturnValue(of({
                 data: {
-                    enterShippingInformation: {
-                        data: {
-                            ...mockShippingInfo,
-                            displayTemperature: false
-                        } as unknown as ShippingInformationDTO,
-                        notifications: []
+                    createImport: {
+                        notifications: [{ type: 'SUCCESS', message: 'Import created' }],
+                        _links: { next: '/next-page' }
                     }
                 }
-            } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
+            }));
 
-            component.selectCategory('ROOM_TEMPERATURE');
-
-            // Form should be reset and temperature should be disabled
-            expect(thermometerControl.value).toBeNull();
-            expect(temperatureControl.value).toBeNull();
-            expect(thermometerControl.disabled).toBeTruthy();
-            expect(temperatureControl.disabled).toBeTruthy();
+            component.triggerCreateImport().subscribe();
+            mockRouter.navigateByUrl.mockReturnValue(Promise.resolve(true))
+            expect(mockReceivingService.createImport).toHaveBeenCalled();
+            component.triggerCreateImport().subscribe(() => {
+                expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/next-page');
+            });
         });
     });
 
-    xdescribe('temperature field validation', () => {
-        beforeEach(() => {
-            // Enable temperature input by setting valid thermometer ID
-            component.form.get('temperature.thermometerId').setValue('VALID_ID');
-            component.form.get('temperature.thermometerId').setErrors(null);
-            fixture.detectChanges();
-        });
-
-        it('should enforce minimum temperature limit', fakeAsync(() => {
-            // First enable temperature validation by simulating category selection
-            mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(of({
-                data: {
-                    enterShippingInformation: {
-                        data: {
-                            ...mockShippingInfo,
-                            displayTemperature: true
-                        },
-                        notifications: []
-                    }
-                }
-            }) as unknown as Observable<ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>>);
-            component.selectCategory('ROOM_TEMPERATURE');
-            tick();
-
-            // Enable temperature input by setting valid thermometer ID
-            const thermometerControl = component.form.get('temperature.thermometerId');
-            thermometerControl.setValue('VALID_ID');
-            thermometerControl.setErrors(null);
-            tick();
-
-            const temperatureControl = component.form.get('temperature.temperature');
-            temperatureControl.enable(); // Explicitly enable the control
-
-            // Test minimum value validation
-            temperatureControl.setValue(-274); // Below minimum of -273
-            tick();
-
-            expect(temperatureControl.errors?.['min']).toBeTruthy();
-            expect(temperatureControl.valid).toBeFalsy();
-
-            temperatureControl.setValue(-273); // At minimum
-            tick();
-            expect(temperatureControl.errors?.['min']).toBeFalsy();
-            expect(temperatureControl.valid).toBeTruthy();
-        }));
-
-        it('should enforce maximum temperature limit', fakeAsync(() => {
-            // First enable temperature validation by simulating category selection
-            mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(of({
-                data: {
-                    enterShippingInformation: {
-                        data: {
-                            ...mockShippingInfo,
-                            displayTemperature: true
-                        },
-                        notifications: []
-                    }
-                }
-            }) as unknown as Observable<ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>>);
-            component.selectCategory('ROOM_TEMPERATURE');
-            tick();
-
-            // Enable temperature input by setting valid thermometer ID
-            const thermometerControl = component.form.get('temperature.thermometerId');
-            thermometerControl.setValue('VALID_ID');
-            thermometerControl.setErrors(null);
-            tick();
-
-            const temperatureControl = component.form.get('temperature.temperature');
-            temperatureControl.enable(); // Explicitly enable the control
-
-            // Test maximum value validation
-            temperatureControl.setValue(100); // Above maximum of 99
-            tick();
-
-            expect(temperatureControl.errors?.['max']).toBeTruthy();
-            expect(temperatureControl.valid).toBeFalsy();
-
-            temperatureControl.setValue(99); // At maximum
-            tick();
-            expect(temperatureControl.errors?.['max']).toBeFalsy();
-            expect(temperatureControl.valid).toBeTruthy();
-        }));
-
-        it('should not trigger temperature validation for empty values', (done) => {
-            const temperatureControl = component.form.get('temperature.temperature');
-            mockReceivingService.validateTemperature = jest.fn();
-
-            temperatureControl.setValue(null);
-
-            // Wait for debounce
-            setTimeout(() => {
-                expect(mockReceivingService.validateTemperature).not.toHaveBeenCalled();
-                done();
-            }, 600);
-        });
-    });
-
-    xdescribe('buildLuxonDateTimeWithParsedTimeField', () => {
+    describe('buildLuxonDateTimeWithParsedTimeField', () => {
         it('should correctly build DateTime from date and time string', () => {
             const date = DateTime.fromISO('2023-12-25');
             const timeStr = '14:30';
@@ -428,78 +352,28 @@ xdescribe('ImportsEnterShipmentInformationComponent', () => {
             expect(result.minute).toBe(30);
         });
 
-        it('should handle different time formats', () => {
+        it('should return null when date is null', () => {
+            const result = component.buildLuxonDateTimeWithParsedTimeField(null, '14:30');
+            expect(result).toBeNull();
+        });
+
+        it('should return null when time string is null', () => {
             const date = DateTime.fromISO('2023-12-25');
-            const timeStr = '09:05';
-
-            const result = component.buildLuxonDateTimeWithParsedTimeField(date, timeStr);
-
-            expect(result.hour).toBe(9);
-            expect(result.minute).toBe(5);
+            const result = component.buildLuxonDateTimeWithParsedTimeField(date, null);
+            expect(result).toBeNull();
         });
     });
 
-    xdescribe('triggerBlur', () => {
+    describe('triggerElementBlur', () => {
         it('should call blur on the target element', () => {
             const mockElement = { blur: jest.fn() };
             const mockEvent = { target: mockElement };
-
             component.triggerElementBlur(mockEvent as unknown as Event);
-
             expect(mockElement.blur).toHaveBeenCalled();
         });
     });
 
-    xdescribe('transit time validation', () => {
-        beforeEach(() => {
-            component.selectCategory('ROOM_TEMPERATURE');
-            fixture.detectChanges();
-        });
-
-        it('should clear transit time signals when form is invalid', fakeAsync(() => {
-            // First set valid values
-            const transitTimeGroup = component.form.controls.transitTime;
-            transitTimeGroup.patchValue({
-                startDate: DateTime.fromISO('2023-12-25'),
-                startTime: '09:00',
-                startZone: 'UTC',
-                endDate: DateTime.fromISO('2023-12-26'),
-                endTime: '10:00',
-                endZone: 'UTC'
-            });
-            transitTimeGroup.markAsTouched();
-            tick();
-
-            // Then make form invalid
-            transitTimeGroup.patchValue({ startTime: null });
-            tick();
-
-            expect(component.transitTimeHumanReadableSignal()).toBeNull();
-            expect(component.transitTimeQuarantineSignal()).toBeNull();
-        }));
-
-        xdescribe('error handling and notifications', () => {
-            it('should handle notifications from shipping information response', () => {
-                // Mock response with notifications
-                mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(of({
-                    data: {
-                        enterShippingInformation: {
-                            data: mockShippingInfo,
-                            notifications: [
-                                { type: 'WARN', message: 'Test warning' },
-                                { type: 'SUCCESS', message: 'Test success' }
-                            ]
-                        }
-                    }
-                } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
-
-                component.selectCategory('ROOM_TEMPERATURE');
-
-                expect(mockToastr.show).toHaveBeenNthCalledWith(1, 'Test warning', null, {}, 'error');
-                expect(mockToastr.show).toHaveBeenNthCalledWith(2, 'Test success', null, {}, 'success');
-            });
-        });
-
+    describe('error handling', () => {
         it('should handle Apollo errors during shipping information fetch', () => {
             const apolloError = new ApolloError({
                 graphQLErrors: [{ message: 'GraphQL Error' }],
@@ -507,43 +381,49 @@ xdescribe('ImportsEnterShipmentInformationComponent', () => {
             });
 
             mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(throwError(() => apolloError));
+            component.selectCategory('ROOM_TEMPERATURE');
+            expect(mockToastr.error).toHaveBeenCalledWith('GraphQL Error');
+        });
+
+        it('should handle notifications from shipping information response', () => {
+            const mockShippingInfo = {
+                data: {
+                    enterShippingInformation: {
+                        data: {
+                            productCategory : "ROOM_TEMPERATURE",
+                            temperatureUnit : "celsius",
+                            displayTransitInformation : true,
+                            displayTemperature : true,
+                            transitTimeZoneList : [ {
+                            id : 4,
+                            type : "TRANSIT_TIME_ZONE",
+                            optionValue : "America/New_York",
+                            descriptionKey : "ET",
+                            orderNumber : 1,
+                            active : true
+                            }],
+                            visualInspectionList : [],
+                            defaultTimeZone : "America/New_York"
+                        },
+                        _links: null,
+                        notifications: [{ type: 'SUCCESS', message: 'Test success' }]
+                    }
+                }
+            } as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>
+            mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(of(mockShippingInfo));
 
             component.selectCategory('ROOM_TEMPERATURE');
-
-            expect(mockToastr.error).toHaveBeenCalledWith('GraphQL Error');
-            expect(component.form.get('temperatureProductCategory').value).toBeNull();
+            expect(mockToastr.show).toHaveBeenCalledWith('Test success', null, {}, 'success');
         });
     });
 
-    xdescribe('Continue button', () => {
-        it('should be disabled when form is invalid', () => {
-            // Set form as invalid
-            component.form.setErrors({ 'invalid': true });
-            fixture.detectChanges();
-
-            // Find the continue button
-            const continueButton = fixture.debugElement.query(
-                By.css('#importsEnterShipmentInformationContinueActionButton')
-            );
-
-            // Check if button is disabled
-            expect(continueButton.nativeElement.getAttribute('disabled')).toBe('true');
-        });
-
-        it('should be enabled when form is valid', () => {
-            // Set form as valid
-            component.form.clearValidators();
-            component.form.controls.temperatureProductCategory.setValue('ROOM_TEMPERATURE');
-            fixture.detectChanges();
-
-            // Find the continue button
-            const continueButton = fixture.debugElement.query(
-                By.css('#importsEnterShipmentInformationContinueActionButton')
-            );
-
-            // Check if button is enabled
-            expect(continueButton.nativeElement.getAttribute('disabled')).toBeFalsy();
+    describe('form validation', () => {
+        it('should update form validators based on shipping information', () => {
+            jest.spyOn(component, 'updateFormValidationForTransitTime');
+            jest.spyOn(component, 'updateFormValidationForTemperature');
+            component.selectCategory('ROOM_TEMPERATURE');
+            expect(component.updateFormValidationForTransitTime).toHaveBeenCalledWith(true);
+            expect(component.updateFormValidationForTemperature).toHaveBeenCalledWith(true);
         });
     });
-
 });

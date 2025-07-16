@@ -41,7 +41,6 @@ export class TransitTimeFormComponent {
   formBuilder = inject(FormBuilder);
   
   availableTimeZones = input<LookUpDto[]>([]);
-  quarantineNotification = input<UseCaseNotificationDTO>(null);
   humanReadableTime = input<string>(null);
   
   transitTimeChange = output<TransitTimeValidationModel>();
