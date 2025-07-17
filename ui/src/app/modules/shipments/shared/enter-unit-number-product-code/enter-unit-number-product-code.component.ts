@@ -7,6 +7,7 @@ import {
     EventEmitter,
     Input,
     OnDestroy,
+    OnInit,
     Output,
     ViewChild
 } from '@angular/core';
@@ -16,7 +17,7 @@ import { MatButtonToggle, MatButtonToggleGroup, MatButtonToggleModule } from '@a
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { RsaValidators, ScanUnitNumberCheckDigitComponent } from '@shared';
+import { NotificationDto, RsaValidators, ScanUnitNumberCheckDigitComponent } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { RuleResponseDTO } from 'app/shared/models/rule.model';
 import {
@@ -42,6 +43,8 @@ import { CookieService } from 'ngx-cookie-service';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeNotifications } from '../../../../shared/utils/notification.handling';
 import { ProductResponseDTO } from '../../graphql/query-defintions/get-unlabeled-products.graphql';
+import { ConfirmationAcknowledgmentService } from '../../../../shared/services/confirmation-acknowledgment.service';
+import { NotificationCriteriaService } from '../../../../shared/services/notification-criteria.service';
 
 @Component({
     standalone: true,
@@ -61,7 +64,7 @@ import { ProductResponseDTO } from '../../graphql/query-defintions/get-unlabeled
     templateUrl: './enter-unit-number-product-code.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EnterUnitNumberProductCodeComponent implements OnDestroy {
+export class EnterUnitNumberProductCodeComponent implements OnInit, OnDestroy {
     productGroup: FormGroup;
     formValueChange: Subscription;
     unitNumberFocus = true;
@@ -82,6 +85,8 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
         private changeDetector: ChangeDetectorRef,
         private cookieService: CookieService,
         private shipmentService: ShipmentService,
+        private notificationCriteriaService: NotificationCriteriaService,
+        private confirmationAcknowledgmentService: ConfirmationAcknowledgmentService,
         private toaster: ToastrService,
         private matDialog: MatDialog,
     ) {
@@ -92,7 +97,7 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
         const formGroup = this.fb.group({
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
             productCode: [
-                '',
+                { value: '', disabled: true }, // Start as disabled when using product code field
                 this.showProductCode
                     ? [ RsaValidators.fullProductCode, Validators.required ]
                     : [ ],
@@ -128,6 +133,11 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
             });
 
         this.productGroup = formGroup;
+    }
+
+    ngOnInit() {
+        this.enableProductCode();
+        this.enableVisualInspection();
     }
 
     ngOnDestroy() {
@@ -295,12 +305,22 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
             })
             .pipe(
                 catchError((e) => handleApolloError(this.toaster, e)),
-                tap((result) =>
+                tap((result) => {
+                    if (result?.data?.getUnlabeledProducts?.ruleCode !== '200 OK') {
+                        const notifications: NotificationDto[] = [ ...(result?.data?.getUnlabeledProducts?.notifications ?? []) ];
+                        if (notifications?.length) {
+                            const infoNotification = this.notificationCriteriaService.filterOutByCriteria(notifications, { notificationType: 'INFO' })?.[0]
+                            if (infoNotification) {
+                                return this.confirmationAcknowledgmentService.openAcknowledgmentDialog(infoNotification.message, infoNotification.details);
+                            }
+                        }
+                    }
+
                     consumeNotifications(
                         this.toaster,
                         result?.data?.getUnlabeledProducts?.notifications
-                    )
-                ),
+                    );
+                }),
                 switchMap(result => {
                     const ruleCode = result?.data?.getUnlabeledProducts?.ruleCode;
                     const products = result.data?.getUnlabeledProducts?.results?.results?.[0];
