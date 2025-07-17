@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725002xxx
-
+@skipOnPipeline
 @ui @LAB-576 @AOA-61 @hzd9
 Feature: Starts Irradiation Process
 
@@ -51,45 +51,190 @@ Feature: Starts Irradiation Process
                 | Unit Number 1 | Product Code 1 | Description 1 | Unit Number 2 | Product Code 2 | Description 2     | Blood Center Id | Location  | Lot Number 1 | Lot Number 2 |
                 | W777725002001 | E033600        | AS1 LR RBC    | W777725002002 | E068600        | APH AS3 LR RBC C2 | AUTO-IRRAD001   | 123456789 | Lot1234      | Lot5678      |
 
-        @disabled @LAB-615
+        @LAB-615
         Scenario Outline: I should be notified if the product selected has a Quarantine that stops manufacturing
             Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
             And I have the following inventory products:
-                | Unit Number   | Product Code | Status     | Stop Manufacturing | Location  | Product Family               |
-                | W777725002003 | E033600      | QUARANTINE | Yes                | 123456789 | RED_BLOOD_CELLS_LEUKOREDUCED |
+                | Unit Number   | Product Code   | Status     | Stop Manufacturing | Location  |
+                | <Unit Number> | <Product Code> | QUARANTINE | Yes                | 123456789 |
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
             And I scan the irradiator id "<Blood Center Id>"
-            And I scan the lot number "<Lot Number 1>"
+            And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number 1>00" in the irradiation page
-            And I select the product "<Product Code 1>"
-
-            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "This product has been quarantined and cannot be irradiated"
 
             Examples:
-                | Unit Number 1 | Product Code 1 | Blood Center Id | Location  | Lot Number 1 |
-                | W777725002003 | E033600        | AUTO-IRRAD002   | 123456789 | Lot1234      |
+                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
+                | W777725002003 | E003300      | AUTO-IRRAD002   | 123456789 | Lot1234    |
 
-        @disabled @LAB-615
+        @LAB-615
+        Scenario Outline: I should be notified if the product selected has a Non stopping manufacturing Quarantine
+            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code   | Status     | Stop Manufacturing | Location  |
+                | <Unit Number> | <Product Code> | QUARANTINE | Non                | 123456789 |
+            And I login to Distribution module
+            And I select the location "MDL Hub 1"
+            And I navigate to "Start Irradiation" in "Irradiation"
+            And I scan the irradiator id "<Blood Center Id>"
+            And I scan the lot number "<Lot Number>"
+
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            And I verify that the unit number "<Unit Number>" with product "<Description 1>" was added to the batch
+
+            Examples:
+                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
+                | W777725002004 | E003300      | AUTO-IRRAD002   | 123456789 | Lot1234    |
+
+        @LAB-615
+        Scenario Outline: I should be notified if the product selected has been discarded
+            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code   | Status    | Reason  | Location  |
+                | <Unit Number> | <Product Code> | Discarded | EXPIRED | 123456789 |
+            And I login to Distribution module
+            And I select the location "MDL Hub 1"
+            And I navigate to "Start Irradiation" in "Irradiation"
+            And I scan the irradiator id "<Blood Center Id>"
+            And I scan the lot number "<Lot Number>"
+
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            And I verify that the unit number "<Unit Number>" with product "<Description 1>" was added to the batch
+
+            Examples:
+                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
+                | W777725002005 | E003300      | AUTO-IRRAD002   | 123456789 | Lot1234    |
+
+        @LAB-615
         Scenario Outline: I should see an acknowledgement message if the product selected is an Unsuitable Product.
             Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
             And I have the following inventory products:
-                | Unit Number   | Product Code | Status     | Location  | Product Family               |
-                | W777725002004 | E033600      | UNSUITABLE | 123456789 | RED_BLOOD_CELLS_LEUKOREDUCED |
+                | Unit Number   | Product Code   | Status    | Location  | Unsuitable Reason              |
+                | <Unit Number> | <Product Code> | AVAILABLE | 123456789 | POSITIVE_REACTIVE_TEST_RESULTS |
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
             And I scan the irradiator id "<Blood Center Id>"
-            And I scan the lot number "<Lot Number 1>"
+            And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number 1>00" in the irradiation page
-            And I select the product "<Product Code 1>"
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code>"
 
             Then I see the confirmation message with title "Discarded" and message "This product is unsuitable with the reason Positive Reactive Test Results. Place in biohazard container"
             And I confirm the confirmation message
 
             Examples:
-                | Unit Number 1 | Product Code 1 | Blood Center Id | Location  | Lot Number 1 |
-                | W777725002004 | E033600        | AUTO-IRRAD003   | 123456789 | Lot1234      |
+                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
+                | W777725002006 | E003300      | AUTO-IRRAD003   | 123456789 | Lot1234    |
+
+        @LAB-615
+        Scenario Outline: I should be notified if the product selected has expired
+            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code   | Status    | Expired | Location  |
+                | <Unit Number> | <Product Code> | AVAILABLE | YES     | 123456789 |
+            And I login to Distribution module
+            And I select the location "MDL Hub 1"
+            And I navigate to "Start Irradiation" in "Irradiation"
+            And I scan the irradiator id "<Blood Center Id>"
+            And I scan the lot number "<Lot Number>"
+
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+
+            Examples:
+                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
+                | W777725002007 | E003300      | AUTO-IRRAD002   | 123456789 | Lot1234    |
+
+        @LAB-615
+        Scenario Outline: I should be notified if the unit number is not in the current location
+            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code   | Status    | Location  |
+                | <Unit Number> | <Product Code> | AVAILABLE | 234567891 |
+            And I login to Distribution module
+            And I select the location "MDL Hub 1"
+            And I navigate to "Start Irradiation" in "Irradiation"
+            And I scan the irradiator id "<Blood Center Id>"
+            And I scan the lot number "<Lot Number>"
+
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+
+            Examples:
+                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
+                | W777725002008 | E003300      | AUTO-IRRAD002   | 123456789 | Lot1234    |
+
+        @LAB-615
+        Scenario Outline: I should be notified if the product was already irradiated
+            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code   | Status    | Location  |
+                | <Unit Number> | <Product Code> | AVAILABLE | 123456789 |
+            And the product "<Product Code>" in the unit "<Unit Number>" was already irradiated in a completed batch for device "<Blood Center Id>"
+            And I login to Distribution module
+            And I select the location "MDL Hub 1"
+            And I navigate to "Start Irradiation" in "Irradiation"
+            And I scan the irradiator id "<Blood Center Id>"
+            And I scan the lot number "<Lot Number>"
+
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+
+            Examples:
+                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
+                | W777725002009 | E003300      | AUTO-IRRAD002   | 123456789 | Lot1234    |
+
+        @LAB-615
+        Scenario Outline: I should be notified if the product is not configured for irradiation
+            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code   | Status    | Location  |
+                | <Unit Number> | <Product Code> | AVAILABLE | 123456789 |
+            And the product "<Product Code>" in the unit "<Unit Number>" was already irradiated in a completed batch for device "<Blood Center Id>"
+            And I login to Distribution module
+            And I select the location "MDL Hub 1"
+            And I navigate to "Start Irradiation" in "Irradiation"
+            And I scan the irradiator id "<Blood Center Id>"
+            And I scan the lot number "<Lot Number>"
+
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+
+            Examples:
+                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
+                | W777725002010 | E0869V00     | AUTO-IRRAD002   | 123456789 | Lot1234    |
+
+        @LAB-615
+        Scenario Outline: I should be notified if the selected product is currently being irradiated
+            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+            And I have the following inventory products:
+                | Unit Number   | Product Code   | Status    | Location  |
+                | <Unit Number> | <Product Code> | AVAILABLE | 123456789 |
+            And the product "<Product Code>" in the unit "<Unit Number>" was already irradiated in a opened batch for device "<Blood Center Id>"
+            And I login to Distribution module
+            And I select the location "MDL Hub 1"
+            And I navigate to "Start Irradiation" in "Irradiation"
+            And I scan the irradiator id "<Blood Center Id>"
+            And I scan the lot number "<Lot Number>"
+
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+
+            Examples:
+                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
+                | W777725002011 | E003300      | AUTO-IRRAD002   | 123456789 | Lot1234    |
+

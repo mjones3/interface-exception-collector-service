@@ -87,12 +87,12 @@ Feature: Scan Unit Number for Irradiation
     Scenario: I cannot add a product that was already irradiated
         Given I have the following inventory products:
             | Unit Number   | Product Code | Status    | Location  | Product Family |
-            | W777725001011 | E003200      | AVAILABLE | 123456789 | WHOLE_BLOOD    |
+            | W777725001011 | E003300      | AVAILABLE | 123456789 | WHOLE_BLOOD    |
         And I'm in the irradiation service at the location "123456789"
-        And the product "E003200" in the unit "W777725001011" was already irradiated in a completed batch for device "AUTO-DEVICE1011"
+        And the product "E003300" in the unit "W777725001011" was already irradiated in a completed batch for device "AUTO-DEVICE1011"
         When I scan the unit number "W777725001011" in irradiation
-        Then I see the product "E003200" from unit number "W777725001011" is in the list of products for selection
-        Then I verify that product "E003200" in the unit "W777725001011" is flagged as already irradiated
+        Then I see the product "E003300" from unit number "W777725001011" is in the list of products for selection
+        Then I verify that product "E003300" in the unit "W777725001011" is flagged as already irradiated
 
     @LAB-615
     Scenario: I cannot add a product that is not configured for irradiation
