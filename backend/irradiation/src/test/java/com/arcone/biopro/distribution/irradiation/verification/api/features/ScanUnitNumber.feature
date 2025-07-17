@@ -22,92 +22,66 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Location  | Product Code |
             | W777725001001 | 123456789 | E0869V00     |
 
-    @disabled @LAB-615
-    Scenario Outline: I cannot add into the batch a quarantined unit number with a reason that stops manufacturing
+    @LAB-615
+    Scenario: I cannot add into the batch a quarantined unit number with a reason that stops manufacturing
         Given I have the following inventory products:
             | Unit Number   | Product Code | Product Family | Status      | Stops Manufacturing |
-            | <Unit Number> | E033600      | WHOLE_BLOOD    | Quarantined | Yes                 |
-        And I'm in the irradiation service at the location "<Location>"
-        When I scan the unit number "<Unit Number>" in irradiation
-        Then I see the product "E033600" from unit number "<Unit Number>" is in the list of products for selection
-#        When I select the product "E033600" from unit number "<Unit Number>"
-#        Then I see the error message "<Error Message>"
+            | W777725001002 | E003300      | WHOLE_BLOOD    | Quarantined | Yes                 |
+        And I'm in the irradiation service at the location "123456789ó"
+        When I scan the unit number "W777725001002" in irradiation
+        Then I see the product "E003300" from unit number "W777725001002" is in the list of products for selection
+        Then I verify that product "E003300" in the unit "W777725001002" is flagged as quarantined that stops manufacturing
 
-        Examples:
-            | Unit Number   | Error Message                                                        |
-            | W777725001002 | This unit has been quarantined and manufacturing cannot be completed |
-
-    @disabled @LAB-615
-    Scenario Outline: I can add into the batch a quarantined unit number with a reason that doesn't stops manufacturing, being warned with a message
+    @LAB-615
+    Scenario: I can add into the batch a quarantined unit number with a reason that doesn't stops manufacturing, being warned with a message
         Given I have the following inventory products:
             | Unit Number   | Product Code | Product Family | Status      | Stops Manufacturing |
-            | <Unit Number> | E033600      | WHOLE_BLOOD    | Quarantined | No                  |
-        And I'm in the irradiation service at the location "<Location>"
-        When I scan the unit number "<Unit Number>" in irradiation
-        Then I see the product "E033600" from unit number "<Unit Number>" is in the list of products for selection
-#        When I select the product "E033600" from unit number "<Unit Number>"
-#        Then I see the "success" message "<Message>"
+            | W777725001003 | E003300      | WHOLE_BLOOD    | Quarantined | No                  |
+        And I'm in the irradiation service at the location "123456789"
+        When I scan the unit number "W777725001003" in irradiation
+        Then I see the product "E003300" from unit number "W777725001003" is in the list of products for selection
+        Then I verify that product "E003300" in the unit "W777725001003" is flagged as quarantined that does not stops manufacturing
 
-        Examples:
-            | Unit Number   | Message                        |
-            | W777725001003 | Product was added in the batch |
-
-    @disabled @LAB-615
-    Scenario Outline: I cannot add into the batch a discarded unit number
+    @LAB-615
+    Scenario: I cannot add into the batch a discarded unit number
         Given I have the following inventory products:
-            | Unit Number   | Product Code | Product Family | Status    |
-            | <Unit Number> | E033600      | WHOLE_BLOOD    | Discarded |
-        And I'm in the irradiation service at the location "<Location>"
-        When I scan the unit number "<Unit Number>" in irradiation
-        Then I see the product "E033600" from unit number "<Unit Number>" is in the list of products for selection
-#        When I select the product "E033600" from unit number "<Unit Number>"
-#        Then I see the error message "<Error Message>"
-        Examples:
-            | Unit Number   | Error Message                                                                                    |
-            | W777725001004 | This unit has been discarded and manufacturing cannot be completed. Place in biohazard container |
+            | Unit Number   | Product Code | Product Family | Status    | Reason  |
+            | W777725001004 | E003300      | WHOLE_BLOOD    | Discarded | EXPIRED |
+        And I'm in the irradiation service at the location "123456789"
+        When I scan the unit number "W777725001004" in irradiation
+        Then I see the product "E003300" from unit number "W777725001004" is in the list of products for selection
+        Then I verify that product "E003300" in the unit "W777725001004" is flagged as discarded as "EXPIRED"
 
-    @disabled @LAB-615
-    Scenario Outline: I cannot add into the batch a unit number that is marked for discard/unsuitable
+    @LAB-615
+    Scenario: I cannot add into the batch a unit number that is marked for discard/unsuitable
         Given I have the following inventory products:
-            | Unit Number   | Product Code | Product Family | Status             | Discard Reason                 |
-            | <Unit Number> | E033600      | WHOLE_BLOOD    | MARKED_FOR_DISCARD | POSITIVE_REACTIVE_TEST_RESULTS |
-        And I'm in the irradiation service at the location "<Location>"
-        When I scan the unit number "<Unit Number>" in irradiation
-        Then I see the product "E033600" from unit number "<Unit Number>" is in the list of products for selection
-#        When I select the product "E033600" from unit number "<Unit Number>"
-#        Then I see the error message "<Error Message>"
+            | Unit Number   | Product Code | Product Family | Status    | Unsuitable Reason              |
+            | W777725001005 | E003300      | WHOLE_BLOOD    | AVAILABLE | POSITIVE_REACTIVE_TEST_RESULTS |
+        And I'm in the irradiation service at the location "123456789"
+        When I scan the unit number "W777725001005" in irradiation
+        Then I see the product "E003300" from unit number "W777725001005" is in the list of products for selection
+        Then I verify that product "E003300" in the unit "W777725001005" is flagged as unsuitable with reason "POSITIVE_REACTIVE_TEST_RESULTS"
 
-        Examples:
-            | Unit Number   | Error Message                                                                                           |
-            | W777725001005 | This product is unsuitable with the reason Positive Reactive Test Results. Place in biohazard container |
 
-    @disabled @LAB-615
-    Scenario Outline: I cannot add into the batch a unit number that is not in the location
+    @LAB-615
+    Scenario: I cannot add into the batch a unit number that is expired
         Given I have the following inventory products:
-            | Unit Number   | Product Code | Product Family | Location      |
-            | <Unit Number> | E033600      | WHOLE_BLOOD    | Diff Location |
-        And I'm in the irradiation service at the location "<Location>"
+            | Unit Number   | Product Code | Product Family | Status    | Expired |
+            | W777725001006 | E003300      | WHOLE_BLOOD    | AVAILABLE | YES     |
+        And I'm in the irradiation service at the location "123456789"
         When I scan the unit number "<Unit Number>" in irradiation
-        Then I see the product "E033600" from unit number "<Unit Number>" is NOT in the list of products for selection
+        Then I see the product "E003300" from unit number "W777725001006" is in the list of products for selection
+        Then I verify that product "E003300" in the unit "W777725001006" is flagged as expired
 
-        Examples:
-            | Unit Number   |
-            | W777725001006 |
 
-    @disabled @LAB-615
-    Scenario Outline: I cannot add into the batch a unit number that is not in the location
+    @LAB-615
+    Scenario: I cannot add into the batch a unit number that is not in the location
         Given I have the following inventory products:
-            | Unit Number   | Product Code | Product Family | Status   |
-            | <Unit Number> | E033600      | WHOLE_BLOOD    | <Status> |
-        And I'm in the irradiation service at the location "<Location>"
-        When I scan the unit number "<Unit Number>" in irradiation
-        Then I see the product "E033600" from unit number "<Unit Number>" is NOT in the list of products for selection
-        Examples:
-            | Unit Number   | Status     |
-            | W777725001007 | CONVERTED  |
-            | W777725001008 | MODIFIED   |
-            | W777725001009 | SHIPPED    |
-            | W777725001010 | IN_TRANSIT |
+            | Unit Number   | Product Code | Product Family | Status    | Location  |
+            | W777725001007 | E003300      | WHOLE_BLOOD    | AVAILABLE | 234567891 |
+        And I'm in the irradiation service at the location "123456789"
+        When I scan the unit number "W777725001007" in irradiation
+        Then I see the error message "No products eligible for irradiation"
 
     @LAB-615
     Scenario: I cannot add a product that was already irradiated
@@ -117,6 +91,7 @@ Feature: Scan Unit Number for Irradiation
         And I'm in the irradiation service at the location "123456789"
         And the product "E003200" in the unit "W777725001011" was already irradiated in a completed batch for device "AUTO-DEVICE1011"
         When I scan the unit number "W777725001011" in irradiation
+        Then I see the product "E003200" from unit number "W777725001011" is in the list of products for selection
         Then I verify that product "E003200" in the unit "W777725001011" is flagged as already irradiated
 
     @LAB-615
@@ -126,7 +101,8 @@ Feature: Scan Unit Number for Irradiation
             | W777725001012 | E0869V00     | AVAILABLE | 123456789 | WHOLE_BLOOD    |
         And I'm in the irradiation service at the location "123456789"
         When I scan the unit number "W777725001012" in irradiation
-        Then I verify that product "E0869V00" in the unit "W777725001012" is flagged as not configurable for irradiation
+        Then I see the product "E0869V00" from unit number "W777725001012" is in the list of products for selection
+        And I verify that product "E0869V00" in the unit "W777725001012" is flagged as not configurable for irradiation
 
     @LAB-615
     Scenario: I cannot add a product that is currently being irradiated

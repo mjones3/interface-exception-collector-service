@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.irradiation.verification.api.support.Irrad
 import com.arcone.biopro.distribution.irradiation.verification.common.GraphQlHelper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,9 +35,13 @@ public class GraphQLSteps {
 
     @When("I scan the unit number {string} in irradiation")
     public void iScanTheUnitNumberInIrradiation(String unitNumber) {
+        var location = "123456789";
+        if(!Strings.isEmpty(irradiationContext.getLocation())) {
+            location = irradiationContext.getLocation();
+        }
         Map<String, Object> variables = Map.of(
             "unitNumber", unitNumber,
-            "location", "123456789"
+            "location", location
         );
 
         var response = graphQlHelper.executeQuery("validateUnit", variables, "validateUnit", IrradiationInventoryOutput[].class);
