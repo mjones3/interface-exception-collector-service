@@ -170,12 +170,10 @@ describe('FillProductsComponent', () => {
         };
         jest.spyOn(
             confirmationAcknowledgmentService,
-            'notificationConfirmation'
+            'openAcknowledgmentDialog'
         );
         component.openAcknowledgmentMessageDialog(notification);
-        expect(
-            confirmationAcknowledgmentService.notificationConfirmation
-        ).toHaveBeenCalled();
+        expect(confirmationAcknowledgmentService.openAcknowledgmentDialog).toHaveBeenCalled();
     });
 
     it('should increment selected units card length', () => {
