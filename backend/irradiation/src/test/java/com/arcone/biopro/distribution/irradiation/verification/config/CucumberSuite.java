@@ -9,7 +9,7 @@ import static io.cucumber.junit.platform.engine.Constants.JUNIT_PLATFORM_NAMING_
 @IncludeEngines("cucumber")
 @SelectDirectories({
     "src/test/java/com/arcone/biopro/distribution/irradiation/verification/api/features",
-//    "src/test/java/com/arcone/biopro/distribution/irradiation/verification/ui/features"
+    "src/test/java/com/arcone/biopro/distribution/irradiation/verification/ui/features"
 })
 @ConfigurationParameters({
     @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.arcone.biopro.distribution.irradiation.verification"),
