@@ -136,10 +136,9 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
     }
 
     private Flux<InventoryResponseDTO> applyIneligibleCriteria(GetUnlabeledProductsRequest getUnlabeledProductsRequest, Shipment shipment) {
-
         var ineligibleList = new ArrayList<>(List.of("INVENTORY_NOT_FOUND_IN_LOCATION", "INVENTORY_IS_SHIPPED"
             , "INVENTORY_IS_UNSUITABLE", "INVENTORY_IS_DISCARDED"
-            , "INVENTORY_IS_PACKED", "INVENTORY_NOT_EXIST"));
+            , "INVENTORY_IS_PACKED", "INVENTORY_NOT_EXIST","INVENTORY_IS_IN_TRANSIT","INVENTORY_IS_CONVERTED","INVENTORY_IS_MODIFIED"));
 
         if (shipment.getQuarantinedProducts() != null && !shipment.getQuarantinedProducts()) {
             ineligibleList.add("INVENTORY_IS_QUARANTINED");
