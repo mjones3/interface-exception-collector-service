@@ -184,7 +184,7 @@ export class VerifyProductsNotificationsComponent
             if (removedItem?.ineligibleAction === 'TRIGGER_DISCARD') {
                 return this.triggerDiscard(removedItem);
             } else {
-                this.openAcknowledgmentMessageDialog(
+                this.confirmationAcknowledgmentService.openAcknowledgmentDialog(
                     removedItem?.ineligibleMessage,
                     removedItem?.ineligibleDetails,
                     () => {
@@ -206,18 +206,6 @@ export class VerifyProductsNotificationsComponent
         }
     }
 
-    openAcknowledgmentMessageDialog(
-        message: string,
-        details: string[],
-        callBackFn
-    ): void {
-        this.confirmationAcknowledgmentService.notificationConfirmation(
-            message,
-            details,
-            callBackFn
-        );
-    }
-
     disableInputsIfAllRemovableItemsWereRemoved(): void {
         if (this.notificationDetailsSignal()?.toBeRemovedItems?.length === 0) {
             this.scanUnitNumberProductCode?.disableUnitProductGroup();
@@ -236,7 +224,7 @@ export class VerifyProductsNotificationsComponent
             .subscribe((response) => {
                 const data = response?.data?.discardProduct;
                 if (data) {
-                    return this.openAcknowledgmentMessageDialog(
+                    return this.confirmationAcknowledgmentService.openAcknowledgmentDialog(
                         itemPackedDTO.ineligibleMessage,
                         null,
                         () => {
