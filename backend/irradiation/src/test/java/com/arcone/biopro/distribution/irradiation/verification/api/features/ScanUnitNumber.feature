@@ -27,7 +27,7 @@ Feature: Scan Unit Number for Irradiation
         Given I have the following inventory products:
             | Unit Number   | Product Code | Product Family | Status      | Stops Manufacturing |
             | W777725001002 | E003300      | WHOLE_BLOOD    | Quarantined | Yes                 |
-        And I'm in the irradiation service at the location "123456789ó"
+        And I'm in the irradiation service at the location "123456789"
         When I scan the unit number "W777725001002" in irradiation
         Then I see the product "E003300" from unit number "W777725001002" is in the list of products for selection
         Then I verify that product "E003300" in the unit "W777725001002" is flagged as quarantined that stops manufacturing
@@ -69,7 +69,7 @@ Feature: Scan Unit Number for Irradiation
             | Unit Number   | Product Code | Product Family | Status    | Expired |
             | W777725001006 | E003300      | WHOLE_BLOOD    | AVAILABLE | YES     |
         And I'm in the irradiation service at the location "123456789"
-        When I scan the unit number "<Unit Number>" in irradiation
+        When I scan the unit number "W777725001006" in irradiation
         Then I see the product "E003300" from unit number "W777725001006" is in the list of products for selection
         Then I verify that product "E003300" in the unit "W777725001006" is flagged as expired
 
