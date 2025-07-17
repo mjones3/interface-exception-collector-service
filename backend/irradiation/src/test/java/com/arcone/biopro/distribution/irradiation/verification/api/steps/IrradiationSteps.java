@@ -14,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,14 +38,6 @@ public class IrradiationSteps {
         log.info("Starting irradiation testing.");
     }
 
-    @When("I scan the unit number {string} in irradiation")
-    public void iScanTheUnitNumberInIrradiation(String unitNumber) {
-        List<IrradiationInventoryOutput> inventories = validateUnitNumberUseCase.execute(unitNumber, irradiationContext.getLocation())
-            .collectList()
-            .block(Duration.ofSeconds(10));
-        irradiationContext.setInventoryList(inventories);
-    }
-
     @Then("I see the product {string} from unit number {string} is in the list of products for selection")
     public void iSeeTheProductFromUnitNumberIsInTheListOfProductsForSelection(String productCode, String unitNumber) {
         assertTrue(irradiationContext.getInventoryList().stream().anyMatch(i-> i.productCode().equals(productCode) && i.unitNumber().equals(unitNumber)));
@@ -60,8 +53,50 @@ public class IrradiationSteps {
         assertEquals(irradiationContext.getInventoryList().stream().toList().size(), numberOfProducts);
     }
 
+    @Then("I verify that there are {int} product\\(s) eligible for irradiation for the unit number {string}")
+    public void iVerifyThatThereAreProductSEligibleForIrradiationForTheUnitNumber(int numberOfProducts, String unitNumber) {
+        assertEquals(irradiationContext.getInventoryList().stream().toList().size(), numberOfProducts);
+    }
+
     @Then("I see the product {string} from unit number {string} is NOT in the list of products for selection")
     public void iSeeTheProductFromUnitNumberIsNOTInTheListOfProductsForSelection(String productCode, String unitNumber) {
         assertFalse(irradiationContext.getInventoryList().stream().anyMatch(i-> i.productCode().equals(productCode) && i.unitNumber().equals(unitNumber)));
+    }
+
+    @Then("I see the product {string} from unit number {string} has {string} flag set to {word}")
+    public void iSeeTheProductFromUnitNumberHasFlagSetTo(String productCode, String unitNumber, String flagName, String flagValue) {
+        boolean expectedValue = Boolean.parseBoolean(flagValue);
+
+        IrradiationInventoryOutput product = irradiationContext.getInventoryList().stream()
+                .filter(i -> productCode.equals(i.productCode()) && unitNumber.equals(i.unitNumber()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Product " + productCode + " not found for unit " + unitNumber));
+
+        boolean actualValue = switch (flagName) {
+            case "alreadyIrradiated" -> product.alreadyIrradiated();
+            case "notConfigurableForIrradiation" -> product.notConfigurableForIrradiation();
+            default -> throw new IllegalArgumentException("Unknown flag: " + flagName);
+        };
+
+        assertEquals(expectedValue, actualValue, "Flag " + flagName + " should be " + expectedValue + " but was " + actualValue);
+    }
+
+    @Then("I verify that product {string} in the unit {string} is flagged as already irradiated")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsAlreadyIrradiated(String productCode, String unitNumber) {
+        assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
+        assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
+        assertTrue(irradiationContext.getInventoryList().getFirst().alreadyIrradiated());
+    }
+
+    @Then("I verify that product {string} in the unit {string} is flagged as not configurable for irradiation")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsNotConfigurableForIrradiation(String productCode, String unitNumber) {
+        assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
+        assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
+        assertTrue(irradiationContext.getInventoryList().getFirst().notConfigurableForIrradiation());
+    }
+
+    @Then("I see the error message {string}")
+    public void iSeeTheErrorMessage(String errorMessage) {
+        assertEquals(irradiationContext.getResponseErrors().getFirst().getMessage(), errorMessage);
     }
 }

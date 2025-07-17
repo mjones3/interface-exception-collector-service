@@ -7,7 +7,10 @@ import static io.cucumber.junit.platform.engine.Constants.JUNIT_PLATFORM_NAMING_
 
 @Suite
 @IncludeEngines("cucumber")
-@SelectDirectories({"src/test/java/com/arcone/biopro/distribution/irradiation/verification/api/features"})
+@SelectDirectories({
+    "src/test/java/com/arcone/biopro/distribution/irradiation/verification/api/features",
+    "src/test/java/com/arcone/biopro/distribution/irradiation/verification/ui/features"
+})
 @ConfigurationParameters({
     @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.arcone.biopro.distribution.irradiation.verification"),
     @ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not (@disabled)"),

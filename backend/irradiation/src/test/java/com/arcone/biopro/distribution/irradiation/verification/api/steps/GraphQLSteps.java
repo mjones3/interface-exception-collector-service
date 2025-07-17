@@ -1,19 +1,24 @@
 package com.arcone.biopro.distribution.irradiation.verification.api.steps;
 
-import com.arcone.biopro.distribution.irradiation.adapter.in.web.controller.errors.DeviceValidationFailureException;
+import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
+import com.arcone.biopro.distribution.irradiation.verification.api.support.IrradiationContext;
+import com.arcone.biopro.distribution.irradiation.verification.common.GraphQlHelper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @ContextConfiguration
 public class GraphQLSteps {
+
+    @Autowired
+    private GraphQlHelper graphQlHelper;
 
     @Autowired
     private GraphQlTester graphQlTester;
@@ -23,6 +28,25 @@ public class GraphQLSteps {
 
     @Autowired
     private ValidateDeviceUseCase validateDeviceUseCase;
+
+    @Autowired
+    private IrradiationContext irradiationContext;
+
+    @When("I scan the unit number {string} in irradiation")
+    public void iScanTheUnitNumberInIrradiation(String unitNumber) {
+        Map<String, Object> variables = Map.of(
+            "unitNumber", unitNumber,
+            "location", "123456789"
+        );
+
+        var response = graphQlHelper.executeQuery("validateUnit", variables, "validateUnit", IrradiationInventoryOutput[].class);
+        if(response.getErrors().isEmpty()) {
+            List<IrradiationInventoryOutput> inventoryList = Arrays.asList(response.getData());
+            irradiationContext.setInventoryList(inventoryList);
+        } else {
+            irradiationContext.setResponseErrors(response.getErrors());
+        }
+    }
 
     @When("I scan the device {string} at location {string}")
     public void iScanTheDeviceAtLocation(String deviceId, String location) {

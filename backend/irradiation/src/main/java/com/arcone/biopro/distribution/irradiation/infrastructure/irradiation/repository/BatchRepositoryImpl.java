@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.re
 
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Batch;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.BatchRepository;
-import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchId;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchItem;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.DeviceId;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchEntity;
@@ -24,6 +23,7 @@ interface BatchEntityRepository extends ReactiveCrudRepository<BatchEntity, Long
 
 interface BatchItemEntityRepository extends ReactiveCrudRepository<BatchItemEntity, Long> {
     Flux<BatchItemEntity> findByBatchId(Long batchId);
+    Mono<Boolean> existsByUnitNumber(String unitNumber);
 }
 
 @Repository
@@ -31,13 +31,16 @@ public class BatchRepositoryImpl implements BatchRepository {
     private final BatchEntityRepository batchRepository;
     private final BatchItemEntityRepository batchItemRepository;
     private final BatchEntityMapper mapper;
+    private final DatabaseClient databaseClient;
 
     public BatchRepositoryImpl(BatchEntityRepository batchRepository,
                               BatchItemEntityRepository batchItemRepository,
-                              BatchEntityMapper mapper) {
+                              BatchEntityMapper mapper,
+                              DatabaseClient databaseClient) {
         this.batchRepository = batchRepository;
         this.batchItemRepository = batchItemRepository;
         this.mapper = mapper;
+        this.databaseClient = databaseClient;
     }
 
     @Override
@@ -68,6 +71,36 @@ public class BatchRepositoryImpl implements BatchRepository {
                     return batchItemRepository.saveAll(itemEntities)
                             .then(Mono.just(mapper.toDomain(savedBatch)));
                 });
+    }
+
+    @Override
+    public Mono<Boolean> isUnitAlreadyIrradiated(String unitNumber) {
+        String sql = """
+            SELECT COUNT(*) > 0
+            FROM bld_batch_item bi
+            JOIN bld_batch b ON bi.batch_id = b.id
+            WHERE bi.unit_number = :unitNumber AND b.end_time IS NOT NULL
+            """;
+
+        return databaseClient.sql(sql)
+                .bind("unitNumber", unitNumber)
+                .map(row -> row.get(0, Boolean.class))
+                .one();
+    }
+
+    @Override
+    public Mono<Boolean> isUnitBeingIrradiated(String unitNumber) {
+        String sql = """
+            SELECT COUNT(*) > 0
+            FROM bld_batch_item bi
+            JOIN bld_batch b ON bi.batch_id = b.id
+            WHERE bi.unit_number = :unitNumber AND b.end_time IS NULL
+            """;
+
+        return databaseClient.sql(sql)
+                .bind("unitNumber", unitNumber)
+                .map(row -> row.get(0, Boolean.class))
+                .one();
     }
 
 }

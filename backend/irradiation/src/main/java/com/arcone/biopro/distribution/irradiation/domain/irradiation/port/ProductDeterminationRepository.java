@@ -10,5 +10,6 @@ import reactor.core.publisher.Mono;
 public interface ProductDeterminationRepository {
 
     Mono<ProductDetermination> findBySourceProductCode(ProductCode sourceProductCode);
+    Mono<Boolean> existsBySourceProductCode(ProductCode sourceProductCode);
 
 }

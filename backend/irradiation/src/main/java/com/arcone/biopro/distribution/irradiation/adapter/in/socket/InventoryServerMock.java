@@ -25,6 +25,21 @@ public class InventoryServerMock {
 
     @MessageMapping("getInventoryByUnitNumber")
     public Flux<InventoryOutput> getInventoryByUnitNumber(String unitNumber) {
+        if (unitNumber.startsWith("W777725001011")) {
+            return Flux.just(
+                createInventory("W777725001011","E003200", "AVAILABLE", "123456789")
+            );
+        }
+        if (unitNumber.startsWith("W777725001012")) {
+            return Flux.just(
+                createInventory("W777725001012","E0869V00", "AVAILABLE", "123456789")
+            );
+        }
+        if (unitNumber.startsWith("W777725001013")) {
+            return Flux.just(
+                createInventory("W777725001013","E003300", "AVAILABLE", "123456789")
+            );
+        }
         if (unitNumber.startsWith(IRRADIATION_START_FEATURE_UN)) {
             return Flux.just(
                 createInventory("W777725002001","E033600", "AVAILABLE", "123456789","AS1 LR RBC"),
@@ -126,6 +141,10 @@ public class InventoryServerMock {
                     .build()
             );
         }
+    }
+
+    private static InventoryOutput createInventory(String unitNumber, String productCode, String status, String location) {
+        return createInventory(unitNumber, productCode, status, location, "A product description");
     }
 
     private static InventoryOutput createInventory(String unitNumber, String productCode, String status, String location, String productDescription) {
