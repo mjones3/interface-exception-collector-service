@@ -107,7 +107,7 @@ Feature: Starts Irradiation Process
 
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
-            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            Then I see the "Warning" message "This product has already been discarded for EXPIRED in the system. Place in biohazard container."
             And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
