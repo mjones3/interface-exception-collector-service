@@ -32,6 +32,9 @@ spring:
     inventory:
       host: ${inventory-service:localhost}
       port: 7002
+    supply:
+      host: ${supply-service:localhost}
+      port: 7002
 otel:
     sdk:
         disabled: true
