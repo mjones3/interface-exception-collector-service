@@ -3,12 +3,13 @@ import {
     Component,
     effect,
     inject,
-    Input,
     OnInit,
     TemplateRef,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
+import { EMPTY } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import {ActionButtonComponent} from "../../../../shared/components/buttons/action-button.component";
 import {FuseCardComponent} from "../../../../../@fuse";
 import {MatDivider} from "@angular/material/divider";
@@ -23,7 +24,6 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/
 import {ActivatedRoute, Router} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {
-    CheckDigitResponseDTO,
     IrradiationProductDTO, IrradiationResolveData,
     MessageType, StartIrradiationSubmitBatchRequestDTO, ValidateUnitEvent, ValidationDataDTO
 } from "../../models/model";
@@ -64,7 +64,7 @@ const EXPIRED = 'EXPIRED';
 export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
     private readonly _productIconService = inject(ProductIconsService);
-    showCheckDigit = true;
+    showCheckDigit = false;
     numOfMaxUnits = 0;
     selectedProducts: IrradiationProductDTO[] = [];
     products: IrradiationProductDTO[] = [];
@@ -110,10 +110,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         });
     }
     ngOnInit() {
-        const resolverData = this.activatedRoute.parent?.snapshot.data?.initialData as IrradiationResolveData;
-        if (resolverData?.showCheckDigit) {
-            this.showCheckDigit = resolverData?.showCheckDigit
-        }
+        this.showCheckDigit = (this.activatedRoute.parent?.snapshot.data?.initialData as IrradiationResolveData)
+            .showCheckDigit;
         this.currentLocation = this.cookieService.get(Cookie.XFacility);
         if (!this.currentLocation) {
             this.showMessage(MessageType.ERROR, 'Location is not set. Please check your facility settings.');
@@ -237,6 +235,9 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
     validateUnit(event: ValidateUnitEvent) {
         const { unitNumber, checkDigit, scanner } = event;
+        if (!unitNumber) return;
+
+        // Update current date and time
         const now = new Date();
         this.currentDateTime = now.toLocaleDateString('en-US', {
             month: '2-digit',
@@ -248,89 +249,89 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
             hour12: false
         });
         this.startTime = now.toISOString().slice(0, 19);
-        if (unitNumber) {
-            if (this.showCheckDigit && !scanner) {
-                this.irradiationService.validateCheckDigit(unitNumber,checkDigit).subscribe({
-                    next: (result) => {
-                        const response = result.data.checkDigit.isValid;
-                        if (response) {
-                            this.validateUnitNumber(unitNumber);
-                        } else {
+        if (this.showCheckDigit && !scanner) {
+            this.irradiationService.validateCheckDigit(unitNumber, checkDigit).pipe(
+                switchMap(result => {
+                    const isValid = result.data?.checkDigit?.isValid ?? false;
+                    if (!isValid) {
+                        if (checkDigit) {
                             this.showMessage(MessageType.ERROR, 'Invalid check digit');
-                            this.unitNumberComponent.setValidatorsForCheckDigit(false);
-                            this.unitNumberComponent.focusOnCheckDigit();
                         }
-                    },
-                    error: (error) => {
-                        this.showMessage(MessageType.ERROR, error.message)
+                        this.unitNumberComponent.setValidatorsForCheckDigit(false);
+                        this.unitNumberComponent.focusOnCheckDigit();
+                        return EMPTY;
                     }
+                    return this.irradiationService.validateUnitNumber(unitNumber, this.currentLocation);
                 })
-            } else {
-                this.validateUnitNumber(unitNumber);
-            }
+            ).subscribe({
+                next: this.handleValidationResult.bind(this, unitNumber),
+                error: (error) => {
+                    this.isDialogOpen = false;
+                    this.showMessage(MessageType.ERROR, error.message);
+                }
+            });
+        } else {
+            this.irradiationService.validateUnitNumber(unitNumber, this.currentLocation).subscribe({
+                next: this.handleValidationResult.bind(this, unitNumber),
+                error: (error) => {
+                    this.isDialogOpen = false;
+                    this.showMessage(MessageType.ERROR, error.message);
+                }
+            });
         }
     }
 
-    private validateUnitNumber(unitNumber: string) {
-        this.irradiationService.validateUnitNumber(unitNumber, this.currentLocation).subscribe({
-            next: (result) => {
-                const inventories = result.data.validateUnit;
-                if (inventories) {
-                    const irradiationProducts: IrradiationProductDTO[] = inventories.map(inventory => ({
-                        unitNumber: unitNumber,
-                        expired: inventory.expired,
-                        productCode: inventory.productCode,
-                        productDescription: inventory.productDescription,
-                        status: inventory.status,
-                        productFamily: inventory.productFamily,
-                        icon: this.findIconsByProductFamily(inventory.productFamily),
-                        order: inventory.order || 1,
-                        statuses: [
-                            {
-                                value: this.getFinalStatus(inventory),
-                                classes: this.statusToColorClass(inventory),
-                            },
-                        ],
-                        location: this.currentLocation,
-                        comments: '',
-                        statusReason: inventory.statusReason,
-                        unsuitableReason: inventory.unsuitableReason,
-                        alreadyIrradiated: inventory.alreadyIrradiated,
-                        notConfigurableForIrradiation: inventory.notConfigurableForIrradiation,
-                        quarantines: inventory.quarantines
-                    }))
+    private handleValidationResult(unitNumber: string, result: any) {
+        const inventories = result.data.validateUnit;
+        if (inventories) {
+            const irradiationProducts: IrradiationProductDTO[] = inventories.map(inventory => ({
+                unitNumber: unitNumber,
+                expired: inventory.expired,
+                productCode: inventory.productCode,
+                productDescription: inventory.productDescription,
+                status: inventory.status,
+                productFamily: inventory.productFamily,
+                icon: this.findIconsByProductFamily(inventory.productFamily),
+                order: inventory.order || 1,
+                statuses: [
+                    {
+                        value: this.getFinalStatus(inventory),
+                        classes: this.statusToColorClass(inventory),
+                    },
+                ],
+                location: this.currentLocation,
+                comments: '',
+                statusReason: inventory.statusReason,
+                unsuitableReason: inventory.unsuitableReason,
+                alreadyIrradiated: inventory.alreadyIrradiated,
+                notConfigurableForIrradiation: inventory.notConfigurableForIrradiation,
+                quarantines: inventory.quarantines
+            }));
 
-                    if (!this.isDialogOpen) {
-                        this.isDialogOpen = true;
-                        const defaults = {
-                            height: 'auto',
-                            data: {
-                                options: irradiationProducts,
-                                optionsLabel: 'productDescription',
-                                dialogTitle: 'Select a product'
-                            }
-                        };
-                        this.matDialog.open(IrradiationSelectProductModal, {
-                            ...defaults
-                        }).afterClosed()
-                            .subscribe((selectedOption) => {
-                                this.isDialogOpen = false;
-                                if (selectedOption) {
-                                    const isValid = (this.validateProduct(selectedOption) && this.isNotAnExistingIrradiatedProduct(selectedOption));
-                                    if (isValid) {
-                                        this.populateIrradiationBatch(selectedOption);
-                                    }
-                                }
-                            });
+            if (!this.isDialogOpen) {
+                this.isDialogOpen = true;
+                const defaults = {
+                    height: 'auto',
+                    data: {
+                        options: irradiationProducts,
+                        optionsLabel: 'productDescription',
+                        dialogTitle: 'Select a product'
                     }
-
-                }
-            },
-            error: (error) => {
-                this.isDialogOpen = false;
-                this.showMessage(MessageType.ERROR, error.message)
+                };
+                this.matDialog.open(IrradiationSelectProductModal, {
+                    ...defaults
+                }).afterClosed()
+                    .subscribe((selectedOption) => {
+                        this.isDialogOpen = false;
+                        if (selectedOption) {
+                            const isValid = (this.validateProduct(selectedOption) && this.isNotAnExistingIrradiatedProduct(selectedOption));
+                            if (isValid) {
+                                this.populateIrradiationBatch(selectedOption);
+                            }
+                        }
+                    });
             }
-        })
+        }
     }
 
     private validateProduct(selectedOption: IrradiationProductDTO): boolean {
