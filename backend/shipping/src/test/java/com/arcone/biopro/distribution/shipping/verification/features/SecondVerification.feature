@@ -187,13 +187,16 @@ Feature: Second Verification of Units Feature
 
         @ui @DIS-453
         Scenario Outline: Verify Shipment with Unlabeled Unit with multiple products.
-            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>,<Unquarantined UN>" and product codes "<Quarantined Code>,<Unquarantined Code>" "packed"
+            Given The shipment details are:
+                | Order_Number   | Customer_ID   | Customer_Name   | Quantity    | Blood_Type   | Product_Family | Unit_numbers   | Product_Codes   | Temp_Category  | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status  |
+                | <Order Number> | <Customer ID> | <Customer Name> |  <Quantity> | <BloodType> | <ProductFamily> | <UNIT_NUMBERS> | <PRODUCT_CODES> | <Category>     | <Shipment Type> | <Label Status> | <Quarantined Products> | <ProductStatus> |
             And The second verification configuration is "enabled".
             And The check digit configuration is "disabled".
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             When I choose verify products.
             Then I should be redirected to the verify products page.
             And I can see the Order Information Details and the Shipping Information Details.
+            And The product code should not be available.
             When I scan the unit "<UN>".
             Then I should see the product selection option with the products "<product_list>".
             When I select the product "<product_description>".
@@ -211,13 +214,16 @@ Feature: Second Verification of Units Feature
 
         @ui @DIS-453
         Scenario Outline: Verify Shipment with Unlabeled Unit with single product.
-            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>,<Unquarantined UN>" and product codes "<Quarantined Code>,<Unquarantined Code>" "packed"
+            Given The shipment details are:
+                | Order_Number   | Customer_ID   | Customer_Name   | Quantity    | Blood_Type   | Product_Family | Unit_numbers   | Product_Codes   | Temp_Category  | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status  |
+                | <Order Number> | <Customer ID> | <Customer Name> |  <Quantity> | <BloodType> | <ProductFamily> | <UNIT_NUMBERS> | <PRODUCT_CODES> | <Category>     | <Shipment Type> | <Label Status> | <Quarantined Products> | <ProductStatus> |
             And The second verification configuration is "enabled".
             And The check digit configuration is "disabled".
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             When I choose verify products.
             Then I should be redirected to the verify products page.
             And I can see the Order Information Details and the Shipping Information Details.
+            And The product code should not be available.
             When I scan the unit "<UN>".
             Then I should see the list of verified products added including "<UN>" and "<product_description>".
             And I "<ShouldShouldNot>" see the product status as "Quarantined".

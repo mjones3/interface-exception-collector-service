@@ -2,7 +2,7 @@
 Feature: Fill Unlabeled Products for Internal Transfer order
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "452000016,452000017,452000018,452000019,452000020,452000021,452000022,452000023,452000024".
+        Given I cleaned up from the database, all shipments with order number "452000016,452000017,452000018,452000019,452000020,452000021,452000022,452000023,452000024,45300001,45300002,45300003,45300004".
 
         Rule: I should be able to see all eligible products for a given unit number.
         Rule: I should be able to select unlabeled products to fill an internal transfer order.
@@ -70,7 +70,9 @@ Feature: Fill Unlabeled Products for Internal Transfer order
         Rule: I should be able to see all the previously filled products for a given unit number.
         @api @DIS-453
         Scenario Outline: Product Selection Verify Unlabeled Products.
-            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>,<Unquarantined UN>" and product codes "<Quarantined Code>,<Unquarantined Code>" "packed"
+            Given The shipment details are:
+                | Order_Number   | Customer_ID   | Customer_Name   | Quantity    | Blood_Type   | Product_Family | Unit_numbers   | Product_Codes   | Temp_Category  | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status  |
+                | <Order Number> | <Customer ID> | <Customer Name> |  <Quantity> | <BloodType> | <ProductFamily> | <UNIT_NUMBERS> | <PRODUCT_CODES> | <Category>     | <Shipment Type> | <Label Status> | <Quarantined Products> | <ProductStatus> |
             And The second verification configuration is "enabled".
             When I request all packed unlabeled products for the unit number "<UN>".
             Then I should receive the product list with the products "<product_list>" available for the unit number "<UN>".
@@ -83,11 +85,13 @@ Feature: Fill Unlabeled Products for Internal Transfer order
         Rule: I should not see the products that I have already verified.
         @api @DIS-453
         Scenario Outline: Product Selection Verify Unlabeled Products Filtering out verified products.
-            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>,<Unquarantined UN>" and product codes "<Quarantined Code>,<Unquarantined Code>" "packed"
+            Given The shipment details are:
+                | Order_Number   | Customer_ID   | Customer_Name   | Quantity    | Blood_Type   | Product_Family | Unit_numbers   | Product_Codes   | Temp_Category  | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status  |
+                | <Order Number> | <Customer ID> | <Customer Name> |  <Quantity> | <BloodType> | <ProductFamily> | <UNIT_NUMBERS> | <PRODUCT_CODES> | <Category>     | <Shipment Type> | <Label Status> | <Quarantined Products> | <ProductStatus> |
             And The second verification configuration is "enabled".
             When I request all packed unlabeled products for the unit number "<UN>".
             Then I should receive the product list with the products "<product_list_1>" available for the unit number "<UN>".
-            When I fill a product with the unit number "<UN>", product code "<Code_1>".
+            When I verify a product with the unit number "<UN>", product code "<Code_1>".
             Then The product unit number "<UN>" and product code "<Code_1>" should be verified in the shipment.
             When I request all packed unlabeled products for the unit number "<UN>".
             Then I should receive the product list with the products "<product_list_2>" available for the unit number "<UN>".
