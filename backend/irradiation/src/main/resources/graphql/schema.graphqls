@@ -2,6 +2,7 @@ type Query {
     validateDevice(deviceId: String!, location: String!): Boolean
     validateUnit(unitNumber: String!, location: String!): [Inventory]
     readConfiguration(keys: [String]): [ConfigurationDTO]
+    checkDigit(unitNumber: String!, checkDigit: String!): CheckDigitResponseDTO!
 }
 
 type Mutation {
@@ -50,4 +51,8 @@ type BatchSubmissionResult {
     batchId: ID!
     message: String!
     success: Boolean!
+}
+
+type CheckDigitResponseDTO {
+    isValid: Boolean
 }

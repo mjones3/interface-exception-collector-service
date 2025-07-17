@@ -1,7 +1,7 @@
 export const USE_CHECK_DIGIT = 'USE_CHECK_DIGIT';
 
 export interface IrradiationResolveData {
-    useCheckDigit: boolean;
+    showCheckDigit: boolean;
 }
 
 export interface CheckDigitRequestDTO {
@@ -10,9 +10,7 @@ export interface CheckDigitRequestDTO {
 }
 
 export interface CheckDigitResponseDTO {
-    checkDigit: {
-        isValid: boolean;
-    };
+    isValid: boolean;
 }
 
 export interface RecordVisualInpectionResult {
@@ -78,6 +76,8 @@ export interface IrradiationProductDTO {
     statuses?: { value: string; classes: string }[];
     disabled?: boolean;
     expired: boolean;
+    alreadyIrradiated: boolean,
+    notConfigurableForIrradiation: boolean,
     quarantines: IrradiationProductQuarantineDTO[];
 }
 
