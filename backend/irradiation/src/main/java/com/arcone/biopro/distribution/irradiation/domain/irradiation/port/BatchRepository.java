@@ -11,4 +11,6 @@ import java.util.List;
 public interface BatchRepository {
     Mono<Batch> findActiveBatchByDeviceId(DeviceId deviceId);
     Mono<Batch> submitBatch(DeviceId deviceId, LocalDateTime startTime, List<BatchItem> batchItems);
+    Mono<Boolean> isUnitAlreadyIrradiated(String unitNumber);
+    Mono<Boolean> isUnitBeingIrradiated(String unitNumber);
 }

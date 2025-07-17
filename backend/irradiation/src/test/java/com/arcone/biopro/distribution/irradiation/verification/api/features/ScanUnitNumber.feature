@@ -108,3 +108,32 @@ Feature: Scan Unit Number for Irradiation
             | W777725001008 | MODIFIED   |
             | W777725001009 | SHIPPED    |
             | W777725001010 | IN_TRANSIT |
+
+    @LAB-615
+    Scenario: I cannot add a product that was already irradiated
+        Given I have the following inventory products:
+            | Unit Number   | Product Code | Status    | Location  | Product Family |
+            | W777725001011 | E003200      | AVAILABLE | 123456789 | WHOLE_BLOOD    |
+        And I'm in the irradiation service at the location "123456789"
+        And the product "E003200" in the unit "W777725001011" was already irradiated in a completed batch for device "AUTO-DEVICE1011"
+        When I scan the unit number "W777725001011" in irradiation
+        Then I verify that product "E003200" in the unit "W777725001011" is flagged as already irradiated
+
+    @LAB-615
+    Scenario: I cannot add a product that is not configured for irradiation
+        Given I have the following inventory products:
+            | Unit Number   | Product Code | Status    | Location  | Product Family |
+            | W777725001012 | E0869V00     | AVAILABLE | 123456789 | WHOLE_BLOOD    |
+        And I'm in the irradiation service at the location "123456789"
+        When I scan the unit number "W777725001012" in irradiation
+        Then I verify that product "E0869V00" in the unit "W777725001012" is flagged as not configurable for irradiation
+
+    @LAB-615
+    Scenario: I cannot add a product that is currently being irradiated
+        Given I have the following inventory products:
+            | Unit Number   | Product Code | Status    | Location  | Product Family |
+            | W777725001013 | E003300      | AVAILABLE | 123456789 | WHOLE_BLOOD    |
+        And I'm in the irradiation service at the location "123456789"
+        And the product "E003300" in the unit "W777725001013" was already irradiated in a opened batch for device "AUTO-DEVICE1013"
+        When I scan the unit number "W777725001013" in irradiation
+        Then I see the error message "No products eligible for irradiation"

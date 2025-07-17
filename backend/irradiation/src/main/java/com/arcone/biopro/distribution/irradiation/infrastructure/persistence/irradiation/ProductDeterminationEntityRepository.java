@@ -8,5 +8,6 @@ import reactor.core.publisher.Mono;
 interface ProductDeterminationEntityRepository extends ReactiveCrudRepository<ProductDeterminationEntity, Integer> {
 
     Mono<ProductDeterminationEntity> findBySourceProductCode(String sourceProductCode);
+    Mono<Boolean> existsBySourceProductCode(String sourceProductCode);
 
 }

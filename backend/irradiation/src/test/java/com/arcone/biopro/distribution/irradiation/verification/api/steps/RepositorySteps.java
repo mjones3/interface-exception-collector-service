@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.ent
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchItemEntity;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.DeviceEntity;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -97,21 +99,21 @@ public class RepositorySteps {
         BatchEntity batch = batchRepository.findAll()
                 .filter(b -> batchDeviceId.equals(b.getDeviceId()))
                 .blockFirst();
-        
+
         assertNotNull(batch, "Batch should be created in repository");
-        
+
         List<BatchItemEntity> actualItems = batchItemRepository.findAll()
                 .filter(item -> batch.getId().equals(item.getBatchId()))
                 .collectList()
                 .block();
-        
+
         List<Map<String, String>> expectedItemMaps = expectedItems.asMaps();
         assertEquals(expectedItemMaps.size(), actualItems.size(), "Batch items count should match");
-        
+
         for (int i = 0; i < expectedItemMaps.size(); i++) {
             Map<String, String> expected = expectedItemMaps.get(i);
             BatchItemEntity actual = actualItems.get(i);
-            
+
             assertEquals(expected.get("Unit Number"), actual.getUnitNumber(), "Unit number should match");
             assertEquals(expected.get("Product Code"), actual.getProductCode(), "Product code should match");
             assertEquals(expected.get("Irradiator Indicator"), actual.getLotNumber(), "Lot number should match");
@@ -132,5 +134,19 @@ public class RepositorySteps {
     public void iShouldSeeTheErrorMessage(String expectedError) {
         assertNotNull(batchSubmissionError);
         assertTrue(batchSubmissionError.contains(expectedError), "Error message should contain: " + expectedError);
+    }
+
+    @And("the product {string} in the unit {string} was already irradiated in a completed batch for device {string}")
+    public void theProductInTheUnitWasAlreadyIrradiatedInACompletedBatchForDevice(String productCode, String unitNumber, String deviceId) {
+        deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
+        var batch = batchRepository.save(BatchEntity.builder().deviceId(deviceId).startTime(LocalDateTime.now()).endTime(LocalDateTime.now()).build()).block();
+        batchItemRepository.save(BatchItemEntity.builder().batchId(batch.getId()).lotNumber("123").unitNumber(unitNumber).productCode(productCode).build()).block();
+    }
+
+    @And("the product {string} in the unit {string} was already irradiated in a opened batch for device {string}")
+    public void theProductInTheUnitWasAlreadyIrradiatedInAOpenedBatchForDevice(String productCode, String unitNumber, String deviceId) {
+        deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
+        var batch = batchRepository.save(BatchEntity.builder().deviceId(deviceId).startTime(LocalDateTime.now()).build()).block();
+        batchItemRepository.save(BatchItemEntity.builder().batchId(batch.getId()).lotNumber("123").unitNumber(unitNumber).productCode(productCode).build()).block();
     }
 }
