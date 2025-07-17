@@ -32,7 +32,7 @@
 
     <mat-form-field class="md:col-span-2" [formGroup]="formGroup()">
       <mat-label>Start Time Zone</mat-label>
-      <mat-select data-testid="transit-time-start-zone" formControlName="startZone" required>
+      <mat-select [attr.data-testid]="'transit-time-start-zone'" formControlName="startZone" required>
         @for (timeZone of availableTimeZones(); track $index) {
           <mat-option [value]="timeZone.optionValue">{{timeZone.descriptionKey}}</mat-option>
         }
@@ -75,7 +75,7 @@
 
     <mat-form-field class="md:col-span-2" [formGroup]="formGroup()">
       <mat-label>End Time Zone</mat-label>
-      <mat-select data-testid="transit-time-end-zone" formControlName="endZone" required>
+      <mat-select [attr.data-testid]="'transit-time-end-zone'" formControlName="endZone" required>
         @for (timeZone of availableTimeZones(); track $index) {
           <mat-option [value]="timeZone.optionValue">{{timeZone.descriptionKey}}</mat-option>
         }
