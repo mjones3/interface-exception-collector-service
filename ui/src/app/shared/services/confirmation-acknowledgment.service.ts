@@ -1,15 +1,18 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AcknowledgeConfirmationComponent } from '../components/acknowledge-confirmation/acknowledge-confirmation.component';
-import { AcknowledgeDetailDTO } from '../models';
+import {
+    AcknowledgeConfirmationComponent
+} from '../components/acknowledge-confirmation/acknowledge-confirmation.component';
+import { AcknowledgeDetailDTO } from '@shared';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ConfirmationAcknowledgmentService {
+
     constructor(private matDialog: MatDialog) {}
 
-    notificationConfirmation(message: string, details: string[], callBackFn) {
+    openAcknowledgmentDialog(message: string, details: string[], callBackFn: () => void = () => {}): void {
         const acknowledgeDetail: AcknowledgeDetailDTO = {
             title: 'Acknowledgment Message',
             description: message,
@@ -27,4 +30,5 @@ export class ConfirmationAcknowledgmentService {
                 callBackFn();
             });
     }
+
 }

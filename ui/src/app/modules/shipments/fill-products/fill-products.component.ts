@@ -54,6 +54,7 @@ import {
 } from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { ToastrService } from 'ngx-toastr';
+import { NotificationCriteriaService } from '../../../shared/services/notification-criteria.service';
 
 @Component({
     selector: 'app-fill-products',
@@ -115,6 +116,7 @@ export class FillProductsComponent implements OnInit {
         private store: Store,
         private _router: Router,
         private cd: ChangeDetectorRef,
+        private notificationCriteriaService: NotificationCriteriaService,
         private confirmationAcknowledgmentService: ConfirmationAcknowledgmentService,
         private discardService: DiscardService,
         private productIconService: ProductIconsService,
@@ -216,10 +218,11 @@ export class FillProductsComponent implements OnInit {
                             : [];
                     if (notifications?.length) {
                         this.productSelection.resetProductFormGroup();
-                        const infoNotifications = this.pullOutNotifications(
-                            notifications,
-                            { notificationType: 'INFO' }
-                        );
+                        const infoNotifications = this.notificationCriteriaService
+                            .filterOutByCriteria(
+                                notifications,
+                                { notificationType: 'INFO' }
+                            );
                         const inventory = ruleResult?.results?.inventory?.[0];
                         if (infoNotifications?.length) {
                             if (
@@ -239,10 +242,11 @@ export class FillProductsComponent implements OnInit {
                         }
 
                         const unsatisfactoryVisualInspection =
-                            this.pullOutNotifications(notifications, {
-                                notificationType: 'WARN',
-                                name: 'PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR',
-                            })?.[0];
+                            this.notificationCriteriaService
+                                .filterOutByCriteria(notifications, {
+                                    notificationType: 'WARN',
+                                    name: 'PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR',
+                                })?.[0];
                         if (unsatisfactoryVisualInspection) {
                             const reasons = ruleResult?.results?.reasons;
                             this.productSelection.resetProductFormGroup();
@@ -270,35 +274,6 @@ export class FillProductsComponent implements OnInit {
                     }
                 }
             });
-    }
-
-    private pullOutNotifications(
-        notifications: NotificationDto[],
-        sample: Partial<
-            Pick<NotificationDto, 'notificationType' | 'name' | 'action'>
-        >
-    ): NotificationDto[] {
-        // Filtering notifications according to sample
-        const filteredNotifications = notifications.filter(
-            (n) =>
-                (sample?.notificationType
-                    ? n.notificationType === sample?.notificationType
-                    : true) &&
-                (sample?.name ? n.name === sample?.name : true) &&
-                (sample?.action ? n.action === sample?.action : true)
-        );
-
-        // Removing filtered notifications from original array
-        for (const notification of filteredNotifications) {
-            const i = notifications.findIndex(
-                (n) =>
-                    n.notificationType === notification.notificationType &&
-                    n.name === notification.name &&
-                    n.action === notification.action
-            );
-            notifications.splice(i, 1);
-        }
-        return filteredNotifications;
     }
 
     private showUnsatisfactoryVisualInspectionDialog(
@@ -409,10 +384,10 @@ export class FillProductsComponent implements OnInit {
     openAcknowledgmentMessageDialog(notification: NotificationDto): void {
         const message = notification.message;
         const details = notification.details;
-        this.confirmationAcknowledgmentService.notificationConfirmation(
+        this.confirmationAcknowledgmentService.openAcknowledgmentDialog(
             message,
             details,
-            null // TODO
+            null
         );
     }
 
