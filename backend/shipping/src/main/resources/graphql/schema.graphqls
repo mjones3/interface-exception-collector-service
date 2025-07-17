@@ -17,6 +17,7 @@ type Query {
     findAllCustomers: [CustomerDTO]!
 
     getUnlabeledProducts(getUnlabeledProductsRequest:GetUnlabeledProductsRequestDTO!): RuleResponseDTO!
+    getUnlabeledPackedItems(getUnlabeledPackedItemsRequest:GetUnlabeledPackedItemsRequestDTO!): RuleResponseDTO!
 
 
 }
@@ -345,4 +346,9 @@ input GetUnlabeledProductsRequestDTO {
     shipmentItemId:ID!
     unitNumber:String!
     locationCode:String!
+}
+
+input GetUnlabeledPackedItemsRequestDTO {
+    shipmentId:ID!
+    unitNumber:String!
 }

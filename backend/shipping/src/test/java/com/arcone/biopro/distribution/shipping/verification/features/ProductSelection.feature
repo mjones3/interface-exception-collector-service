@@ -75,7 +75,7 @@ Feature: Fill Unlabeled Products for Internal Transfer order
             When I request all packed unlabeled products for the unit number "<UN>".
             Then I should receive the product list with the products "<product_list>" available for the unit number "<UN>".
             Examples:
-                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | Category | Shipment Type     | Label Status | Quarantined Products | UN            | product_list  |
+                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                | Category | Shipment Type     | Label Status | Quarantined Products | UN            | product_list  |
                 | 45300001    | DO1         | Distribution Only | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | W036825185915 | LR_RBC,LR_RBB |
                 | 45300002    | DO1         | Distribution Only | 5        | ANY       | PLASMA_TRANSFUSABLE          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | W036825158907 | BAG-A,BAG-B   |
 
