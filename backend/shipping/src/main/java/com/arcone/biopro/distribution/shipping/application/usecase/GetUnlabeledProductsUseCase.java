@@ -151,8 +151,8 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
                 .build())
             .filter(inventoryValidationResponseDTO -> inventoryValidationResponseDTO.inventoryNotificationsDTO() != null && !inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty())
             .flatMap(inventoryValidationResponseDTO -> {
-                var firstMarch = CollectionUtils.findFirstMatch(ineligibleList, inventoryValidationResponseDTO.inventoryNotificationsDTO().stream().map(InventoryNotificationDTO::errorName).toList());
-                if (firstMarch != null) {
+                var firstMatch = CollectionUtils.findFirstMatch(ineligibleList, inventoryValidationResponseDTO.inventoryNotificationsDTO().stream().map(InventoryNotificationDTO::errorName).toList());
+                if (firstMatch != null) {
                     var notification = inventoryValidationResponseDTO.inventoryNotificationsDTO().getFirst();
                     return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
                         , inventoryValidationResponseDTO.inventoryResponseDTO()
