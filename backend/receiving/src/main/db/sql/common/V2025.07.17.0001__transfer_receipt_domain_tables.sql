@@ -1,6 +1,6 @@
 CREATE TABLE receiving.bld_internal_transfer (
-    id bigint NOT NULL,
-    order_number varchar(255) NOT NULL,
+    id bigserial NOT NULL,
+    order_number bigint NOT NULL,
     external_order_id varchar(255) NOT NULL,
     temperature_category varchar(100) NOT NULL,
     location_code_from varchar(100) NOT NULL,
@@ -29,7 +29,7 @@ COMMENT ON COLUMN receiving.bld_internal_transfer.modification_date IS 'Date the
 COMMENT ON COLUMN receiving.bld_internal_transfer.delete_date IS 'Date the shipment was deleted';
 
 CREATE TABLE receiving.bld_internal_transfer_item (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     internal_transfer_id bigint NOT NULL,
     unit_number varchar(36) NOT NULL,
     product_code varchar(255) NOT NULL,
@@ -51,7 +51,7 @@ COMMENT ON COLUMN receiving.bld_internal_transfer_item.create_date IS 'Date the 
 COMMENT ON COLUMN receiving.bld_internal_transfer_item.modification_date IS 'Date the item was modified';
 
 CREATE TABLE receiving.bld_transfer_receipt (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     order_number varchar(255) NOT NULL,
     external_order_id varchar(255) NOT NULL,
     temperature_category varchar(255) NOT NULL,
@@ -96,7 +96,7 @@ COMMENT ON COLUMN receiving.bld_transfer_receipt.modification_date IS 'Date the 
 
 
 CREATE TABLE receiving.bld_transfer_receipt_item (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     transfer_receipt_id bigint NOT NULL,
     unit_number varchar(36) NOT NULL,
     product_code varchar(255) NOT NULL,
@@ -122,7 +122,7 @@ COMMENT ON COLUMN receiving.bld_transfer_receipt_item.modification_date IS 'Date
 
 
 CREATE TABLE receiving.bld_transfer_receipt_item_consequence (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     internal_transfer_item_id bigint NOT NULL,
     item_consequence_type varchar(255) NOT NULL,
     item_consequence_reason_key varchar(255),

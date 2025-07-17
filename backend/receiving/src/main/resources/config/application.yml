@@ -294,3 +294,8 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: DeviceUpdated
+  shipment:
+    shipment-completed:
+      partitions: 1
+      replicas: 1
+      topic-name: ShipmentCompleted

@@ -23,7 +23,7 @@ public class InternalTransferEntity implements Persistable<Long> {
     private Long id;
 
     @Column("order_number")
-    private String orderNumber;
+    private Long orderNumber;
 
     @Column("external_order_id")
     private String externalOrderId;

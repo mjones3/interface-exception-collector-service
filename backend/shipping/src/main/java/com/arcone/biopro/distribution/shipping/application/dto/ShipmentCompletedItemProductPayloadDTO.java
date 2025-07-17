@@ -12,6 +12,7 @@ public record ShipmentCompletedItemProductPayloadDTO(
     String unitNumber,
     String productFamily,
     String productCode,
+    String productDescription,
     String aboRh,
     ZonedDateTime collectionDate,
     LocalDateTime expirationDate,

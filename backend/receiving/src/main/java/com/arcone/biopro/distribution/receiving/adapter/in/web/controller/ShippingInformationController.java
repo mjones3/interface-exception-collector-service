@@ -1,11 +1,13 @@
 package com.arcone.biopro.distribution.receiving.adapter.in.web.controller;
 
+import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ValidateTransferOrderNumberRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.EnterShippingInformationRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ShippingInformationDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.mapper.UseCaseResponseMapper;
 import com.arcone.biopro.distribution.receiving.domain.service.ShippingInformationService;
+import com.arcone.biopro.distribution.receiving.domain.service.ValidateTransferOrderNumberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -20,11 +22,19 @@ public class ShippingInformationController {
     private final UseCaseResponseMapper useCaseResponseMapper;
     private final ShippingInformationService shippingInformationService;
     private final CommandRequestDTOMapper commandRequestDTOMapper;
+    private final ValidateTransferOrderNumberService validateTransferOrderNumberService;
 
     @QueryMapping("enterShippingInformation")
     public Mono<UseCaseResponseDTO<ShippingInformationDTO>> enterShippingInformation(@Argument("enterShippingInformationRequest") EnterShippingInformationRequestDTO enterShippingInformationRequest) {
         log.debug("Request to enter shipping information : {}", enterShippingInformationRequest);
         return shippingInformationService.enterShippingInformation(commandRequestDTOMapper.toCommandInput(enterShippingInformationRequest))
+            .map(useCaseResponseMapper::toUseCaseResponse);
+    }
+
+    @QueryMapping("validateTransferOrderNumber")
+    public Mono<UseCaseResponseDTO<ShippingInformationDTO>> validateTransferOrderNumber(@Argument("validateTransferOrderNumberRequest") ValidateTransferOrderNumberRequestDTO validateTransferOrderNumberRequest) {
+        log.debug("Request to validate Transfer Order Number : {}", validateTransferOrderNumberRequest);
+        return validateTransferOrderNumberService.validateTransferOrderNumber(commandRequestDTOMapper.toCommandInput(validateTransferOrderNumberRequest))
             .map(useCaseResponseMapper::toUseCaseResponse);
     }
 }

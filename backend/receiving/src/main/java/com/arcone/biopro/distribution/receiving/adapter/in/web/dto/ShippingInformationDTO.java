@@ -14,7 +14,9 @@ public record ShippingInformationDTO(
     boolean displayTemperature,
     List<LookupDTO> transitTimeZoneList,
     List<LookupDTO> visualInspectionList,
-    String defaultTimeZone
+    String defaultTimeZone,
+    boolean receivedDifferentLocation,
+    Long orderNumber
 
 ) implements Serializable {
 }

@@ -73,6 +73,7 @@ public class ShipmentCompletedListener {
                 .customerCode(payload.customerCode())
                 .customerName(payload.customerName())
                 .departmentCode(payload.departmentCode())
+                .productCategory(payload.productCategory())
                 .deliveryType(payload.deliveryType())
                 .createDate(payload.createDate())
                 .labelStatus(payload.labelStatus())
@@ -100,6 +101,7 @@ public class ShipmentCompletedListener {
                                 .collectionDate(product.collectionDate())
                                 .expirationDate(product.expirationDate())
                                 .createDate(ZonedDateTime.now())
+                                .productDescription(product.productDescription())
                                 .build()).toList())
                         .build()).toList())
                 .build());
