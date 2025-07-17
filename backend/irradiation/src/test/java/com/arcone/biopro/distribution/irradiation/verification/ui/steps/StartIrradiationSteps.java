@@ -62,4 +62,10 @@ public class StartIrradiationSteps {
         boolean isAddedToBatch = startIrradiationPage.unitNumberCardExists(unitNumber,product);
         Assert.assertTrue(String.format("A card for the unit number '%s' and product code '%s' was not found in the irradiation batch.", unitNumber, product), isAddedToBatch);
     }
+
+    @Then("I verify that the unit number {string} with product {string} was not added to the batch")
+    public void iVerifyThatTheUnitNumberWithProductWasNotAddedToTheBatch(String unitNumber, String product) {
+        int unitNumberCards = startIrradiationPage.unitNumberProductCardCount(unitNumber,product);
+        Assert.assertEquals("Unit number cards amount does not match.", 0,unitNumberCards );
+    }
 }

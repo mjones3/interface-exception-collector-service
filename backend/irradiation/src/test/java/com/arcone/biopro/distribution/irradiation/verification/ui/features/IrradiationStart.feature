@@ -66,6 +66,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This product has been quarantined and cannot be irradiated"
+            And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
@@ -107,7 +108,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
-            And I verify that the unit number "<Unit Number>" with product "<Description 1>" was added to the batch
+            And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
@@ -130,6 +131,7 @@ Feature: Starts Irradiation Process
 
             Then I see the confirmation message with title "Discarded" and message "This product is unsuitable with the reason Positive Reactive Test Results. Place in biohazard container"
             And I confirm the confirmation message
+            And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
@@ -150,6 +152,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
@@ -170,6 +173,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
@@ -191,6 +195,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
@@ -212,6 +217,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
@@ -233,6 +239,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |

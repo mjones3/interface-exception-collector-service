@@ -9,6 +9,8 @@ import org.openqa.selenium.Keys;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 import static org.junit.Assert.fail;
 
 @Slf4j
@@ -125,5 +127,10 @@ public class StartIrradiationPage extends CommonPageFactory {
             log.error("The card for the unit number: '{}' was not displayed", unitNumber);
             return false;
         }
+    }
+
+    public int unitNumberProductCardCount(String unitNumber, String product) {
+        List<PageElement> unitNumberCards = driver.findElements(unitNumberCardLocator(unitNumber, product));
+        return unitNumberCards.size();
     }
 }
