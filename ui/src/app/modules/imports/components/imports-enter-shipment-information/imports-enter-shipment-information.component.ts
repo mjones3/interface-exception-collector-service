@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { AsyncPipe } from '@angular/common';
 import { FuseCardComponent } from '../../../../../@fuse';
@@ -72,6 +72,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     processHeaderService = inject(ProcessHeaderService);
     receivingService = inject(ReceivingService);
     cookieService = inject(CookieService);
+    cdr = inject(ChangeDetectorRef);
 
     transitTimeFormComponent = viewChild<TransitTimeFormComponent>('transitTimeForm');
     temperatureFormComponent = viewChild<TemperatureFormComponent>('temperatureForm');
@@ -232,6 +233,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
             .subscribe(shippingInformationDTO => {
                 this.updateFormValidators(shippingInformationDTO);
                 this.form.controls.temperatureProductCategory.setValue(temperatureProductCategory);
+                this.cdr.detectChanges();
                 this.transitTimeFormComponent()?.setEndZone(shippingInformationDTO.defaultTimeZone);
                 this.form.updateValueAndValidity();
             });
@@ -279,5 +281,14 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
         }
         const [hours, minutes] = hh24mm60TimeSeparatedByColon.split(':');
         return DateTime.fromISO(date.toISODate()).set({ hour: +hours, minute: +minutes });
+    }
+
+    resetTimeSignals(){
+        this.transitTimeQuarantineSignal.set(null);
+        this.transitTimeHumanReadableSignal.set(null);
+    }
+
+    resetTemperatureQuarantine(){
+        this.temperatureQuarantineSignal.set(null);
     }
 }

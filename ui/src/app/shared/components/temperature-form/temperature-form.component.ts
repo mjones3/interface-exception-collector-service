@@ -30,6 +30,7 @@ export class TemperatureFormComponent {
   formBuilder = inject(FormBuilder);
   thermometerIdValidation = output<string>();
   temperatureValidation = output<{ temperatureProductCategory: string; temperature: number }>();
+  resetTemperatureQuarantine = output<void>();
   
   thermometerField = viewChild<ElementRef<HTMLInputElement>>('thermometerId');
   temperatureField = viewChild<ElementRef<HTMLInputElement>>('temperature');
@@ -50,15 +51,17 @@ export class TemperatureFormComponent {
       }
     }
   });
-  
+
   temperatureValueSignal = toSignal(this.formGroup().controls.temperature.statusChanges
     .pipe(combineLatestWith(this.formGroup().controls.temperature.valueChanges)));
   temperatureValueChangeEffect = effect(() => {
     const [status, value] = this.temperatureValueSignal();
     if (status === 'VALID' && value !== null && value !== undefined && isFinite(value)) {
       this.temperatureValidation.emit({ temperatureProductCategory: '', temperature: value });
+    } else if(!value) {
+      this.resetTemperatureQuarantine.emit();
     }
-  });
+  }, { allowSignalWrites: true });
   
   private createFormGroup(): FormGroup {
     return this.formBuilder.group({

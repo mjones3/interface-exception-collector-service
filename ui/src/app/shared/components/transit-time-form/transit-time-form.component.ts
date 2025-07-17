@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
 import { MatError, MatFormField, MatHint, MatLabel, MatSuffix } from '@angular/material/form-field';
@@ -12,7 +12,6 @@ import { TransitTimeFormGroupValidator, TransitTimeValidationModel } from 'app/s
 
 import { NotificationTypeMap } from '@shared';
 import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
-import { UseCaseNotificationDTO } from 'app/shared/models/use-case-response.dto';
 
 @Component({
   selector: 'biopro-transit-time-form',
@@ -42,8 +41,8 @@ export class TransitTimeFormComponent {
   
   availableTimeZones = input<LookUpDto[]>([]);
   humanReadableTime = input<string>(null);
-  
   transitTimeChange = output<TransitTimeValidationModel>();
+  resetTimeSignals = output<void>();
   
   now = new Date();
   
@@ -55,8 +54,10 @@ export class TransitTimeFormComponent {
     const transitTime = this.transitTimeValueSignal();
     if (this.formGroup().touched && this.formGroup().valid && transitTime) {
       this.transitTimeChange.emit(transitTime as TransitTimeValidationModel);
+    }else{
+      this.resetTimeSignals.emit();
     }
-  });
+  }, { allowSignalWrites: true });
   
   private createFormGroup(): FormGroup {
     return this.formBuilder.group({
