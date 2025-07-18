@@ -66,7 +66,8 @@ public class InventoryServerMock {
         }
         if (unitNumber.startsWith("W777725001011")) {
             return Flux.just(
-                createInventory("W777725001011", "E003200")
+                createInventory("W777725001011", "E003200"),
+                createInventory("W777725001011", "E003300")
             );
         }
         if (unitNumber.startsWith("W777725001012")) {
@@ -87,7 +88,8 @@ public class InventoryServerMock {
         }
         if (unitNumber.startsWith(SCAN_UNIT_FEATURE_UN)) {
             return Flux.just(
-                createInventory("W777725001001", "E0869V00", "AVAILABLE", "123456789", "APH FFP"),
+                createInventory("W777725001001", "E003300", "AVAILABLE", "123456789", "APH FFP"),
+                createInventory("W777725001001", "E0033V00", "AVAILABLE", "123456789", "APH FFP"),
                 createInventory("W777725001001", "E1624V00", "IN_TRANSIT", "123456789", "APH PF24"),
                 createInventory("W777725001001", "E4689V00", "SHIPPED", "123456789", "APH FFP C1"),
                 createInventory("W777725001001", "E0686V00", "CONVERTED", "123456789", "APH AS3 LR RBC C2"),

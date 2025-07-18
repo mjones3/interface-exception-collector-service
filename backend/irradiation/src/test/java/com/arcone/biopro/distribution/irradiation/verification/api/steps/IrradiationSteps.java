@@ -84,16 +84,34 @@ public class IrradiationSteps {
 
     @Then("I verify that product {string} in the unit {string} is flagged as already irradiated")
     public void iVerifyThatProductInTheUnitIsFlaggedAsAlreadyIrradiated(String productCode, String unitNumber) {
-        assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
-        assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
-        assertTrue(irradiationContext.getInventoryList().getFirst().alreadyIrradiated());
+        var inventory = irradiationContext.getInventoryList().stream()
+            .filter(inv -> inv.productCode().equals(productCode) && inv.unitNumber().equals(unitNumber)).findFirst();
+        assertTrue(inventory.isPresent());
+        assertTrue(inventory.get().alreadyIrradiated());
+    }
+
+    @Then("I verify that product {string} in the unit {string} is flagged as not irradiated")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsNotIrradiated(String productCode, String unitNumber) {
+        var inventory = irradiationContext.getInventoryList().stream()
+            .filter(inv -> inv.productCode().equals(productCode) && inv.unitNumber().equals(unitNumber)).findFirst();
+        assertTrue(inventory.isPresent());
+        assertFalse(inventory.get().alreadyIrradiated());
     }
 
     @Then("I verify that product {string} in the unit {string} is flagged as not configurable for irradiation")
     public void iVerifyThatProductInTheUnitIsFlaggedAsNotConfigurableForIrradiation(String productCode, String unitNumber) {
-        assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
-        assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
-        assertTrue(irradiationContext.getInventoryList().getFirst().notConfigurableForIrradiation());
+        var inventory = irradiationContext.getInventoryList().stream()
+            .filter(inv -> inv.productCode().equals(productCode) && inv.unitNumber().equals(unitNumber)).findFirst();
+        assertTrue(inventory.isPresent());
+        assertTrue(inventory.get().notConfigurableForIrradiation());
+    }
+
+    @Then("I verify that product {string} in the unit {string} is flagged as configurable for irradiation")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsConfigurableForIrradiation(String productCode, String unitNumber) {
+        var inventory = irradiationContext.getInventoryList().stream()
+            .filter(inv -> inv.productCode().equals(productCode) && inv.unitNumber().equals(unitNumber)).findFirst();
+        assertTrue(inventory.isPresent());
+        assertFalse(inventory.get().notConfigurableForIrradiation());
     }
 
     @Then("I see the error message {string}")
