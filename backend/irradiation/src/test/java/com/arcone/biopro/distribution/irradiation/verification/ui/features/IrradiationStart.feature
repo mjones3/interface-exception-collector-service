@@ -115,48 +115,30 @@ Feature: Starts Irradiation Process
                 | W777725002005 | E003300      | AUTO-IRRAD002   | 123456789 | Lot1234    |
 
         @LAB-615
-        Scenario Outline: I should see an acknowledgement message if the product selected is an Unsuitable Product.
-            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
+        Scenario Outline: I should see an acknowledgement message if the selected product is an Unsuitable or Expired.
+            Given I have a device "<Blood Center Id>" at location "123456789" with status "ACTIVE"
             And I have the following inventory products:
-                | Unit Number   | Product Code   | Status    | Location  | Unsuitable Reason              |
-                | <Unit Number> | <Product Code> | AVAILABLE | 123456789 | POSITIVE_REACTIVE_TEST_RESULTS |
+                | Unit Number   | Product Code   | Status    | Location  | Unsuitable Reason   | Expired   |
+                | <Unit Number> | <Product Code> | AVAILABLE | 123456789 | <Unsuitable Reason> | <Expired> |
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
             And I scan the irradiator id "<Blood Center Id>"
-            And I scan the lot number "<Lot Number>"
+            And I scan the lot number "Lot1234"
 
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
 
-            Then I see the confirmation message with title "Discarded" and message "This product is unsuitable with the reason Positive Reactive Test Results. Place in biohazard container"
+            Then I see the confirmation message with title "Discarded" and message "<Message>"
+            # TITLE = a description
+            # MESSAGE = This product has been discarded for In Stock. Place in biohazard container
             And I confirm the confirmation message
             And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
-                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
-                | W777725002006 | E003300      | AUTO-IRRAD003   | 123456789 | Lot1234    |
-
-        @LAB-615
-        Scenario Outline: I should be notified if the product selected has expired
-            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
-            And I have the following inventory products:
-                | Unit Number   | Product Code   | Status    | Expired | Location  |
-                | <Unit Number> | <Product Code> | AVAILABLE | YES     | 123456789 |
-            And I login to Distribution module
-            And I select the location "MDL Hub 1"
-            And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id>"
-            And I scan the lot number "<Lot Number>"
-
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
-            And I select the product "<Product Code>"
-            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
-            And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
-
-            Examples:
-                | Unit Number   | Product Code | Blood Center Id | Location  | Lot Number |
-                | W777725002007 | E003300      | AUTO-IRRAD002   | 123456789 | Lot1234    |
+                | Unit Number   | Product Code | Unsuitable Reason              | Expired | Blood Center Id | Message                                                                                                 |
+                | W777725002006 | E003300      | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD003   | This product is unsuitable with the reason Positive Reactive Test Results. Place in biohazard container |
+                | W777725002007 | E003300      |                                | YES     | AUTO-IRRAD003   | This product is expired and has been discarded. Place in biohazard container |
 
         @LAB-615
         Scenario Outline: I should be notified if the unit number is not in the current location
@@ -171,8 +153,8 @@ Feature: Starts Irradiation Process
             And I scan the lot number "<Lot Number>"
 
             When I scan the unit number "=<Unit Number>00" in the irradiation page
-            And I select the product "<Product Code>"
-            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            Then I see the "Warning" message "No products eligible for irradiation"
+            # POP-UP DISPLAYED TWICE
             And I verify that the unit number "<Unit Number>" with product "<Product Code>" was not added to the batch
 
             Examples:
