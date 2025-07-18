@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 public record InventoryValidationResponseDTO(
@@ -50,9 +51,10 @@ public record InventoryValidationResponseDTO(
             throw new IllegalArgumentException("types is null");
         }
 
-        return Collections.disjoint(inventoryNotificationsDTO.stream()
+        return  !Collections.disjoint(inventoryNotificationsDTO.stream()
             .map(InventoryNotificationDTO::errorName)
             .distinct()
-            .toList(), types);
+                .sorted()
+            .toList(), types.stream().sorted().distinct().toList());
     }
 }
