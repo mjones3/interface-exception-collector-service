@@ -2,6 +2,8 @@ package com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobjec
 
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 /**
  * Value object representing a batch item with unit details.
  */
@@ -9,6 +11,9 @@ import lombok.Builder;
 public record BatchItem(
     UnitNumber unitNumber,
     String productCode,
-    String lotNumber
+    String lotNumber,
+    String newProductCode,
+    LocalDateTime expirationDate,
+    String productFamily
 ) {
 }
