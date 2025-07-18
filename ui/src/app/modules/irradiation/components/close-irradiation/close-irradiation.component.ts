@@ -379,6 +379,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 statusReason: '',
                 unsuitableReason: '',
                 expired: false,
+                alreadyIrradiated: false,
+                notConfigurableForIrradiation: false,
                 quarantines: null
             },
             {
@@ -395,6 +397,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 statusReason: '',
                 unsuitableReason: '',
                 expired: false,
+                alreadyIrradiated: false,
+                notConfigurableForIrradiation: false,
                 quarantines: null
             },
             {
@@ -411,6 +415,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 statusReason: '',
                 unsuitableReason: '',
                 expired: false,
+                alreadyIrradiated: false,
+                notConfigurableForIrradiation: false,
                 quarantines: null
             },
         ];

@@ -17,10 +17,10 @@ export const irradiationResolver = (route: ActivatedRouteSnapshot) => {
 
     return irradiationService.readConfiguration(keys).pipe(
         map((response) => {
-            const data = response.data;
+            const data = response.data.readConfiguration;
 
             const resolverData: IrradiationResolveData = {
-                useCheckDigit: false
+                showCheckDigit: data.find((conf) => conf.key === USE_CHECK_DIGIT).value === YES
             };
 
             configurationService.update(resolverData);

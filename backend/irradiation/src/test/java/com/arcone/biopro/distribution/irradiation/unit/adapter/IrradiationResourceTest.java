@@ -1,19 +1,16 @@
 package com.arcone.biopro.distribution.irradiation.unit.adapter;
 
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.controller.errors.DeviceValidationFailureException;
+import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.CheckDigitResponseDTO;
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.ConfigurationResponseDTO;
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.mapper.ConfigurationDTOMapper;
 import com.arcone.biopro.distribution.irradiation.adapter.irradiation.IrradiationResource;
 import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
+import com.arcone.biopro.distribution.irradiation.application.usecase.CheckDigitUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
-import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
-import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.Location;
-import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.UnitNumber;
 import com.arcone.biopro.distribution.irradiation.domain.model.Configuration;
-import com.arcone.biopro.distribution.irradiation.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.irradiation.domain.repository.ConfigurationService;
-import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.client.InventoryOutput;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +43,9 @@ class IrradiationResourceTest {
 
     @Mock
     private ValidateUnitNumberUseCase validateUnitNumberUseCase;
+
+    @Mock
+    private CheckDigitUseCase checkDigitUseCase;
 
     @InjectMocks
     private IrradiationResource irradiationResource;
@@ -214,6 +214,61 @@ class IrradiationResourceTest {
             .thenReturn(Flux.error(new RuntimeException("Validation failed")));
 
         Flux<IrradiationInventoryOutput> result = irradiationResource.validateUnit(unitNumber, location);
+
+        StepVerifier.create(result)
+            .expectError(RuntimeException.class)
+            .verify();
+    }
+
+    @Test
+    @DisplayName("Should return valid response when check digit is valid")
+    void checkDigit_ShouldReturnValidResponse_WhenCheckDigitIsValid() {
+        // Given
+        String unitNumber = "W777725001001";
+        String checkDigit = "F";
+        CheckDigitResponseDTO expectedResponse = new CheckDigitResponseDTO(true);
+
+        when(checkDigitUseCase.checkDigit(unitNumber, checkDigit))
+            .thenReturn(Mono.just(expectedResponse));
+
+        // When
+        Mono<CheckDigitResponseDTO> result = irradiationResource.checkDigit(unitNumber, checkDigit);
+
+        // Then
+        StepVerifier.create(result)
+            .expectNext(expectedResponse)
+            .verifyComplete();
+
+        verify(checkDigitUseCase).checkDigit(unitNumber, checkDigit);
+    }
+
+    @Test
+    @DisplayName("Should return invalid response when check digit is invalid")
+    void checkDigit_ShouldReturnInvalidResponse_WhenCheckDigitIsInvalid() {
+        String unitNumber = "W777725001001";
+        String checkDigit = "X";
+        CheckDigitResponseDTO expectedResponse = new CheckDigitResponseDTO(false);
+
+        when(checkDigitUseCase.checkDigit(unitNumber, checkDigit))
+            .thenReturn(Mono.just(expectedResponse));
+
+        Mono<CheckDigitResponseDTO> result = irradiationResource.checkDigit(unitNumber, checkDigit);
+
+        StepVerifier.create(result)
+            .expectNext(expectedResponse)
+            .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("Should propagate error when check digit validation fails")
+    void checkDigit_ShouldPropagateError_WhenValidationFails() {
+        String unitNumber = "W777725001001";
+        String checkDigit = "F";
+
+        when(checkDigitUseCase.checkDigit(unitNumber, checkDigit))
+            .thenReturn(Mono.error(new RuntimeException("Validation failed")));
+
+        Mono<CheckDigitResponseDTO> result = irradiationResource.checkDigit(unitNumber, checkDigit);
 
         StepVerifier.create(result)
             .expectError(RuntimeException.class)
