@@ -39,6 +39,7 @@ Feature: Transfer Receipt
             | <OrderNumber> | <CustomerId> | <CustomerName> | <Product_Family> | <TemperatureCategory> | <LabelStatus> | <QuarantinedProducts> |
         Given I request to validate the internal transfer order number "<OrderNumber>" from the location code "<Location_Code_From>".
         Then I should be able to enter information for the following attributes: "<Attributes to Fill>".
+        And I should receive the order number as "<OrderNumber>" and temperature category as "<TemperatureCategory>"
         Examples:
             | OrderNumber | CustomerId | CustomerName      | Product_Family                    | TemperatureCategory | LabelStatus | QuarantinedProducts |Location_Code_From | TemperatureCategory | Attributes to Fill                                                                      |
             | 45600001    | DO1        | Distribution Only | PLASMA_TRANSFUSABLE               | FROZEN               | UNLABELED   | false               |123456789          | FROZEN             | displayTemperature:false,displayTransitInformation:false                                |
@@ -58,6 +59,24 @@ Feature: Transfer Receipt
                 | OrderNumber| CustomerId | CustomerName      | Product_Family       | TemperatureCategory | LabelStatus | QuarantinedProducts |Location_Code_From | TemperatureCategory|InvalidOrderNumber| MessageType | Message                           |
                 | 45600004   | DO1        | Distribution Only | PLASMA_TRANSFUSABLE  | FROZEN              | UNLABELED   | false              |123456789          | FROZEN             | 456000099        | WARN        | Internal Transfer Does not exist  |
 
+
+
+            @ui @DIS-456
+            Scenario Outline: Successfully enter a valid thermometer ID for the location
+                Given A Internal Transfer shipment is completed with the following details:
+                    | Order_Number  | Customer_ID  | Customer_Name  | Product_Family   | Temperature_Category  | Label_Status  | Quarantined_Products  |
+                    | <OrderNumber> | <CustomerId> | <CustomerName> | <Product_Family> | <TemperatureCategory> | <LabelStatus> | <QuarantinedProducts> |
+                And I have a thermometer configured as location "<Device Location Code>", Device ID as "<Device ID>", Category as "<Device Category>" and Device Type as "<Device Type>".
+                And The user location is "<Location_Code_From>".
+                And I am at the Transfer Receipt Page.
+                When I enter internal transfer order number "<OrderNumber>".
+                Then The temperature field should be "disabled".
+                When I enter thermometer ID "<thermometer ID>".
+                Then The temperature field should be "enabled".
+                Examples:
+                Examples:
+                    | OrderNumber| CustomerId | CustomerName      | Product_Family       | TemperatureCategory | LabelStatus | QuarantinedProducts |Location_Code_From | TemperatureCategory| thermometer ID | Device ID     | Device Type | Device Category |
+                    | 45600004   | DO1        | Distribution Only | PLASMA_TRANSFUSABLE  | FROZEN              | UNLABELED   | false              |123456789          | FROZEN              | THERM-DST-409  | THERM-DST-409 |  THERMOMETER | TEMPERATURE     |
 
 
 
