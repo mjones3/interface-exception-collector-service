@@ -51,12 +51,18 @@ public class InventoryServerMock {
         }
         if (unitNumber.startsWith("W777725001005") || unitNumber.startsWith("W777725002006")) {
             return Flux.just(
-                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789").unsuitableReason("POSITIVE_REACTIVE_TEST_RESULTS").build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789")
+                        .unsuitableReason("POSITIVE_REACTIVE_TEST_RESULTS")
+                        .statusReason(null)
+                        .build()
             );
         }
         if (unitNumber.startsWith("W777725001006") || unitNumber.startsWith("W777725002007")) {
             return Flux.just(
-                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789").expired(true).build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789")
+                        .expired(true)
+                        .statusReason(null)
+                        .build()
             );
         }
         if (unitNumber.startsWith("W777725001007") || unitNumber.startsWith("W777725002008")) {

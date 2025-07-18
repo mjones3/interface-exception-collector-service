@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.verification.ui.pages;
 
+import com.arcone.biopro.common.utils.Retry;
 import com.arcone.biopro.testing.frontend.core.CommonPageFactory;
 import com.arcone.biopro.testing.frontend.core.PageElement;
 import lombok.extern.slf4j.Slf4j;
@@ -132,5 +133,20 @@ public class StartIrradiationPage extends CommonPageFactory {
     public int unitNumberProductCardCount(String unitNumber, String product) {
         List<PageElement> unitNumberCards = driver.findElements(unitNumberCardLocator(unitNumber, product));
         return unitNumberCards.size();
+    }
+
+    public boolean isProductInStatus(String unitNumber, String product, String expectedStatus) {
+        try {
+            return Retry.retryUntilTrue(() -> {
+                PageElement card = driver.waitForElement(unitNumberCardLocator(unitNumber, product));
+                PageElement cardStatusElement = card.findChildElement(By.xpath(String.format("//p[@id='statusClasses' and contains(text(),'%s')]", expectedStatus)));
+                cardStatusElement.waitForVisible();
+                return cardStatusElement.isDisplayed();
+            });
+        } catch (InterruptedException e) {
+            log.error("Retry interrupted while checking product card status", e);
+            Thread.currentThread().interrupt();
+            return false;
+        }
     }
 }

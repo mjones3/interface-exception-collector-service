@@ -6,6 +6,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.AllArgsConstructor;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+
 import static org.junit.Assert.assertTrue;
 
 @AllArgsConstructor
@@ -67,5 +69,10 @@ public class StartIrradiationSteps {
     public void iVerifyThatTheUnitNumberWithProductWasNotAddedToTheBatch(String unitNumber, String product) {
         int unitNumberCards = startIrradiationPage.unitNumberProductCardCount(unitNumber,product);
         Assert.assertEquals("Unit number cards amount does not match.", 0,unitNumberCards );
+    }
+
+    @Then("I verify that the card for unit number {string} and product {string} shows as {string}")
+    public void iVerifyThatTheProductShowsAs(String unitNumber, String product, String status) {
+        Assertions.assertTrue(startIrradiationPage.isProductInStatus(unitNumber, product, status));
     }
 }
