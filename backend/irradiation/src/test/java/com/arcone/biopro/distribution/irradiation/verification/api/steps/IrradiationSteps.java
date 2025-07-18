@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -98,5 +99,42 @@ public class IrradiationSteps {
     @Then("I see the error message {string}")
     public void iSeeTheErrorMessage(String errorMessage) {
         assertEquals(irradiationContext.getResponseErrors().getFirst().getMessage(), errorMessage);
+    }
+
+    @Then("I verify that product {string} in the unit {string} is flagged as quarantined that stops manufacturing")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsQuarantinedThatStopsManufacturing(String productCode, String unitNumber) {
+        assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
+        assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
+        assertTrue(irradiationContext.getInventoryList().getFirst().quarantines().getFirst().stopsManufacturing());
+    }
+
+    @Then("I verify that product {string} in the unit {string} is flagged as quarantined that does not stops manufacturing")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsQuarantinedThatDoesNotStopsManufacturing(String productCode, String unitNumber) {
+        assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
+        assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
+        assertFalse(irradiationContext.getInventoryList().getFirst().quarantines().getFirst().stopsManufacturing());
+    }
+
+    @Then("I verify that product {string} in the unit {string} is flagged as discarded as {string}")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsDiscardedAs(String productCode, String unitNumber, String discardReason) {
+        assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
+        assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
+        assertTrue(irradiationContext.getInventoryList().getFirst().status().equalsIgnoreCase("DISCARDED"));
+        assertTrue(irradiationContext.getInventoryList().getFirst().statusReason().equalsIgnoreCase(discardReason));
+    }
+
+    @Then("I verify that product {string} in the unit {string} is flagged as unsuitable with reason {string}")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsUnsuitableWithReason(String productCode, String unitNumber, String unsuitableReason) {
+        assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
+        assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
+        assertNotNull(irradiationContext.getInventoryList().getFirst().unsuitableReason());
+        assertTrue(irradiationContext.getInventoryList().getFirst().unsuitableReason().equalsIgnoreCase(unsuitableReason));
+    }
+
+    @Then("I verify that product {string} in the unit {string} is flagged as expired")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsExpired(String productCode, String unitNumber) {
+        assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
+        assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
+        assertTrue(irradiationContext.getInventoryList().getFirst().expired());
     }
 }

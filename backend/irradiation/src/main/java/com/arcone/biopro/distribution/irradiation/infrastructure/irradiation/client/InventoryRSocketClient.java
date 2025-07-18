@@ -11,13 +11,16 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 @Component
-@RequiredArgsConstructor
 public class InventoryRSocketClient implements InventoryClient {
 
-    @Qualifier("inventoryRSocketRequester")
     private final RSocketRequester requester;
-
     private final InventoryOutputMapper mapper;
+    
+    public InventoryRSocketClient(@Qualifier("inventoryRSocketRequester") RSocketRequester requester, 
+                                  InventoryOutputMapper mapper) {
+        this.requester = requester;
+        this.mapper = mapper;
+    }
 
 
     @Override

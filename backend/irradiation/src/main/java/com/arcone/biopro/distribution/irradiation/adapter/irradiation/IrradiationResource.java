@@ -5,11 +5,13 @@ import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.Configurati
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.mapper.ConfigurationDTOMapper;
 import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
 import com.arcone.biopro.distribution.irradiation.application.usecase.CheckDigitUseCase;
+import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateLotNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
 
 import com.arcone.biopro.distribution.irradiation.domain.repository.ConfigurationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.experimental.FieldDefaults;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -19,6 +21,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class IrradiationResource {
@@ -27,6 +30,7 @@ public class IrradiationResource {
     private final ConfigurationService configurationService;
     private final ConfigurationDTOMapper configurationDTOMapper;
     private final CheckDigitUseCase checkDigitUseCase;
+    private final ValidateLotNumberUseCase validateLotNumberUseCase;
 
     @QueryMapping
     public Mono<Boolean> validateDevice(@Argument String deviceId, @Argument String location) {
@@ -41,6 +45,18 @@ public class IrradiationResource {
     @QueryMapping
     public Flux<ConfigurationResponseDTO> readConfiguration(@Argument List<String> keys) {
         return configurationService.readConfiguration(keys).map(configurationDTOMapper::toResponseDTO);
+    }
+
+    @QueryMapping
+    public Mono<Boolean> validateLotNumber(@Argument String lotNumber, @Argument String type) {
+        log.info("*** ENTERING validateLotNumber method with lotNumber: {} and type: {}", lotNumber, type);
+
+        return validateLotNumberUseCase.execute(lotNumber, type)
+            .doOnNext(result -> log.info("*** validateLotNumber result: {}", result))
+            .onErrorResume(error -> {
+                log.error("*** Error validating lot number: {}", error.getMessage());
+                return Mono.just(false);
+            });
     }
 
     @QueryMapping

@@ -11,5 +11,10 @@ query validateUnit($unitNumber: String!, $location: String!) {
         expired
         alreadyIrradiated
         notConfigurableForIrradiation
+        quarantines {
+              reason
+              comments
+              stopsManufacturing
+        }
     }
 }

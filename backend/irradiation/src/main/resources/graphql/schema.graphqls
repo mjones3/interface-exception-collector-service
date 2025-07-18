@@ -3,6 +3,7 @@ type Query {
     validateUnit(unitNumber: String!, location: String!): [Inventory]
     readConfiguration(keys: [String]): [ConfigurationDTO]
     checkDigit(unitNumber: String!, checkDigit: String!): CheckDigitResponseDTO!
+    validateLotNumber(lotNumber: String!, type: String!): Boolean
 }
 
 type Mutation {
