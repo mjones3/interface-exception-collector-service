@@ -1,4 +1,4 @@
-@ui @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19
+@ui @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19 @AOA-197
 Feature: View order details
 
     Background:
@@ -12,7 +12,7 @@ Feature: View order details
         Rule: I should be able to see the Label status of the internal transfer order.
         Rule: I should be able to see the shipment type information for the orders.
         Rule: The available inventory information should not be available for internal transfer orders.
-        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161 @DIS-253 @bug @DIS-295 @bug @DIS-321 @DIS-336 @DIS-337 @DIS-400 @DIS-440
+        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161 @DIS-253 @bug @DIS-295 @bug @DIS-321 @DIS-336 @DIS-337 @DIS-400 @DIS-440 @DIS-446
         Scenario Outline: View order details
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>", and Quarantined Products as "<Quarantined Products>", and Label Status as "<Label Status>".
             And I have 2 order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
@@ -41,9 +41,12 @@ Feature: View order details
                 | ORDERDIS337001 | 123456789    | STAT     | OPEN   | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED         | AP,OP     | 10,7     | CUSTOMER          | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment | <null>               | <null>       | can        | cannot      |
                 | ORDERDIS400001 | 123456789    | STAT     | OPEN   | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED         | AP,OP     | 10,7     | INTERNAL_TRANSFER | FEDEX           | FROZEN           | 2024-08-20   | DO1                    | Distribution Only          | <null>                | <null>                     | Confirm when ready | Needed asap, Another comment | false                | LABELED      | cannot     | can         |
                 | ORDERDIS400002 | 123456789    | STAT     | OPEN   | WHOLE_BLOOD,WHOLE_BLOOD                                           | ANY,ANY   | 10,7     | INTERNAL_TRANSFER | FEDEX           | REFRIGERATED     | 2024-08-20   | DO1                    | Distribution Only          | <null>                | <null>                     | Confirm when ready | Needed asap, Another comment | true                 | UNLABELED    | cannot     | can         |
+                | ORDERDIS446001 | 123456789    | STAT     | OPEN   | PLASMA_MFG_NONINJECTABLE,PLASMA_MFG_NONINJECTABLE                 | AP,OP     | 10,7     | CUSTOMER          | FEDEX           | REFRIGERATED     | 2025-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment | <null>               | <null>       | can        | cannot      |
+                | ORDERDIS446001 | 123456789    | STAT     | OPEN   | PLASMA_MFG_INJECTABLE, PLASMA_MFG_INJECTABLE                      | AP,OP     | 10,7     | CUSTOMER          | FEDEX           | FROZEN           | 2025-08-20   | DO1                    | Distribution Only          | <null>                | <null>                     | Confirm when ready | Needed asap, Another comment | <null>               | <null>       | cannot     | can         |
+                | ORDERDIS446003 | 123456789    | STAT     | OPEN   | CRYOPRECIPITATE, CRYOPRECIPITATE                                  | ANY,ANY   | 10,7     | CUSTOMER          | FEDEX           | FROZEN           | 2025-08-20   | DO1                    | Distribution Only          | <null>                | <null>                     | Confirm when ready | Needed asap, Another comment | <null>                 | <null>       | cannot     | can         |
 
 
-            Rule: I should be able to create the order fulfillment request when the pick list is generated.Rule: The BioPro order status must be updated to InProgress when an order is being fulfilled.
+    Rule: I should be able to create the order fulfillment request when the pick list is generated.Rule: The BioPro order status must be updated to InProgress when an order is being fulfilled.
             Rule: I should not be able to generate multiple pick lists for the same order.
             Rule: I should be able to view or reprint the pick list that was previously generated.
             Rule: I should be able to see the short-dated products if applicable.
