@@ -129,7 +129,7 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
 
-            Then I see the confirmation message with title "AVAILABLE" and message "<Message>"
+            Then I see the confirmation message with title "DISCARDED" and message "<Message>"
             And I confirm the confirmation message
             And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
@@ -228,7 +228,7 @@ Feature: Starts Irradiation Process
                 | Unit Number   | Product Code     | Status    | Location  |
                 | <Unit Number> | <Product Code 1> | AVAILABLE | 123456789 |
                 | <Unit Number> | <Product Code 2> | AVAILABLE | 123456789 |
-            And the product "<Product Code>" in the unit "<Unit Number>" was already irradiated in a completed batch for device "<Blood Center Id>"
+            And the product "<Product Code 1>" in the unit "<Unit Number>" was already irradiated in a completed batch for device "<Blood Center Id>"
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
