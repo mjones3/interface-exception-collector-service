@@ -62,4 +62,38 @@ public class CreateShipmentSteps {
             context.setTotalVerified(units.size());
         }
     }
+
+    @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {int}, Blood Types: {string}, Product Families {string}, Temperature Category as {string}, Shipment Type defined as {string}, Label Status as {string} and Quarantined Products as {string} with the units {string} and product codes {string} {string}")
+    public void theShipmentDetailsAreOrdeNumberCustomerIDCustomerNameProductDetailsQuantitiesBloodTypesProductFamiliesTemperatureCategoryAsShipmentTypeDefinedAsLabelStatusAsAndQuarantinedProductsAsWithTheUnitsAndProductCodes(
+        String orderNumber, String customerId, String customerName
+        , int totalRequested, String bloodTypes, String productFamilies,
+        String temperatureCategory, String shipmentType,
+        String labelStatus, String quarantinedProducts, String unitNumbers , String productCodes , String shipmentItemStatus){
+
+
+
+        var units = Arrays.stream(unitNumbers.split(",")).toList();
+        var productCodeList = Arrays.stream(productCodes.split(",")).toList();
+
+        context.setUnitNumber(units.getFirst());
+        context.setProductCode(productCodeList.getFirst());
+        context.setOrderNumber(Long.valueOf(orderNumber));
+
+        context.setShipmentId(shipmentTestingController.createPackedShipment(orderNumber,customerId,customerName,temperatureCategory,shipmentType,labelStatus
+            ,Boolean.parseBoolean(quarantinedProducts)
+            ,units
+            ,productCodeList
+            ,shipmentItemStatus
+            ,productFamilies
+            ,bloodTypes
+            ,totalRequested));
+
+        Assert.assertNotNull(context.getShipmentId());
+        context.setTotalPacked(units.size());
+        if (shipmentItemStatus.equalsIgnoreCase("verified")){
+            context.setTotalVerified(units.size());
+        }
+
+
+    }
 }

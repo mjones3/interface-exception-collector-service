@@ -146,8 +146,7 @@
                                                 getItemIcon(verifiedItem)
                                             "
                                             [showVisualInspection]="false"
-                                            [ineligibleStatus]="
-                                                verifiedItem.ineligibleStatus
+                                            [ineligibleStatus]="getProductStatus(verifiedItem)
                                             "
                                         />
                                     }
@@ -168,6 +167,9 @@
                         externalId: shipment?.externalId,
                         labelingProductCategory:
                             ProductCategoryMap[shipment?.productCategory],
+                        shipmentType:shipment?.shipmentType,
+                        quarantinedProducts:shipment?.quarantinedProducts,
+                        labelStatus:shipment?.labelStatus,
                     }"
                     [comments]="shipment?.comments"
                     [shippingInput]="{
@@ -176,6 +178,7 @@
                         customerName: shipment?.shippingCustomerName,
                         status: shipment?.status,
                         method: shipment?.shippingMethod,
+                        shipmentType : shipment?.shipmentType,
                     }"
                 />
             }

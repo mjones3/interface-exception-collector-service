@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.shipping.unit.infrastructure.service;
 
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
+import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationByUnitNumberRequest;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
@@ -8,6 +9,7 @@ import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.Inv
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.messaging.rsocket.RSocketRequester;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -68,6 +70,62 @@ class InventoryRsocketClientTest {
         var target = new InventoryRsocketClient(rsocketRequesterMock);
 
         var response = target.validateInventory(InventoryValidationRequest.builder().build());
+
+        StepVerifier.create(response)
+            .expectError(InventoryServiceNotAvailableException.class)
+            .verify();
+    }
+
+    @Test
+    public void shouldGetInventoryDetailsByUnitNumber(){
+
+        var id = UUID.randomUUID();
+
+        var rsocketRequesterMock = Mockito.mock(RSocketRequester.class);
+
+        var requestSpec = Mockito.mock(RSocketRequester.RequestSpec.class);
+
+        Mockito.when(rsocketRequesterMock.route("validateInventoryByUnitNumber")).thenReturn(requestSpec);
+        Mockito.when(requestSpec.data(Mockito.any())).thenReturn(requestSpec) ;
+        Mockito.when(requestSpec.retrieveFlux(InventoryValidationResponseDTO.class))
+            .thenReturn(Flux.just(InventoryValidationResponseDTO.builder()
+            .inventoryResponseDTO(InventoryResponseDTO.builder()
+                .id(id)
+                .unitNumber("W036898786799")
+                .productCode("E0701V00")
+                .locationCode("123456789")
+                .build())
+            .build()));
+
+        var target = new InventoryRsocketClient(rsocketRequesterMock);
+
+        var response = target.validateInventoryByUnitNumber(InventoryValidationByUnitNumberRequest.builder().build());
+
+        StepVerifier.create(response)
+            .consumeNextWith(detail -> {
+                assertNotNull(detail.inventoryResponseDTO());
+                assertEquals(Optional.of(id), Optional.of(detail.inventoryResponseDTO().id()));
+                assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
+                assertEquals(Optional.of("E0701V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
+                assertEquals(Optional.of("123456789"), Optional.of(detail.inventoryResponseDTO().locationCode()));
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldGetErrorWhenInventoryByUnitNumberServiceFails(){
+        var rsocketRequesterMock = Mockito.mock(RSocketRequester.class);
+
+        var requestSpec = Mockito.mock(RSocketRequester.RequestSpec.class);
+
+        Mockito.when(rsocketRequesterMock.route("validateInventoryByUnitNumber")).thenReturn(requestSpec);
+        Mockito.when(requestSpec.data(Mockito.any())).thenReturn(requestSpec) ;
+        Mockito.when(requestSpec.retrieveFlux(InventoryValidationResponseDTO.class)).thenReturn(Flux.error(new RuntimeException("Any error")));
+
+        var target = new InventoryRsocketClient(rsocketRequesterMock);
+
+        var response = target.validateInventoryByUnitNumber(InventoryValidationByUnitNumberRequest.builder().build());
 
         StepVerifier.create(response)
             .expectError(InventoryServiceNotAvailableException.class)

@@ -42,28 +42,28 @@ Feature: Validate Inventory
 
 
 
-    @api @MGF1-288 @validateInventory
+    @api @MGF1-288 @MGF1-290 @validateInventory
     Scenario Outline: Validate Inventory by Unit Number
         Given I have the following inventories:
-            | Unit Number   | Product Code | Location   | Status    | Collection Location | Collection TimeZone | Is Labeled | Expires In Days | Quarantine Reasons                                     | Discard Reason           | Unsuitable Reason | Comments                  | Volumes                          | Storage Location | Device Stored |
-            | W777725014012 | E0869V00     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | 5               |                                                        |                          |                   |                           | Anticoagulant - 50, Volume - 500 | Freezer 1        | MDL SHELF 100 |
-            | W777725014012 | E0869VA0     | LOCATION_2 | AVAILABLE | LOCATION_2          | America/Los_Angeles | true       | 5               |                                                        |                          |                   |                           |                                  | Freezer 2        |               |
-            | W777725014012 | E0869VB0     | LOCATION_1 | AVAILABLE | LOCATION_2          | America/Los_Angeles | false      | 5               | ABS_POSITIVE, PENDING_FURTHER_REVIEW_INSPECTION, OTHER |                          |                   | Quarantine other comments |                                  | Refrigerator 1   | MDL SHELF 100 |
-            | W777725014012 | E0869VC0     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | -1              |                                                        |                          |                   |                           |                                  | Refrigerator 2   |               |
-            | W777725014012 | E0869VD0     | LOCATION_1 | DISCARDED | LOCATION_1          | America/New_York    | true       | 5               |                                                        | ADDITIVE_SOLUTION_ISSUES |                   |                           |                                  |                  |               |
+            | Unit Number   | Product Code | Location   | Status    | Collection Location | Collection TimeZone | Is Labeled | Expires In Days | Quarantine Reasons                                     | Discard Reason           | Unsuitable Reason | Comments                  | Volumes                          | Storage Location | Device Stored | Properties  |
+            | W777725014012 | E0869V00     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | 5               |                                                        |                          |                   |                           | Anticoagulant - 50, Volume - 500 | Freezer 1        | MDL SHELF 100 | COMPLETED=Y |
+            | W777725014012 | E0869VA0     | LOCATION_2 | AVAILABLE | LOCATION_2          | America/Los_Angeles | true       | 5               |                                                        |                          |                   |                           |                                  | Freezer 2        |               |             |
+            | W777725014012 | E0869VB0     | LOCATION_1 | AVAILABLE | LOCATION_2          | America/Los_Angeles | false      | 5               | ABS_POSITIVE, PENDING_FURTHER_REVIEW_INSPECTION, OTHER |                          |                   | Quarantine other comments |                                  | Refrigerator 1   | MDL SHELF 100 |             |
+            | W777725014012 | E0869VC0     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | true       | -1              |                                                        |                          |                   |                           |                                  | Refrigerator 2   |               |             |
+            | W777725014012 | E0869VD0     | LOCATION_1 | DISCARDED | LOCATION_1          | America/New_York    | true       | 5               |                                                        | ADDITIVE_SOLUTION_ISSUES |                   |                           |                                  |                  |               |             |
 
         When I request "<Unit Number>" in the "LOCATION_1"
         Then I receive the following:
-            | Unit Number   | Product Code   | Temperature Category   | Location   | Collection Location   | Collection TimeZone   | Volumes   | RESPONSE ERROR   | Found It   | Storage Location   | Device Stored   |
-            | <Unit Number> | <Product Code> | <Temperature Category> | <Location> | <Collection Location> | <Collection TimeZone> | <Volumes> | <RESPONSE ERROR> | <Found It> | <Storage Location> | <Device Stored> |
+            | Unit Number   | Product Code   | Temperature Category   | Location   | Collection Location   | Collection TimeZone   | Volumes   | RESPONSE ERROR   | Found It   | Storage Location   | Device Stored   | Properties   |
+            | <Unit Number> | <Product Code> | <Temperature Category> | <Location> | <Collection Location> | <Collection TimeZone> | <Volumes> | <RESPONSE ERROR> | <Found It> | <Storage Location> | <Device Stored> | <Properties> |
 
         Examples:
-            | Unit Number   | Product Code | Temperature Category | Location   | Volumes                          | Collection Location | Collection TimeZone | RESPONSE ERROR                                   | Found It | Storage Location | Device Stored |
-            | W777725014012 | E0869V00     | FROZEN               | LOCATION_1 | Anticoagulant - 50, Volume - 500 | LOCATION_1          | America/New_York    |                                                  | Yes      | Freezer 1        | MDL SHELF 100 |
-            | W777725014012 | E0869VA0     | FROZEN               | LOCATION_2 |                                  | LOCATION_2          | America/Los_Angeles | INVENTORY_NOT_FOUND_IN_LOCATION                  | Yes      | Freezer 2        |               |
-            | W777725014012 | E0869VB0     | FROZEN               | LOCATION_1 |                                  | LOCATION_2          | America/Los_Angeles | INVENTORY_IS_QUARANTINED, INVENTORY_IS_UNLABELED | Yes      | Refrigerator 1   | MDL SHELF 100 |
-            | W777725014012 | E0869VC0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_EXPIRED                             | Yes      | Refrigerator 2   |               |
-            | W777725014012 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    |                                                  | False    |                  |               |
+            | Unit Number   | Product Code | Temperature Category | Location   | Volumes                          | Collection Location | Collection TimeZone | RESPONSE ERROR                                   | Found It | Storage Location | Device Stored | Properties  |
+            | W777725014012 | E0869V00     | FROZEN               | LOCATION_1 | Anticoagulant - 50, Volume - 500 | LOCATION_1          | America/New_York    |                                                  | Yes      | Freezer 1        | MDL SHELF 100 | COMPLETED=Y |
+            | W777725014012 | E0869VA0     | FROZEN               | LOCATION_2 |                                  | LOCATION_2          | America/Los_Angeles | INVENTORY_NOT_FOUND_IN_LOCATION                  | Yes      | Freezer 2        |               |             |
+            | W777725014012 | E0869VB0     | FROZEN               | LOCATION_1 |                                  | LOCATION_2          | America/Los_Angeles | INVENTORY_IS_QUARANTINED, INVENTORY_IS_UNLABELED | Yes      | Refrigerator 1   | MDL SHELF 100 |             |
+            | W777725014012 | E0869VC0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_EXPIRED                             | Yes      | Refrigerator 2   |               |             |
+            | W777725014012 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    |                                                  | False    |                  |               |             |
 
 
 

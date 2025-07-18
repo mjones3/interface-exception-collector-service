@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 
 public class GetInventoryByUnitNumberAndProductCodeUseCaseTest {
@@ -38,7 +40,7 @@ public class GetInventoryByUnitNumberAndProductCodeUseCaseTest {
         when(aggregate.getInventory()).thenReturn(inventory);
         when(aggregate.isExpired()).thenReturn(false);
 
-        when(mapper.toOutput(any(), anyBoolean())).thenReturn(expectedOutput);
+        when(mapper.toOutput(any(), anyBoolean(), anyList())).thenReturn(expectedOutput);
 
         // Act
         Mono<InventoryOutput> result = useCase.execute(input);
@@ -49,7 +51,7 @@ public class GetInventoryByUnitNumberAndProductCodeUseCaseTest {
             .verifyComplete();
 
         verify(repository).findByUnitNumberAndProductCode(unitNumber, productCode);
-        verify(mapper).toOutput(inventory, Boolean.FALSE);
+        verify(mapper).toOutput(inventory, Boolean.FALSE, List.of());
     }
 
 }

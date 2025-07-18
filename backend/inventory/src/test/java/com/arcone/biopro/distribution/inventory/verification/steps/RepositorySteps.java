@@ -328,6 +328,21 @@ public class RepositorySteps {
 
                 propertyEntityRepository.save(property).block();
             }
+
+            if (inventory.get("Properties") != null){
+                List<String> properties = Arrays.stream(inventory.get("Properties").split(",")).map(String::trim).toList();
+                for (String property : properties) {
+                    String[] propertyFields = property.split("=");
+                    PropertyEntity propertyEntity = PropertyEntity.builder()
+                        .id(UUID.randomUUID())
+                        .key(propertyFields[0].trim())
+                        .value(propertyFields[1].trim())
+                        .inventoryId(inventoryEntity.getId())
+                        .build();
+
+                    propertyEntityRepository.save(propertyEntity).block();
+                }
+            }
         }
     }
 
