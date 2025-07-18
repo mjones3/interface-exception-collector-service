@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.irradiation.infrastructure.persistence.ir
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.ProductDetermination;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.ProductDeterminationRepository;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.ProductCode;
+import com.arcone.biopro.distribution.irradiation.domain.util.ProductCodeUtil;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
@@ -26,6 +27,6 @@ class ProductDeterminationRepositoryImpl implements ProductDeterminationReposito
 
     @Override
     public Mono<Boolean> existsBySourceProductCode(ProductCode sourceProductCode) {
-        return entityRepository.existsBySourceProductCode(sourceProductCode.value());
+        return entityRepository.existsBySourceProductCode(ProductCodeUtil.retrieveFinalProductCodeWithoutSixthDigit(sourceProductCode.value()));
     }
 }

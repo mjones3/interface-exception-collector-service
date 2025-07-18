@@ -74,31 +74,33 @@ public class BatchRepositoryImpl implements BatchRepository {
     }
 
     @Override
-    public Mono<Boolean> isUnitAlreadyIrradiated(String unitNumber) {
+    public Mono<Boolean> isUnitAlreadyIrradiated(String unitNumber, String productCode) {
         String sql = """
             SELECT COUNT(*) > 0
             FROM bld_batch_item bi
             JOIN bld_batch b ON bi.batch_id = b.id
-            WHERE bi.unit_number = :unitNumber AND b.end_time IS NOT NULL
+            WHERE bi.unit_number = :unitNumber AND b.end_time IS NOT NULL AND bi.product_code = :productCode
             """;
 
         return databaseClient.sql(sql)
                 .bind("unitNumber", unitNumber)
+                .bind("productCode", productCode)
                 .map(row -> row.get(0, Boolean.class))
                 .one();
     }
 
     @Override
-    public Mono<Boolean> isUnitBeingIrradiated(String unitNumber) {
+    public Mono<Boolean> isUnitBeingIrradiated(String unitNumber, String productCode) {
         String sql = """
             SELECT COUNT(*) > 0
             FROM bld_batch_item bi
             JOIN bld_batch b ON bi.batch_id = b.id
-            WHERE bi.unit_number = :unitNumber AND b.end_time IS NULL
+            WHERE bi.unit_number = :unitNumber AND b.end_time IS NULL AND bi.product_code = :productCode
             """;
 
         return databaseClient.sql(sql)
                 .bind("unitNumber", unitNumber)
+                .bind("productCode", productCode)
                 .map(row -> row.get(0, Boolean.class))
                 .one();
     }

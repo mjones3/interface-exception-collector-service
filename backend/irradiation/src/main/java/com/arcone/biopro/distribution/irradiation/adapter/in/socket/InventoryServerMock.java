@@ -70,9 +70,10 @@ public class InventoryServerMock {
                 createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "23456789").build()
             );
         }
-        if (unitNumber.startsWith("W777725001011") || unitNumber.startsWith("W777725002009")) {
+        if (unitNumber.startsWith("W777725001011") || unitNumber.startsWith("W777725002009") || unitNumber.startsWith("W777725002012")) {
             return Flux.just(
-                createInventory(unitNumber, "E003300", "CP2D WB")
+                createInventory(unitNumber, "E003300", "CP2D WB"),
+                createInventory(unitNumber, "E033600", "AS1 LR RBC")
             );
         }
         if (unitNumber.startsWith("W777725001012") || unitNumber.startsWith("W777725002010")) {
@@ -85,12 +86,7 @@ public class InventoryServerMock {
                 createInventory(unitNumber, "E003300", "CP2D WB")
             );
         }
-        if (unitNumber.startsWith("W777725002012")) {
-            return Flux.just(
-                createInventory(unitNumber, "E003300", "CP2D WB"),
-                createInventory(unitNumber, "E033600", "AS1 LR RBC")
-            );
-        }
+
         if (unitNumber.startsWith(IRRADIATION_START_FEATURE_UN)) {
             return Flux.just(
                 createInventory("W777725002001", "E033600", "AVAILABLE", "123456789", "AS1 LR RBC"),
@@ -99,7 +95,8 @@ public class InventoryServerMock {
         }
         if (unitNumber.startsWith(SCAN_UNIT_FEATURE_UN)) {
             return Flux.just(
-                createInventory("W777725001001", "E0869V00", "AVAILABLE", "123456789", "APH FFP"),
+                createInventory("W777725001001", "E003300", "AVAILABLE", "123456789", "APH FFP"),
+                createInventory("W777725001001", "E0033V00", "AVAILABLE", "123456789", "APH FFP"),
                 createInventory("W777725001001", "E1624V00", "IN_TRANSIT", "123456789", "APH PF24"),
                 createInventory("W777725001001", "E4689V00", "SHIPPED", "123456789", "APH FFP C1"),
                 createInventory("W777725001001", "E0686V00", "CONVERTED", "123456789", "APH AS3 LR RBC C2"),
