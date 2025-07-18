@@ -223,7 +223,7 @@ Feature: Starts Irradiation Process
 
 
         @LAB-615
-        Scenario Outline: I should be notified if I select a product that has been already irradiated
+        Scenario Outline: I should be notified if I select a product that has been already irradiated (unit with 2 products)
             Given I have the following inventory products:
                 | Unit Number   | Product Code     | Status    | Location  |
                 | <Unit Number> | <Product Code 1> | AVAILABLE | 123456789 |
