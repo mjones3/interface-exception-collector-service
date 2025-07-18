@@ -43,8 +43,6 @@ public class DatabaseConfiguration {
         List<Object> converters = new ArrayList<>();
         converters.add(InstantWriteConverter.INSTANCE);
         converters.add(InstantReadConverter.INSTANCE);
-        converters.add(ZonedDateTimeWriteConverter.INSTANCE);
-        converters.add(ZonedDateTimeReadConverter.INSTANCE);
         converters.add(BitSetReadConverter.INSTANCE);
         converters.add(DurationWriteConverter.INSTANCE);
         converters.add(DurationReadConverter.INSTANCE);
@@ -113,26 +111,6 @@ public class DatabaseConfiguration {
         @Override
         public Duration convert(Long source) {
             return source != null ? Duration.ofMillis(source) : null;
-        }
-    }
-
-    @WritingConverter
-    public enum ZonedDateTimeWriteConverter implements Converter<ZonedDateTime, LocalDateTime> {
-        INSTANCE;
-
-        @Override
-        public LocalDateTime convert(ZonedDateTime source) {
-            return source != null ? source.toLocalDateTime() : null;
-        }
-    }
-
-    @ReadingConverter
-    public enum ZonedDateTimeReadConverter implements Converter<LocalDateTime, ZonedDateTime> {
-        INSTANCE;
-
-        @Override
-        public ZonedDateTime convert(LocalDateTime source) {
-            return source != null ? source.atZone(ZoneOffset.UTC) : null;
         }
     }
 }

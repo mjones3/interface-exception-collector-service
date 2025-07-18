@@ -5,8 +5,8 @@ Feature: Second Verification of Units Feature
     So that I can ensure that the products recorded in the system match the physical products inside the shipping box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092,W822530106093,W822530106094,W036898786756,W036898786757,W036898786758,W036898786700".
-        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,123,124".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092,W822530106093,W822530106094,W036898786756,W036898786757,W036898786758,W036898786700,W036898445759,W036898445758,W036898445760".
+        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,123,124,44500010".
 
 
         Rule: I should be able to verify each unit that I have packed in the shipment.
@@ -135,24 +135,46 @@ Feature: Second Verification of Units Feature
             And The second verification configuration is "enabled".
             And I am on the verify products page.
             When I choose to complete the Shipment.
-            Then I should see a notification dialog with the message "One or more products have changed status. You must rescan the products to be removed".
+            Then I should see a notification dialog with the message "One or more products have changed status. You must rescan the products to be removed.".
             And The shipment status for order "<Order Number>" should be "open".
             And I should have an option to acknowledge the notification.
             And I should see a list of products grouped by the following statuses:
                 | Status       | Total Products |
                 | Discarded    | 2              |
                 | Quarantined  | 1              |
-                | Other Events | 1              |
-            When I verify each one of the tabs.
-            Then I should see the following products.
-                | Unit Number   | Product Code | Status          | Tab          |
-                | W036898786757 | E0713V00     | Discarded       | Discarded    |
-                | W036898786756 | E0701V00     | Expired         | Discarded    |
-                | W036898786758 | E0707V00     | Quarantined     | Quarantined  |
-                | W036898786700 | E0707V00     | Already Shipped | Other Events |
-            When I confirm the notification dialog
-            Then I should be redirected to verify products page with "notifications" tab active.
+                When I verify each one of the tabs.
+                Then I should see the following products.
+                    | Unit Number   | Product Code | Status      | Tab         |
+                    | W036898786757 | E0713V00     | Discarded   | Discarded   |
+                    | W036898786756 | E0707V00     | Expired     | Discarded   |
+                    | W036898445759 | E0701V00     | Quarantined | Quarantined |
+                When I confirm the notification dialog
+                Then I should be redirected to verify products page with "notifications" tab active.
 
-            Examples:
-                | Order Number | Codes                               | UNITS                                                   |
-                | 124          | E0713V00,E0701V00,E0707V00,E0685V00 | W036898786757,W036898786758,W036898786756,W036898786700 |
+                Examples:
+                    | Order Number | Codes                      | UNITS                                     |
+                    | 124          | E0713V00,E0707V00,E0701V00 | W036898786757,W036898786756,W036898445759 |
+
+            Rule: I should not be able to mix quarantined and not quarantined products in the internal transfer shipment.
+            @DIS-445
+            Scenario Outline: Complete Internal Transfer shipment Second verification unsuitable products.
+                Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>,<Unquarantined UN>" and product codes "<Quarantined Code>,<Unquarantined Code>" "verified"
+                And The second verification configuration is "enabled".
+                And I am on the verify products page.
+                When I choose to complete the Shipment.
+                Then I should see a notification dialog with the message "One or more products have changed status. You must rescan the products to be removed.".
+                And The shipment status for order "<Order Number>" should be "open".
+                And I should have an option to acknowledge the notification.
+                And I should see a list of products grouped by the following statuses:
+                    | Status       | Total Products |
+                    | Other Events | 1              |
+                When I verify each one of the tabs.
+                Then I should see the following products.
+                    | Unit Number   | Product Code | Status          | Tab          |
+                    | W036898445760 | E0701V00     | Not Quarantined | Other Events |
+                When I confirm the notification dialog
+                Then I should be redirected to verify products page with "notifications" tab active.
+
+                Examples:
+                    | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily       | Category | Shipment Type     | Label Status | Quarantined Products | Quarantined UN | Quarantined Code | Unquarantined UN | Unquarantined Code |
+                    | 44500010     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE | FROZEN   | INTERNAL_TRANSFER | LABELED      | true                 | W036898445758  | E0701V00         | W036898445760    | E0701V00           |

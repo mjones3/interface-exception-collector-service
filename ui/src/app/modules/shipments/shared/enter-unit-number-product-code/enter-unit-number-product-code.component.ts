@@ -8,40 +8,40 @@ import {
     Input,
     OnDestroy,
     Output,
-    ViewChild,
+    ViewChild
 } from '@angular/core';
-import {
-    FormBuilder,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import {
-    MatButtonToggle,
-    MatButtonToggleGroup,
-    MatButtonToggleModule,
-} from '@angular/material/button-toggle';
+import { MatButtonToggle, MatButtonToggleGroup, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import {
-    RsaValidators,
-    ScanUnitNumberCheckDigitComponent
-} from '@shared';
+import { RsaValidators, ScanUnitNumberCheckDigitComponent } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { RuleResponseDTO } from 'app/shared/models/rule.model';
 import {
-    Subscription,
     catchError,
     combineLatestWith,
     debounceTime,
+    distinctUntilChanged,
     filter,
     of,
+    Subscription,
+    switchMap,
+    tap
 } from 'rxjs';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 import { ShipmentService } from '../../services/shipment.service';
 import { ToastrService } from 'ngx-toastr';
+import {
+    SelectProductPickerModalComponent
+} from '../select-product-picker-modal/select-product-picker-modal.component';
+import { MatDialog } from '@angular/material/dialog';
+import { Cookie } from '../../../../shared/types/cookie.enum';
+import { CookieService } from 'ngx-cookie-service';
+import handleApolloError from '../../../../shared/utils/apollo-error-handling';
+import { consumeNotifications } from '../../../../shared/utils/notification.handling';
+import { ProductResponseDTO } from '../../graphql/query-defintions/get-unlabeled-products.graphql';
 
 @Component({
     standalone: true,
@@ -65,6 +65,9 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
     productGroup: FormGroup;
     formValueChange: Subscription;
     unitNumberFocus = true;
+    @Input({ required: true }) shipmentId: number;
+    @Input({ required: true }) shipmentItemId: number;
+    @Input() showProductCode = true;
     @Input() showVisualInspection = false;
     @Input() showCheckDigit = true;
     @Output()
@@ -77,8 +80,10 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
     constructor(
         protected fb: FormBuilder,
         private changeDetector: ChangeDetectorRef,
+        private cookieService: CookieService,
         private shipmentService: ShipmentService,
-        private toaster: ToastrService
+        private toaster: ToastrService,
+        private matDialog: MatDialog,
     ) {
         this.buildFormGroup();
     }
@@ -87,34 +92,40 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
         const formGroup = this.fb.group({
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
             productCode: [
-                { value: '', disabled: true },
-                [RsaValidators.fullProductCode, Validators.required],
+                '',
+                this.showProductCode
+                    ? [ RsaValidators.fullProductCode, Validators.required ]
+                    : [ ],
             ],
             visualInspection: [
                 { value: '', disabled: true },
-                [
-                    this.showVisualInspection
-                        ? Validators.required
-                        : Validators.nullValidator,
-                ],
+                this.showVisualInspection
+                    ? [ Validators.required ]
+                    : [ ],
             ],
         });
 
         this.formValueChange = formGroup.statusChanges
             .pipe(
                 combineLatestWith(formGroup.valueChanges),
+                distinctUntilChanged((previous, current) => previous[0] === current[0]),
                 filter(
-                    ([status, value]) =>
-                        !!value.unitNumber?.trim() &&
-                        !!value.productCode?.trim() &&
-                        (this.showVisualInspection
-                            ? !!value.visualInspection?.trim()
-                            : true) &&
-                        status === 'VALID'
+                    ([status, value]) => {
+                        return !!value.unitNumber?.trim() &&
+                            ( this.showProductCode ? !!value.productCode?.trim() : true) &&
+                            ( this.showVisualInspection ? !!value.visualInspection?.trim() : true) &&
+                            status === 'VALID'
+                    }
                 ),
                 debounceTime(300)
             )
-            .subscribe(() => this.verifyProduct());
+            .subscribe(() => {
+                if (this.showProductCode) {
+                    this.verifyProduct();
+                } else {
+                    this.openSelectProductDialog();
+                }
+            });
 
         this.productGroup = formGroup;
     }
@@ -264,7 +275,9 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
             this.productGroup.controls.productCode.enable();
             this.focusProductCode();
         } else {
-            this.productGroup.controls.productCode.disable();
+            if (this.showProductCode) {
+                this.productGroup.controls.productCode.disable();
+            }
             this.productGroup.controls.productCode.reset();
         }
     }
@@ -272,4 +285,54 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
     focusProductCode() {
         this.inputProductCode?.nativeElement.focus();
     }
+
+    openSelectProductDialog() {
+        this.shipmentService
+            .getUnlabeledProducts({
+                unitNumber: this.productGroup.controls.unitNumber.value,
+                locationCode: this.cookieService.get(Cookie.XFacility),
+                shipmentItemId: this.shipmentItemId
+            })
+            .pipe(
+                catchError((e) => handleApolloError(this.toaster, e)),
+                tap((result) =>
+                    consumeNotifications(
+                        this.toaster,
+                        result?.data?.getUnlabeledProducts?.notifications
+                    )
+                ),
+                switchMap(result => {
+                    const ruleCode = result?.data?.getUnlabeledProducts?.ruleCode;
+                    const products = result.data?.getUnlabeledProducts?.results?.results?.[0];
+
+                    // If nothing found
+                    if (ruleCode !== '200 OK' || !products?.length) {
+                        return of(null);
+                    }
+
+                    // If only one is available, autoselect first product
+                    if (products?.length === 1) {
+                        return of(products?.[0]);
+                    }
+
+                    // Show dialog asking the user to select the product
+                    return this.matDialog
+                        .open<SelectProductPickerModalComponent, ProductResponseDTO[], ProductResponseDTO>(
+                            SelectProductPickerModalComponent, {
+                                data: products
+                            })
+                        .afterClosed()
+                }),
+            )
+            .subscribe(result => {
+                if (result) {
+                    this.productGroup.controls.productCode.setValue(result.productCode);
+                    this.verifyProduct();
+                    return;
+                }
+                this.productGroup.controls.unitNumber.setValue(null);
+                this.resetProductFormGroup();
+            });
+    }
+
 }

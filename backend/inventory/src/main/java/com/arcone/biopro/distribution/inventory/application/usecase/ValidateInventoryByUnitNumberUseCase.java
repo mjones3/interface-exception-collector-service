@@ -31,7 +31,8 @@ class ValidateInventoryByUnitNumberUseCase implements UseCase<Flux<ValidateInven
 
         return inventoryAggregateRepository.findByUnitNumber(input.unitNumber())
             .filter(inventoryAggregate -> !List.of(InventoryStatus.MODIFIED, InventoryStatus.CONVERTED, InventoryStatus.DISCARDED).contains(inventoryAggregate.getInventory().getInventoryStatus()))
-            .map(inventoryAggregate -> mapper.toValidateInventoryOutput(inventoryAggregate.checkIfIsValidToShip(input.inventoryLocation())))
+            .map(inventoryAggregate -> inventoryAggregate.checkIfIsValidToShip(input.inventoryLocation()))
+            .map(inventoryAggregate -> mapper.toValidateInventoryOutput(inventoryAggregate.getInventory(), inventoryAggregate.getProperties(), inventoryAggregate.getNotificationMessages()))
             .switchIfEmpty(Mono.just(mapper.toOutput(MessageType.INVENTORY_NOT_EXIST)));
     }
 }

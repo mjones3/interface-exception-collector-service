@@ -3,7 +3,6 @@ package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.FillProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.HomePage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
-import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.StaticValuesMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
@@ -46,6 +45,7 @@ public class ShipmentFulfillmentSteps {
 
     private List<ListShipmentsResponseType> orders;
     private ShipmentRequestDetailsResponseType order;
+    private List<LinkedHashMap> unlabeledProducts;
 
     @Autowired
     private SharedContext context;
@@ -67,11 +67,9 @@ public class ShipmentFulfillmentSteps {
     private String checkDigit;
     private boolean checkDigitEnabled;
     private String orderPriority;
-    @Autowired
-    private KafkaHelper kafkaHelper;
 
     private ShipmentRequestDetailsResponseType setupOrderFulfillmentRequest(String orderNumber, String customerId, String customerName, String quantities, String bloodTypes
-        , String productFamilies, String unitNumbers, String productCodes , String temperatureCategory) {
+        , String productFamilies, String unitNumbers, String productCodes, String temperatureCategory) {
         return shipmentTestingController.buildShipmentRequestDetailsResponseType(Long.valueOf(orderNumber),
             "ASAP",
             "OPEN",
@@ -96,11 +94,11 @@ public class ShipmentFulfillmentSteps {
             "North Miami",
             quantities,
             bloodTypes,
-            productFamilies, unitNumbers, productCodes,"CUSTOMER","LABELED",false);
+            productFamilies, unitNumbers, productCodes, "CUSTOMER", "LABELED", false);
     }
 
     private void goToDetailsPage(long orderNumber) throws Exception {
-        Long shipmentId = shipmentTestingController.getOrderShipmentId(orderNumber);
+        Long shipmentId = shipmentTestingController.getShipmentId(orderNumber);
         homePage.goTo();
         this.shipmentDetailPage.goTo(shipmentId);
     }
@@ -307,7 +305,7 @@ public class ShipmentFulfillmentSteps {
 
     @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {string}, Blood Types: {string}, Product Families {string} , Temperature Category {string}.")
     public void buildOrderFulfilmentRequest(String orderNumber, String customerId, String customerName
-        , String quantities, String bloodTypes, String productFamilies , String temperatureCategory) {
+        , String quantities, String bloodTypes, String productFamilies, String temperatureCategory) {
 
         this.shipmentDetailType = setupOrderFulfillmentRequest(orderNumber, customerId, customerName, quantities, bloodTypes, productFamilies, null, null, temperatureCategory);
 
@@ -317,7 +315,7 @@ public class ShipmentFulfillmentSteps {
 
     @And("I have received a shipment fulfillment request with above details.")
     public void triggerOrderFulfillmentEvent() throws Exception {
-        context.setOrderNumber(shipmentTestingController.createShippingRequest(this.shipmentDetailType));
+        shipmentTestingController.createShippingRequest(this.shipmentDetailType);
         Assert.assertNotNull(context.getOrderNumber());
     }
 
@@ -473,19 +471,19 @@ public class ShipmentFulfillmentSteps {
 
     @When("I fill a product with the unit number {string}, product code {string}.")
     public void iFillAProductWithTheUnitNumberProductCodeBloodTypeAndVisualInspection(String unitNumber, String productCode) throws Exception {
-        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        context.setShipmentId(shipmentTestingController.getShipmentId(context.getOrderNumber()));
         this.packItemResponse = shipmentTestingController.fillShipment(context.getShipmentId(), unitNumber, productCode, "SATISFACTORY", false);
     }
 
     @When("I fill a product with the unit number {string}, product code {string}, and visual Inspection {string}.")
     public void fillProductWithInspection(String unitNumber, String productCode, String inspection) throws Exception {
-        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        context.setShipmentId(shipmentTestingController.getShipmentId(context.getOrderNumber()));
         this.packItemResponse = shipmentTestingController.fillShipment(context.getShipmentId(), unitNumber, productCode, inspection, false);
     }
 
     @When("I fill an unsuitable product with the unit number {string}, product code {string}, and visual Inspection {string}.")
     public void fillUnsuitableProductWithInspection(String unitNumber, String productCode, String inspection) throws Exception {
-        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        context.setShipmentId(shipmentTestingController.getShipmentId(context.getOrderNumber()));
         this.packItemResponse = shipmentTestingController.fillShipment(context.getShipmentId(), unitNumber, productCode, inspection, true);
     }
 
@@ -503,11 +501,11 @@ public class ShipmentFulfillmentSteps {
     }
 
     @When("I receive a shipment fulfillment request event for the order number {string} and priority {string} and shipping date {string}.")
-    public void receiveFulfillmentOrderRequest(String orderNumber, String priority , String shippingDate) throws Exception {
-        if("NULL_VALUE".equals(shippingDate)) {
+    public void receiveFulfillmentOrderRequest(String orderNumber, String priority, String shippingDate) throws Exception {
+        if ("NULL_VALUE".equals(shippingDate)) {
             shippingDate = null;
         }
-        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority,shippingDate, null));
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority, shippingDate, null));
         this.orderPriority = priority;
 
     }
@@ -548,7 +546,7 @@ public class ShipmentFulfillmentSteps {
     @And("I am on the fill product page of line item related to the {string} {string}.")
     public void iAmOnTheFillProductPageOfLineItemRelatedToThe(String family, String bloodType) throws InterruptedException {
         Long shipmentItemId = shipmentTestingController.getShipmentItemId(context.getShipmentId(), family, bloodType);
-        fillProductsPage.goTo(context.getShipmentId().toString(),shipmentItemId.toString());
+        fillProductsPage.goTo(context.getShipmentId().toString(), shipmentItemId.toString());
     }
 
     @And("I choose to remove products.")
@@ -560,8 +558,8 @@ public class ShipmentFulfillmentSteps {
     public void iShouldHaveExpectedQtyItems(Integer expectedQuantity, String status) {
         log.debug("Verifying that I have {} items {}.", expectedQuantity, status);
 
-        var results = this.packItemResponse.get("results") != null ?  (List<Map>) ((LinkedHashMap) this.packItemResponse.get("results")).get("results") : List.of();
-        List<Map> packedItems = results != null ? (List)((LinkedHashMap) results.get(0)).get("packedItems") : List.of();
+        var results = this.packItemResponse.get("results") != null ? (List<Map>) ((LinkedHashMap) this.packItemResponse.get("results")).get("results") : List.of();
+        List<Map> packedItems = results != null ? (List) ((LinkedHashMap) results.get(0)).get("packedItems") : List.of();
 
         Assert.assertFalse(packedItems.isEmpty());
 
@@ -578,15 +576,15 @@ public class ShipmentFulfillmentSteps {
         , String shipmentType, String labelStatus, String quarantinedProducts) throws Exception {
         var shipDateFormat = shipDate != null && !shipDate.isBlank() ? TestUtils.parseDateKeyword(shipDate) : TestUtils.parseDateKeyword("<today>") ;
         this.orderPriority = priority;
-        context.setOrderNumber(shipmentTestingController.createShippingRequest(orderNumber,priority,shipDateFormat,shipmentType,labelStatus,Boolean.parseBoolean(quarantinedProducts)));
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(orderNumber, priority, shipDateFormat, shipmentType, labelStatus, Boolean.parseBoolean(quarantinedProducts)));
 
     }
 
     @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {string}, Blood Types: {string}, Product Families {string}, Temperature Category as {string}, Shipment Type defined as {string}, Label Status as {string} and Quarantined Products as {string}.")
     public void theShipmentDetailsAreOrderNumberCustomerIDCustomerNameProductDetailsQuantitiesBloodTypesProductFamiliesShipmentTypeDefinedAsLabelStatusAsAndQuarantinedProductsAs(String orderNumber, String customerId, String customerName
-        , String quantities, String bloodTypes, String productFamilies,String temperatureCategory,String shipmentType, String labelStatus, String quarantinedProducts) {
+        , String quantities, String bloodTypes, String productFamilies, String temperatureCategory, String shipmentType, String labelStatus, String quarantinedProducts) {
         this.shipmentDetailType = shipmentTestingController.buildShipmentRequestDetailsResponseType(Long.parseLong(orderNumber), "123456789", customerId, customerName
-            , "", "36544 SW 27th St", null, null, null, productFamilies, bloodTypes, quantities,shipmentType,labelStatus,Boolean.parseBoolean(quarantinedProducts),temperatureCategory);
+            , "", "36544 SW 27th St", null, null, null, productFamilies, bloodTypes, quantities, shipmentType, labelStatus, Boolean.parseBoolean(quarantinedProducts), temperatureCategory);
         Assert.assertNotNull(this.shipmentDetailType);
     }
 
@@ -594,12 +592,48 @@ public class ShipmentFulfillmentSteps {
     public void iSeeTheProductStatusAs(String shouldShouldNot, String productStatus) {
 
         if ("should".equals(shouldShouldNot)) {
-            fillProductsPage.assertProductStatusIs(productStatus,true);
-        } else if("should not".equals(shouldShouldNot)) {
-            fillProductsPage.assertProductStatusIs(productStatus,false);
-        }else{
+            fillProductsPage.assertProductStatusIs(productStatus, true);
+        } else if ("should not".equals(shouldShouldNot)) {
+            fillProductsPage.assertProductStatusIs(productStatus, false);
+        } else {
             Assert.fail("Invalid option for should/should not");
         }
+    }
+
+    @When("I request all unlabeled products for the unit number {string} in the line item {int}.")
+    public void iRequestAllAvailableProductsForTheUnitNumber(String unitNumber, int lineItem) {
+        var shipmentItems = shipmentTestingController.getShipmentItems(context.getShipmentId());
+        var shipmentItemId = Long.valueOf(shipmentItems.get(lineItem - 1).get("id").toString());
+        unlabeledProducts = shipmentTestingController.getUnlabeledProducts(shipmentItemId, unitNumber, context.getFacility());
+    }
+
+    @Then("I should receive the product list with the products {string} available for the unit number {string}.")
+    public void iShouldReceiveTheProductListWithTheProductsAvailableForTheUnitNumber(String productCodes, String unitNumber) {
+        var productCodeList = TestUtils.getCommaSeparatedList(productCodes);
+
+        for (var productCode : productCodeList) {
+            var match = unlabeledProducts.stream().anyMatch(item -> item.get("productCode").equals(productCode) && item.get("unitNumber").equals(unitNumber));
+            Assert.assertTrue(match);
+        }
+    }
+
+    @When("I add the unit {string}.")
+    public void iAddTheUnit(String unitNumber) throws InterruptedException {
+        fillProductsPage.addUnit(unitNumber);
+        context.setUnitNumber(TestUtils.removeUnitNumberScanDigits(unitNumber));
+    }
+
+    @Then("I should see the product selection option with the products {string}.")
+    public void iShouldSeeTheProductSelectionOptionWithTheProducts(String products) {
+        var productList = TestUtils.getCommaSeparatedList(products);
+        for (var product : productList) {
+            fillProductsPage.checkAvailableProductButton(product);
+        }
+    }
+
+    @When("I select the product {string}.")
+    public void iSelectTheProduct(String product) {
+        fillProductsPage.selectAvailableProduct(product);
     }
 }
 

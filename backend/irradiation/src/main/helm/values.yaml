@@ -126,6 +126,8 @@ defaultEnv:
     value: "SSL"
   - name: INVENTORY_SERVICE
     value: inventory.api.svc.cluster.local
+  - name: SUPPLY_SERVICE
+    value: supply.api.svc.cluster.local
 
 additionalEnv: []
 

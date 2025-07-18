@@ -45,5 +45,6 @@ public interface GetAllAvailableMapper {
 
     @Mapping(target = "locationCode", source = "location")
     @Mapping(target = "productDescription", source = "shortDescription")
+    @Mapping(target = "status", source = "inventoryStatus")
     InventoryResponseDTO toResponse(InventoryOutput output);
 }

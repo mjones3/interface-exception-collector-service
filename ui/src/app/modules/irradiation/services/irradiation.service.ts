@@ -12,6 +12,7 @@ import {
     CHECK_DIGIT,
     GET_CONFIGURATIONS,
     GET_IRRADIATION_DEVICE_BY_ID,
+    VALIDATE_LOT_NUMBER,
     VALIDATE_UNIT
 } from "../graphql/query.graphql";
 import {START_IRRADIATION_SUBMIT_BATCH} from "../graphql/mutation.graphql";
@@ -82,5 +83,18 @@ export class IrradiationService {
             { unitNumber, checkDigit }
         );
     }
+
+    public validateLotNumber(
+        lotNumber: string, type: string
+    ): Observable<
+        ApolloQueryResult<{ validateLotNumber: boolean }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            VALIDATE_LOT_NUMBER,
+            { lotNumber, type }
+        );
+    }
+
 
 }

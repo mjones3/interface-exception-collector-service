@@ -69,14 +69,14 @@ public class PrintPackingListSteps {
 
     @And("I have filled the shipment with the unit number {string} and product code {string}.")
     public void fillShipmentStep(String unitNumber, String productCode) throws Exception {
-        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        context.setShipmentId(shipmentTestingController.getShipmentId(context.getOrderNumber()));
         shipmentController.fillShipment(context.getShipmentId(), TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY", false);
     }
 
     @And("I have filled the shipment with the unit number {string} and product code {string} for order {string}.")
     public void fillShipmentForOrder(String unitNumber, String productCode, String orderNumber) throws Exception {
         context.setOrderNumber(Long.valueOf(orderNumber));
-        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        context.setShipmentId(shipmentTestingController.getShipmentId(context.getOrderNumber()));
         shipmentController.fillShipment(context.getShipmentId(), TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY", false);
     }
 
@@ -188,8 +188,8 @@ public class PrintPackingListSteps {
     @And("I have an open shipment with above details.")
     public void iHaveAnOpenShipmentWithAboveDetails() throws Exception {
         this.shipmentDetails.setStatus("OPEN");
-        var orderNumber = shipmentController.createShippingRequest(this.shipmentDetails);
-        log.info("Order number successfully created: {}", orderNumber);
+        shipmentController.createShippingRequest(this.shipmentDetails);
+        log.info("Order number successfully created: {}", context.getOrderNumber());
     }
 
     @When("I enter the Shipment Fulfillment Details page.")
