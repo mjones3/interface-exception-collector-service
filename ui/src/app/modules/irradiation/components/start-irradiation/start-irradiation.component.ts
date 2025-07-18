@@ -42,6 +42,7 @@ const QUARANTINED = 'QUARANTINED';
 const UNSUITABLE = 'UNSUITABLE';
 const DISCARDED = 'DISCARDED';
 const EXPIRED = 'EXPIRED';
+const IRRADIATION_SUPPLY_TYPE = 'IRRADIATION_INDICATOR';
 
 @Component({
   selector: 'biopro-start-irradiation',
@@ -617,9 +618,24 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         }
     }
 
-    validateLotNumber($event: string) {
-       console.log('validateLotNumber', $event);
-        this.unitNumberComponent.controlUnitNumber.enable();
-        setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
+    validateLotNumber(lotNumber: string) {
+        if (lotNumber) {
+            this.irradiationService.validateLotNumber(lotNumber, IRRADIATION_SUPPLY_TYPE).subscribe({
+                next: (result) => {
+                    const isValid = result.data.validateLotNumber;
+                    if (isValid) {
+                        this.unitNumberComponent.controlUnitNumber.enable();
+                        setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
+                    } else {
+                        this.showMessage(MessageType.ERROR, 'Invalid lot number');
+                        this.lotNumber.setErrors({ invalid: true });
+                    }
+                },
+                error: (error) => {
+                    this.showMessage(MessageType.ERROR, error.message || 'Failed to validate lot number');
+                    this.lotNumber.setErrors({ invalid: true });
+                }
+            });
+        }
     }
 }
