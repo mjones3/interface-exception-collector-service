@@ -405,7 +405,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     openConfirmationDialog(selectedProduct: IrradiationProductDTO): void {
         const dialogRef = this.confirmationService.open({
             title:
-                selectedProduct.productDescription || 'Acknowledge message',
+                selectedProduct.status || 'Acknowledge message',
             message: 'This product has been discarded for ' + selectedProduct.statusReason + '. Place in biohazard container',
             dismissible: false,
             icon: {
