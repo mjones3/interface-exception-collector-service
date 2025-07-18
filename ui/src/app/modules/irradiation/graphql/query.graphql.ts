@@ -46,9 +46,17 @@ const CHECK_DIGIT = gql`
     }
 `;
 
+const VALIDATE_LOT_NUMBER = gql`
+    query validateLotNumber($lotNumber: String!, $type: String!) {
+        validateLotNumber(lotNumber: $lotNumber, type: $type)
+    }
+`;
+
+
 export {
     GET_IRRADIATION_DEVICE_BY_ID,
     GET_CONFIGURATIONS,
     VALIDATE_UNIT,
-    CHECK_DIGIT
+    CHECK_DIGIT,
+    VALIDATE_LOT_NUMBER
 };

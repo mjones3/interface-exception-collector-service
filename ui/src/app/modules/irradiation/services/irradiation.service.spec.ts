@@ -4,9 +4,10 @@ import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphq
 
 describe('IrradiationService', () => {
   let service: IrradiationService;
+  let mockDynamicGraphqlPathService: any;
 
   beforeEach(() => {
-    const mockDynamicGraphqlPathService = {
+    mockDynamicGraphqlPathService = {
       executeQuery: jest.fn(),
       executeMutation: jest.fn()
     };
@@ -21,5 +22,18 @@ describe('IrradiationService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  it('should call validateLotNumber with correct parameters', () => {
+    const lotNumber = 'LOT-001';
+    const type = 'IRRADIATION_INDICATOR';
+
+    service.validateLotNumber(lotNumber, type);
+
+    expect(mockDynamicGraphqlPathService.executeQuery).toHaveBeenCalledWith(
+      '/irradiation/graphql',
+      expect.any(Object),
+      { lotNumber, type }
+    );
   });
 });

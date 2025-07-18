@@ -83,7 +83,8 @@ describe('StartIrradiationComponent', () => {
       validateCheckDigit: jest.fn(),
       validateUnitNumber: jest.fn(),
       startIrradiationSubmitBatch: jest.fn(),
-      loadDeviceById: jest.fn()
+      loadDeviceById: jest.fn(),
+      validateLotNumber: jest.fn()
     };
 
     // Set default return values
@@ -91,6 +92,7 @@ describe('StartIrradiationComponent', () => {
     mockIrradiationService.validateUnitNumber.mockReturnValue(of({ data: { validateUnit: [] } }));
     mockIrradiationService.startIrradiationSubmitBatch.mockReturnValue(of({ data: { submitBatch: { message: 'Success' } } }));
     mockIrradiationService.loadDeviceById.mockReturnValue(of({ data: { validateDevice: true } }));
+    mockIrradiationService.validateLotNumber.mockReturnValue(of({ data: { validateLotNumber: true } }));
 
     const mockProcessHeaderService = { setActions: jest.fn() };
     const mockProductIconsService = { getIconByProductFamily: jest.fn().mockReturnValue('icon') };
@@ -138,19 +140,15 @@ describe('StartIrradiationComponent', () => {
     fixture = TestBed.createComponent(StartIrradiationComponent);
     component = fixture.componentInstance;
 
-    // Mock ViewChild components
-    Object.defineProperty(component, 'unitNumberComponent', {
-      value: {
-        form: { disable: jest.fn() },
-        controlUnitNumber: { reset: jest.fn(), enable: jest.fn() },
-        reset: jest.fn(),
-        focusOnUnitNumber: jest.fn(),
-        focusOnCheckDigit: jest.fn(),
-        setValidatorsForCheckDigit: jest.fn()
-      },
-      configurable: true,
-      writable: true
-    });
+    // Mock ViewChild components with proper Jest spies
+    component.unitNumberComponent = {
+      form: { disable: jest.fn() },
+      controlUnitNumber: { reset: jest.fn(), enable: jest.fn() },
+      reset: jest.fn(),
+      focusOnUnitNumber: jest.fn(),
+      focusOnCheckDigit: jest.fn(),
+      setValidatorsForCheckDigit: jest.fn()
+    } as any;
 
     fixture.detectChanges();
   });
@@ -461,5 +459,45 @@ describe('StartIrradiationComponent', () => {
 
     // Verify navigation
     expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('irradiation/start-irradiation');
+  });
+
+  it('should validate lot number successfully', () => {
+    // Spy on the enable method
+    jest.spyOn(component.unitNumberComponent.controlUnitNumber, 'enable');
+    
+    // Call validateLotNumber
+    component.validateLotNumber('LOT-001');
+
+    // Verify service was called with correct parameters
+    expect(mockIrradiationService.validateLotNumber).toHaveBeenCalledWith('LOT-001', 'IRRADIATION_INDICATOR');
+    expect(component.unitNumberComponent.controlUnitNumber.enable).toHaveBeenCalled();
+  });
+
+  it('should handle invalid lot number', () => {
+    // Setup invalid response
+    mockIrradiationService.validateLotNumber.mockReturnValueOnce(
+      of({ data: { validateLotNumber: false } })
+    );
+
+    // Call validateLotNumber
+    component.validateLotNumber('INVALID-LOT');
+
+    // Verify error handling
+    expect(mockToastrService.error).toHaveBeenCalledWith('Invalid lot number');
+    expect(component.lotNumber.hasError('invalid')).toBeTruthy();
+  });
+
+  it('should handle lot number validation error', () => {
+    // Setup error response
+    mockIrradiationService.validateLotNumber.mockReturnValueOnce(
+      throwError(() => ({ message: 'Validation service error' }))
+    );
+
+    // Call validateLotNumber
+    component.validateLotNumber('LOT-001');
+
+    // Verify error handling
+    expect(mockToastrService.error).toHaveBeenCalledWith('Validation service error');
+    expect(component.lotNumber.hasError('invalid')).toBeTruthy();
   });
 });
