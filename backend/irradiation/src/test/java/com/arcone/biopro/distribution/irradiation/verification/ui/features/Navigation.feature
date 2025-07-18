@@ -1,6 +1,6 @@
 # Feature Unit Number reference: W777725001000
 
-@ui @disabled
+@disabled @ui
 #    This scenario was disabled because it's covered in all the other UI scenarios
 Feature: Irradiation Menu
 

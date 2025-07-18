@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.irradiation.verification.ui.steps;
 
 import com.arcone.biopro.distribution.irradiation.verification.ui.pages.StartIrradiationPage;
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.AllArgsConstructor;
@@ -59,8 +58,8 @@ public class StartIrradiationSteps {
     }
 
     @Then("I verify that the unit number {string} with product {string} was added to the batch")
-    public void iVerifyThatTheUnitNumberWithProductWasAddedToTheBatch(String unitNumber, String productCode) {
-        boolean isAddedToBatch = startIrradiationPage.unitNumberCardExists(unitNumber,productCode);
-        Assert.assertTrue(String.format("A card for the unit number '%s' and product code '%s' was not found in the irradiation batch.", unitNumber, productCode), isAddedToBatch);
+    public void iVerifyThatTheUnitNumberWithProductWasAddedToTheBatch(String unitNumber, String product) {
+        boolean isAddedToBatch = startIrradiationPage.unitNumberCardExists(unitNumber,product);
+        Assert.assertTrue(String.format("A card for the unit number '%s' and product code '%s' was not found in the irradiation batch.", unitNumber, product), isAddedToBatch);
     }
 }

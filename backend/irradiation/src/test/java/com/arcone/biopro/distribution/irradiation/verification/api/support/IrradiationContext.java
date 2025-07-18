@@ -4,9 +4,11 @@ import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInv
 import io.cucumber.spring.ScenarioScope;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.graphql.ResponseError;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Setter
@@ -18,5 +20,7 @@ public class IrradiationContext {
     private String location;
 
     private List<IrradiationInventoryOutput> inventoryList;
+
+    private List<ResponseError> responseErrors;
 
 }

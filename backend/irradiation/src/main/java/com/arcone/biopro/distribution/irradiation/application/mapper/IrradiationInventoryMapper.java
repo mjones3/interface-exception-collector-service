@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 public interface IrradiationInventoryMapper {
     @Mapping(target = "unitNumber", source = "unitNumber.value")
     @Mapping(target = "location", source = "location.value")
+    @Mapping(target = "alreadyIrradiated", ignore = true)
+    @Mapping(target = "notConfigurableForIrradiation", ignore = true)
     IrradiationInventoryOutput toDomain(Inventory inventory);
 }
 

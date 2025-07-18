@@ -27,6 +27,8 @@ const VALIDATE_UNIT = gql`
             statusReason
             unsuitableReason
             expired
+            alreadyIrradiated
+            notConfigurableForIrradiation
             quarantines {
                 reason
                 comments
@@ -36,8 +38,25 @@ const VALIDATE_UNIT = gql`
     }
 `;
 
+const CHECK_DIGIT = gql`
+    query  checkDigit($unitNumber: String!, $checkDigit: String!) {
+        checkDigit(unitNumber: $unitNumber, checkDigit: $checkDigit) {
+            isValid
+        }
+    }
+`;
+
+const VALIDATE_LOT_NUMBER = gql`
+    query validateLotNumber($lotNumber: String!, $type: String!) {
+        validateLotNumber(lotNumber: $lotNumber, type: $type)
+    }
+`;
+
+
 export {
     GET_IRRADIATION_DEVICE_BY_ID,
     GET_CONFIGURATIONS,
-    VALIDATE_UNIT
+    VALIDATE_UNIT,
+    CHECK_DIGIT,
+    VALIDATE_LOT_NUMBER
 };

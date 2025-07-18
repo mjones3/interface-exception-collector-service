@@ -4,9 +4,12 @@ import com.arcone.biopro.testing.frontend.core.CommonPageFactory;
 import com.arcone.biopro.testing.frontend.core.PageElement;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.Keys;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import static org.junit.Assert.fail;
 
 @Slf4j
 @Lazy
@@ -19,13 +22,13 @@ public class StartIrradiationPage extends CommonPageFactory {
     private final By unitNumberInputLocator = By.id("inUnitNumber");
     private final By pageTitleLocator = By.xpath("//h3//span[contains(text(),'Start Irradiation')]");
 
-    private By unitNumberCardLocator(String unitNumber, String productCode) {
-        String xpathExpression = String.format("//biopro-unit-number-card//div[contains(text(),'%s')]//following-sibling::div//span[contains(text(),'%s')]", unitNumber, productCode);
+    private By unitNumberCardLocator(String unitNumber, String product) {
+        String xpathExpression = String.format("//biopro-unit-number-card//div[contains(text(),'%s')]//following-sibling::div//span[contains(text(),'%s')]", unitNumber, product);
         return By.xpath(xpathExpression);
     }
 
-    private By productForSelectionLocator(String productCode){
-        String xpathExpression = String.format("//biopro-irradiation-select-product//button//span[contains(text(),'%s')]", productCode);
+    private By productForSelectionLocator(String productCode) {
+        String xpathExpression = String.format("//button//span[contains(text(),'%s')]", productCode);
         return By.xpath(xpathExpression);
     }
 
@@ -42,15 +45,15 @@ public class StartIrradiationPage extends CommonPageFactory {
     }
 
     public void scanUnitNumber(String unitNumber) {
-        enterValueInField(unitNumber,unitNumberInputLocator);
+        enterValueInField(unitNumber, unitNumberInputLocator);
     }
 
     public void scanLotNumber(String lotNumber) {
-        enterValueInField(lotNumber,lotNumberInputLocator);
+        enterValueInField(lotNumber, lotNumberInputLocator);
     }
 
     public void scanIrradiatorDeviceId(String irradiatorDeviceId) {
-        enterValueInField(irradiatorDeviceId,irradiationDeviceIdInputLocator);
+        enterValueInField(irradiatorDeviceId, irradiationDeviceIdInputLocator);
     }
 
     private void enterValueInField(String value, By fieldLocator) {
@@ -68,26 +71,54 @@ public class StartIrradiationPage extends CommonPageFactory {
             case "Lot Number" -> driver.findElement(lotNumberInputLocator);
             default -> null;
         };
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         assert field != null;
         return field.isEnabled();
     }
 
-    public boolean productIsDisplayedForSelection(String productCode){
+    public boolean productIsDisplayedForSelection(String productCode) {
         PageElement productForSelection = driver.waitForElement(productForSelectionLocator(productCode));
         productForSelection.waitForVisible();
         return productForSelection.isDisplayed();
     }
 
-    public void selectProductForIrradiation(String productCode){
-        PageElement productForSelection = driver.waitForElement(productForSelectionLocator(productCode));
-        productForSelection.waitForVisible();
-        productForSelection.waitForClickable();
-        productForSelection.click();
+    public void selectProductForIrradiation(String productCode) {
+        int maxRetries = 3;
+        int attempts = 0;
+        boolean clicked = false;
+        while (attempts < maxRetries && !clicked) {
+            try {
+                PageElement productForSelection = driver.waitForElement(productForSelectionLocator(productCode));
+                productForSelection.waitForVisible();
+                productForSelection.waitForClickable();
+                productForSelection.click();
+                clicked = true;
+            } catch (ElementClickInterceptedException e) {
+                attempts++;
+                log.warn("Click intercepted on attempt {}. Retrying...", attempts, e);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Thread interrupted during retry delay", ie);
+                }
+            } catch (Exception e) {
+                log.error("Unexpected error while closing pop-up", e);
+                throw e;
+            }
+        }
+        if(!clicked) {
+            fail("Unable to click on product " + productCode);
+        }
     }
 
-    public boolean unitNumberCardExists(String unitNumber, String productCode) {
+    public boolean unitNumberCardExists(String unitNumber, String product) {
         try {
-            PageElement unitNumberCard = driver.waitForElement(unitNumberCardLocator(unitNumber,productCode), 5);
+            PageElement unitNumberCard = driver.waitForElement(unitNumberCardLocator(unitNumber, product), 5);
             unitNumberCard.waitForVisible();
             return unitNumberCard.isDisplayed();
         } catch (Exception e) {
