@@ -290,7 +290,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                 expired: inventory.expired,
                 productCode: inventory.productCode,
                 productDescription: inventory.productDescription,
-                status: inventory.status,
+                status: this.getFinalStatus(inventory),
                 productFamily: inventory.productFamily,
                 icon: this.findIconsByProductFamily(inventory.productFamily),
                 order: inventory.order || 1,
@@ -340,19 +340,14 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
             case DISCARDED:
                 this.showMessage(MessageType.ERROR, 'This product has already been discarded for ' + selectedOption.statusReason + ' in the system. Place in biohazard container.')
                 return false;
-            case AVAILABLE:
-                if(selectedOption.unsuitableReason) {
-                    this.discardProduct(selectedOption, selectedOption.unsuitableReason)
-                    return false;
-                }
-                if(selectedOption.expired) {
-                    this.discardProduct(selectedOption, EXPIRED)
-                    return false;
-                }
-                if(selectedOption.quarantines) {
-                    return this.handleQuarantine(selectedOption);
-                }
-                return true;
+            case UNSUITABLE:
+                this.discardProduct(selectedOption, selectedOption.unsuitableReason)
+                return false;
+            case EXPIRED:
+                this.discardProduct(selectedOption, EXPIRED)
+                return false;
+            case QUARANTINED:
+                return this.handleQuarantine(selectedOption);
             default:
                 return true;
         }
