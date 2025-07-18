@@ -137,7 +137,7 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code | Unsuitable Reason              | Expired | Blood Center Id | Message                                                                                                 |
-                | W777725002006 | E003300      | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD003   | This product is unsuitable with the reason Positive Reactive Test Results. Place in biohazard container |
+                | W777725002006 | E003300      | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD003   | This product has beend discard for Positive Reactive Test Results. Place in biohazard container |
                 | W777725002007 | E003300      |                                | YES     | AUTO-IRRAD003   | This product is expired and has been discarded. Place in biohazard container |
 
         @LAB-615
