@@ -53,7 +53,7 @@ public class InventoryServerMock {
             return Flux.just(
                 createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789")
                         .unsuitableReason("POSITIVE_REACTIVE_TEST_RESULTS")
-                        .statusReason(null)
+                        .statusReason("Positive Reactive Test Results")
                         .build()
             );
         }
@@ -61,7 +61,7 @@ public class InventoryServerMock {
             return Flux.just(
                 createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789")
                         .expired(true)
-                        .statusReason(null)
+                        .statusReason("Expired")
                         .build()
             );
         }
