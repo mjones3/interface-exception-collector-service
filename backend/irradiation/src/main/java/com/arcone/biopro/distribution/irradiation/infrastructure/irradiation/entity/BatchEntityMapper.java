@@ -38,6 +38,9 @@ public class BatchEntityMapper {
                 .unitNumber(new UnitNumber(entity.getUnitNumber()))
                 .productCode(entity.getProductCode())
                 .lotNumber(entity.getLotNumber())
+                .newProductCode(entity.getNewProductCode())
+                .expirationDate(entity.getExpirationDate())
+                .productFamily(entity.getProductFamily())
                 .build();
     }
 
@@ -47,6 +50,9 @@ public class BatchEntityMapper {
                 .unitNumber(batchItem.unitNumber().value())
                 .productCode(batchItem.productCode())
                 .lotNumber(batchItem.lotNumber())
+                .newProductCode(batchItem.newProductCode())
+                .expirationDate(batchItem.expirationDate())
+                .productFamily(batchItem.productFamily())
                 .build();
     }
 }
