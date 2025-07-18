@@ -138,7 +138,7 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
     private Flux<InventoryResponseDTO> applyIneligibleCriteria(GetUnlabeledProductsRequest getUnlabeledProductsRequest, Shipment shipment) {
         var ineligibleList = new ArrayList<>(List.of("INVENTORY_NOT_FOUND_IN_LOCATION", "INVENTORY_IS_SHIPPED"
             , "INVENTORY_IS_UNSUITABLE", "INVENTORY_IS_DISCARDED"
-            , "INVENTORY_IS_PACKED", "INVENTORY_NOT_EXIST","INVENTORY_IS_IN_TRANSIT","INVENTORY_IS_CONVERTED","INVENTORY_IS_MODIFIED"));
+            , "INVENTORY_IS_PACKED", "INVENTORY_NOT_EXIST", "INVENTORY_IS_IN_TRANSIT", "INVENTORY_IS_CONVERTED", "INVENTORY_IS_MODIFIED"));
 
         if (shipment.getQuarantinedProducts() != null && !shipment.getQuarantinedProducts()) {
             ineligibleList.add("INVENTORY_IS_QUARANTINED");
@@ -172,7 +172,13 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
             })
             .filter(inventoryValidationResponseDTO -> Collections.disjoint(ineligibleList, inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
                 .map(InventoryNotificationDTO::errorName).toList()))
-            .switchIfEmpty(Flux.error(new RuntimeException(ShipmentServiceMessages.UNIT_DOES_NOT_EXIST_ERROR)))
+            .switchIfEmpty(Flux.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_LABELED_ERROR, List.of(NotificationDTO
+                .builder()
+                .notificationType(NotificationType.WARN.name())
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .message(ShipmentServiceMessages.INVENTORY_LABELED_ERROR)
+                .name("INVENTORY_LABELED_ERROR")
+                .build()))))
             .flatMap(inventoryValidationResponseDTO -> Mono.just(inventoryValidationResponseDTO.inventoryResponseDTO()));
     }
 
