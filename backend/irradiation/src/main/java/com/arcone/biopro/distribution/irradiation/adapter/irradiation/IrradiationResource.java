@@ -1,8 +1,10 @@
 package com.arcone.biopro.distribution.irradiation.adapter.irradiation;
 
+import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.CheckDigitResponseDTO;
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.ConfigurationResponseDTO;
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.mapper.ConfigurationDTOMapper;
 import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
+import com.arcone.biopro.distribution.irradiation.application.usecase.CheckDigitUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateLotNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
@@ -26,6 +28,7 @@ public class IrradiationResource {
     private final ValidateUnitNumberUseCase validateUnitNumberUseCase;
     private final ConfigurationService configurationService;
     private final ConfigurationDTOMapper configurationDTOMapper;
+    private final CheckDigitUseCase checkDigitUseCase;
     private final ValidateLotNumberUseCase validateLotNumberUseCase;
 
     @QueryMapping
@@ -53,5 +56,11 @@ public class IrradiationResource {
                 log.error("*** Error validating lot number: {}", error.getMessage());
                 return Mono.just(false);
             });
+    }
+
+    @QueryMapping
+    public Mono<CheckDigitResponseDTO> checkDigit(@Argument String unitNumber,
+                                                  @Argument String checkDigit) {
+        return checkDigitUseCase.checkDigit(unitNumber, checkDigit);
     }
 }
