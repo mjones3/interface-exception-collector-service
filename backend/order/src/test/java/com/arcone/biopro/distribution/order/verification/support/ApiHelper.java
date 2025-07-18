@@ -136,6 +136,7 @@ public class ApiHelper {
             if (notifications != null && !notifications.isEmpty()) {
                 context.setApiMessageResponse((List<Map>) response.get("notifications"));
             }
+            log.debug("GraphQL request to {} returned: {}", graphQlUrl, response);
             return response;
         } catch (FieldAccessException e) {
             this.setErrorContext(e);
