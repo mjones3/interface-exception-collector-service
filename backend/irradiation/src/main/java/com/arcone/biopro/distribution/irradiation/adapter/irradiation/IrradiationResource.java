@@ -38,6 +38,7 @@ public class IrradiationResource {
 
     @QueryMapping
     public Flux<IrradiationInventoryOutput> validateUnit(@Argument String unitNumber, @Argument String location) {
+        log.debug("Validating unit {} and location {}", unitNumber, location);
         return validateUnitNumberUseCase.execute(unitNumber, location);
     }
 
