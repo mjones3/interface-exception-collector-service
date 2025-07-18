@@ -70,7 +70,7 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
-                | W777725002003 | E003300      | AS1 LR RBC  | AUTO-IRRAD002   | 123456789 | Lot1234    |
+                | W777725002003 | E003300      | CP2D WB  | AUTO-IRRAD002   | 123456789 | Lot1234    |
 
         @LAB-615
         Scenario Outline: I should be notified if the product selected has a Non stopping manufacturing Quarantine
@@ -91,7 +91,7 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
-                | W777725002004 | E003300      | AS1 LR RBC  | AUTO-IRRAD003   | 123456789 | Lot1234    |
+                | W777725002004 | E003300      | CP2D WB  | AUTO-IRRAD003   | 123456789 | Lot1234    |
 
         @LAB-615
         Scenario Outline: I should be notified if the product selected has been discarded
@@ -112,7 +112,7 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
-                | W777725002005 | E003300      | AS1 LR RBC  | AUTO-IRRAD004   | 123456789 | Lot1234    |
+                | W777725002005 | E003300      | CP2D WB  | AUTO-IRRAD004   | 123456789 | Lot1234    |
 
         @LAB-615
         Scenario Outline: I should see an acknowledgement message if the selected product is an Unsuitable or Expired.
@@ -136,8 +136,8 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code | Description | Unsuitable Reason              | Expired | Blood Center Id | Message                                                                                         |
-                | W777725002006 | E003300      | AS1 LR RBC  | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD005   | This product has beend discard for Positive Reactive Test Results. Place in biohazard container |
-                | W777725002007 | E003300      | AS1 LR RBC  |                                | YES     | AUTO-IRRAD006   | This product is expired and has been discarded. Place in biohazard container                    |
+                | W777725002006 | E003300      | CP2D WB  | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD005   | This product has beend discard for Positive Reactive Test Results. Place in biohazard container |
+                | W777725002007 | E003300      | CP2D WB  |                                | YES     | AUTO-IRRAD006   | This product is expired and has been discarded. Place in biohazard container                    |
 
         @LAB-615
         Scenario Outline: I should be notified if the unit number is not in the current location
@@ -158,12 +158,11 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
-                | W777725002008 | E003300      | AS1 LR RBC  | AUTO-IRRAD007   | 123456789 | Lot1234    |
+                | W777725002008 | E003300      | CP2D WB  | AUTO-IRRAD007   | 123456789 | Lot1234    |
 
         @LAB-615
         Scenario Outline: I should be notified if the product was already irradiated
-            Given I have a device "<Blood Center Id>" at location "<Location>" with status "ACTIVE"
-            And I have the following inventory products:
+            Given I have the following inventory products:
                 | Unit Number   | Product Code   | Status    | Location  |
                 | <Unit Number> | <Product Code> | AVAILABLE | 123456789 |
             And the product "<Product Code>" in the unit "<Unit Number>" was already irradiated in a completed batch for device "<Blood Center Id>"
@@ -175,12 +174,12 @@ Feature: Starts Irradiation Process
 
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
-            Then I see the "Warning" message "This unit has been quarantined and manufacturing cannot be completed"
+            Then I see the "Warning" message "This product has already been irradiated"
             And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
-                | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
-                | W777725002009 | E003300      | AS1 LR RBC  | AUTO-IRRAD008   | 123456789 | Lot1234    |
+                | Unit Number   | Product Code | Description | Blood Center Id | Lot Number |
+                | W777725002009 | E003300      | CP2D WB  | AUTO-IRRAD008   | Lot1234    |
 
         @LAB-615
         Scenario Outline: I should be notified if the product is not configured for irradiation
@@ -201,7 +200,7 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
-                | W777725002010 | E0869V00     | AS1 LR RBC  | AUTO-IRRAD009   | 123456789 | Lot1234    |
+                | W777725002010 | E0869V00     | APH FFP     | AUTO-IRRAD009   | 123456789 | Lot1234    |
 
         @LAB-615
         Scenario Outline: I should be notified if the selected product is currently being irradiated
@@ -221,5 +220,27 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id 1 | Lot Number | Blood Center Id 2 |
-                | W777725002011 | E003300      | AS1 LR RBC  | AUTO-IRRAD010     | Lot1234    | AUTO-IRRAD010     |
+                | W777725002011 | E003300      | CP2D WB     | AUTO-IRRAD010     | Lot1234    | AUTO-IRRAD010     |
 
+
+        @LAB-615
+        Scenario Outline: I should be notified if I select a product that has been already irradiated
+            Given I have the following inventory products:
+                | Unit Number   | Product Code     | Status    | Location  |
+                | <Unit Number> | <Product Code 1> | AVAILABLE | 123456789 |
+                | <Unit Number> | <Product Code 2> | AVAILABLE | 123456789 |
+            And the product "<Product Code>" in the unit "<Unit Number>" was already irradiated in a completed batch for device "<Blood Center Id>"
+            And I login to Distribution module
+            And I select the location "MDL Hub 1"
+            And I navigate to "Start Irradiation" in "Irradiation"
+            And I scan the irradiator id "<Blood Center Id>"
+            And I scan the lot number "<Lot Number>"
+
+            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            And I select the product "<Product Code 1>"
+            Then I see the "Warning" message "This product has already been irradiated"
+            And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
+
+            Examples:
+                | Unit Number   | Product Code 1 | Description | Blood Center Id | Lot Number | Product Code 2 |
+                | W777725002012 | E003300        | CP2D WB     | AUTO-IRRAD011    | Lot1234    | E003300        |

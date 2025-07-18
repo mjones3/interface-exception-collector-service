@@ -31,7 +31,7 @@ public class InventoryServerMock {
                 .reason("any")
                 .build();
             return Flux.just(
-                createInventory(unitNumber, "E003300", "AS1 LR RBC", List.of(quarantine))
+                createInventory(unitNumber, "E003300", "CP2D WB", List.of(quarantine))
             );
         }
         if (unitNumber.startsWith("W777725001003") || unitNumber.startsWith("W777725002004")) {
@@ -40,32 +40,32 @@ public class InventoryServerMock {
                 .reason("any")
                 .build();
             return Flux.just(
-                createInventory(unitNumber, "E003300", "AS1 LR RBC", List.of(quarantine))
+                createInventory(unitNumber, "E003300", "CP2D WB", List.of(quarantine))
             );
         }
         if (unitNumber.startsWith("W777725001004") || unitNumber.startsWith("W777725002005")) {
             return Flux.just(
-                createInventoryBuilder(unitNumber, "E003300", "AS1 LR RBC","DISCARDED", "123456789").statusReason("EXPIRED").build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","DISCARDED", "123456789").statusReason("EXPIRED").build()
             );
         }
         if (unitNumber.startsWith("W777725001005") || unitNumber.startsWith("W777725002006")) {
             return Flux.just(
-                createInventoryBuilder(unitNumber, "E003300", "AS1 LR RBC","AVAILABLE", "123456789").unsuitableReason("POSITIVE_REACTIVE_TEST_RESULTS").build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789").unsuitableReason("POSITIVE_REACTIVE_TEST_RESULTS").build()
             );
         }
         if (unitNumber.startsWith("W777725001006") || unitNumber.startsWith("W777725002007")) {
             return Flux.just(
-                createInventoryBuilder(unitNumber, "E003300", "AS1 LR RBC","AVAILABLE", "123456789").expired(true).build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789").expired(true).build()
             );
         }
         if (unitNumber.startsWith("W777725001007") || unitNumber.startsWith("W777725002008")) {
             return Flux.just(
-                createInventoryBuilder(unitNumber, "E003300", "AS1 LR RBC","AVAILABLE", "23456789").build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "23456789").build()
             );
         }
         if (unitNumber.startsWith("W777725001011") || unitNumber.startsWith("W777725002009")) {
             return Flux.just(
-                createInventory(unitNumber, "E003300", "AS1 LR RBC")
+                createInventory(unitNumber, "E003300", "CP2D WB")
             );
         }
         if (unitNumber.startsWith("W777725001012") || unitNumber.startsWith("W777725002010")) {
@@ -75,7 +75,13 @@ public class InventoryServerMock {
         }
         if (unitNumber.startsWith("W777725001013") || unitNumber.startsWith("W777725002011")) {
             return Flux.just(
-                createInventory(unitNumber, "E003300", "AS1 LR RBC")
+                createInventory(unitNumber, "E003300", "CP2D WB")
+            );
+        }
+        if (unitNumber.startsWith("W777725002012")) {
+            return Flux.just(
+                createInventory(unitNumber, "E003300", "CP2D WB"),
+                createInventory(unitNumber, "E033600", "AS1 LR RBC")
             );
         }
         if (unitNumber.startsWith(IRRADIATION_START_FEATURE_UN)) {
