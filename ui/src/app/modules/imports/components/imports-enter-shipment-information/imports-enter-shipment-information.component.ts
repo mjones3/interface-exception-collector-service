@@ -34,6 +34,8 @@ import { TemperatureFormComponent } from 'app/shared/components/temperature-form
 import { TransitTimeFormComponent } from 'app/shared/components/transit-time-form/transit-time-form.component';
 import { DeviceIdValidator } from 'app/shared/forms/device-id.validator';
 import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
+import { buildLuxonDateTimeWithParsedTimeField } from 'app/shared/utils/utils';
+import { TemperatureDeviceService } from 'app/shared/services/temperature-device.service';
 
 @Component({
   selector: 'biopro-imports-enter-shipment-information',
@@ -73,6 +75,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     receivingService = inject(ReceivingService);
     cookieService = inject(CookieService);
     cdr = inject(ChangeDetectorRef);
+    deviceValidatorService = inject(TemperatureDeviceService)
 
     transitTimeFormComponent = viewChild<TransitTimeFormComponent>('transitTimeForm');
     temperatureFormComponent = viewChild<TemperatureFormComponent>('temperatureForm');
@@ -140,86 +143,34 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
             );
     }
 
-    triggerValidateTransitTime(temperatureProductCategory: string, value: TransitTimeValidationModel) {
-        const startDateTime = this.buildLuxonDateTimeWithParsedTimeField(value.startDate, value.startTime);
-        const endDateTime = this.buildLuxonDateTimeWithParsedTimeField(value.endDate, value.endTime);
-
-        return this.receivingService
-            .validateTransitTime({
-                temperatureCategory: temperatureProductCategory,
-                startDateTime: startDateTime.toISO({ includeOffset: false, suppressMilliseconds: true }) + 'Z',
-                startTimeZone: value.startZone,
-                endDateTime: endDateTime.toISO({ includeOffset: false, suppressMilliseconds: true }) + 'Z',
-                endTimeZone: value.endZone,
-            })
-            .pipe(
-                first(),
-                catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
-                tap(response => {
-                    const quarantineOrNull = response.data?.validateTransitTime?.notifications?.filter(n => n.type === 'CAUTION')?.[0] ?? null;
-                    this.transitTimeQuarantineSignal.set(quarantineOrNull);
-
-                    const otherNotifications = response.data?.validateTransitTime?.notifications?.filter(n => n.type !== 'CAUTION');
-                    consumeUseCaseNotifications(this.toastrService, otherNotifications);
-
-                    this.transitTimeHumanReadableSignal.set(response.data?.validateTransitTime?.data?.resultDescription);
-                }),
-                map(response => response.data?.validateTransitTime)
-            );
-    }
-
-    triggerValidateTemperature(
-        temperatureProductCategory: string,
-        temperature: number,
-    ) {
-        return this.receivingService
-            .validateTemperature({
-                temperature,
-                temperatureCategory: temperatureProductCategory
-            })
-            .pipe(
-                first(),
-                catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
-                tap(response => {
-                    const quarantineOrNull = response.data?.validateTemperature?.notifications?.filter(n => n.type === 'CAUTION')?.[0] ?? null;
-                    this.temperatureQuarantineSignal.set(quarantineOrNull);
-
-                    const otherNotifications = response.data?.validateTemperature?.notifications?.filter(n => n.type !== 'CAUTION');
-                    consumeUseCaseNotifications(this.toastrService, otherNotifications);
-                }),
-                map(response => response.data?.validateTemperature)
-            );
-    }
-
     triggerCreateImport() {
         const transitTimeForm = this.transitTimeFormComponent()?.formGroup();
         const temperatureForm = this.temperatureFormComponent()?.formGroup();
-        
-        return this.receivingService
-            .createImport({
-                temperatureCategory: this.form.controls?.temperatureProductCategory?.value,
-                transitStartDateTime: this.buildLuxonDateTimeWithParsedTimeField(transitTimeForm?.controls?.startDate?.value, transitTimeForm?.controls?.startTime?.value)?.toISO(),
-                transitStartTimeZone: transitTimeForm?.controls?.startZone?.value,
-                transitEndDateTime: this.buildLuxonDateTimeWithParsedTimeField(transitTimeForm?.controls?.endDate?.value, transitTimeForm?.controls?.endTime?.value)?.toISO(),
-                transitEndTimeZone: transitTimeForm?.controls?.endZone?.value,
-                temperature: temperatureForm?.controls?.temperature?.value,
-                thermometerCode: temperatureForm?.controls?.thermometerId?.value,
-                locationCode: this.locationCodeComputed(),
-                comments: this.form.controls?.comments?.value,
-                employeeId: this.employeeIdComputed(),
-            })
-            .pipe(
-                first(),
-                catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
-                tap(response => consumeUseCaseNotifications(this.toastrService, response.data?.createImport?.notifications)),
-                map(response => response.data?.createImport),
-                switchMap(response =>
-                    response.notifications?.[0]?.type === 'SUCCESS'
-                        ? fromPromise(this.router.navigateByUrl(response._links.next))
-                        : EMPTY
-                )
-            );
-    }
+
+return this.receivingService
+    .createImport({
+        temperatureCategory: this.form.controls?.temperatureProductCategory?.value ?? null,
+        transitStartDateTime: buildLuxonDateTimeWithParsedTimeField(transitTimeForm?.controls?.startDate?.value, transitTimeForm?.controls?.startTime?.value)?.toISO() ?? null,
+        transitStartTimeZone: transitTimeForm?.controls?.startZone?.value ?? null,
+        transitEndDateTime: buildLuxonDateTimeWithParsedTimeField(transitTimeForm?.controls?.endDate?.value, transitTimeForm?.controls?.endTime?.value)?.toISO() ?? null, 
+        transitEndTimeZone: transitTimeForm?.controls?.endZone?.value ?? null,
+        temperature: temperatureForm?.controls?.temperature?.value ?? null,
+        thermometerCode: temperatureForm?.controls?.thermometerId?.value ?? null,
+        locationCode: this.locationCodeComputed(),
+        comments: this.form.controls?.comments?.value,
+        employeeId: this.employeeIdComputed(),
+    })
+    .pipe(
+        first(),
+        catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
+        tap(response => consumeUseCaseNotifications(this.toastrService, response.data?.createImport?.notifications)),
+        map(response => response.data?.createImport),
+        switchMap(response =>
+            response.notifications?.[0]?.type === 'SUCCESS'
+                ? fromPromise(this.router.navigateByUrl(response._links.next))
+                : EMPTY
+        )
+    );    }
 
     selectCategoryFromLookup(temperatureProductCategoryLookup: LookUpDto): void {
         this.selectCategory(temperatureProductCategoryLookup.optionValue);
@@ -254,18 +205,10 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     }
 
     updateFormValidationForTemperature(useTemperature: boolean) {
-        const deviceIdValidator = DeviceIdValidator.asyncValidatorUsing(this.toastrService, this.receivingService, this.locationCodeComputed());
+        const deviceIdValidator = DeviceIdValidator.asyncValidatorUsing(this.toastrService, this.deviceValidatorService, this.locationCodeComputed());
         setTimeout(() => {
             this.temperatureFormComponent()?.updateValidators(useTemperature, deviceIdValidator);
         });
-    }
-
-    onTransitTimeChange(transitTime: TransitTimeValidationModel): void {
-        this.triggerValidateTransitTime(this.form.controls.temperatureProductCategory.value, transitTime).subscribe();
-    }
-
-    onTemperatureChange(data: { temperatureProductCategory: string; temperature: number }): void {
-        this.triggerValidateTemperature(this.form.controls.temperatureProductCategory.value, data.temperature).subscribe();
     }
 
     isFormValid(): boolean {
@@ -275,20 +218,15 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
         return internalTransferFormValid && transitTimeValid && temperatureValid;
     }
 
-    buildLuxonDateTimeWithParsedTimeField(date: DateTime, hh24mm60TimeSeparatedByColon: string): DateTime<boolean> {
-        if (!date || !hh24mm60TimeSeparatedByColon) {
-            return null
-        }
-        const [hours, minutes] = hh24mm60TimeSeparatedByColon.split(':');
-        return DateTime.fromISO(date.toISODate()).set({ hour: +hours, minute: +minutes });
+    updateTransitTimeQuarantine(data: UseCaseNotificationDTO){
+        this.transitTimeQuarantineSignal.set(data);
     }
 
-    resetTimeSignals(){
-        this.transitTimeQuarantineSignal.set(null);
-        this.transitTimeHumanReadableSignal.set(null);
+    updateTransitTimeHumanReadable(data: string){
+        this.transitTimeHumanReadableSignal.set(data);
     }
 
-    resetTemperatureQuarantine(){
-        this.temperatureQuarantineSignal.set(null);
+    updateTemperatureQuarantine(data: UseCaseNotificationDTO){
+        this.temperatureQuarantineSignal.set(data);
     }
 }

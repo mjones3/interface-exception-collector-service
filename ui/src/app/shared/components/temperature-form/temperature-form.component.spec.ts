@@ -4,23 +4,38 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { TemperatureFormComponent } from './temperature-form.component';
 import { of } from 'rxjs';
+import { ApolloTestingModule } from 'apollo-angular/testing';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 
 jest.mock('keycloak-js');
 
 describe('TemperatureFormComponent', () => {
   let component: TemperatureFormComponent;
   let fixture: ComponentFixture<TemperatureFormComponent>;
+  let mockToastr: jest.Mocked<ToastrService>;
   let mockAsyncValidator: AsyncValidatorFn;
 
   beforeEach(async () => {
     mockAsyncValidator = jest.fn(() => of(null));
+
+    mockToastr = {
+      show: jest.fn(),
+      success: jest.fn(),
+      error: jest.fn(),
+      warning: jest.fn()
+    } as any;
     
     await TestBed.configureTestingModule({
       imports: [
         TemperatureFormComponent,
         ReactiveFormsModule,
+        ApolloTestingModule,
         NoopAnimationsModule,
         MatDatepickerModule,
+        ToastrModule.forRoot()
+      ],
+      providers: [
+        { provide: ToastrService, useValue: mockToastr }
       ]
     }).compileComponents();
 

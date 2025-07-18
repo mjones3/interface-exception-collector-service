@@ -43,7 +43,7 @@ public class ShippingInformation {
        , ProductConsequenceRepository productConsequenceRepository , LocationRepository locationRepository , InternalTransfer internalTransfer){
 
        return newShippingInformation(enterShippingInformationCommand , lookupRepository , productConsequenceRepository , locationRepository
-           ,enterShippingInformationCommand.getLocationCode().equals(internalTransfer.getLocationCodeTo()), internalTransfer.getOrderNumber());
+           ,!enterShippingInformationCommand.getLocationCode().equals(internalTransfer.getLocationCodeTo()), internalTransfer.getOrderNumber());
 
    }
 

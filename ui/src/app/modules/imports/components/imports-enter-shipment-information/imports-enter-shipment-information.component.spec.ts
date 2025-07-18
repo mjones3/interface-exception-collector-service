@@ -12,11 +12,12 @@ import { ShippingInformationDTO } from '../../graphql/query-definitions/imports-
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ToastrService } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { DateTime } from 'luxon';
 import { DeviceIdValidator } from 'app/shared/forms/device-id.validator';
+import { ApolloTestingModule } from 'apollo-angular/testing';
 
 describe('ImportsEnterShipmentInformationComponent', () => {
     let component: ImportsEnterShipmentInformationComponent;
@@ -81,9 +82,11 @@ describe('ImportsEnterShipmentInformationComponent', () => {
                 ImportsEnterShipmentInformationComponent,
                 ReactiveFormsModule,
                 BrowserAnimationsModule,
+                ApolloTestingModule,
                 MatIconTestingModule,
                 MatDatepickerModule,
                 MatNativeDateModule,
+                ToastrModule.forRoot()
             ],
             providers: [
                 FormBuilder,
@@ -231,33 +234,6 @@ describe('ImportsEnterShipmentInformationComponent', () => {
         });
     });
 
-    describe('onTransitTimeChange', () => {
-        it('should trigger transit time validation', () => {
-            const mockTransitTime = {
-                startDate: DateTime.fromISO('2023-12-25'),
-                startTime: '09:00',
-                startZone: 'UTC',
-                endDate: DateTime.fromISO('2023-12-26'),
-                endTime: '10:00',
-                endZone: 'UTC'
-            };
-            component.form.controls.temperatureProductCategory.setValue('ROOM_TEMPERATURE');
-            jest.spyOn(component, 'triggerValidateTransitTime').mockReturnValue(of({}));
-            component.onTransitTimeChange(mockTransitTime);
-            expect(component.triggerValidateTransitTime).toHaveBeenCalledWith('ROOM_TEMPERATURE', mockTransitTime);
-        });
-    });
-
-    describe('onTemperatureChange', () => {
-        it('should trigger temperature validation', () => {
-            const mockData = { temperatureProductCategory: 'ROOM_TEMPERATURE', temperature: 25 };
-            component.form.controls.temperatureProductCategory.setValue('ROOM_TEMPERATURE');
-            jest.spyOn(component, 'triggerValidateTemperature').mockReturnValue(of({}));
-            component.onTemperatureChange(mockData);
-            expect(component.triggerValidateTemperature).toHaveBeenCalledWith('ROOM_TEMPERATURE', 25);
-        });
-    });
-
     describe('triggerCreateImport', () => {
         beforeEach(() => {
             const mockTransitTimeComponent = {
@@ -335,32 +311,6 @@ describe('ImportsEnterShipmentInformationComponent', () => {
             component.triggerCreateImport().subscribe(() => {
                 expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/next-page');
             });
-        });
-    });
-
-    describe('buildLuxonDateTimeWithParsedTimeField', () => {
-        it('should correctly build DateTime from date and time string', () => {
-            const date = DateTime.fromISO('2023-12-25');
-            const timeStr = '14:30';
-
-            const result = component.buildLuxonDateTimeWithParsedTimeField(date, timeStr);
-
-            expect(result.year).toBe(2023);
-            expect(result.month).toBe(12);
-            expect(result.day).toBe(25);
-            expect(result.hour).toBe(14);
-            expect(result.minute).toBe(30);
-        });
-
-        it('should return null when date is null', () => {
-            const result = component.buildLuxonDateTimeWithParsedTimeField(null, '14:30');
-            expect(result).toBeNull();
-        });
-
-        it('should return null when time string is null', () => {
-            const date = DateTime.fromISO('2023-12-25');
-            const result = component.buildLuxonDateTimeWithParsedTimeField(date, null);
-            expect(result).toBeNull();
         });
     });
 

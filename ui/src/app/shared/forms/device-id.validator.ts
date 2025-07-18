@@ -3,17 +3,18 @@ import { catchError, first, map, Observable, of } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { ApolloError } from '@apollo/client';
 import handleApolloError from '../utils/apollo-error-handling';
-import { ReceivingService } from 'app/modules/imports/service/receiving.service';
+import { TemperatureDeviceService } from '../services/temperature-device.service';
+
 
 export class DeviceIdValidator {
 
-    public static asyncValidatorUsing(toastrService: ToastrService, receivingService: ReceivingService, locationCode: string): AsyncValidatorFn {
+    public static asyncValidatorUsing(toastrService: ToastrService, temperatureDeviceService: TemperatureDeviceService, locationCode: string): AsyncValidatorFn {
         return (control: AbstractControl<string>): Observable<ValidationErrors | null> => {
             if (!control.value) {
                 return of(null);
             }
 
-            return receivingService
+            return temperatureDeviceService
                 .validateDevice({
                     bloodCenterId: control.value,
                     locationCode: locationCode

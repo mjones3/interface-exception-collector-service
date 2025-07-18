@@ -1,5 +1,5 @@
 import { gql } from 'apollo-angular';
-import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
+import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
 
 export interface DeviceDTO {
     bloodCenterId: string;

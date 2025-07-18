@@ -4,10 +4,15 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { combineLatestWith } from 'rxjs';
+import { catchError, combineLatestWith, first, map, tap } from 'rxjs';
 import { NotificationTypeMap } from '@shared';
 import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
 import { UseCaseNotificationDTO } from 'app/shared/models/use-case-response.dto';
+import { ToastrService } from 'ngx-toastr';
+import { ApolloError } from '@apollo/client';
+import handleApolloError from 'app/shared/utils/apollo-error-handling';
+import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handling';
+import { TemperatureDeviceService } from 'app/shared/services/temperature-device.service';
 
 @Component({
   selector: 'biopro-temperature-form',
@@ -28,9 +33,17 @@ export class TemperatureFormComponent {
   protected readonly NotificationTypeMap = NotificationTypeMap;
   
   formBuilder = inject(FormBuilder);
+  temperatureService = inject(TemperatureDeviceService);
+  toastrService = inject(ToastrService);
+
+
   thermometerIdValidation = output<string>();
   temperatureValidation = output<{ temperatureProductCategory: string; temperature: number }>();
-  resetTemperatureQuarantine = output<void>();
+  updateTemperatureQuarantineSignal = output<UseCaseNotificationDTO>();
+
+  updateTransitTimeQuarantineSignal = output<UseCaseNotificationDTO>();
+  updatetransitTimeHumanReadableSignal = output<string>()
+  temperatureCategory = input<string>(null);
   
   thermometerField = viewChild<ElementRef<HTMLInputElement>>('thermometerId');
   temperatureField = viewChild<ElementRef<HTMLInputElement>>('temperature');
@@ -57,9 +70,9 @@ export class TemperatureFormComponent {
   temperatureValueChangeEffect = effect(() => {
     const [status, value] = this.temperatureValueSignal();
     if (status === 'VALID' && value !== null && value !== undefined && isFinite(value)) {
-      this.temperatureValidation.emit({ temperatureProductCategory: '', temperature: value });
+      this.triggerValidateTemperature(value).subscribe();
     } else if(!value) {
-      this.resetTemperatureQuarantine.emit();
+      this.updateTemperatureQuarantineSignal.emit(null);
     }
   }, { allowSignalWrites: true });
   
@@ -94,4 +107,25 @@ export class TemperatureFormComponent {
     const element = event.target as HTMLElement;
     element.blur();
   }
+
+
+  triggerValidateTemperature(temperature: number) {
+    return this.temperatureService
+        .validateTemperature({
+            temperature,
+            temperatureCategory: this.temperatureCategory()
+        })
+        .pipe(
+            first(),
+            catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
+            tap(response => {
+                const quarantineOrNull = response.data?.validateTemperature?.notifications?.filter(n => n.type === 'CAUTION')?.[0] ?? null;
+                this.updateTemperatureQuarantineSignal.emit(quarantineOrNull);
+
+                const otherNotifications = response.data?.validateTemperature?.notifications?.filter(n => n.type !== 'CAUTION');
+                consumeUseCaseNotifications(this.toastrService, otherNotifications);
+            }),
+            map(response => response.data?.validateTemperature)
+        );
+}
 }

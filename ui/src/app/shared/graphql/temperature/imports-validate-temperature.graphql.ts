@@ -1,6 +1,6 @@
 import { gql } from 'apollo-angular';
-import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
 import { ValidationResultDTO } from '../../models/validation-result-dto.model';
+import { UseCaseResponseDTO } from 'app/shared/models';
 
 export interface ValidateTemperatureRequestDTO {
     temperature: number;

@@ -85,8 +85,9 @@
                         #transitTimeForm
                         [availableTimeZones]="availableTimeZonesSignal()"
                         [humanReadableTime]="transitTimeHumanReadableSignal()"
-                        (transitTimeChange)="onTransitTimeChange($event)"
-                        (resetTimeSignals)="resetTimeSignals()"
+                        [temperatureCategory]="form?.controls?.temperatureProductCategory.value"
+                        (updateTransitTimeQuarantineSignal)="updateTransitTimeQuarantine($event)"
+                        (updatetransitTimeHumanReadableSignal)="updateTransitTimeHumanReadable($event)"
                     />
                 </div>
                 }
@@ -95,8 +96,8 @@
                 <div class="md:col-span-6">
                     <biopro-temperature-form
                         #temperatureForm
-                        (temperatureValidation)="onTemperatureChange($event)"
-                        (resetTemperatureQuarantine)="resetTemperatureQuarantine()"
+                        [temperatureCategory]="form?.controls?.temperatureProductCategory.value"
+                        (updateTemperatureQuarantineSignal)="updateTemperatureQuarantine($event)"
                     />
                 </div>
                 }

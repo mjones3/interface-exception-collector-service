@@ -21,6 +21,7 @@
                 label="Continue"
                 color="primary"
                 icon="heroicons_outline:arrow-right-circle"
+                [disabled]="!isFormValid()"
                 (clickEvent)="transferContinue()"
             />
         </div>
@@ -38,7 +39,7 @@
                             formControlName="transferOrderNumber"
                             matInput
                             required
-                            (keydown.enter)="this.triggerElementBlur($event)"
+                            (keydown.enter)="onEnterTransferOrder()"
                         />
                     @if (transferInformationForm.controls.transferOrderNumber.hasError('required')) { <mat-error>Transfer Order Number is required</mat-error> }
                 </mat-form-field>
@@ -59,14 +60,17 @@
                             #transitTimeForm
                             [availableTimeZones]="availableTimeZonesSignal()"
                             [humanReadableTime]="transitTimeHumanReadableSignal()"
-                            (transitTimeChange)="onTransitTimeChange($event)"
+                            [temperatureCategory]="transferInformationForm?.controls?.temperatureCategory.value"
+                            (updateTransitTimeQuarantineSignal)="updateTransitTimeQuarantine($event)"
+                            (updatetransitTimeHumanReadableSignal)="updateTransitTimeHumanReadable($event)"
                         />
                     </div>
 
                     <div class="md:col-span-6">
                         <biopro-temperature-form
                             #temperatureForm
-                            (temperatureValidation)="onTemperatureChange($event)"
+                            [temperatureCategory]="transferInformationForm?.controls?.temperatureCategory.value"
+                            (updateTemperatureQuarantineSignal)="updateTemperatureQuarantine($event)"
                         />
                     </div>
 

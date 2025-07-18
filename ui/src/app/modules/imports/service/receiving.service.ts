@@ -12,20 +12,6 @@ import {
 import { LookUpDto } from '@shared';
 import { FIND_ALL_LOOKUPS_BY_TYPE } from '../../recovered-plasma-shipment/graphql/query-definitions/lookup.graphql';
 import {
-    DeviceDTO,
-    VALIDATE_DEVICE,
-    ValidateDeviceRequestDTO
-} from '../graphql/query-definitions/imports-validate-device.graphql';
-import {
-    VALIDATE_TEMPERATURE,
-    ValidateTemperatureRequestDTO
-} from '../graphql/query-definitions/imports-validate-temperature.graphql';
-import { ValidationResultDTO } from '../models/validation-result-dto.model';
-import {
-    VALIDATE_TRANSIT_TIME,
-    ValidateTransitTimeRequestDTO
-} from '../graphql/query-definitions/imports-validate-transit-time.graphql';
-import {
     CREATE_IMPORT,
     CreateImportRequestDTO,
     ImportDTO
@@ -68,36 +54,6 @@ export class ReceivingService {
             this.servicePath,
             ENTER_SHIPPING_INFORMATION,
             enterShippingInformationRequestDTO
-        );
-    }
-
-    public validateDevice(validateDeviceRequestDTO: ValidateDeviceRequestDTO)
-        : Observable<ApolloQueryResult<{ validateDevice: UseCaseResponseDTO<DeviceDTO> }>> {
-
-        return this.dynamicGraphqlPathService.executeQuery(
-            this.servicePath,
-            VALIDATE_DEVICE,
-            validateDeviceRequestDTO
-        );
-    }
-
-    public validateTemperature(validateTemperatureRequestDTO: ValidateTemperatureRequestDTO)
-        : Observable<ApolloQueryResult<{ validateTemperature: UseCaseResponseDTO<ValidationResultDTO> }>> {
-
-        return this.dynamicGraphqlPathService.executeQuery(
-            this.servicePath,
-            VALIDATE_TEMPERATURE,
-            validateTemperatureRequestDTO
-        );
-    }
-
-    public validateTransitTime(validateTransitTimeRequestDTO: ValidateTransitTimeRequestDTO)
-        : Observable<ApolloQueryResult<{ validateTransitTime: UseCaseResponseDTO<ValidationResultDTO> }>> {
-
-        return this.dynamicGraphqlPathService.executeQuery(
-            this.servicePath,
-            VALIDATE_TRANSIT_TIME,
-            validateTransitTimeRequestDTO
         );
     }
 

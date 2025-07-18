@@ -4,21 +4,37 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { ApolloTestingModule } from 'apollo-angular/testing';
+import { ToastrService } from 'ngx-toastr';
 
 jest.mock('keycloak-js');
 
 describe('TransitTimeFormComponent', () => {
   let component: TransitTimeFormComponent;
   let fixture: ComponentFixture<TransitTimeFormComponent>;
+  let mockToastr: jest.Mocked<ToastrService>;
 
   beforeEach(async () => {
+
+    mockToastr = {
+      show: jest.fn(),
+      success: jest.fn(),
+      error: jest.fn(),
+      warning: jest.fn()
+    } as any;
+
+
     await TestBed.configureTestingModule({
       imports: [
         TransitTimeFormComponent,
         ReactiveFormsModule,
         NoopAnimationsModule,
         MatDatepickerModule,
+        ApolloTestingModule,
         MatNativeDateModule
+      ],
+      providers: [
+        { provide: ToastrService, useValue: mockToastr }
       ]
     }).compileComponents();
 
