@@ -23,6 +23,22 @@ Feature: Scan Unit Number for Irradiation
         And I verify that product "E003300" in the unit "W777725001001" is flagged as configurable for irradiation
         And I verify that product "E0033V00" in the unit "W777725001001" is flagged as configurable for irradiation
 
+    @LAB-603
+    Scenario Outline: I successfully manually enter a unit number and check digit with a product eligible for irradiation
+        Given I have the following inventory products:
+            | Unit Number   | Product Code | Status     | Location  |
+            | <Unit Number> | <Product Code> | AVAILABLE  | <Location> |
+
+        And I'm in the irradiation service at the location "<Location>"
+        And the "Check Digit" is configured as "Y"
+        When I scan the unit number "<Unit Number>" in irradiation and a check digit
+        Then I verify that there are only 2 product(s) eligible for irradiation for the unit number "<Unit Number>"
+        And I see the product "<Product Code>" from unit number "<Unit Number>" is in the list of products for selection
+        And I verify that product "<Product Code>" in the unit "<Unit Number>" is flagged as configurable for irradiation
+        Examples:
+            | Unit Number   | Location  | Product Code |
+            | W777725001001 | 123456789 | E003300     |
+
     @LAB-615
     Scenario: I cannot add into the batch a quarantined unit number with a reason that stops manufacturing
         Given I have the following inventory products:
