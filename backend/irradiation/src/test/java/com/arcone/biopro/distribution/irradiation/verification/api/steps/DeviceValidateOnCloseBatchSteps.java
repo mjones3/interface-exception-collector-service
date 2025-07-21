@@ -7,6 +7,7 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -17,6 +18,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Slf4j
 @ContextConfiguration
 public class DeviceValidateOnCloseBatchSteps {
 
@@ -41,12 +43,13 @@ public class DeviceValidateOnCloseBatchSteps {
 
         // Add products to the batch
         for (Map<String, String> product : products) {
-            repositorySteps.createBatchItem(batchId, product.get("unitNumber"), product.get("productType"));
+            repositorySteps.createBatchItem(batchId, product.get("unitNumber"), product.get("productCode"));
         }
     }
 
     @Given("the device is not associated with any open batch")
     public void theDeviceIsNotAssociatedWithAnyOpenBatch() {
+        log.info("Device configured with no open batch");
         // No batch creation - device exists but has no open batch
     }
 
