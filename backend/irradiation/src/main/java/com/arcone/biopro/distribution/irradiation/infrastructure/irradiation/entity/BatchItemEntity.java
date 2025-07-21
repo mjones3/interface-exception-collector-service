@@ -37,6 +37,15 @@ public class BatchItemEntity implements Serializable, Persistable<Long> {
     @Column("lot_number")
     private String lotNumber;
 
+    @Column("new_product_code")
+    private String newProductCode;
+
+    @Column("expiration_date")
+    private LocalDateTime expirationDate;
+
+    @Column("product_family")
+    private String productFamily;
+
     @CreatedDate
     @Column("create_date")
     @InsertOnlyProperty

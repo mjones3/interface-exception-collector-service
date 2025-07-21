@@ -15,7 +15,7 @@ public class popUpSteps {
     @Then("I see the {string} message {string}")
     public void iSeeTheMessage(String messageType, String messageSubstring) {
         popUpPage.waitForPopUp();
-        assertEquals(messageType.toLowerCase(), popUpPage.getPopUpTitle().getText().toLowerCase(), "Incorrect expected message type. Expected type: " + messageType + " Actual type: " + popUpPage.getPopUpTitle().getText());
+        assertEquals("Incorrect expected message type. Expected type: " + messageType + " Actual type: " + popUpPage.getPopUpTitle().getText(), messageType.toLowerCase(), popUpPage.getPopUpTitle().getText().toLowerCase());
         if (!popUpPage.getPopUpMessage().getText().contains(messageSubstring)) {
             fail("Incorrect expected message substring. Expected substring: " + messageSubstring + ". Actual message: " + popUpPage.getPopUpMessage().getText());
         }

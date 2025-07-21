@@ -2,11 +2,12 @@ package com.arcone.biopro.distribution.irradiation.verification.ui.steps;
 
 import com.arcone.biopro.distribution.irradiation.verification.ui.pages.StartIrradiationPage;
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.AllArgsConstructor;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+
 import static org.junit.Assert.assertTrue;
 
 @AllArgsConstructor
@@ -59,8 +60,19 @@ public class StartIrradiationSteps {
     }
 
     @Then("I verify that the unit number {string} with product {string} was added to the batch")
-    public void iVerifyThatTheUnitNumberWithProductWasAddedToTheBatch(String unitNumber, String productCode) {
-        boolean isAddedToBatch = startIrradiationPage.unitNumberCardExists(unitNumber,productCode);
-        Assert.assertTrue(String.format("A card for the unit number '%s' and product code '%s' was not found in the irradiation batch.", unitNumber, productCode), isAddedToBatch);
+    public void iVerifyThatTheUnitNumberWithProductWasAddedToTheBatch(String unitNumber, String product) {
+        boolean isAddedToBatch = startIrradiationPage.unitNumberCardExists(unitNumber,product);
+        Assert.assertTrue(String.format("A card for the unit number '%s' and product code '%s' was not found in the irradiation batch.", unitNumber, product), isAddedToBatch);
+    }
+
+    @Then("I verify that the unit number {string} with product {string} was not added to the batch")
+    public void iVerifyThatTheUnitNumberWithProductWasNotAddedToTheBatch(String unitNumber, String product) {
+        int unitNumberCards = startIrradiationPage.unitNumberProductCardCount(unitNumber,product);
+        Assert.assertEquals("Unit number cards amount does not match.", 0,unitNumberCards );
+    }
+
+    @Then("I verify that the card for unit number {string} and product {string} shows as {string}")
+    public void iVerifyThatTheProductShowsAs(String unitNumber, String product, String status) {
+        Assertions.assertTrue(startIrradiationPage.isProductInStatus(unitNumber, product, status));
     }
 }

@@ -4,13 +4,15 @@ import {Observable} from "rxjs";
 import {ApolloQueryResult} from "@apollo/client";
 import {MutationResult} from "apollo-angular";
 import {
-    IrradiationProductDTO,
-    ReadConfigurationGraphQL,
+    CheckDigitResponseDTO,
+    IrradiationProductDTO, ReadConfigurationDTO,
     StartIrradiationSubmitBatchRequestDTO, StartIrradiationSubmitBatchResponseDTO
 } from "../models/model";
 import {
+    CHECK_DIGIT,
     GET_CONFIGURATIONS,
     GET_IRRADIATION_DEVICE_BY_ID,
+    VALIDATE_LOT_NUMBER,
     VALIDATE_UNIT
 } from "../graphql/query.graphql";
 import {START_IRRADIATION_SUBMIT_BATCH} from "../graphql/mutation.graphql";
@@ -27,7 +29,7 @@ export class IrradiationService {
     public readConfiguration(
         configurationKeys: string[]
     ): Observable<
-        ApolloQueryResult<{ readConfiguration: ReadConfigurationGraphQL }>
+        ApolloQueryResult<{ readConfiguration: ReadConfigurationDTO[] }>
     > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
@@ -48,7 +50,7 @@ export class IrradiationService {
         );
     }
 
-    public validateUnit(
+    public validateUnitNumber(
         unitNumber: string, location: string
     ): Observable<
         ApolloQueryResult<{ validateUnit: IrradiationProductDTO[] }>
@@ -69,5 +71,30 @@ export class IrradiationService {
             { input: startIrradiationSubmitBatchRequestDTO }
         );
     }
+
+    public validateCheckDigit(
+        unitNumber: string, checkDigit: string
+    ): Observable<
+        ApolloQueryResult<{ checkDigit: CheckDigitResponseDTO }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            CHECK_DIGIT,
+            { unitNumber, checkDigit }
+        );
+    }
+
+    public validateLotNumber(
+        lotNumber: string, type: string
+    ): Observable<
+        ApolloQueryResult<{ validateLotNumber: boolean }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            VALIDATE_LOT_NUMBER,
+            { lotNumber, type }
+        );
+    }
+
 
 }

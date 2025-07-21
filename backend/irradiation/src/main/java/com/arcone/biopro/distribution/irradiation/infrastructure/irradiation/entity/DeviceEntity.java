@@ -1,5 +1,8 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -9,6 +12,9 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.ZonedDateTime;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table("bld_device")
 public class DeviceEntity {
     @Id
@@ -31,8 +37,6 @@ public class DeviceEntity {
     @Column("modification_date")
     @LastModifiedDate
     private ZonedDateTime modificationDate;
-
-    public DeviceEntity() {}
 
     public DeviceEntity(String deviceId, String location, String status) {
         this.deviceId = deviceId;

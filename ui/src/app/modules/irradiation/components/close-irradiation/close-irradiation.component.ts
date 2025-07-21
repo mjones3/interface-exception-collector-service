@@ -69,12 +69,10 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     private readonly _productIconService = inject(ProductIconsService);
     isCheckDigitVisible = true;
     numOfMaxUnits = 0;
-    selectedFilter = 'all';
     selectedProducts: IrradiationProductDTO[] = [];
     products: IrradiationProductDTO[] = [];
     initialProductsState: IrradiationProductDTO[] = [];
     allProducts: IrradiationProductDTO[] = [];
-    deviceId: string;
 
     @Input() showCheckDigit = true;
 
@@ -90,13 +88,10 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         private readonly router: Router,
         private readonly formBuilder: FormBuilder,
         private readonly processHeaderService: ProcessHeaderService,
-        private readonly irradiationService: IrradiationService,
         private readonly confirmationService: FuseConfirmationService,
         private readonly toaster: ToastrService,
-        private readonly facilityService: FacilityService,
         private readonly activatedRoute: ActivatedRoute,
         private readonly matDialog: MatDialog,
-        private readonly changeDetectorRef: ChangeDetectorRef
     ) {
         effect(() => {
             this.processHeaderService.setActions(this.buttons);
@@ -295,121 +290,20 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
         dialogRef
             .afterClosed()
-            .subscribe(({successful, comment, reasons}) =>
-                    console.log('dialog closed', successful, comment, reasons)
-                // this.applyVisualInspectionOnSelectedProducts(
-                //     successful,
-                //     reasons,
-                //     comment
-                // )
+            .subscribe(({ irradiated }) => {
+                const statuses = [PENDING_INSPECTION, IRRADIATED, NOT_IRRADIATED];
+                this.selectedProducts = this.selectedProducts
+                    .map(product => {
+                        product.statuses = product.statuses.map(status => {
+                            if (statuses.includes(status.value)) {
+                                status.value = irradiated ? IRRADIATED : NOT_IRRADIATED;
+                            }
+                            return status;
+                        });
+                        return product;
+                    });
+                }
             );
-    }
-
-    private applyVisualInspectionOnSelectedProducts(
-        successful: boolean,
-        reasons: ReasonDTO[],
-        comments: string
-    ) {
-        if (successful !== undefined && reasons) {
-            this.selectedProducts
-                .filter((product) => !product.visualInspection)
-                .forEach((product) => {
-                    const consequence = reasons
-                        .sort(
-                            (a: ReasonDTO, b: ReasonDTO) =>
-                                a.priority - b.priority
-                        )
-                        .map((r: ReasonDTO) => r.consequenceType)[0];
-
-                    this.overrideProductStatus(
-                        product,
-                        successful,
-                        consequence
-                    );
-
-                    if (successful) {
-                        product.statuses.push({
-                            value: IRRADIATED,
-                            classes: 'bg-green-500 text-white',
-                        });
-                    } else {
-                        product.statuses.push({
-                            value: NOT_IRRADIATED,
-                            classes: 'bg-gray-200 text-black',
-                        });
-                    }
-
-                    product.visualInspection = {
-                        reasons: reasons.map(
-                            ({reasonKey, consequenceType, priority}) =>
-                                ({
-                                    reasonKey,
-                                    consequenceType,
-                                    priority,
-                                }) as ReasonDTO
-                        ),
-                        status: successful ? IRRADIATED : NOT_IRRADIATED,
-                        comments,
-                    };
-                    this.selectedProducts = [];
-                    this.changeDetectorRef.detectChanges();
-                });
-
-            this.applyFilter();
-        }
-    }
-
-    private applyFilter() {
-        this.selectedProducts = [];
-        this.products = this.allProducts.filter((p) => {
-            if (this.selectedFilter === 'all') {
-                return true;
-            } else if (this.selectedFilter === 'complete') {
-                return !!p.visualInspection;
-            } else {
-                return !p.visualInspection;
-            }
-        });
-
-        this.products = this.products.sort((a, b) => {
-            return b.order - a.order;
-        });
-    }
-
-    private overrideProductStatus(
-        product: IrradiationProductDTO,
-        successful: boolean,
-        consequence: string
-    ) {
-        product.statuses = [];
-        const selectedProduct = this.initialProductsState.find(
-            (p) =>
-                p.productCode === product.productCode &&
-                p.unitNumber === product.unitNumber
-        );
-
-        if (!successful && selectedProduct.status !== 'DISCARD') {
-            this.overrideStatus(product, consequence);
-        } else {
-            if (selectedProduct) {
-                this.overrideStatus(product, selectedProduct.status);
-            }
-        }
-    }
-
-    private overrideStatus(product: IrradiationProductDTO, status: string): void {
-        product.status = status;
-        product.statusClasses = this.retrieveStatusClass(status);
-    }
-
-    private retrieveStatusClass(status: string): 'error' | 'warning' | '' {
-        if (status === ConsequenceType.DISCARD) {
-            return 'error';
-        } else if (status === ConsequenceType.QUARANTINE) {
-            return 'warning';
-        }
-
-        return '';
     }
 
     openRemoveConfirmationDialog(): void {
@@ -485,6 +379,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 statusReason: '',
                 unsuitableReason: '',
                 expired: false,
+                alreadyIrradiated: false,
+                notConfigurableForIrradiation: false,
                 quarantines: null
             },
             {
@@ -501,6 +397,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 statusReason: '',
                 unsuitableReason: '',
                 expired: false,
+                alreadyIrradiated: false,
+                notConfigurableForIrradiation: false,
                 quarantines: null
             },
             {
@@ -517,6 +415,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                 statusReason: '',
                 unsuitableReason: '',
                 expired: false,
+                alreadyIrradiated: false,
+                notConfigurableForIrradiation: false,
                 quarantines: null
             },
         ];

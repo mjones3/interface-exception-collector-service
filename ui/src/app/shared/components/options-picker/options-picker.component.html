@@ -3,8 +3,7 @@
         @for (option of options; track trackByFn($index, option)) {
             <div class="text-left">
                 <fuse-card
-                    class="items-center"
-                    [ngClass]="fullSize ? 'h-full w-full' : 'h-24 w-96'"
+                    class="items-center {{ fullSize ? 'h-full w-full' : itemSize }}"
                 >
                     <button
                         mat-fab

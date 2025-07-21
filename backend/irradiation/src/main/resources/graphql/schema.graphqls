@@ -2,6 +2,8 @@ type Query {
     validateDevice(deviceId: String!, location: String!): Boolean
     validateUnit(unitNumber: String!, location: String!): [Inventory]
     readConfiguration(keys: [String]): [ConfigurationDTO]
+    checkDigit(unitNumber: String!, checkDigit: String!): CheckDigitResponseDTO!
+    validateLotNumber(lotNumber: String!, type: String!): Boolean
 }
 
 type Mutation {
@@ -18,6 +20,8 @@ type Inventory {
     statusReason: String
     unsuitableReason: String
     expired: Boolean
+    alreadyIrradiated: Boolean
+    notConfigurableForIrradiation: Boolean
     quarantines: [InventoryQuarantine]
 }
 
@@ -48,4 +52,8 @@ type BatchSubmissionResult {
     batchId: ID!
     message: String!
     success: Boolean!
+}
+
+type CheckDigitResponseDTO {
+    isValid: Boolean
 }

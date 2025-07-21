@@ -1,0 +1,3 @@
+query validateLotNumber($lotNumber: String!, $type: String!) {
+  validateLotNumber(lotNumber: $lotNumber, type: $type)
+}
