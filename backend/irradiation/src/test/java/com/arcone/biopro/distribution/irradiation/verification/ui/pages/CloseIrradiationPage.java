@@ -13,8 +13,8 @@ public class CloseIrradiationPage extends IrradiationPage {
 
     // Close Irradiation specific locators
     private final By pageTitleLocator = By.xpath("//h3//span[contains(text(),'Close Irradiation')]");
-    private final By selectAllButtonLocator = By.id("selectAllActionBtn");
-    private final By removeButtonLocator = By.id("removeActionBtn");
+    private final By selectAllUnitsButtonLocator = By.id("selectAllActionBtn");
+    private final By removeUnitButtonLocator = By.id("removeActionBtn");
     private final By recordInspectionLocator = By.id("visualInspecActionBtn");
     private final By recordInspectionModalTitleLocator = By.xpath("//biopro-record-visual-inspection-modal/h1[contains(text(),'Record Inspection')]");
     private final By irradiatedStatusButtonLocator = By.id("irradiatedActionBtn");
@@ -35,8 +35,13 @@ public class CloseIrradiationPage extends IrradiationPage {
     }
 
     public void selectAllUnits() throws Exception {
-        PageElement selectAllButton = driver.waitForElement(selectAllButtonLocator);
+        PageElement selectAllButton = driver.waitForElement(selectAllUnitsButtonLocator);
         selectAllButton.safeClick();
+    }
+
+    public void removeUnitFromBatch() throws Exception {
+        PageElement removeUnitButton = driver.waitForElement(removeUnitButtonLocator);
+        removeUnitButton.safeClick();
     }
 
     public void openRecordInspection() throws Exception {
@@ -55,8 +60,18 @@ public class CloseIrradiationPage extends IrradiationPage {
         irradiatedStatusButton.safeClick();
     }
 
+    public void selectNotIrradiatedStatus() throws Exception {
+        PageElement notIrradiatedStatusButton = driver.waitForElement(notIrradiatedStatusButtonLocator);
+        notIrradiatedStatusButton.safeClick();
+    }
+
     public void submitRecordInspection() throws Exception {
         PageElement submitRecordInspectionButton = driver.waitForElement(submitRecordInspectionLocator);
         submitRecordInspectionButton.safeClick();
+    }
+
+    public void cancelRecordInspection() throws Exception {
+        PageElement cancelRecordInspectionButton = driver.waitForElement(cancelRecordInspectionLocator);
+        cancelRecordInspectionButton.safeClick();
     }
 }
