@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.irradiation.verification.api.support;
 
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.CheckDigitResponseDTO;
+import com.arcone.biopro.distribution.irradiation.application.dto.BatchProductDTO;
 import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
 import io.cucumber.spring.ScenarioScope;
 import lombok.Getter;
@@ -24,5 +25,7 @@ public class IrradiationContext {
     private List<ResponseError> responseErrors;
 
     private CheckDigitResponseDTO checkDigitResponse;
+
+    private List<BatchProductDTO> batchProducts;
 
 }

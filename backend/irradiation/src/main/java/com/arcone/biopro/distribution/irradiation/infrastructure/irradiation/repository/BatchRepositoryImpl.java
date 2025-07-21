@@ -50,6 +50,12 @@ public class BatchRepositoryImpl implements BatchRepository {
     }
 
     @Override
+    public Flux<BatchItem> findBatchItemsByBatchId(Long batchId) {
+        return batchItemRepository.findByBatchId(batchId)
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public Mono<Batch> submitBatch(DeviceId deviceId, LocalDateTime startTime, List<BatchItem> batchItems) {
         BatchEntity batchEntity = BatchEntity.builder()
                 .deviceId(deviceId.getValue())

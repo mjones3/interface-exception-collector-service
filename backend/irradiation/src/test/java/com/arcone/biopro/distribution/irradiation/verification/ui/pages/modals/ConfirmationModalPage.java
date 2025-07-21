@@ -88,7 +88,6 @@ public class ConfirmationModalPage extends CommonPageFactory {
         try {
             var confirmationModal = driver.waitForElement(confirmationModalLocator, 5);
             confirmationModal.waitForVisible();
-            confirmationModal.waitForClickable();
         } catch (Exception e) {
             log.info("Error while waiting for confirmation modal");
             throw e;
