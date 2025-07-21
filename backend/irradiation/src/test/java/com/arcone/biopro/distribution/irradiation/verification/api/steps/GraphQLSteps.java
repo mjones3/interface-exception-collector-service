@@ -1,10 +1,11 @@
 package com.arcone.biopro.distribution.irradiation.verification.api.steps;
 
+import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.CheckDigitResponseDTO;
 import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.verification.api.support.IrradiationContext;
 import com.arcone.biopro.distribution.irradiation.verification.common.GraphQlHelper;
-import io.cucumber.datatable.DataTable;
+import com.arcone.biopro.distribution.irradiation.verification.utils.CheckDigitUtil;
 import io.cucumber.java.en.When;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,33 @@ public class GraphQLSteps {
 
     @Autowired
     private IrradiationContext irradiationContext;
+
+    @When("I scan the unit number {string} in irradiation and a check digit")
+    public void iScanTheUnitNumberInIrradiationAndACheckDigit(String unitNumber) {
+        String checkDigit = CheckDigitUtil.calculateDigitCheck(unitNumber);
+
+        try {
+            CheckDigitResponseDTO response = graphQlTester
+                    .documentName("checkDigit")
+                    .variable("unitNumber", unitNumber)
+                    .variable("checkDigit", checkDigit)
+                    .execute()
+                    .path("checkDigit")
+                    .entity(CheckDigitResponseDTO.class)
+                    .get();
+            irradiationContext.setCheckDigitResponse(response);
+            if (response.isValid()) {
+                iScanTheUnitNumberInIrradiation(unitNumber);
+                List<IrradiationInventoryOutput> filteredList = irradiationContext.getInventoryList().stream()
+                    .filter(item -> item.unitNumber().equals(unitNumber))
+                    .toList();
+                irradiationContext.setInventoryList(filteredList);
+            }
+            repositorySteps.setValidationResult(response.isValid());
+        } catch (AssertionError e) {
+            repositorySteps.setValidationResult(false);
+        }
+    }
 
     @When("I scan the unit number {string} in irradiation")
     public void iScanTheUnitNumberInIrradiation(String unitNumber) {
