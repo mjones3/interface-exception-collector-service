@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.order.verification.pages.order;
 
 import com.arcone.biopro.distribution.order.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
+import com.arcone.biopro.distribution.order.verification.support.TestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -39,6 +40,8 @@ public class OrderDetailsPage extends CommonPageFactory {
     private WebElement ViewPickListDialog;
     @Autowired
     private HomePage homePage;
+    @Autowired
+    private TestUtils testUtils;
 
     public boolean isPicklistDialogLoaded() {
         return sharedActions.isElementVisible(ViewPickListDialog);
@@ -251,7 +254,7 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void checkAvailableInventory(String[] productFamily, String[] bloodType, String[] quantity) {
         for (int i = 0; i < productFamily.length; i++) {
-            String productFamilyDescription = productFamily[i].replace("_", " ");
+            String productFamilyDescription = testUtils.parseProductFamilyDescription(productFamily[i]);
             sharedActions.waitForVisible(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
 
             try {
@@ -379,7 +382,7 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void checkInventoryUnavailable(String[] productFamily, String[] bloodType, String[] quantity) {
         for (int i = 0; i < productFamily.length; i++) {
-            String productFamilyDescription = productFamily[i].replace("_", " ");
+            String productFamilyDescription = testUtils.parseProductFamilyDescription(productFamily[i]);
             sharedActions.waitForVisible(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
 
             try {

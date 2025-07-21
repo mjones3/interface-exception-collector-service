@@ -466,7 +466,7 @@ public class OrderSteps {
     @And("I can see the Product Details section filled with all the product details.")
     public void checkAllProductDetailsSection() {
         for (int i = 0; i < this.productFamilies.length; i++) {
-            var productFamilyDescription = this.productFamilies[i].replace("_", " ");
+            var productFamilyDescription = testUtils.parseProductFamilyDescription(this.productFamilies[i]);
             orderDetailsPage.verifyProductDetailsSection(productFamilyDescription, this.bloodTypes[i], Integer.parseInt(this.quantityList[i]), this.commentsList[i]);
         }
     }
