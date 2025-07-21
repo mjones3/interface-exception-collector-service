@@ -36,4 +36,8 @@ public class CloseIrradiationSteps {
         closeIrradiationPage.submitRecordInspection();
     }
 
+    @When("On the Record Inspection window, I select Not Irradiated status")
+    public void onTheRecordInspectionWindowISelectNotIrradiatedStatus() throws Exception {
+        closeIrradiationPage.selectNotIrradiatedStatus();
+    }
 }
