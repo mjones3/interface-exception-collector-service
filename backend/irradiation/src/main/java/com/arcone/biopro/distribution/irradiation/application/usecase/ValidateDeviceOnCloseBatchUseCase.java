@@ -27,7 +27,7 @@ public class ValidateDeviceOnCloseBatchUseCase {
                         batchRepository.findBatchItemsByBatchId(batch.getId().getValue())
                             .map(item -> BatchProductDTO.builder()
                                 .unitNumber(item.unitNumber().value())
-                                .productType(item.productCode())
+                                .productCode(item.productCode())
                                 .build())
                     )
             );
