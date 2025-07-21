@@ -26,59 +26,67 @@ public class InventoryServerMock {
 
     @MessageMapping("getInventoryByUnitNumber")
     public Flux<InventoryOutput> getInventoryByUnitNumber(String unitNumber) {
-        if (unitNumber.startsWith("W777725001002")) {
+        if (unitNumber.startsWith("W777725001002") || unitNumber.startsWith("W777725002003")) {
             var quarantine = InventoryQuarantineOutput.builder()
                 .stopsManufacturing(true)
                 .reason("any")
                 .build();
             return Flux.just(
-                createInventory("W777725001002", "E003300", List.of(quarantine))
+                createInventory(unitNumber, "E003300", "CP2D WB", List.of(quarantine))
             );
         }
-        if (unitNumber.startsWith("W777725001003")) {
+        if (unitNumber.startsWith("W777725001003") || unitNumber.startsWith("W777725002004")) {
             var quarantine = InventoryQuarantineOutput.builder()
                 .stopsManufacturing(false)
                 .reason("any")
                 .build();
             return Flux.just(
-                createInventory("W777725001003", "E003300", List.of(quarantine))
+                createInventory(unitNumber, "E003300", "CP2D WB", List.of(quarantine))
             );
         }
-        if (unitNumber.startsWith("W777725001004")) {
+        if (unitNumber.startsWith("W777725001004") || unitNumber.startsWith("W777725002005")) {
             return Flux.just(
-                createInventoryBuilder("W777725001004", "E003300", "DISCARDED", "123456789").statusReason("EXPIRED").build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","DISCARDED", "123456789").statusReason("EXPIRED").build()
             );
         }
-        if (unitNumber.startsWith("W777725001005")) {
+        if (unitNumber.startsWith("W777725001005") || unitNumber.startsWith("W777725002006")) {
             return Flux.just(
-                createInventoryBuilder("W777725001005", "E003300", "AVAILABLE", "123456789").unsuitableReason("POSITIVE_REACTIVE_TEST_RESULTS").build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789")
+                        .unsuitableReason("POSITIVE_REACTIVE_TEST_RESULTS")
+                        .statusReason("Positive Reactive Test Results")
+                        .build()
             );
         }
-        if (unitNumber.startsWith("W777725001006")) {
+        if (unitNumber.startsWith("W777725001006") || unitNumber.startsWith("W777725002007")) {
             return Flux.just(
-                createInventoryBuilder("W777725001006", "E003300", "AVAILABLE", "123456789").expired(true).build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "123456789")
+                        .expired(true)
+                        .statusReason("Expired")
+                        .build()
             );
         }
-        if (unitNumber.startsWith("W777725001007")) {
+        if (unitNumber.startsWith("W777725001007") || unitNumber.startsWith("W777725002008")) {
             return Flux.just(
-                createInventoryBuilder("W777725001007", "E003300", "AVAILABLE", "23456789").build()
+                createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "23456789").build()
             );
         }
-        if (unitNumber.startsWith("W777725001011")) {
+        if (unitNumber.startsWith("W777725001011") || unitNumber.startsWith("W777725002009") || unitNumber.startsWith("W777725002012")) {
             return Flux.just(
-                createInventory("W777725001011", "E003200")
+                createInventory(unitNumber, "E003300", "CP2D WB"),
+                createInventory(unitNumber, "E033600", "AS1 LR RBC")
             );
         }
-        if (unitNumber.startsWith("W777725001012")) {
+        if (unitNumber.startsWith("W777725001012") || unitNumber.startsWith("W777725002010")) {
             return Flux.just(
-                createInventory("W777725001012", "E0869V00")
+                createInventory(unitNumber, "E0869V00", "APH FFP")
             );
         }
-        if (unitNumber.startsWith("W777725001013")) {
+        if (unitNumber.startsWith("W777725001013") || unitNumber.startsWith("W777725002011")) {
             return Flux.just(
-                createInventory("W777725001013", "E003300")
+                createInventory(unitNumber, "E003300", "CP2D WB")
             );
         }
+
         if (unitNumber.startsWith(IRRADIATION_START_FEATURE_UN)) {
             return Flux.just(
                 createInventory("W777725002001", "E033600", "AVAILABLE", "123456789", "AS1 LR RBC"),
@@ -87,7 +95,8 @@ public class InventoryServerMock {
         }
         if (unitNumber.startsWith(SCAN_UNIT_FEATURE_UN)) {
             return Flux.just(
-                createInventory("W777725001001", "E0869V00", "AVAILABLE", "123456789", "APH FFP"),
+                createInventory("W777725001001", "E003300", "AVAILABLE", "123456789", "APH FFP"),
+                createInventory("W777725001001", "E0033V00", "AVAILABLE", "123456789", "APH FFP"),
                 createInventory("W777725001001", "E1624V00", "IN_TRANSIT", "123456789", "APH PF24"),
                 createInventory("W777725001001", "E4689V00", "SHIPPED", "123456789", "APH FFP C1"),
                 createInventory("W777725001001", "E0686V00", "CONVERTED", "123456789", "APH AS3 LR RBC C2"),
@@ -215,12 +224,12 @@ public class InventoryServerMock {
         }
     }
 
-    private static InventoryOutput createInventory(String unitNumber, String productCode, List<InventoryQuarantineOutput> quarantines) {
-        return createInventory(unitNumber, productCode, "AVAILABLE", "123456789", "A product description", quarantines);
+    private static InventoryOutput createInventory(String unitNumber, String productCode, String productDescription, List<InventoryQuarantineOutput> quarantines) {
+        return createInventory(unitNumber, productCode, "AVAILABLE", "123456789", productDescription, quarantines);
     }
 
-    private static InventoryOutput createInventory(String unitNumber, String productCode) {
-        return createInventory(unitNumber, productCode, "AVAILABLE", "123456789", "A product description", List.of());
+    private static InventoryOutput createInventory(String unitNumber, String productCode, String productDescription) {
+        return createInventory(unitNumber, productCode, "AVAILABLE", "123456789", productDescription, List.of());
     }
 
     private static InventoryOutput createInventory(String unitNumber, String productCode, String status, String location, String productDescription) {
@@ -245,13 +254,13 @@ public class InventoryServerMock {
             .build();
     }
 
-    private static InventoryOutput.InventoryOutputBuilder createInventoryBuilder(String unitNumber, String productCode, String status, String location) {
+    private static InventoryOutput.InventoryOutputBuilder createInventoryBuilder(String unitNumber, String productCode, String productDescription, String status, String location) {
         return InventoryOutput.builder()
             .unitNumber(unitNumber)
             .productCode(productCode)
             .location(location)
             .inventoryStatus(status)
-            .productDescription("a description")
+            .productDescription(productDescription)
             .productFamily("WHOLE_BLOOD")
             .expirationDate(LocalDateTime.now().plusDays(30))
             .shortDescription("Type A Sample")
