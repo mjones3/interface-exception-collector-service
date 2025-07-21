@@ -4,10 +4,12 @@ import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.CheckDigitR
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.ConfigurationResponseDTO;
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.mapper.ConfigurationDTOMapper;
 import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
+import com.arcone.biopro.distribution.irradiation.application.dto.BatchProductDTO;
 import com.arcone.biopro.distribution.irradiation.application.usecase.CheckDigitUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateLotNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
+import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceOnCloseBatchUseCase;
 
 import com.arcone.biopro.distribution.irradiation.domain.repository.ConfigurationService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class IrradiationResource {
     private final ConfigurationDTOMapper configurationDTOMapper;
     private final CheckDigitUseCase checkDigitUseCase;
     private final ValidateLotNumberUseCase validateLotNumberUseCase;
+    private final ValidateDeviceOnCloseBatchUseCase validateDeviceOnCloseBatchUseCase;
 
     @QueryMapping
     public Mono<Boolean> validateDevice(@Argument String deviceId, @Argument String location) {
@@ -63,5 +66,10 @@ public class IrradiationResource {
     public Mono<CheckDigitResponseDTO> checkDigit(@Argument String unitNumber,
                                                   @Argument String checkDigit) {
         return checkDigitUseCase.checkDigit(unitNumber, checkDigit);
+    }
+
+    @QueryMapping
+    public Flux<BatchProductDTO> validateDeviceOnCloseBatch(@Argument String deviceId, @Argument String location) {
+        return validateDeviceOnCloseBatchUseCase.execute(deviceId, location);
     }
 }
