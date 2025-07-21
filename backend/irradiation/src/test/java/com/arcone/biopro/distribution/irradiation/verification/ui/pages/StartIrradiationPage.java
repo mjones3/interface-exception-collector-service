@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.verification.ui.pages;
 
+import com.arcone.biopro.common.utils.Retry;
 import com.arcone.biopro.testing.frontend.core.CommonPageFactory;
 import com.arcone.biopro.testing.frontend.core.PageElement;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,8 @@ import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.Keys;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static org.junit.Assert.fail;
 
@@ -45,23 +48,25 @@ public class StartIrradiationPage extends CommonPageFactory {
     }
 
     public void scanUnitNumber(String unitNumber) {
-        enterValueInField(unitNumber, unitNumberInputLocator);
+        enterValueInField(unitNumber, unitNumberInputLocator, false);
     }
 
     public void scanLotNumber(String lotNumber) {
-        enterValueInField(lotNumber, lotNumberInputLocator);
+        enterValueInField(lotNumber, lotNumberInputLocator, true);
     }
 
     public void scanIrradiatorDeviceId(String irradiatorDeviceId) {
-        enterValueInField(irradiatorDeviceId, irradiationDeviceIdInputLocator);
+        enterValueInField(irradiatorDeviceId, irradiationDeviceIdInputLocator, true);
     }
 
-    private void enterValueInField(String value, By fieldLocator) {
+    private void enterValueInField(String value, By fieldLocator, boolean pressEnter) {
         PageElement inputField = driver.waitForElement(fieldLocator);
         inputField.waitForVisible();
         inputField.waitForClickable();
         inputField.sendKeys(value);
-        inputField.sendKeys(Keys.ENTER);
+        if(pressEnter) {
+            inputField.sendKeys(Keys.ENTER);
+        }
     }
 
     public boolean inputFieldIsEnabled(String input) {
@@ -123,6 +128,26 @@ public class StartIrradiationPage extends CommonPageFactory {
             return unitNumberCard.isDisplayed();
         } catch (Exception e) {
             log.error("The card for the unit number: '{}' was not displayed", unitNumber);
+            return false;
+        }
+    }
+
+    public int unitNumberProductCardCount(String unitNumber, String product) {
+        List<PageElement> unitNumberCards = driver.findElements(unitNumberCardLocator(unitNumber, product));
+        return unitNumberCards.size();
+    }
+
+    public boolean isProductInStatus(String unitNumber, String product, String expectedStatus) {
+        try {
+            return Retry.retryUntilTrue(() -> {
+                PageElement card = driver.waitForElement(unitNumberCardLocator(unitNumber, product));
+                PageElement cardStatusElement = card.findChildElement(By.xpath(String.format("//p[@id='statusClasses' and contains(text(),'%s')]", expectedStatus)));
+                cardStatusElement.waitForVisible();
+                return cardStatusElement.isDisplayed();
+            });
+        } catch (InterruptedException e) {
+            log.error("Retry interrupted while checking product card status", e);
+            Thread.currentThread().interrupt();
             return false;
         }
     }

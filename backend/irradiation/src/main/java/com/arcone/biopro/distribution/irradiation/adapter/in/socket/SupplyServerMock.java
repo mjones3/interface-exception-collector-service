@@ -31,7 +31,7 @@ public class SupplyServerMock {
         }
 
         // Mock logic: return true only for "LII1" with "IRRADIATION_INDICATOR"
-        boolean isValid = "LII1".equals(request.lotNumber()) && "IRRADIATION_INDICATOR".equals(request.type());
+        boolean isValid = ("LII1".equals(request.lotNumber()) || "Lot1234".equals(request.lotNumber())) && "IRRADIATION_INDICATOR".equals(request.type());
 
         log.info("Validation result: {}", isValid);
         return Mono.just(isValid);
