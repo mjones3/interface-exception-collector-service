@@ -149,4 +149,22 @@ public class RepositorySteps {
         var batch = batchRepository.save(BatchEntity.builder().deviceId(deviceId).startTime(LocalDateTime.now()).build()).block();
         batchItemRepository.save(BatchItemEntity.builder().batchId(batch.getId()).lotNumber("123").unitNumber(unitNumber).productCode(productCode).build()).block();
     }
+
+    @Given("An irradiation batch has been started with the following units for irradiator {string}")
+    public void anIrradiationBatchHasBeenStartedWithTheFollowingUnits(String deviceId, DataTable dataTable) {
+        deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
+        var batch = batchRepository.save(BatchEntity.builder().deviceId(deviceId).startTime(LocalDateTime.now()).build()).block();
+        List<Map<String, String>> batchItems = dataTable.asMaps();
+
+        for (Map<String, String> item : batchItems) {
+            batchItemRepository.save(
+                BatchItemEntity.builder()
+                    .batchId(batch.getId())
+                    .lotNumber(item.get("Lot Number"))
+                    .unitNumber(item.get("Unit Number"))
+                    .productCode(item.get("Product Code"))
+                    .build())
+                .block();
+        }
+    }
 }
