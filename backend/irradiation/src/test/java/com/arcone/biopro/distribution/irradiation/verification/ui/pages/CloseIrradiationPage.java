@@ -17,13 +17,12 @@ import static org.junit.Assert.fail;
 @Slf4j
 @Lazy
 @Component
-public class StartIrradiationPage extends CommonPageFactory implements IrradiationPage {
+public class CloseIrradiationPage extends CommonPageFactory implements IrradiationPage {
 
     // locators
     private final By irradiationDeviceIdInputLocator = By.id("irradiationIdInput");
-    private final By lotNumberInputLocator = By.id("lotNumberInput");
     private final By unitNumberInputLocator = By.id("inUnitNumber");
-    private final By pageTitleLocator = By.xpath("//h3//span[contains(text(),'Start Irradiation')]");
+    private final By pageTitleLocator = By.xpath("//h3//span[contains(text(),'Close Irradiation')]");
 
     private By unitNumberCardLocator(String unitNumber, String product) {
         String xpathExpression = String.format("//biopro-unit-number-card//div[contains(text(),'%s')]//following-sibling::div//span[contains(text(),'%s')]", unitNumber, product);
@@ -42,17 +41,13 @@ public class StartIrradiationPage extends CommonPageFactory implements Irradiati
             pageTitle.waitForVisible();
             return pageTitle.isDisplayed();
         } catch (org.openqa.selenium.TimeoutException e) {
-            log.info("Start Irradiation page not loaded: {}", e.getMessage());
+            log.info("Close Irradiation page not loaded: {}", e.getMessage());
             return false;
         }
     }
 
     public void scanUnitNumber(String unitNumber) {
         enterValueInField(unitNumber, unitNumberInputLocator, false);
-    }
-
-    public void scanLotNumber(String lotNumber) {
-        enterValueInField(lotNumber, lotNumberInputLocator, true);
     }
 
     public void scanIrradiatorDeviceId(String irradiatorDeviceId) {
@@ -73,7 +68,6 @@ public class StartIrradiationPage extends CommonPageFactory implements Irradiati
         PageElement field = switch (input) {
             case "Unit Number" -> driver.findElement(unitNumberInputLocator);
             case "Irradiator Id" -> driver.findElement(irradiationDeviceIdInputLocator);
-            case "Lot Number" -> driver.findElement(lotNumberInputLocator);
             default -> null;
         };
         try {

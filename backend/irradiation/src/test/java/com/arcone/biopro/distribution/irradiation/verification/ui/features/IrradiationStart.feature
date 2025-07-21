@@ -16,33 +16,33 @@ Feature: Starts Irradiation Process
 
             When I navigate to "Start Irradiation" in "Irradiation"
             Then I verify that I am taken to the page "Start Irradiation" in "Irradiation"
-            Then I verify that the "Lot Number" field is "enabled"
-            Then I verify that the "Irradiator Id" field is "enabled"
-            Then I verify that the "Unit Number" field is "disabled"
+            Then On the "Start Irradiation" page, I verify that the "Lot Number" field is "enabled"
+            Then On the "Start Irradiation" page, I verify that the "Irradiator Id" field is "enabled"
+            Then On the "Start Irradiation" page, I verify that the "Unit Number" field is "disabled"
             And I verify that I am "Unable" to "Submit"
 
-            When I scan the irradiator id "<Blood Center Id>"
-            Then I verify that the "Unit Number" field is "disabled"
-            And I verify that the "Irradiator Id" field is "disabled"
+            When On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
+            Then On the "Start Irradiation" page, I verify that the "Unit Number" field is "disabled"
+            And On the "Start Irradiation" page, I verify that the "Irradiator Id" field is "disabled"
             And I verify that I am "Unable" to "Submit"
 
             When I scan the lot number "<Lot Number 1>"
-            Then I verify that the "Unit Number" field is "enabled"
-            And I verify that the "Irradiator Id" field is "disabled"
+            Then On the "Start Irradiation" page, I verify that the "Unit Number" field is "enabled"
+            And On the "Start Irradiation" page, I verify that the "Irradiator Id" field is "disabled"
             And I verify that I am "Unable" to "Submit"
 
-            When I scan the unit number "=<Unit Number 1>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number 1>00"
             Then I verify the product "<Product Code 1>" is displayed for selection
 
             When I select the product "<Product Code 1>"
-            Then I verify that the unit number "<Unit Number 1>" with product "<Description 1>" was added to the batch
+            Then On the "Start Irradiation" page, I verify that the unit number "<Unit Number 1>" with product "<Description 1>" was added to the batch
             And I verify that I am "Able" to "Submit"
-            And I verify that the "Irradiator Id" field is "disabled"
+            And On the "Start Irradiation" page, I verify that the "Irradiator Id" field is "disabled"
 
             When I scan the lot number "<Lot Number 2>"
-            And I scan the unit number "=<Unit Number 2>00" in the irradiation page
+            And On the "Start Irradiation" page, I scan the unit number "=<Unit Number 2>00"
             When I select the product "<Product Code 2>"
-            Then I verify that the unit number "<Unit Number 2>" with product "<Description 2>" was added to the batch
+            Then On the "Start Irradiation" page, I verify that the unit number "<Unit Number 2>" with product "<Description 2>" was added to the batch
 
             And I choose to "Submit"
             And I see the "Success" message "Batch submitted successfully"
@@ -60,13 +60,13 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id>"
+            And On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This product has been quarantined and cannot be irradiated"
-            And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
+            And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
@@ -81,13 +81,13 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id>"
+            And On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
             And I select the product "<Product Code>"
-            And I verify that the unit number "<Unit Number>" with product "<Description>" was added to the batch
-            And I verify that the card for unit number "<Unit Number>" and product "<Description>" shows as "QUARANTINED"
+            And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was added to the batch
+            And On the "Start Irradiation" page, I verify that the card for unit number "<Unit Number>" and product "<Description>" shows as "QUARANTINED"
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
@@ -102,13 +102,13 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id>"
+            And On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This product has already been discarded for EXPIRED in the system. Place in biohazard container."
-            And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
+            And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
@@ -123,15 +123,15 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id>"
+            And On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             And I scan the lot number "Lot1234"
 
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
             And I select the product "<Product Code>"
 
             Then I see the confirmation message with title "<Title>" and message "<Message>"
             And I confirm the confirmation message
-            And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
+            And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Description | Unsuitable Reason              | Expired | Blood Center Id | Title      | Message                                                                                          |
@@ -147,12 +147,12 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id>"
+            And On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
             Then I see the "Warning" message "No products eligible for irradiation"
-            And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
+            And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
@@ -167,13 +167,13 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id>"
+            And On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
             And I select the product "<Product Code>"
             Then I see the "Warning" message "This product has already been irradiated"
-            And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
+            And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Lot Number |
@@ -188,13 +188,13 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id>"
+            And On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
             And I select the product "<Product Code>"
             Then I see the "Warning" message "Product not configured for Irradiation"
-            And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
+            And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id | Location  | Lot Number |
@@ -210,12 +210,12 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id 2>"
+            And On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id 2>"
             And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
             Then I see the "Warning" message "No products eligible for irradiation"
-            And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
+            And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id 1 | Lot Number | Blood Center Id 2 |
@@ -232,13 +232,13 @@ Feature: Starts Irradiation Process
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
-            And I scan the irradiator id "<Blood Center Id>"
+            And On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             And I scan the lot number "<Lot Number>"
 
-            When I scan the unit number "=<Unit Number>00" in the irradiation page
+            When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
             And I select the product "<Product Code 1>"
             Then I see the "Warning" message "This product has already been irradiated"
-            And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
+            And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
                 | Unit Number   | Product Code 1 | Description | Blood Center Id | Lot Number | Product Code 2 |
