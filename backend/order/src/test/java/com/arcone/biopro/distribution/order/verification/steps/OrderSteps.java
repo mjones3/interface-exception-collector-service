@@ -439,7 +439,7 @@ public class OrderSteps {
     }
 
     @And("I can see the order details card filled with the order details.")
-    public void checkOrderDetailsCard() {
+    public void checkOrderDetailsCard() throws InterruptedException {
         orderDetailsPage.verifyOrderDetailsCard(context.getExternalId(), context.getOrderId(), this.priority, this.status, this.orderComments);
     }
 

@@ -133,9 +133,9 @@ Feature: Shipment fulfillment request
                | 336003       | 1           | Testing Customer | 5        | AP        | PRT_APHERESIS_PLATELETS          | W812530107009 | E8340V00 | ROOM_TEMPERATURE |
                | 336004       | 1           | Testing Customer | 5        | BP        | PRT_APHERESIS_PLATELETS          | W812530107010 | EB317V00 | REFRIGERATED     |
                | 337001       | 1           | Testing Customer | 5        | BP        | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530107011 | E5085V00 | FROZEN           |
-               | 446001       | 1           | Testing Customer | 5        | BP        | PLASMA_MFG_NONINJECTABLE         | W812530107012 | E5085V00 | REFRIGERATED     |
-               | 446002       | 1           | Testing Customer | 5        | BP        | PLASMA_MFG_INJECTABLE            | W812530107013 | E5085V00 | FROZEN           |
-               | 446003       | 1           | Testing Customer | 5        | BP        | CRYOPRECIPITATE                  | W812530107014 | E5085V00 | FROZEN           |
+               | 446001       | 1           | Testing Customer | 5        | B         | PLASMA_MFG_NONINJECTABLE         | W812530107012 | E5085V00 | REFRIGERATED     |
+               | 446002       | 1           | Testing Customer | 5        | B         | PLASMA_MFG_INJECTABLE            | W812530107013 | E5085V00 | FROZEN           |
+               | 446003       | 1           | Testing Customer | 5        | B         | CRYOPRECIPITATE                  | W812530107014 | E5085V00 | FROZEN           |
 
 
    @api @DIS-261

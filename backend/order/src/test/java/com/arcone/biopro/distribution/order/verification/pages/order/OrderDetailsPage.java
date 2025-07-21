@@ -159,7 +159,7 @@ public class OrderDetailsPage extends CommonPageFactory {
         Assert.assertTrue(isLoaded());
     }
 
-    public void verifyOrderDetailsCard(String externalId, Integer orderId, String orderPriority, String orderStatus, String orderComments) {
+    public void verifyOrderDetailsCard(String externalId, Integer orderId, String orderPriority, String orderStatus, String orderComments) throws InterruptedException {
         sharedActions.waitForNotVisible(tableLoadingOverlay);
         sharedActions.waitForVisible(By.xpath(orderInformationDetail(externalId)));
         sharedActions.waitForVisible(By.xpath(orderInformationDetail(orderId.toString())));
