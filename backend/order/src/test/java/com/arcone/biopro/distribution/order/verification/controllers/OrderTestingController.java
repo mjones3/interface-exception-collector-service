@@ -256,4 +256,20 @@ public class OrderTestingController {
         return response;
     }
 
+    public String getProductFamilyDescription(String productFamilyKey){
+        Map<String, String> productFamilyDescription = Map.of(
+            "WHOLE_BLOOD", "Whole Blood",
+            "WHOLE_BLOOD_LEUKOREDUCED", "Whole Blood Leukoreduced",
+            "RED_BLOOD_CELLS", "Red Blood Cells",
+            "RED_BLOOD_CELLS_LEUKOREDUCED", "Red Blood Cells Leukoreduced",
+            "APHERESIS_PLATELETS_LEUKOREDUCED", "Apheresis Platelets Leukoreduced",
+            "PRT_APHERESIS_PLATELETS", "PRT Apheresis Platelets",
+            "CRYOPRECIPITATE", "Cryoprecipitate",
+            "PLASMA_TRANSFUSABLE", "Plasma Transfusable",
+            "PLASMA_MFG_NONINJECTABLE", "Plasma Manufacturing Non-Injectable",
+            "PLASMA_MFG_INJECTABLE", "Plasma Manufacturing Injectable"
+        );
+        return productFamilyDescription.get(productFamilyKey);
+    }
+
 }

@@ -106,10 +106,4 @@ public class TestUtils {
             return keyword;
         }
     }
-
-    public String parseProductFamilyDescription(String productFamily) {
-        return productFamily.replace("_", " ")
-            .replace("MFG", "MANUFACTURING")
-            .replace("NONINJECTABLE", "NON-INJECTABLE");
-    }
 }

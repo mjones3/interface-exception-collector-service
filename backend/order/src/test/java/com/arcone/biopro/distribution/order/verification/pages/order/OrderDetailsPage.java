@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.verification.pages.order;
 
+import com.arcone.biopro.distribution.order.verification.controllers.OrderTestingController;
 import com.arcone.biopro.distribution.order.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.support.TestUtils;
@@ -22,6 +23,9 @@ import java.util.Map;
 public class OrderDetailsPage extends CommonPageFactory {
     @Autowired
     private SharedActions sharedActions;
+
+    @Autowired
+    private OrderTestingController orderController;
 
     @Value("${ui.base.url}")
     private String baseUrl;
@@ -137,17 +141,6 @@ public class OrderDetailsPage extends CommonPageFactory {
         return String.format("//span[contains(.,'Temperature Category')]/following-sibling::span[contains(.,'%s')]", categoryLabel);
     }
 
-    // Strings mappers
-
-    private Map<String, String> productFamilyDescription = Map.of(
-        "PLASMA_TRANSFUSABLE", "Plasma Transfusable",
-        "RED_BLOOD_CELLS_LEUKOREDUCED", "Red Blood Cells Leukoreduced",
-        "WHOLE_BLOOD", "Whole Blood",
-        "WHOLE_BLOOD_LEUKOREDUCED", "Whole Blood Leukoreduced",
-        "RED_BLOOD_CELLS", "Red Blood Cells"
-    );
-
-
     @Override
     public boolean isLoaded() {
         sharedActions.waitForVisible(orderDetailsTitle);
@@ -254,7 +247,7 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void checkAvailableInventory(String[] productFamily, String[] bloodType, String[] quantity) {
         for (int i = 0; i < productFamily.length; i++) {
-            String productFamilyDescription = testUtils.parseProductFamilyDescription(productFamily[i]);
+            String productFamilyDescription = orderController.getProductFamilyDescription(productFamily[i]);
             sharedActions.waitForVisible(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
 
             try {
@@ -278,7 +271,7 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void verifyPickListProductDetails(String[] productFamily, String[] bloodType, String[] quantity, String[] comments) {
         for (int i = 0; i < productFamily.length; i++) {
-            sharedActions.waitForVisible(By.xpath(pickListProductDetails(productFamilyDescription.get(productFamily[i]))));
+            sharedActions.waitForVisible(By.xpath(pickListProductDetails(orderController.getProductFamilyDescription(productFamily[i]))));
             sharedActions.waitForVisible(By.xpath(pickListProductDetails(bloodType[i])));
             sharedActions.waitForVisible(By.xpath(pickListProductDetails(quantity[i])));
             sharedActions.waitForVisible(By.xpath(pickListProductDetails(comments[i])));
@@ -382,7 +375,7 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void checkInventoryUnavailable(String[] productFamily, String[] bloodType, String[] quantity) {
         for (int i = 0; i < productFamily.length; i++) {
-            String productFamilyDescription = testUtils.parseProductFamilyDescription(productFamily[i]);
+            String productFamilyDescription = orderController.getProductFamilyDescription(productFamily[i]);
             sharedActions.waitForVisible(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
 
             try {
