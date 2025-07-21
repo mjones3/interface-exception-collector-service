@@ -21,8 +21,11 @@ public enum MessageType {
     INVENTORY_NOT_EXIST(6, null, NotificationType.WARN, Action.BACK_TO_STORAGE),
     INVENTORY_IS_SHIPPED(7, InventoryStatus.SHIPPED.name(), NotificationType.WARN, Action.BACK_TO_STORAGE),
     INVENTORY_IS_UNLABELED(8, null, NotificationType.INFO, Action.BACK_TO_STORAGE),
-    INVENTORY_IS_PACKED(9, InventoryStatus.PACKED.name(), NotificationType.WARN, Action.BACK_TO_STORAGE);
-    ;
+    INVENTORY_IS_PACKED(9, InventoryStatus.PACKED.name(), NotificationType.WARN, Action.BACK_TO_STORAGE),
+    INVENTORY_IS_IN_TRANSIT(10, InventoryStatus.IN_TRANSIT.name(), NotificationType.WARN, Action.BACK_TO_STORAGE),
+    INVENTORY_IS_CONVERTED(11, InventoryStatus.CONVERTED.name(), NotificationType.INFO, Action.BACK_TO_STORAGE),
+    INVENTORY_IS_MODIFIED(12, InventoryStatus.MODIFIED.name(), NotificationType.INFO, Action.BACK_TO_STORAGE);
+
 
     Integer code;
     String status;
