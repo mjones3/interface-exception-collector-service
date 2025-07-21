@@ -49,14 +49,14 @@
                     <biopro-scan-unit-number-check-digit
                         #unitnumber
                         (validate)="validateUnit($event)"
-                        [showCheckDigit]="true"
+                        [showCheckDigit]="showCheckDigit"
                     >
                     </biopro-scan-unit-number-check-digit>
                 </div>
             </fuse-card>
             <fuse-card class="w-1/3 p-1 pl-4 flex flex-row items-center justify-start ml-auto">
                 <strong>Time Removed From Storage:&nbsp;</strong>
-                <span>01/01/2025 23:59</span>
+                <span>{{ currentDateTime }}</span>
             </fuse-card>
         </div>
 
