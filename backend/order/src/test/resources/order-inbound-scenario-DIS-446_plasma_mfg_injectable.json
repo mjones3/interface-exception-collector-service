@@ -22,7 +22,7 @@
     "orderItems": [
       {
         "productFamily": "PLASMA_MFG_INJECTABLE",
-        "bloodType": "OP",
+        "bloodType": "O",
         "quantity": 25,
         "comments": "Comments"
       }

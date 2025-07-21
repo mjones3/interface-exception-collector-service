@@ -22,7 +22,7 @@
     "orderItems": [
       {
         "productFamily": "CRYOPRECIPITATE",
-        "bloodType": "OP",
+        "bloodType": "O",
         "quantity": 25,
         "comments": "Comments"
       }
