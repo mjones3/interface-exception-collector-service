@@ -129,14 +129,14 @@ Feature: Starts Irradiation Process
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             And I select the product "<Product Code>"
 
-            Then I see the confirmation message with title "DISCARDED" and message "<Message>"
+            Then I see the confirmation message with title "<Title>" and message "<Message>"
             And I confirm the confirmation message
             And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
-                | Unit Number   | Product Code | Description | Unsuitable Reason              | Expired | Blood Center Id | Message                                                                                          |
-                | W777725002006 | E003300      | CP2D WB     | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD005   | This product has been discarded for Positive Reactive Test Results. Place in biohazard container |
-                | W777725002007 | E003300      | CP2D WB     |                                | YES     | AUTO-IRRAD006   | This product has been discarded for Expired. Place in biohazard container                        |
+                | Unit Number   | Product Code | Description | Unsuitable Reason              | Expired | Blood Center Id | Title      | Message                                                                                          |
+                | W777725002006 | E003300      | CP2D WB     | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD005   | UNSUITABLE | This product has been discarded for Positive Reactive Test Results. Place in biohazard container |
+                | W777725002007 | E003300      | CP2D WB     |                                | YES     | AUTO-IRRAD006   | EXPIRED    | This product has been discarded for Expired. Place in biohazard container                        |
 
         @LAB-615
         Scenario Outline: I should be notified if the unit number is not in the current location
@@ -152,7 +152,6 @@ Feature: Starts Irradiation Process
 
             When I scan the unit number "=<Unit Number>00" in the irradiation page
             Then I see the "Warning" message "No products eligible for irradiation"
-            # POP-UP DISPLAYED TWICE
             And I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
@@ -207,6 +206,7 @@ Feature: Starts Irradiation Process
                 | Unit Number   | Product Code   | Status    | Location  |
                 | <Unit Number> | <Product Code> | AVAILABLE | 123456789 |
             And the product "<Product Code>" in the unit "<Unit Number>" was already irradiated in a opened batch for device "<Blood Center Id 1>"
+            And I have a device "<Blood Center Id 2>" at location "123456789" with status "ACTIVE"
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
@@ -219,7 +219,7 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code | Description | Blood Center Id 1 | Lot Number | Blood Center Id 2 |
-                | W777725002011 | E003300      | CP2D WB     | AUTO-IRRAD010     | Lot1234    | AUTO-IRRAD010     |
+                | W777725002011 | E003300      | CP2D WB     | AUTO-IRRAD010     | Lot1234    | AUTO-IRRAD011     |
 
 
         @LAB-615
@@ -242,4 +242,4 @@ Feature: Starts Irradiation Process
 
             Examples:
                 | Unit Number   | Product Code 1 | Description | Blood Center Id | Lot Number | Product Code 2 |
-                | W777725002012 | E003300        | CP2D WB     | AUTO-IRRAD011    | Lot1234    | E003300        |
+                | W777725002012 | E003300        | CP2D WB     | AUTO-IRRAD012   | Lot1234    | E003300        |

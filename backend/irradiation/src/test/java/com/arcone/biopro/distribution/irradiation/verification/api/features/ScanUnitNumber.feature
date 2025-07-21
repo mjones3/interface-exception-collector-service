@@ -95,8 +95,8 @@ Feature: Scan Unit Number for Irradiation
         When I scan the unit number "W777725001011" in irradiation
         Then I see the product "E033600" from unit number "W777725001011" is in the list of products for selection
         And I see the product "E003300" from unit number "W777725001011" is in the list of products for selection
-        And I verify that product "E033600" in the unit "W777725001011" is flagged as already irradiated
-        And I verify that product "E003300" in the unit "W777725001011" is flagged as not irradiated
+        And I verify that product "E003300" in the unit "W777725001011" is flagged as already irradiated
+        And I verify that product "E033600" in the unit "W777725001011" is flagged as not irradiated
 
     @LAB-615
     Scenario: I cannot add a product that is not configured for irradiation

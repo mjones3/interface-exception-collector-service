@@ -48,23 +48,25 @@ public class StartIrradiationPage extends CommonPageFactory {
     }
 
     public void scanUnitNumber(String unitNumber) {
-        enterValueInField(unitNumber, unitNumberInputLocator);
+        enterValueInField(unitNumber, unitNumberInputLocator, false);
     }
 
     public void scanLotNumber(String lotNumber) {
-        enterValueInField(lotNumber, lotNumberInputLocator);
+        enterValueInField(lotNumber, lotNumberInputLocator, true);
     }
 
     public void scanIrradiatorDeviceId(String irradiatorDeviceId) {
-        enterValueInField(irradiatorDeviceId, irradiationDeviceIdInputLocator);
+        enterValueInField(irradiatorDeviceId, irradiationDeviceIdInputLocator, true);
     }
 
-    private void enterValueInField(String value, By fieldLocator) {
+    private void enterValueInField(String value, By fieldLocator, boolean pressEnter) {
         PageElement inputField = driver.waitForElement(fieldLocator);
         inputField.waitForVisible();
         inputField.waitForClickable();
         inputField.sendKeys(value);
-        inputField.sendKeys(Keys.ENTER);
+        if(pressEnter) {
+            inputField.sendKeys(Keys.ENTER);
+        }
     }
 
     public boolean inputFieldIsEnabled(String input) {
