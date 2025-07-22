@@ -128,4 +128,13 @@ public abstract class IrradiationPage extends CommonPageFactory {
             return false;
         }
     }
+
+    public void selectUnitCard(String unitNumber, String product){
+        try {
+            PageElement unitNumberCard = driver.waitForElement(unitNumberCardLocator(unitNumber, product), 5);
+            unitNumberCard.safeClick();
+        } catch (Exception e) {
+            log.error("Error to select the card for the unit number '{}' and product '{}' ", unitNumber, product);
+        }
+    }
 }
