@@ -180,6 +180,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     submit() {
        console.log('Submit button clicked');
+        this.currentDateTime = ''
     }
 
 
