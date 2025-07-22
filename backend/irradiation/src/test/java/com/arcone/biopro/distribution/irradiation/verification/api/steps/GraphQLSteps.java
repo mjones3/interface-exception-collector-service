@@ -34,7 +34,7 @@ public class GraphQLSteps {
     @Autowired
     private IrradiationContext irradiationContext;
 
-    @When("I scan the unit number {string} in irradiation and a check digit")
+    @When("I enter the unit number {string} in irradiation and the check digit")
     public void iScanTheUnitNumberInIrradiationAndACheckDigit(String unitNumber) {
         String checkDigit = CheckDigitUtil.calculateDigitCheck(unitNumber);
 
