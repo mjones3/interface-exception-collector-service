@@ -42,9 +42,8 @@ Feature: Close Irradiation Batch
             And On the Record Inspection window, I verify that Record Inspection window is displayed
             And On the Record Inspection window, I select Irradiated status
             And On the Record Inspection window, I click on Submit
-
-            When I choose to "Submit"
-            And I see the "Success" message "Batch submitted successfully"
+            And I choose to "Submit"
+            Then I see the "Success" message "Batch submitted successfully"
 
             Examples:
                 | Unit Number 1 | Product Code 1 | Description 1 | Product Code 2 | Description 2     | Irradiator Id | Unit Number 2 |
@@ -83,9 +82,8 @@ Feature: Close Irradiation Batch
             When On the Record Inspection window, I select Not Irradiated status
             And On the Record Inspection window, I click on Submit
             And I see the "Warning" message "Units will be quarantined"
-
             And I choose to "Submit"
-            And I see the "Success" message "Batch submitted successfully"
+            Then I see the "Success" message "Batch submitted successfully"
 
             Examples:
                 | Unit Number 1 | Product Code 1 | Description 1 | Product Code 2 | Description 2     | Irradiator Id | Unit Number 2 |
@@ -120,12 +118,12 @@ Feature: Close Irradiation Batch
             When On the "Close Irradiation" page, I select the card for unit "<Unit Number 2>" and product "<Description 1>" in the batch
             And On the Close Irradiation page, I click on Record Inspection
             Then On the Record Inspection window, I verify that Record Inspection window is displayed
+
             When On the Record Inspection window, I select Not Irradiated status
             And On the Record Inspection window, I click on Submit
             And I see the "Warning" message "Units will be quarantined"
-
             And I choose to "Submit"
-            And I see the "Success" message "Batch submitted successfully"
+            Then I see the "Success" message "Batch submitted successfully"
 
             Examples:
                 | Unit Number 1 | Product Code 1 | Description 1 | Product Code 2 | Description 2     | Irradiator Id | Unit Number 2 |
