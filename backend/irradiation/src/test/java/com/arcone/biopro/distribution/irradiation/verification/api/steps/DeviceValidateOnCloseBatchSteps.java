@@ -43,7 +43,7 @@ public class DeviceValidateOnCloseBatchSteps {
 
         // Add products to the batch
         for (Map<String, String> product : products) {
-            repositorySteps.createBatchItem(batchId, product.get("unitNumber"), product.get("productCode"));
+            repositorySteps.createBatchItem(batchId, product.get("unitNumber"), "1234", product.get("productCode"));
         }
     }
 
