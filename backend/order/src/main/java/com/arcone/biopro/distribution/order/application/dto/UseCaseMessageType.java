@@ -20,7 +20,8 @@ public enum UseCaseMessageType {
     ORDER_IS_NOT_OPEN_AND_CANNOT_BE_CANCELLED(8, UseCaseNotificationType.ERROR, "Order is not open and cannot be cancelled"),
     NO_ORDER_TO_BE_CANCELLED(9,  UseCaseNotificationType.ERROR, "There is no open order to be cancelled"),
     NO_ORDER_TO_BE_MODIFIED(10,  UseCaseNotificationType.ERROR, "There is no open order to be updated"),
-    BACK_ORDER_CANNOT_BE_MODIFIED(10,  UseCaseNotificationType.ERROR, "Back Orders cannot be updated"),
+    BACK_ORDER_CANNOT_BE_MODIFIED(11,  UseCaseNotificationType.ERROR, "Back Orders cannot be updated"),
+    INVALID_WASHED_PRODUCT(12, UseCaseNotificationType.ERROR, "Only allogeneic washed red blood cell products are allowed"),
     ;
 
     Integer code;

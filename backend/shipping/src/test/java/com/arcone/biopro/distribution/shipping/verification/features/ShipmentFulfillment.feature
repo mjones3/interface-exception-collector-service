@@ -2,8 +2,8 @@
 Feature: Shipment fulfillment request
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,W036825158907,W036898786758,W812530107009,W036825185915,W812530107010,W812530444001,W812530444002,W036825158914,W036825158916,W036825158912,W036898786802,W812530107012,W812530107013,W812530107014,W036898445901,W036898445902,W036825151111,W036825151112,W013682515113,W036825151114".
-        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008,44400010,44400011,44400012,44400013,44400014,44400015,45200001,45200002,45200003,45200004,45200005,45200006,45200007,446001,446002,446003,446004".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,W036825158907,W036898786758,W812530107009,W036825185915,W812530107010,W812530444001,W812530444002,W036825158914,W036825158916,W036825158912,W036898786802,W812530107012,W812530107013,W812530107014,W036898445901,W036898445902,W036825151111,W036825151112,W013682515113,W036825151114,W036830479001, W036830479002, W036830479003".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008,44400010,44400011,44400012,44400013,44400014,44400015,45200001,45200002,45200003,45200004,45200005,45200006,45200007,446001,446002,446003,446004,479001, 479002, 479003".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -114,7 +114,10 @@ Feature: Shipment fulfillment request
        Rule: I should be able to fill orders with Apheresis Platelets (PRT and BacT) Products.
        Rule: I should be able to fill orders with Frozen RBCs Products.
        Rule: I should be able to fill orders with cryo and cryo-reduced plasma Products.
-       @api @DIS-254 @DIS-336 @DIS-337 @DIS-446
+    Rule: I should be able to fill orders with washed apheresis platelets products.
+        Rule: I should be able to fill orders with washed PRT apheresis platelets products.
+    Rule: I should be able to fill orders with washed red blood cells products.
+       @api @DIS-254 @DIS-336 @DIS-337 @DIS-446 @DIS-479
        Scenario Outline: Ship Whole Blood and Derived Products.
            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>" , Temperature Category "<Category>".
            And The visual inspection configuration is "enabled".
@@ -137,6 +140,10 @@ Feature: Shipment fulfillment request
                | 446002       | 1           | Testing Customer | 5        | B         | PLASMA_MFG_INJECTABLE            | W013682515113 | E0701V00 | FROZEN           |
                | 446003       | 1           | Testing Customer | 5        | B         | CRYOPRECIPITATE                  | W036825151111 | E5165V00 | FROZEN           |
                | 446004       | 1           | Testing Customer | 5        | AP        | PLASMA_TRANSFUSABLE              | W036825151115 | E2617V00 | FROZEN           |
+               | 479001       | 1           | Testing Customer | 5        | AB        | WASHED_APHERESIS_PLATELETS       | W036830479001 | E3559V00 | ROOM_TEMPERATURE |
+               | 479002       | 1           | Testing Customer | 5        | O         | WASHED_PRT_APHERESIS_PLATELETS   | W036830479002 | E8697V00 | ROOM_TEMPERATURE |
+               | 479003       | 1           | Testing Customer | 5        | AP        | WASHED_RED_BLOOD_CELLS           | W036830479003 | E4566V00 | REFRIGERATED     |
+
 
 
 

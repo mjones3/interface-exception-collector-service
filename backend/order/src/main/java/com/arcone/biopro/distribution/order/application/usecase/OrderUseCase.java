@@ -13,6 +13,7 @@ import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.InventoryService;
 import com.arcone.biopro.distribution.order.domain.service.OrderService;
+import com.arcone.biopro.distribution.order.domain.service.WashedProductValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,6 +37,7 @@ public class OrderUseCase extends AbstractProcessOrderUseCase implements OrderSe
     private final ApplicationEventPublisher applicationEventPublisher;
     private final InventoryService inventoryService;
     private final PickListCommandMapper pickListCommandMapper;
+    private final WashedProductValidator washedProductValidator;
     private final static String USE_CASE_OPERATION = "CREATE_ORDER";
     private final static String INTERNAL_TRANSFER_TYPE = "INTERNAL_TRANSFER";
 
@@ -62,6 +64,7 @@ public class OrderUseCase extends AbstractProcessOrderUseCase implements OrderSe
         try{
             return orderReceivedEventMapper.mapToDomain(eventDTO)
                 .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(washedProductValidator::validateWashedProducts)
                 .doOnNext(order -> {
                         log.info("Result orderReceivedEventMapper.mapToDomain {} , ID {}", order, order.getId());
                         this.orderRepository.insert(order)

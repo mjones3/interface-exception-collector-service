@@ -16,7 +16,10 @@ export enum ProductFamily {
     RP_NONINJECTABLE_REFRIGERATED,
     APHERESIS_PLATELETS_LEUKOREDUCED,
     PRT_APHERESIS_PLATELETS,
-    CRYOPRECIPITATE
+    CRYOPRECIPITATE,
+    WASHED_RED_BLOOD_CELLS,
+    WASHED_APHERESIS_PLATELETS,
+    WASHED_PRT_APHERESIS_PLATELETS
 }
 
 export enum ProductType {
@@ -54,7 +57,10 @@ export const ProductFamilyMap: Record<keyof typeof ProductFamily, string> = {
     RP_NONINJECTABLE_REFRIGERATED: 'RP Noninjectable Refrigerated',
     APHERESIS_PLATELETS_LEUKOREDUCED: 'Apheresis Platelets Leukoreduced',
     PRT_APHERESIS_PLATELETS: 'PRT Apheresis Platelets',
-    CRYOPRECIPITATE: 'Cryoprecipitate'
+    CRYOPRECIPITATE: 'Cryoprecipitate',
+    WASHED_RED_BLOOD_CELLS: 'Washed Red Blood Cells',
+    WASHED_APHERESIS_PLATELETS: 'Washed Apheresis Platelets',
+    WASHED_PRT_APHERESIS_PLATELETS: 'Washed PRT Apheresis Platelets'
 };
 
 export const PriorityMap: Record<keyof typeof Priority, string> = {
