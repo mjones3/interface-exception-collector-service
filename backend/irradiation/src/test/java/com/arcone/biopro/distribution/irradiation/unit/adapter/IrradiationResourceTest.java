@@ -274,4 +274,47 @@ class IrradiationResourceTest {
             .expectError(RuntimeException.class)
             .verify();
     }
+
+    @Test
+    @DisplayName("Should handle null stopsManufacturing in quarantines")
+    void validateUnit_ShouldHandleNullStopsManufacturing_InQuarantines() {
+        // Given
+        String unitNumber = "W036825280464";
+        String location = "123456789";
+
+        List<com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.InventoryQuarantine> quarantines = List.of(
+            new com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.InventoryQuarantine(
+                "Quality Hold", "Pending review", null // null stopsManufacturing
+            )
+        );
+
+        IrradiationInventoryOutput inventoryWithNullQuarantine = IrradiationInventoryOutput.builder()
+            .unitNumber(unitNumber)
+            .productCode("E453300")
+            .location(location)
+            .status("AVAILABLE")
+            .productDescription("APH AS1 LR RBC C2")
+            .productFamily("RED_BLOOD_CELLS_LEUKOREDUCED")
+            .statusReason(null)
+            .unsuitableReason(null)
+            .expired(false)
+            .alreadyIrradiated(false)
+            .notConfigurableForIrradiation(false)
+            .quarantines(quarantines)
+            .build();
+        when(validateUnitNumberUseCase.execute(unitNumber, location))
+            .thenReturn(Flux.just(inventoryWithNullQuarantine));
+
+        Flux<IrradiationInventoryOutput> result = irradiationResource.validateUnit(unitNumber, location);
+
+        StepVerifier.create(result)
+            .expectNextMatches(inventory ->
+                inventory.quarantines() != null &&
+                inventory.quarantines().size() == 1 &&
+                inventory.quarantines().getFirst().stopsManufacturing() == null
+            )
+            .verifyComplete();
+
+        verify(validateUnitNumberUseCase).execute(unitNumber, location);
+    }
 }

@@ -366,9 +366,11 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     private handleQuarantine(product: IrradiationProductDTO) {
-        if (product.quarantines?.some(q => q.stopsManufacturing)) {
-            this.showMessage(MessageType.ERROR, 'This product has been quarantined and cannot be irradiated');
-            return false;
+        if (product.quarantines && product.quarantines.length > 0) {
+            if (product.quarantines?.some(q => (q.stopsManufacturing)?q.stopsManufacturing:false)) {
+                this.showMessage(MessageType.ERROR, 'This product has been quarantined and cannot be irradiated');
+                return false;
+            }
         }
         product.status = 'Quarantined';
         return true;

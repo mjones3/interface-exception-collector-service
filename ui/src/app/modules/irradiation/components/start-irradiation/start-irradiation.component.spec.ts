@@ -500,4 +500,66 @@ describe('StartIrradiationComponent', () => {
     expect(mockToastrService.error).toHaveBeenCalledWith('Validation service error');
     expect(component.lotNumber.hasError('invalid')).toBeTruthy();
   });
+
+  describe('handleQuarantine', () => {
+    it('should return false and show error when quarantine stops manufacturing', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: [{ reason: 'Quality Issue', comments: 'Test', stopsManufacturing: true }]
+      };
+
+      const result = (component as any).handleQuarantine(product);
+
+      expect(result).toBe(false);
+      expect(mockToastrService.error).toHaveBeenCalledWith('This product has been quarantined and cannot be irradiated');
+    });
+
+    it('should return true when quarantine does not stop manufacturing', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: [{ reason: 'Minor Issue', comments: 'Test', stopsManufacturing: false }]
+      };
+
+      const result = (component as any).handleQuarantine(product);
+
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
+    });
+
+    it('should return true when stopsManufacturing is null', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: [{ reason: 'Issue', comments: 'Test', stopsManufacturing: null }]
+      };
+
+      const result = (component as any).handleQuarantine(product);
+
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
+    });
+
+    it('should return true when quarantines array is empty', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: []
+      };
+
+      const result = (component as any).handleQuarantine(product);
+
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
+    });
+
+    it('should return true when quarantines is null', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: null
+      };
+
+      const result = (component as any).handleQuarantine(product);
+
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
+    });
+  });
 });
