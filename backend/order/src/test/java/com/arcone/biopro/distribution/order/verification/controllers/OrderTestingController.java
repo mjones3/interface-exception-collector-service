@@ -266,8 +266,8 @@ public class OrderTestingController {
             "PRT_APHERESIS_PLATELETS", "PRT Apheresis Platelets",
             "CRYOPRECIPITATE", "Cryoprecipitate",
             "PLASMA_TRANSFUSABLE", "Plasma Transfusable",
-            "PLASMA_MFG_NONINJECTABLE", "Plasma Manufacturing Non-Injectable",
-            "PLASMA_MFG_INJECTABLE", "Plasma Manufacturing Injectable"
+            "PLASMA_MFG_NONINJECTABLE", "Plasma MFG Noninjectable",
+            "PLASMA_MFG_INJECTABLE", "Plasma MFG Injectable"
         );
         return productFamilyDescription.get(productFamilyKey);
     }
