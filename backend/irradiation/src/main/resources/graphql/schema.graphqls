@@ -34,7 +34,7 @@ type ConfigurationDTO {
 type InventoryQuarantine {
     reason: String!,
     comments: String,
-    stopsManufacturing: Boolean!
+    stopsManufacturing: Boolean
 }
 
 input SubmitBatchInput {
