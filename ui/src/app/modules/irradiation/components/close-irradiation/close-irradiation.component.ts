@@ -24,9 +24,9 @@ import {UnitNumberCardComponent} from "../../../../shared/components/unit-number
 import {ProductIconsService} from "../../../../shared/services/product-icon.service";
 import {
     ConsequenceType,
-    IrradiationProductDTO,
+    IrradiationProductDTO, IrradiationResolveData,
     MessageType, ReasonDTO,
-    RecordVisualInpectionResult,
+    RecordVisualInpectionResult, ValidateUnitEvent,
     ValidationDataDTO
 } from "../../models/model";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -38,6 +38,9 @@ import {NgStyle} from "@angular/common";
 import {
     RecordVisualInspectionModalComponent
 } from "../record-visual-inspection-modal/record-visual-inspection-modal.component";
+import {switchMap} from "rxjs/operators";
+import {EMPTY} from "rxjs";
+import {Cookie} from "../../../../shared/types/cookie.enum";
 
 const AVAILABLE = 'AVAILABLE';
 const QUARANTINED = 'QUARANTINED';
@@ -73,9 +76,9 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     products: IrradiationProductDTO[] = [];
     initialProductsState: IrradiationProductDTO[] = [];
     allProducts: IrradiationProductDTO[] = [];
-
-    @Input() showCheckDigit = true;
-
+    currentDateTime: string;
+    startTime: string
+    showCheckDigit = false
     @ViewChild('buttons')
     buttons: TemplateRef<Element>;
 
@@ -83,6 +86,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
 
     form: FormGroup;
+
 
     constructor(
         private readonly router: Router,
@@ -92,6 +96,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         private readonly toaster: ToastrService,
         private readonly activatedRoute: ActivatedRoute,
         private readonly matDialog: MatDialog,
+        private readonly irradiationService: IrradiationService,
     ) {
         effect(() => {
             this.processHeaderService.setActions(this.buttons);
@@ -99,14 +104,12 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
         this.form = this.formBuilder.group({
             irradiatorId: [null, [Validators.required]],
-            lotNumber: [null, [Validators.required]]
         });
     }
 
     ngOnInit() {
-        this.isCheckDigitVisible = (
-            this.activatedRoute.snapshot.data as { useCheckDigit: boolean }
-        )?.useCheckDigit;
+        this.showCheckDigit = (this.activatedRoute.parent?.snapshot.data?.initialData as IrradiationResolveData)
+            .showCheckDigit;
     }
 
     ngAfterViewInit(): void {
@@ -115,10 +118,6 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     get irradiation() {
         return this.form.get('irradiatorId');
-    }
-
-    get lotNumber() {
-        return this.form.get('lotNumber');
     }
 
     openCancelConfirmationDialog(): void {
@@ -163,7 +162,15 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     isSubmitEnabled(): boolean {
-        return this.form.valid && this.numberOfUnits > 0;
+        if (this.form.valid && this.numberOfUnits > 0) {
+            const enabledProducts = this.products.filter(p => !p.disabled);
+            return enabledProducts.every(product =>
+                product.statuses.some(status =>
+                    status.value === IRRADIATED || status.value === NOT_IRRADIATED
+                )
+            );
+        }
+        return false
     }
 
     get disableCancelButton() {
@@ -172,13 +179,49 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     submit() {
-       console.log()
+       console.log('Submit button clicked');
+        this.currentDateTime = ''
     }
 
 
-    validateUnit(event: { unitNumber: string }) {
-        console.log('validateUnit', event);
-        const unitNumber = event.unitNumber;
+    validateUnit(event: ValidateUnitEvent) {
+        const { unitNumber, checkDigit, scanner } = event;
+        if (!unitNumber) return;
+        const now = new Date();
+        this.currentDateTime = now.toLocaleDateString('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric'
+        }) + ' ' + now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        this.startTime = now.toISOString().slice(0, 19);
+        if (this.showCheckDigit && !scanner) {
+            this.irradiationService.validateCheckDigit(unitNumber, checkDigit).subscribe({
+                next: (result) => {
+                    const isValid = result.data?.checkDigit?.isValid ?? false;
+                    if (!isValid) {
+                        if (checkDigit) {
+                            this.showMessage(MessageType.ERROR, 'Invalid check digit');
+                        }
+                        this.unitNumberComponent.setValidatorsForCheckDigit(true);
+                        this.unitNumberComponent.focusOnCheckDigit();
+                        return EMPTY;
+                    }
+                    this.validateUnitNumber(unitNumber);
+                },
+                error: (error) => {
+                    this.showMessage(MessageType.ERROR, error.message);
+                }
+            });
+        } else {
+            this.validateUnitNumber(unitNumber);
+        }
+    }
+
+    private validateUnitNumber(unitNumber: string) {
         if (unitNumber) {
             this.products.filter(p =>
                 p.unitNumber === unitNumber
@@ -189,7 +232,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.unitNumberComponent.reset();
     }
 
-    private populateCentrifugationBatch(irradiationProducts: IrradiationProductDTO[]) {
+    private populateIrradiationBatch(irradiationProducts: IrradiationProductDTO[]) {
 
         irradiationProducts.forEach((product) => {
             this.addProductToList(product);
@@ -421,8 +464,9 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             },
         ];
 
-        this.populateCentrifugationBatch(irradiationProducts);
-        this.unitNumberComponent.form.enable()
+        this.populateIrradiationBatch(irradiationProducts);
+        this.unitNumberComponent.controlUnitNumber.enable();
+        setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
     }
 
     redirect() {
