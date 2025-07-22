@@ -5,6 +5,7 @@ Feature: Validate order
         Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524,114117922233525,114117922233526,114117922233527,11411792223353221,11411792223353222,11411792223353223,DIS323000000001,DIS336000000002,DIS336000000003,114117922233521,DIS337000000001,DIS440000000001,DIS440000000002,DIS446000000001,DIS446000000002,DIS446000000003,DIS501000000001".
 
     Rule: The system should create a Biopro internal transfer order when an internal transfer order is received through the third-party application.
+    Rule: I should be able to receive an order for cryo and cryo-reduced plasma through third party application.
     @DIS-161 @DIS-92 @DIS-253 @bug @DIS-323 @DIS-336 @DIS-337 @R20-663 @DIS-440 @DIS-446
     Scenario Outline: Creating a BioPro order from a valid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".

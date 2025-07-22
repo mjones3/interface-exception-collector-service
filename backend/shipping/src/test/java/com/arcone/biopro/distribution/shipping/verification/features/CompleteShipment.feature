@@ -3,8 +3,8 @@ Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327,W812530106090,W812530107002,W812530107001,W812530106099,W036898786759,W812530107008,W812530107009,W8125301070010,W812530107012,W812530107013,W036598786805,W036598786806,W036825158911,W036825158912,W036825158913".
-        And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116,117,254001,254002,254003,1125,336001,336002,336003,337001,4450001,4450002,4450003,4450004,446001,446002,446003".
+        Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327,W812530106090,W812530107002,W812530107001,W812530106099,W036898786759,W812530107008,W812530107009,W8125301070010,W812530107012,W812530107013,W036825158911,W036825158912,W036825158913,W036825151111,W036825151112,W013682515113,W036825151115,W036598786805,W036598786806".
+        And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116,117,254001,254002,254003,1125,336001,336002,336003,337001,4450001,4450002,4450003,4450004,446001,446002,446003,446004".
 
         Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
         Rule: I should see a success message when the shipment is completed.
@@ -46,9 +46,11 @@ Feature: Complete Shipment Feature
                 | 336002       | 1           | Testing Customer | 2        | A         | PRT_APHERESIS_PLATELETS                                                                | PRT APHERESIS PLATELETS          | A    | =W81253010700900 | =<E8340V00 | 1                | enabled           | ROOM_TEMPERATURE |
                 | 336003       | 1           | Testing Customer | 2        | B         | PRT_APHERESIS_PLATELETS                                                                | PRT APHERESIS PLATELETS          | B    | =W81253010701000 | =<EB317V00 | 1                | enabled           | REFRIGERATED     |
                 | 337001       | 1           | Testing Customer | 2        | AP        | RED_BLOOD_CELLS_LEUKOREDUCED                                                           | RED BLOOD CELLS LEUKOREDUCED     | AP   | =W81253010701200 | =<E5107V00 | 1                | enabled           | FROZEN           |
-                | 446001       | 1           | Testing Customer | 2        | A         | PLASMA_MFG_NONINJECTABLE                                                               | PLASMA MFG NONINJECTABLE         | A    | =W03682515891200 | =<E5879V00 | 1                | enabled           | REFRIGERATED     |
-                | 446002       | 1           | Testing Customer | 2        | A         | PLASMA_MFG_INJECTABLE                                                                  | PLASMA MFG INJECTABLE            | A    | =W03682515891300 | =<E0701V00 | 1                | enabled           | FROZEN           |
-                | 446003       | 1           | Testing Customer | 2        | A         | CRYOPRECIPITATE                                                                        | CRYOPRECIPITATE                  | A    | =W03682515891100 | =<E5165V00 | 1                | enabled           | FROZEN           |
+                | 446001       | 1           | Testing Customer | 2        | B         | PLASMA_MFG_NONINJECTABLE                                                               | PLASMA MFG NONINJECTABLE         | B    | =W03682515111200 | =<E5879V00 | 1                | enabled           | REFRIGERATED     |
+                | 446002       | 1           | Testing Customer | 2        | B         | PLASMA_MFG_INJECTABLE                                                                  | PLASMA MFG INJECTABLE            | B    | =W01368251511300 | =<E0701V00 | 1                | enabled           | FROZEN           |
+                | 446003       | 1           | Testing Customer | 2        | B         | CRYOPRECIPITATE                                                                        | CRYOPRECIPITATE                  | B    | =W03682515111100 | =<E5165V00 | 1                | enabled           | FROZEN           |
+                | 446004       | 1           | Testing Customer | 2        | ANY       | PLASMA_TRANSFUSABLE                                                                    | PLASMA TRANSFUSABLE              | ANY  | =W03682515111500 | =<E2617V00 | 1                | enabled           | FROZEN           |
+
 
 
 
