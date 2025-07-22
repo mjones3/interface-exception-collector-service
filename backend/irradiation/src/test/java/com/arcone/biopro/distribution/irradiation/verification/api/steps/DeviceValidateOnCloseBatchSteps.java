@@ -43,7 +43,9 @@ public class DeviceValidateOnCloseBatchSteps {
 
         // Add products to the batch
         for (Map<String, String> product : products) {
-            repositorySteps.createBatchItem(batchId, product.get("unitNumber"), "1234", product.get("productCode"));
+            repositorySteps.createBatchItem(batchId, product.get("unitNumber"), "1234", product.get("productCode"), product.get("productFamily"));
+            log.info("Added product {} of type {} with family {} to batch {}",
+                product.get("unitNumber"), product.get("productCode"), product.get("productFamily"), batchId);
         }
     }
 
@@ -63,7 +65,16 @@ public class DeviceValidateOnCloseBatchSteps {
         var response = graphQlHelper.executeQuery("validateDeviceOnCloseBatch", variables, "validateDeviceOnCloseBatch", Object.class);
 
         if (response.getErrors().isEmpty()) {
-            irradiationContext.setBatchProducts((List<BatchProductDTO>) response.getData());
+            // Convert response data directly to BatchProductDTO objects
+            List<BatchProductDTO> batchProducts = ((List<Map<String, String>>) response.getData()).stream()
+                .map(map -> BatchProductDTO.builder()
+                    .unitNumber(map.get("unitNumber"))
+                    .productCode(map.get("productCode"))
+                    .productFamily(map.get("productFamily"))
+                    .build())
+                .toList();
+            irradiationContext.setBatchProducts(batchProducts);
+            log.info("Successfully converted {} batch products", batchProducts.size());
         } else {
             irradiationContext.setResponseErrors(response.getErrors());
         }
@@ -71,8 +82,18 @@ public class DeviceValidateOnCloseBatchSteps {
 
     @Then("I should see all products in the batch")
     public void iShouldSeeAllProductsInTheBatch() {
-        assertNotNull(irradiationContext.getBatchProducts());
-        // Additional validation can be added based on the response structure
+        List<BatchProductDTO> products = irradiationContext.getBatchProducts();
+        assertNotNull(products, "Batch products list should not be null");
+        log.info("Verified batch products are present: {} products found", products.size());
+
+        // Verify that each product has a productFamily
+        for (BatchProductDTO product : products) {
+            assertNotNull(product.unitNumber(), "Unit number should not be null");
+            log.info("Product {} has code {} and family {}", 
+                product.unitNumber(), 
+                product.productCode(), 
+                product.productFamily());
+        }
     }
 
     @Then("I should see notification {string}")

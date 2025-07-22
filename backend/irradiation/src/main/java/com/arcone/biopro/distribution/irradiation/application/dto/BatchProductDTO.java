@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public record BatchProductDTO(
     String unitNumber,
-    String productCode
+    String productCode,
+    String productFamily
 ) {
 }

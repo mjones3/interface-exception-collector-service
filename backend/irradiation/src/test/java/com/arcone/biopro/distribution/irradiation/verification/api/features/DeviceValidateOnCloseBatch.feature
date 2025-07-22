@@ -9,10 +9,10 @@ Feature: Validate device and close batch
     Scenario: Successfully scan device and view batch products for closing
         Given I have a device "AUTO-DEVICE0010" at location "123456789" with status "ACTIVE"
         And the device has an active batch with products:
-            | unitNumber    | productCode |
-            | W777725003001 | E0869V00    |
-            | W777725003002 | E0868V00    |
-            | W777725003003 | E0867V00    |
+            | unitNumber    | productCode | productFamily         |
+            | W777725003001 | E0869V00    | RED_BLOOD_CELLS       |
+            | W777725003002 | E0868V00    | RED_BLOOD_CELLS       |
+            | W777725003003 | E0867V00    | PLATELETS             |
         When I scan the device "AUTO-DEVICE0010" at location "123456789" for batch closing
         Then I should see all products in the batch
 

@@ -160,7 +160,7 @@ public class RepositorySteps {
         long batchId = createBatch(deviceId,LocalDateTime.now(), LocalDateTime.now());
         List<Map<String, String>> batchItems = dataTable.asMaps();
         for (Map<String, String> item : batchItems) {
-            createBatchItem(batchId,item.get("Lot Number"), item.get("Unit Number"),item.get("Product Code"));
+            createBatchItem(batchId,item.get("Lot Number"), item.get("Unit Number"),item.get("Product Code"), null);
         }
     }
 
@@ -170,12 +170,13 @@ public class RepositorySteps {
         return savedBatch.getId();
     }
 
-    public void createBatchItem(Long batchId, String unitNumber, String lotNumber, String productCode) {
+    public void createBatchItem(Long batchId, String unitNumber, String lotNumber, String productCode, String productFamily) {
         BatchItemEntity batchItem = BatchItemEntity.builder()
             .batchId(batchId)
             .unitNumber(unitNumber)
             .lotNumber(lotNumber)
             .productCode(productCode)
+            .productFamily(productFamily)
             .build();
         batchItemRepository.save(batchItem).block();
     }

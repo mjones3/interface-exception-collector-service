@@ -28,6 +28,7 @@ public class ValidateDeviceOnCloseBatchUseCase {
                             .map(item -> BatchProductDTO.builder()
                                 .unitNumber(item.unitNumber().value())
                                 .productCode(item.productCode())
+                                .productFamily(item.productFamily())
                                 .build())
                     )
             );
