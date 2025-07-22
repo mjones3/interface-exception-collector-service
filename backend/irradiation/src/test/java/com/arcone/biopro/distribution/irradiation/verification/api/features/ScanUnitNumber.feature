@@ -23,7 +23,7 @@ Feature: Scan Unit Number for Irradiation
         And I verify that product "E003300" in the unit "W777725001001" is flagged as configurable for irradiation
         And I verify that product "E0033V00" in the unit "W777725001001" is flagged as configurable for irradiation
 
-    @LAB-603 @621
+    @LAB-603 @LAB-621
     Scenario Outline: I successfully manually enter a unit number and check digit with a product eligible for irradiation
         Given I have the following inventory products:
             | Unit Number   | Product Code | Status     | Location  |
