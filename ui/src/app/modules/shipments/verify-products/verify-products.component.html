@@ -92,7 +92,8 @@
                                 <div class="mt-3">
                                     <biopro-scan-unit-number-product-code
                                         #scanUnitNumberProductCode
-                                        (validate)="verifyItem($event)"
+                                        (validate)="onValidScan($event)"
+                                        [showProductCode]="shipmentSignal()?.labelStatus !== 'UNLABELED' ?? true"
                                     >
                                     </biopro-scan-unit-number-product-code>
                                 </div>

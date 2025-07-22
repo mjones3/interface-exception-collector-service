@@ -1,19 +1,16 @@
 import { AsyncPipe, PercentPipe } from '@angular/common';
-import { Component, OnInit, ViewChild, computed } from '@angular/core';
+import { Component, computed, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import {
-    NotificationDto,
-    NotificationTypeMap,
-    ProcessHeaderComponent,
-    ProcessHeaderService
-} from '@shared';
+import { NotificationDto, NotificationTypeMap, ProcessHeaderComponent, ProcessHeaderService } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { NotificationComponent } from 'app/shared/components/notification/notification.component';
-import { ScanUnitNumberProductCodeComponent } from 'app/shared/components/scan-unit-number-product-code/scan-unit-number-product-code.component';
-import { finalize, tap } from 'rxjs';
+import {
+    ScanUnitNumberProductCodeComponent
+} from 'app/shared/components/scan-unit-number-product-code/scan-unit-number-product-code.component';
+import { finalize, of, switchMap, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { FuseCardComponent } from '../../../../@fuse';
 import { FuseConfirmationService } from '../../../../@fuse/services/confirmation';
@@ -24,13 +21,22 @@ import { ProductCategoryMap } from '../../../shared/models/product-category.mode
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
 import handleApolloError from '../../../shared/utils/apollo-error-handling';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
-import { CancelSecondVerificationRequest } from '../graphql/verify-products/query-definitions/verify-products.graphql';
+import {
+    CancelSecondVerificationRequest,
+    VerifyProductResponseDTO
+} from '../graphql/verify-products/query-definitions/verify-products.graphql';
 import { ShipmentItemPackedDTO, VerifyFilledProductDto } from '../models/shipment-info.dto';
 import { SecondVerificationCommon } from '../second-verification-common';
 import { ShipmentService } from '../services/shipment.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { VerifyProductsNavbarComponent } from '../verify-products-navbar/verify-products-navbar.component';
 import { ToastrService } from 'ngx-toastr';
+import {
+    SelectProductPickerModalComponent
+} from '../shared/select-product-picker-modal/select-product-picker-modal.component';
+import { ProductResponseDTO } from '../graphql/query-defintions/get-unlabeled-products.graphql';
+import { ConfirmationAcknowledgmentService } from '../../../shared/services/confirmation-acknowledgment.service';
+import { NotificationCriteriaService } from '../../../shared/services/notification-criteria.service';
 
 @Component({
     selector: 'app-verify-products',
@@ -87,6 +93,8 @@ export class VerifyProductsComponent
         protected toaster: ToastrService,
         protected header: ProcessHeaderService,
         protected matDialog: MatDialog,
+        protected notificationCriteriaService: NotificationCriteriaService,
+        protected confirmationAcknowledgmentService: ConfirmationAcknowledgmentService,
         protected fuseConfirmationService: FuseConfirmationService
     ) {
         super(
@@ -115,6 +123,19 @@ export class VerifyProductsComponent
                     notificationDetails.data.getNotificationDetailsByShipmentId
                 );
             });
+    }
+
+    onValidScan(item: VerifyFilledProductDto): void {
+        if (this.shipmentSignal()?.labelStatus === 'UNLABELED') {
+            this.openSelectProductDialog(item);
+            return;
+        }
+        if (item.unitNumber?.length && item.productCode?.length) {
+            this.verifyItem(item);
+            return;
+        }
+        // Should not reach this point!
+        this.toaster.error('Something Went Wrong');
     }
 
     verifyItem(item: VerifyFilledProductDto): void {
@@ -322,4 +343,64 @@ export class VerifyProductsComponent
     getProductStatus(product: ShipmentItemPackedDTO): string {
         return product?.productStatus && product?.productStatus != 'AVAILABLE' ? product?.productStatus : product?.ineligibleStatus;
     }
+
+    openSelectProductDialog(item: VerifyFilledProductDto) {
+        this.shipmentService
+            .getUnlabeledPackedItems({
+                unitNumber: item.unitNumber,
+                shipmentId: this.shipmentIdComputed(),
+            })
+            .pipe(
+                catchError((e) => handleApolloError(this.toaster, e)),
+                tap((result) => {
+                    if (result?.data?.getUnlabeledPackedItems?.ruleCode !== '200 OK') {
+                        const notifications: NotificationDto[] = [ ...(result?.data?.getUnlabeledPackedItems?.notifications ?? []) ];
+                        if (notifications?.length) {
+                            const infoNotification = this.notificationCriteriaService.filterOutByCriteria(notifications, { notificationType: 'INFO' })?.[0]
+                            if (infoNotification) {
+                                return this.confirmationAcknowledgmentService.openAcknowledgmentDialog(infoNotification.message, infoNotification.details);
+                            }
+                        }
+                    }
+
+                    consumeNotifications(
+                        this.toaster,
+                        result?.data?.getUnlabeledPackedItems?.notifications
+                    );
+                }),
+                switchMap(result => {
+                    const ruleCode = result?.data?.getUnlabeledPackedItems?.ruleCode;
+                    const data = result.data?.getUnlabeledPackedItems?.results?.results?.[0];
+
+                    // If nothing found or when it returned an error
+                    if (ruleCode !== '200 OK' || !data?.length) {
+                        const verification = result.data.getUnlabeledPackedItems?.results?.results?.[0] as VerifyProductResponseDTO;
+                        this.verificationSignal.set(verification);
+                        return of(null);
+                    }
+
+                    const products = data as ProductResponseDTO[];
+                    // If only one is available, autoselect first product
+                    if (products?.length === 1) {
+                        return of(products?.[0]);
+                    }
+
+                    // Show dialog asking the user to select the product
+                    return this.matDialog
+                        .open<SelectProductPickerModalComponent, ProductResponseDTO[], ProductResponseDTO>(
+                            SelectProductPickerModalComponent, {
+                                data: products
+                            })
+                        .afterClosed()
+                }),
+            )
+            .subscribe(result => {
+                if (result) {
+                    this.verifyItem({ ...item, productCode: result.productCode })
+                    return;
+                }
+                this.scanUnitNumberProductCode.resetUnitProductGroup();
+            });
+    }
+
 }
