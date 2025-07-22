@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.irradiation.application.usecase.CreateDevi
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Device;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DeviceCreatedListener extends AbstractListener<CreateDeviceUseCase.Input, Device, DeviceCreated> {
 
-    public DeviceCreatedListener(ReactiveKafkaConsumerTemplate<String, String> consumer,
+    public DeviceCreatedListener(@Qualifier("deviceCreatedTopic")ReactiveKafkaConsumerTemplate<String, String> consumer,
                                 ObjectMapper objectMapper,
                                 ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate,
                                 CreateDeviceUseCase useCase,
