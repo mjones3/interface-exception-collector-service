@@ -221,9 +221,11 @@ public class Order implements Validatable {
         if (this.createDate != null && this.id == null) {
             this.checkDateTimeIsInPast(this.createDate,"Create Date");
         }
-
         if (this.shippingCustomer == null) {
             throw new IllegalArgumentException("shippingCustomer could not be found or it is null");
+        }
+        if (this.getLocationFrom().equals(this.getLocationTo())) {
+            throw new IllegalArgumentException("location to should not be equals to location from");
         }
         if(INTERNAL_TRANSFER_TYPE.equals(shipmentType.getShipmentType()) && this.labelStatus == null){
             throw new IllegalArgumentException("Label Status cannot be null for Internal Transfer");
