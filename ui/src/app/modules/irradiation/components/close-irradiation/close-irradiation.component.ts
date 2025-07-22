@@ -1,10 +1,8 @@
 import {
     AfterViewInit,
-    ChangeDetectorRef,
     Component,
     effect,
     inject,
-    Input,
     OnInit,
     TemplateRef,
     ViewChild, ViewEncapsulation
@@ -14,7 +12,6 @@ import {FuseCardComponent} from "../../../../../@fuse";
 import {InputComponent} from "../../../../shared/components/input/input.component";
 import {MatDivider} from "@angular/material/divider";
 import {
-    FacilityService,
     ProcessHeaderComponent,
     ProcessHeaderService,
     ScanUnitNumberCheckDigitComponent
@@ -23,10 +20,8 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/
 import {UnitNumberCardComponent} from "../../../../shared/components/unit-number-card/unit-number-card.component";
 import {ProductIconsService} from "../../../../shared/services/product-icon.service";
 import {
-    ConsequenceType,
     IrradiationProductDTO, IrradiationResolveData,
-    MessageType, ReasonDTO,
-    RecordVisualInpectionResult, ValidateUnitEvent,
+    MessageType, RecordVisualInpectionResult, ValidateUnitEvent,
     ValidationDataDTO
 } from "../../models/model";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -38,9 +33,7 @@ import {NgStyle} from "@angular/common";
 import {
     RecordVisualInspectionModalComponent
 } from "../record-visual-inspection-modal/record-visual-inspection-modal.component";
-import {switchMap} from "rxjs/operators";
 import {EMPTY} from "rxjs";
-import {Cookie} from "../../../../shared/types/cookie.enum";
 
 const AVAILABLE = 'AVAILABLE';
 const QUARANTINED = 'QUARANTINED';
@@ -48,6 +41,8 @@ const PENDING_INSPECTION = 'PENDING INSPECTION';
 const EXPIRED = 'EXPIRED';
 const IRRADIATED = 'IRRADIATED';
 const NOT_IRRADIATED = 'NOT IRRADIATED';
+const UNSUITABLE = 'UNSUITABLE';
+const DISCARDED = 'DISCARDED';
 
 @Component({
     selector: 'biopro-close-irradiation',
@@ -70,7 +65,6 @@ const NOT_IRRADIATED = 'NOT IRRADIATED';
 export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     private readonly _productIconService = inject(ProductIconsService);
-    isCheckDigitVisible = true;
     numOfMaxUnits = 0;
     selectedProducts: IrradiationProductDTO[] = [];
     products: IrradiationProductDTO[] = [];
@@ -267,10 +261,28 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             case AVAILABLE:
                 return 'bg-green-500 text-white';
             case EXPIRED:
+            case UNSUITABLE:
+            case DISCARDED:
                 return 'bg-red-500 text-white';
             default:
                 return 'bg-gray-500 text-white';
         }
+    }
+
+    private getFinalStatus(inventory: IrradiationProductDTO) {
+        if (inventory.status === DISCARDED) {
+            return DISCARDED;
+        }
+        if (inventory.expired) {
+            return EXPIRED;
+        }
+        if (inventory.unsuitableReason) {
+            return UNSUITABLE;
+        }
+        if (inventory.quarantines && inventory.quarantines.length !==0) {
+            return QUARANTINED;
+        }
+        return AVAILABLE;
     }
 
     private addProductToList(newProduct: IrradiationProductDTO) {

@@ -391,7 +391,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
         return this.discardService.discardProduct(discardRequestDTO).subscribe({
             next: () => {
-                this.openConfirmationDialog(product);
+                this.openConfirmationDialog(product, reason);
             },
             error: (error) => {
                 this.toaster.error('Unable to reach discard service.');
@@ -400,11 +400,11 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         });
     }
 
-    openConfirmationDialog(selectedProduct: IrradiationProductDTO): void {
+    openConfirmationDialog(selectedProduct: IrradiationProductDTO, reason: string): void {
         const dialogRef = this.confirmationService.open({
             title:
                 selectedProduct.status || 'Acknowledge message',
-            message: 'This product has been discarded for ' + selectedProduct.statusReason + '. Place in biohazard container',
+            message: 'This product has been discarded for ' + reason + '. Place in biohazard container',
             dismissible: false,
             icon: {
                 name: 'heroicons_outline:question-mark-circle',
@@ -454,6 +454,9 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     private getFinalStatus(inventory: IrradiationProductDTO) {
+        if (inventory.status === DISCARDED) {
+            return DISCARDED;
+        }
         if (inventory.expired) {
             return EXPIRED;
         }
@@ -462,9 +465,6 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         }
         if (inventory.quarantines && inventory.quarantines.length !==0) {
             return QUARANTINED;
-        }
-        if (inventory.status === DISCARDED) {
-            return DISCARDED;
         }
         return AVAILABLE;
     }
