@@ -231,7 +231,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.unitNumberComponent.reset();
     }
 
-    private populateCentrifugationBatch(irradiationProducts: IrradiationProductDTO[]) {
+    private populateIrradiationBatch(irradiationProducts: IrradiationProductDTO[]) {
 
         irradiationProducts.forEach((product) => {
             this.addProductToList(product);
@@ -463,7 +463,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             },
         ];
 
-        this.populateCentrifugationBatch(irradiationProducts);
+        this.populateIrradiationBatch(irradiationProducts);
         this.unitNumberComponent.controlUnitNumber.enable();
         setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
     }
