@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.config;
 
 import com.arcone.biopro.distribution.irradiation.adapter.in.listener.DeviceCreated;
+import com.arcone.biopro.distribution.irradiation.adapter.in.listener.ProductStored;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
@@ -34,6 +35,9 @@ class KafkaConfiguration {
     @Value("${topic.device.created.name}")
     private String deviceCreatedTopic;
 
+    @Value("${topic.product.stored.name}")
+    private String productStoredTopic;
+
     @Bean
     @Qualifier("deviceCreatedTopic")
     ReceiverOptions<String, String> deviceCreatedReceiverOptions(KafkaProperties kafkaProperties) {
@@ -51,6 +55,26 @@ class KafkaConfiguration {
     @Bean
     @Qualifier("deviceCreatedTopic")
     ReactiveKafkaConsumerTemplate<String, String> deviceCreatedConsumerTemplate(@Qualifier("deviceCreatedTopic") ReceiverOptions<String, String> receiverOptions) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @Bean
+    @Qualifier("productStoredTopic")
+    ReceiverOptions<String, String> productStoredReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .commitInterval(Duration.ofSeconds(5))
+            .commitBatchSize(1)
+            .subscription(List.of(productStoredTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductStored",
+        description = "ProductStored has been listened and logged",
+        payloadType = ProductStored.class
+    ))
+    @Bean
+    @Qualifier("productStoredTopic")
+    ReactiveKafkaConsumerTemplate<String, String> productStoredConsumerTemplate(@Qualifier("productStoredTopic") ReceiverOptions<String, String> receiverOptions) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
 
