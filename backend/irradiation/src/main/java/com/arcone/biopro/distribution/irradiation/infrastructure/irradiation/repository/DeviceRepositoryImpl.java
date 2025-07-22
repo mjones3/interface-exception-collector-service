@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 interface DeviceEntityRepository extends ReactiveCrudRepository<DeviceEntity, Long> {
     Mono<DeviceEntity> findByDeviceId(String deviceId);
+    Mono<DeviceEntity> findByDeviceIdAndLocation(String deviceId, String location);
 }
 
 @Repository
@@ -24,6 +25,16 @@ public class DeviceRepositoryImpl implements DeviceRepository {
     @Override
     public Mono<Device> findByDeviceId(DeviceId deviceId) {
         return repository.findByDeviceId(deviceId.getValue())
+                .map(entity -> new Device(
+                        DeviceId.of(entity.getDeviceId()),
+                        new Location(entity.getLocation()),
+                        entity.getStatus()
+                ));
+    }
+
+    @Override
+    public Mono<Device> findByDeviceIdAndLocation(String deviceId, String location) {
+        return repository.findByDeviceIdAndLocation(deviceId, location)
                 .map(entity -> new Device(
                         DeviceId.of(entity.getDeviceId()),
                         new Location(entity.getLocation()),
