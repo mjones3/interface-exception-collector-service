@@ -24,10 +24,10 @@ public class SharedSteps {
     private HomePage homePage;
     private final StartIrradiationPage startIrradiationPage;
     private final CloseIrradiationPage closeIrradiationPage;
-    
+
     /**
      * Returns the appropriate irradiation page based on the page name.
-     * 
+     *
      * @param pageName The name of the page ("Start Irradiation" or "Close Irradiation")
      * @return The corresponding irradiation page object
      */
@@ -118,5 +118,11 @@ public class SharedSteps {
     public void iVerifyThatTheProductShowsAs(String page, String unitNumber, String product, String status) {
         IrradiationPage irradiationPage = getIrradiationPage(page);
         Assertions.assertTrue(irradiationPage.isProductInStatus(unitNumber, product, status));
+    }
+
+    @When("On the {string} page, I select the card for unit {string} and product {string} in the batch")
+    public void onTheCloseIrradiationPageISelectTheCardForUnitAndProductInTheBatch(String page, String unitNumber, String product) {
+        IrradiationPage irradiationPage = getIrradiationPage(page);
+        irradiationPage.selectUnitCard(unitNumber,product);
     }
 }
