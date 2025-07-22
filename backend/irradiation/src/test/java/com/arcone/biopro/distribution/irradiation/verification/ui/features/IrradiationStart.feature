@@ -135,8 +135,8 @@ Feature: Start Irradiation Batch
 
             Examples:
                 | Unit Number   | Product Code | Description | Unsuitable Reason              | Expired | Blood Center Id | Title      | Message                                                                                          |
-                | W777725002006 | E003300      | CP2D WB     | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD005   | UNSUITABLE | This product has been discarded for Positive Reactive Test Results. Place in biohazard container |
-                | W777725002007 | E003300      | CP2D WB     |                                | YES     | AUTO-IRRAD006   | EXPIRED    | This product has been discarded for Expired. Place in biohazard container                        |
+                | W777725002006 | E003300      | CP2D WB     | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD005   | UNSUITABLE | This product has been discarded for POSITIVE_REACTIVE_TEST_RESULTS. Place in biohazard container |
+                | W777725002007 | E003300      | CP2D WB     |                                | YES     | AUTO-IRRAD006   | EXPIRED    | This product has been discarded for EXPIRED. Place in biohazard container                        |
 
         @LAB-615
         Scenario Outline: I should be notified if the unit number is not in the current location
