@@ -50,10 +50,14 @@ public class RepositorySteps {
     @Setter
     private String batchSubmissionError;
 
+    @Getter
+    private String lastCreatedDeviceId;
+
     @Given("I have a device {string} at location {string} with status {string}")
     public void iHaveAValidDeviceAtLocation(String deviceId, String location, String status) {
         DeviceEntity device = new DeviceEntity(deviceId, location, status);
         deviceRepository.save(device).block();
+        this.lastCreatedDeviceId = deviceId;
     }
 
     @Given("I have an open batch for device {string}")
@@ -148,5 +152,31 @@ public class RepositorySteps {
         deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
         var batch = batchRepository.save(BatchEntity.builder().deviceId(deviceId).startTime(LocalDateTime.now()).build()).block();
         batchItemRepository.save(BatchItemEntity.builder().batchId(batch.getId()).lotNumber("123").unitNumber(unitNumber).productCode(productCode).build()).block();
+    }
+
+    @Given("An irradiation batch has been started with the following units for irradiator {string}")
+    public void anIrradiationBatchHasBeenStartedWithTheFollowingUnits(String deviceId, DataTable dataTable) {
+        deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
+        long batchId = createBatch(deviceId,LocalDateTime.now(), LocalDateTime.now());
+        List<Map<String, String>> batchItems = dataTable.asMaps();
+        for (Map<String, String> item : batchItems) {
+            createBatchItem(batchId,item.get("Lot Number"), item.get("Unit Number"),item.get("Product Code"));
+        }
+    }
+
+    public Long createBatch(String deviceId, LocalDateTime startTime, LocalDateTime endTime) {
+        BatchEntity batch = new BatchEntity(deviceId, startTime, endTime);
+        BatchEntity savedBatch = batchRepository.save(batch).block();
+        return savedBatch.getId();
+    }
+
+    public void createBatchItem(Long batchId, String unitNumber, String lotNumber, String productCode) {
+        BatchItemEntity batchItem = BatchItemEntity.builder()
+            .batchId(batchId)
+            .unitNumber(unitNumber)
+            .lotNumber(lotNumber)
+            .productCode(productCode)
+            .build();
+        batchItemRepository.save(batchItem).block();
     }
 }

@@ -4,6 +4,7 @@ type Query {
     readConfiguration(keys: [String]): [ConfigurationDTO]
     checkDigit(unitNumber: String!, checkDigit: String!): CheckDigitResponseDTO!
     validateLotNumber(lotNumber: String!, type: String!): Boolean
+    validateDeviceOnCloseBatch(deviceId: String!, location: String!): [BatchProduct]
 }
 
 type Mutation {
@@ -33,7 +34,7 @@ type ConfigurationDTO {
 type InventoryQuarantine {
     reason: String!,
     comments: String,
-    stopsManufacturing: Boolean!
+    stopsManufacturing: Boolean
 }
 
 input SubmitBatchInput {
@@ -56,4 +57,9 @@ type BatchSubmissionResult {
 
 type CheckDigitResponseDTO {
     isValid: Boolean
+}
+
+type BatchProduct {
+    unitNumber: String
+    productCode: String
 }

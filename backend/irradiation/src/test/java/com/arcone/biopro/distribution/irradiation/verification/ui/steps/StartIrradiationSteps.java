@@ -14,39 +14,9 @@ import static org.junit.Assert.assertTrue;
 public class StartIrradiationSteps {
     private final StartIrradiationPage startIrradiationPage;
 
-    @And("I verify that the {string} field is {string}")
-    public void iVerifyThatTheFieldIs(String fieldName, String expectedStatus) {
-        boolean isEnabled = startIrradiationPage.inputFieldIsEnabled(fieldName);
-
-        boolean expectedEnabled;
-        if (expectedStatus.equalsIgnoreCase("enabled")) {
-            expectedEnabled = true;
-        } else if (expectedStatus.equalsIgnoreCase("disabled")) {
-            expectedEnabled = false;
-        } else {
-            throw new IllegalArgumentException("Invalid expected status: " + expectedStatus + ". Use 'enabled' or 'disabled'.");
-        }
-
-        if (expectedEnabled) {
-            assertTrue("Expected the '" + fieldName + "' field to be enabled, but it was disabled.", isEnabled);
-        } else {
-            Assert.assertFalse("Expected the '" + fieldName + "' field to be disabled, but it was enabled.", isEnabled);
-        }
-    }
-
-    @When("I scan the irradiator id {string}")
-    public void iScanTheIrradiatorId(String irradiatorDeviceId) {
-        startIrradiationPage.scanIrradiatorDeviceId(irradiatorDeviceId);
-    }
-
     @When("I scan the lot number {string}")
     public void iScanTheLotNumber(String lotnumber) {
         startIrradiationPage.scanLotNumber(lotnumber);
-    }
-
-    @When("I scan the unit number {string} in the irradiation page")
-    public void iScanTheUnitNumberInTheIrradiationPage(String unitNumber) {
-        startIrradiationPage.scanUnitNumber(unitNumber);
     }
 
     @Then("I verify the product {string} is displayed for selection")
@@ -57,22 +27,5 @@ public class StartIrradiationSteps {
     @When("I select the product {string}")
     public void iSelectTheProduct(String productCode) {
         startIrradiationPage.selectProductForIrradiation(productCode);
-    }
-
-    @Then("I verify that the unit number {string} with product {string} was added to the batch")
-    public void iVerifyThatTheUnitNumberWithProductWasAddedToTheBatch(String unitNumber, String product) {
-        boolean isAddedToBatch = startIrradiationPage.unitNumberCardExists(unitNumber,product);
-        Assert.assertTrue(String.format("A card for the unit number '%s' and product code '%s' was not found in the irradiation batch.", unitNumber, product), isAddedToBatch);
-    }
-
-    @Then("I verify that the unit number {string} with product {string} was not added to the batch")
-    public void iVerifyThatTheUnitNumberWithProductWasNotAddedToTheBatch(String unitNumber, String product) {
-        int unitNumberCards = startIrradiationPage.unitNumberProductCardCount(unitNumber,product);
-        Assert.assertEquals("Unit number cards amount does not match.", 0,unitNumberCards );
-    }
-
-    @Then("I verify that the card for unit number {string} and product {string} shows as {string}")
-    public void iVerifyThatTheProductShowsAs(String unitNumber, String product, String status) {
-        Assertions.assertTrue(startIrradiationPage.isProductInStatus(unitNumber, product, status));
     }
 }

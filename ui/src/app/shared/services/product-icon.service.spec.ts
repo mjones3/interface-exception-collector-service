@@ -74,6 +74,18 @@ describe('ProductIconsService', () => {
                 productFamily: 'RP_NONINJECTABLE_REFRIGERATED',
                 value: 'biopro:product-plasma',
             },
+            {
+                productFamily: 'WASHED_APHERESIS_PLATELETS',
+                value: 'biopro:product-platelets',
+            },
+            {
+                productFamily: 'WASHED_RED_BLOOD_CELLS',
+                value: 'biopro:product-rbc',
+            },
+            {
+                productFamily: 'WASHED_PRT_APHERESIS_PLATELETS',
+                value: 'biopro:product-platelets',
+            }
         ];
         expect(service.getProductIcons()).toEqual(productIconMock);
         expect(service.getIconByProductFamily('WHOLE_BLOOD')).toBe(
