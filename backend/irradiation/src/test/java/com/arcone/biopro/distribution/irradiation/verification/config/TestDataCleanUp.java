@@ -22,6 +22,6 @@ public class TestDataCleanUp {
 
     public void cleanUpAll() {
         var populator = new ResourceDatabasePopulator(cleanUpAllQuery);
-        //Mono.from(populator.populate(connectionFactory)).block();
+        Mono.from(populator.populate(connectionFactory)).block();
     }
 }
