@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.adapter.in.socket;
 
+import com.arcone.biopro.distribution.irradiation.adapter.in.socket.dto.GetInventoryByUnitNumberAndProductCodeRequest;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.client.InventoryOutput;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.client.InventoryQuarantineOutput;
 import lombok.AccessLevel;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -269,4 +271,22 @@ public class InventoryServerMock {
             .unsuitableReason(null)
             .expired(false);
     }
+
+    @MessageMapping("getInventoryByUnitNumberAndProductCode")
+    Mono<InventoryOutput> getInventoryByUnitNumberAndProductCode(GetInventoryByUnitNumberAndProductCodeRequest request) {
+        log.info("Mock server received request for getInventoryByUnitNumberAndProductCode with unitNumber: {} and productCode: {}",
+            request.unitNumber(), request.productCode());
+        return Mono.just(
+            InventoryOutput.builder()
+                .unitNumber(request.unitNumber().value())
+                .productCode(request.productCode())
+                .location("123456789")
+                .inventoryStatus("AVAILABLE")
+                .productDescription("Blood Sample Type A")
+                .productFamily("RED_BLOOD_CELLS")
+                .shortDescription("Type A Sample")
+                .build()
+        );
+    }
+
 }

@@ -71,6 +71,8 @@ public class DeviceValidateOnCloseBatchSteps {
                     .unitNumber(map.get("unitNumber"))
                     .productCode(map.get("productCode"))
                     .productFamily(map.get("productFamily"))
+                    .productDescription(map.get("productDescription"))
+                    .status(map.get("status"))
                     .build())
                 .toList();
             irradiationContext.setBatchProducts(batchProducts);
@@ -89,9 +91,9 @@ public class DeviceValidateOnCloseBatchSteps {
         // Verify that each product has a productFamily
         for (BatchProductDTO product : products) {
             assertNotNull(product.unitNumber(), "Unit number should not be null");
-            log.info("Product {} has code {} and family {}", 
-                product.unitNumber(), 
-                product.productCode(), 
+            log.info("Product {} has code {} and family {}",
+                product.unitNumber(),
+                product.productCode(),
                 product.productFamily());
         }
     }
