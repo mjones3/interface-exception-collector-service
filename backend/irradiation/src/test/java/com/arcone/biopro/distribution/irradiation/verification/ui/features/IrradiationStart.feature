@@ -20,11 +20,13 @@ Feature: Start Irradiation Batch
             Then On the "Start Irradiation" page, I verify that the "Irradiator Id" field is "enabled"
             Then On the "Start Irradiation" page, I verify that the "Unit Number" field is "disabled"
             And I verify that I am "Unable" to "Submit"
+            And I verify that I am "Unable" to "Cancel"
 
             When On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             Then On the "Start Irradiation" page, I verify that the "Unit Number" field is "disabled"
             And On the "Start Irradiation" page, I verify that the "Irradiator Id" field is "disabled"
             And I verify that I am "Unable" to "Submit"
+            And I verify that I am "Able" to "Cancel"
 
             When I scan the lot number "<Lot Number 1>"
             Then On the "Start Irradiation" page, I verify that the "Unit Number" field is "enabled"
@@ -135,8 +137,8 @@ Feature: Start Irradiation Batch
 
             Examples:
                 | Unit Number   | Product Code | Description | Unsuitable Reason              | Expired | Blood Center Id | Title      | Message                                                                                          |
-                | W777725002006 | E003300      | CP2D WB     | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD005   | UNSUITABLE | This product has been discarded for Positive Reactive Test Results. Place in biohazard container |
-                | W777725002007 | E003300      | CP2D WB     |                                | YES     | AUTO-IRRAD006   | EXPIRED    | This product has been discarded for Expired. Place in biohazard container                        |
+                | W777725002006 | E003300      | CP2D WB     | POSITIVE_REACTIVE_TEST_RESULTS | NO      | AUTO-IRRAD005   | UNSUITABLE | This product has been discarded for POSITIVE_REACTIVE_TEST_RESULTS. Place in biohazard container |
+                | W777725002007 | E003300      | CP2D WB     |                                | YES     | AUTO-IRRAD006   | EXPIRED    | This product has been discarded for EXPIRED. Place in biohazard container                        |
 
         @LAB-615
         Scenario Outline: I should be notified if the unit number is not in the current location

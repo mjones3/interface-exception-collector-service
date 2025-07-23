@@ -62,4 +62,5 @@ type CheckDigitResponseDTO {
 type BatchProduct {
     unitNumber: String
     productCode: String
+    productFamily: String
 }
