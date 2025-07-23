@@ -73,17 +73,17 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     initialProductsState: IrradiationProductDTO[] = [];
     allProducts: IrradiationProductDTO[] = [];
     currentDateTime: string;
+    deviceId: boolean = false;
     startTime: string
     showCheckDigit = false
+
     @ViewChild('buttons')
     buttons: TemplateRef<Element>;
 
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
-
     form: FormGroup;
     currentLocation: string;
-
 
     constructor(
         private readonly router: Router,
@@ -152,6 +152,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     private resetAllData() {
+        this.deviceId = false;
         this.products = [];
         this.initialProductsState = [];
         this.selectedProducts = [];
@@ -173,13 +174,14 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     get disableCancelButton() {
-        //return !this.deviceId;
-        return false;
+        return !this.deviceId;
     }
 
     submit() {
-       console.log('Submit button clicked');
+        //TODO: add here the submit endpoint
         this.currentDateTime = ''
+        this.showMessage(MessageType.SUCCESS, 'Batch successfully closed. Label irradiated products.');
+        this.redirect();
     }
 
 
@@ -452,7 +454,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     redirect() {
-        this.router.navigateByUrl('irradiation');
+        this.router.navigateByUrl('irradiation/start-irradiation');
     }
 
     private showMessage(messageType: MessageType, message: string) {

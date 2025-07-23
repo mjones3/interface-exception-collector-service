@@ -20,11 +20,13 @@ Feature: Close Irradiation Batch
             And On the "Close Irradiation" page, I verify that the "Irradiator Id" field is "enabled"
             And On the "Close Irradiation" page, I verify that the "Unit Number" field is "disabled"
             And I verify that I am "Unable" to "Submit"
+            And I verify that I am "Unable" to "Cancel"
 
             When On the "Close Irradiation" page, I scan the irradiator id "<Irradiator Id>"
             Then On the "Close Irradiation" page, I verify that the "Unit Number" field is "enabled"
             And On the "Close Irradiation" page, I verify that the "Irradiator Id" field is "disabled"
             And I verify that I am "Unable" to "Submit"
+            And I verify that I am "Able" to "Cancel"
             And On the "Close Irradiation" page, I verify that the unit number "<Unit Number 1>" with product "<Description 1>" was added to the batch
             And On the "Close Irradiation" page, I verify that the unit number "<Unit Number 1>" with product "<Description 2>" was added to the batch
             And On the "Close Irradiation" page, I verify that the unit number "<Unit Number 2>" with product "<Description 1>" was added to the batch

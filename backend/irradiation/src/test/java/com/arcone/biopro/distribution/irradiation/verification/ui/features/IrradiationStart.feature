@@ -20,11 +20,13 @@ Feature: Start Irradiation Batch
             Then On the "Start Irradiation" page, I verify that the "Irradiator Id" field is "enabled"
             Then On the "Start Irradiation" page, I verify that the "Unit Number" field is "disabled"
             And I verify that I am "Unable" to "Submit"
+            And I verify that I am "Unable" to "Cancel"
 
             When On the "Start Irradiation" page, I scan the irradiator id "<Blood Center Id>"
             Then On the "Start Irradiation" page, I verify that the "Unit Number" field is "disabled"
             And On the "Start Irradiation" page, I verify that the "Irradiator Id" field is "disabled"
             And I verify that I am "Unable" to "Submit"
+            And I verify that I am "Able" to "Cancel"
 
             When I scan the lot number "<Lot Number 1>"
             Then On the "Start Irradiation" page, I verify that the "Unit Number" field is "enabled"
