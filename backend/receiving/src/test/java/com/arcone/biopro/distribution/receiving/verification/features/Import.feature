@@ -50,7 +50,7 @@ Feature: Import products
 
         Rule: I should be notified when I enter a temperature that is out of the configured range.
         Rule: I should be able to enter the temperature in decimals.
-        @api @DIS-410
+        @api @DIS-410 @DIS-456
         Scenario Outline: Notification for out-of-range temperatures
             Given The following temperature thresholds are configured:
                 | Temperature Category | Min Temperature | Max Temperature |
@@ -101,7 +101,7 @@ Feature: Import products
                 | ROOM_TEMPERATURE    |  2025-06-08T05:22:53.108Z  | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York | 8h 6m            |
 
     Rule: I should be notified if the transit time is out of configured range.
-        @api @DIS-411
+        @api @DIS-411 @DIS-456
         Scenario Outline: Notification for out-of-range transit time
             Given The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
