@@ -2,8 +2,8 @@
 Feature: Shipment fulfillment request
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,W036825158907,W036898786758,W812530107009,W036825185915,W812530107010,W812530444001,W812530444002,W036825158914,W036825158916,W036825158912,W036898786802".
-        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008,44400010,44400011,44400012,44400013,44400014,45200001,45200002,45200003,45200004,45200005,45200006".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,W036825158907,W036898786758,W812530107009,W036825185915,W812530107010,W812530444001,W812530444002,W036825158914,W036825158916,W036825158912,W036898786802,W036898445901".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008,44400010,44400011,44400012,44400013,44400014,45200001,45200002,45200003,45200004,45200004,45200005,45200006".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -218,10 +218,11 @@ Feature: Shipment fulfillment request
             And I should see the inspection status as "Satisfactory", if applicable.
             And I "<ShouldShouldNot>" see the product status as "Quarantined".
             Examples:
-                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | Family                       | Type | UN               | product_description | product_list                         | Inspection Config | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
-                | 45200001     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689878675800 | CPD PLS MI 48H      | LR_RBC,CPD PLS MI 24H,CPD PLS MI 48H | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
-                | 45200002     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ANY  | =W03682518591500 | CPD PLS MI 24H      | LR_RBC,CPD PLS MI 24H                | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
-                | 45200003     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03682515890700 | CPD PLS MI 48H      | CPD PLS MI 24H,CPD PLS MI 48H        | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | Family                       | Type | UN               | product_description  | product_list                              | Inspection Config | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
+                | 45200001     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689878675800 | CPD PLS MI 48H       | LR_RBC,CPD PLS MI 24H,CPD PLS MI 48H      | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | 45200002     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ANY  | =W03682518591500 | CPD PLS MI 24H       | LR_RBC,CPD PLS MI 24H                     | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
+                | 45200003     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03682515890700 | CPD PLS MI 48H       | CPD PLS MI 24H,CPD PLS MI 48H             | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | 45200004     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689844590100 | APH PLASMA 24H EXP 3 | APH PLASMA 24H EXP 2,APH PLASMA 24H EXP 3 | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
 
 
     Rule: I should be able to see all eligible products for a given unit number.
