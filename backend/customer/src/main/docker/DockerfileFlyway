@@ -1,0 +1,8 @@
+# Flyway
+FROM flyway/flyway:10.21.0 AS flyway
+############################################
+### Install Flyway CLI
+############################################
+WORKDIR /flyway
+COPY ./src/main/db ./db
+ENV PATH="/flyway:${PATH}"
