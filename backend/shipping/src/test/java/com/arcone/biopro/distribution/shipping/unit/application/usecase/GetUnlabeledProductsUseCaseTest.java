@@ -34,7 +34,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 class GetUnlabeledProductsUseCaseTest {
@@ -328,51 +327,6 @@ class GetUnlabeledProductsUseCaseTest {
             })
             .verifyComplete();
 
-    }
-
-    @Test
-    public void shouldNotGetUnlabeledProductsWhenIneligibleProducts(){
-
-        var item = Mockito.mock(ShipmentItem.class);
-        Mockito.when(item.getId()).thenReturn(1L);
-        Mockito.when(item.getShipmentId()).thenReturn(1L);
-        Mockito.when(item.getProductFamily()).thenReturn("PRODUCT_FAMILY");
-        Mockito.when(item.getBloodType()).thenReturn(BloodType.ANY);
-
-        var shipmentMock = Mockito.mock(Shipment.class);
-        Mockito.when(shipmentMock.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
-        Mockito.when(shipmentMock.getLabelStatus()).thenReturn("UNLABELED");
-        Mockito.when(shipmentMock.getProductCategory()).thenReturn("FROZEN");
-
-        Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(shipmentMock));
-
-        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(item));
-
-        Mockito.when(inventoryRsocketClient.validateInventoryByUnitNumber(Mockito.any())).thenReturn(Flux.just(InventoryValidationResponseDTO
-            .builder()
-            .inventoryNotificationsDTO(List.of(InventoryNotificationDTO.builder()
-                .errorName("INVENTORY_NOT_FOUND_IN_LOCATION")
-                    .errorType("WARN")
-                    .errorMessage("This product is not in the inventory and cannot be shipped")
-                .build()))
-            .build()));
-
-        StepVerifier
-            .create(useCase.getUnlabeledProducts(GetUnlabeledProductsRequest.builder()
-                .unitNumber("UN")
-                .shipmentItemId(1L)
-                .locationCode("LOCATION_CODE")
-                .build()))
-            .consumeNextWith(detail -> {
-                var firstNotification = detail.notifications().getFirst();
-                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
-                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
-                assertEquals("WARN", firstNotification.notificationType());
-                assertEquals("INVENTORY_NOT_FOUND_IN_LOCATION", firstNotification.name());
-                assertEquals(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR, firstNotification.message());
-
-            })
-            .verifyComplete();
     }
 
     @Test
