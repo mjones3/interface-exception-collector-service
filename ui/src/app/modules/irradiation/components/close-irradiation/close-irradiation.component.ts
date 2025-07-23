@@ -34,6 +34,8 @@ import {
     RecordVisualInspectionModalComponent
 } from "../record-visual-inspection-modal/record-visual-inspection-modal.component";
 import {EMPTY} from "rxjs";
+import {Cookie} from "../../../../shared/types/cookie.enum";
+import {CookieService} from "ngx-cookie-service";
 
 const AVAILABLE = 'AVAILABLE';
 const QUARANTINED = 'QUARANTINED';
@@ -80,6 +82,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
 
     form: FormGroup;
+    currentLocation: string;
 
 
     constructor(
@@ -91,6 +94,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         private readonly activatedRoute: ActivatedRoute,
         private readonly matDialog: MatDialog,
         private readonly irradiationService: IrradiationService,
+        private readonly cookieService: CookieService,
     ) {
         effect(() => {
             this.processHeaderService.setActions(this.buttons);
@@ -104,6 +108,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     ngOnInit() {
         this.showCheckDigit = (this.activatedRoute.parent?.snapshot.data?.initialData as IrradiationResolveData)
             .showCheckDigit;
+        this.currentLocation = this.cookieService.get(Cookie.XFacility);
     }
 
     ngAfterViewInit(): void {
@@ -419,66 +424,31 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     loadIrradiationId(irradiationId: string) {
-        const irradiationProducts: IrradiationProductDTO[] = [
-            {
-                unitNumber: "W036825314134",
-                productCode: 'E468900',
-                productDescription: 'WHOLE BLOOD|CPD/500mL/refg|ResLeu:<5E6',
-                status: 'AVAILABLE',
-                productFamily: 'WHOLE_BLOOD',
-                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
-                order: 1,
-                statuses: this.getStatuses(AVAILABLE),
-                location: '',
-                comments: '',
-                statusReason: '',
-                unsuitableReason: '',
-                expired: false,
-                alreadyIrradiated: false,
-                notConfigurableForIrradiation: false,
-                quarantines: null
+        if (!this.currentLocation) {
+            this.showMessage(MessageType.ERROR, 'No facility location available');
+            return;
+        }
+        this.irradiationService.validateDeviceOnCloseBatch(irradiationId, this.currentLocation).subscribe({
+            next: (result) => {
+                const products = result.data?.validateDeviceOnCloseBatch || [];
+                const irradiationProducts = products.map(product => ({
+                    unitNumber: product.unitNumber,
+                    productCode: product.productCode,
+                    productDescription: product.productDescription,
+                    status: PENDING_INSPECTION,
+                    productFamily: product.productFamily,
+                    icon: this.findIconsByProductFamily(product.productFamily),
+                    statuses: this.getStatuses(product.status),
+                    disabled: true
+                })) as IrradiationProductDTO[];
+                this.populateIrradiationBatch(irradiationProducts);
+                this.unitNumberComponent.controlUnitNumber.enable();
+                setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
             },
-            {
-                unitNumber: "W036825314134",
-                productCode: 'E468800',
-                productDescription: 'FRESH FROZEN PLASMA|CPD/XX/<=-18C',
-                status: 'QUARANTINED',
-                productFamily: 'WHOLE_BLOOD',
-                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
-                order: 1,
-                statuses: this.getStatuses(QUARANTINED),
-                location: '',
-                comments: '',
-                statusReason: '',
-                unsuitableReason: '',
-                expired: false,
-                alreadyIrradiated: false,
-                notConfigurableForIrradiation: false,
-                quarantines: null
-            },
-            {
-                unitNumber: "W036825314135",
-                productCode: 'E469900',
-                productDescription: 'WHOLE BLOOD|CPD/500mL/refg|ResLeu:<5E6',
-                status: 'AVAILABLE',
-                productFamily: 'WHOLE_BLOOD',
-                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
-                order: 1,
-                statuses: this.getStatuses(QUARANTINED),
-                location: '',
-                comments: '',
-                statusReason: '',
-                unsuitableReason: '',
-                expired: false,
-                alreadyIrradiated: false,
-                notConfigurableForIrradiation: false,
-                quarantines: null
-            },
-        ];
-
-        this.populateIrradiationBatch(irradiationProducts);
-        this.unitNumberComponent.controlUnitNumber.enable();
-        setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
+            error: (error) => {
+                this.showMessage(MessageType.ERROR, error.message);
+            }
+        });
     }
 
     redirect() {

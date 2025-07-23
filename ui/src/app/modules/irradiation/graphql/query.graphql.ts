@@ -52,11 +52,23 @@ const VALIDATE_LOT_NUMBER = gql`
     }
 `;
 
+const VALIDATE_DEVICE_ON_CLOSE_BATCH = gql`
+    query validateDeviceOnCloseBatch($deviceId: String!, $location: String!) {
+        validateDeviceOnCloseBatch(deviceId: $deviceId, location: $location) {
+            unitNumber
+            productCode
+            productFamily
+            productDescription
+            status
+        }
+    }
+`;
 
 export {
     GET_IRRADIATION_DEVICE_BY_ID,
     GET_CONFIGURATIONS,
     VALIDATE_UNIT,
     CHECK_DIGIT,
-    VALIDATE_LOT_NUMBER
+    VALIDATE_LOT_NUMBER,
+    VALIDATE_DEVICE_ON_CLOSE_BATCH
 };

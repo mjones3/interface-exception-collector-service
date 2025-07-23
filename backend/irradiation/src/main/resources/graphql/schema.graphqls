@@ -63,4 +63,6 @@ type BatchProduct {
     unitNumber: String
     productCode: String
     productFamily: String
+    productDescription: String
+    status: String
 }
