@@ -13,10 +13,11 @@ import java.time.ZonedDateTime;
 @RequiredArgsConstructor
 public class ProductStoredUseCase implements UseCase<Mono<Void>, ProductStoredUseCase.Input> {
 
-
     @Override
-    public Mono<Void> execute(Input args) {
-        log.info("To check if time out of storage is higher than the configurable amount of time and trigger quarantine if yes");
+    public Mono<Void> execute(Input input) {
+        // Query lk_configuration table using prefix OUT_OF_STORAGE_productFamily, example OUT_OF_STORAGE_APHERESIS_PLATELETS_LEUKOREDUCED
+        // the response is the minutes
+        // compare the input.storageTime and batch start time, if the diff in minutes is higher than the configurable amount, trigger quarantine
         return Mono.empty();
     }
 
