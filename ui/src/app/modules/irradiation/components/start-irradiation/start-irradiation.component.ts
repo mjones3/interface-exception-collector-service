@@ -74,6 +74,9 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     currentDateTime: string;
     startTime: string
     private isDialogOpen = false;
+    currentLocation: string;
+    deviceId: boolean = false;
+
     @ViewChild('buttons')
     buttons: TemplateRef<Element>;
 
@@ -87,7 +90,6 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     lotNumberInput: InputComponent;
 
     form: FormGroup;
-    currentLocation: string;
 
     constructor(
         private readonly router: Router,
@@ -195,6 +197,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         this.lotNumber.reset();
         this.unitNumberComponent.controlUnitNumber.reset();
         this.isDialogOpen = false;
+        this.deviceId = false;
         setTimeout(() => this.focusOnIrradiationInput(), 1);
     }
 
@@ -203,8 +206,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     get disableCancelButton() {
-        //return !this.deviceId;
-        return false;
+        return !this.deviceId;
     }
 
     submit() {
@@ -587,8 +589,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
        if (deviceId) {
            this.irradiationService.loadDeviceById(deviceId,this.currentLocation).subscribe({
                next: (result) => {
-                   const validDevice = result.data.validateDevice;
-                   if (validDevice) {
+                   this.deviceId = result.data.validateDevice;
+                   if (this.deviceId) {
                        this.irradiation.disable();
                        this.lotNumber.enable();
                        setTimeout(() => this.focusOnLotNumberInput(), 0);
