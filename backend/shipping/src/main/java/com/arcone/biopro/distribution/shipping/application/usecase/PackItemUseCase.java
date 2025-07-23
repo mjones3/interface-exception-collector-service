@@ -21,7 +21,6 @@ import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentReposit
 import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
 import com.arcone.biopro.distribution.shipping.domain.service.PackItemService;
 import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
-import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryNotificationDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
@@ -33,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -46,6 +44,8 @@ import java.util.Map;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 @RequiredArgsConstructor
@@ -205,7 +205,9 @@ public class PackItemUseCase implements PackItemService {
                                 .message(ShipmentServiceMessages.PRODUCT_CRITERIA_TEMPERATURE_CATEGORY_ERROR)
                                 .notificationType(NotificationType.WARN.name())
                                 .build())));
-                        } else if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType()) && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts() && !inventoryValidationResponseDTO.hasNotificationType(QUARANTINED_NOTIFICATION_TYPE) ) {
+                        } else if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
+                            && isTrue(shipment.getQuarantinedProducts())
+                            && (isEmpty(inventoryValidationResponseDTO.inventoryNotificationsDTO()) || !inventoryValidationResponseDTO.hasNotificationType(QUARANTINED_NOTIFICATION_TYPE))) {
                             return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR, List.of(NotificationDTO
                                 .builder()
                                 .name("PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR")
@@ -213,7 +215,9 @@ public class PackItemUseCase implements PackItemService {
                                 .message(ShipmentServiceMessages.PRODUCT_CRITERIA_ONLY_QUARANTINED_PRODUCT_ERROR)
                                 .notificationType(NotificationType.WARN.name())
                                 .build())));
-                        }else if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType()) && UNLABELED_STATUS.equals(shipment.getLabelStatus()) && !inventoryValidationResponseDTO.hasNotificationType(UNLABELED_NOTIFICATION_TYPE) ) {
+                        } else if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
+                            && UNLABELED_STATUS.equals(shipment.getLabelStatus())
+                            && (isEmpty(inventoryValidationResponseDTO.inventoryNotificationsDTO()) || !inventoryValidationResponseDTO.hasNotificationType(UNLABELED_NOTIFICATION_TYPE))) {
                             return Mono.error(new ProductValidationException(ShipmentServiceMessages.SHIPMENT_UNLABELED_ERROR, List.of(NotificationDTO
                                 .builder()
                                 .name("SHIPMENT_UNLABELED_ERROR")
