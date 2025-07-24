@@ -23,6 +23,7 @@ type Inventory {
     unsuitableReason: String
     expired: Boolean
     alreadyIrradiated: Boolean
+    isBeingIrradiated: Boolean
     notConfigurableForIrradiation: Boolean
     quarantines: [InventoryQuarantine]
 }

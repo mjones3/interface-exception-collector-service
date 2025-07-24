@@ -57,6 +57,7 @@ export interface IrradiationProductDTO {
     expired: boolean;
     alreadyIrradiated: boolean,
     notConfigurableForIrradiation: boolean,
+    isBeingIrradiated: boolean,
     quarantines: IrradiationProductQuarantineDTO[];
 }
 
