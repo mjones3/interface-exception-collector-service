@@ -105,15 +105,15 @@ public class Inventory {
         histories.add(history);
     }
 
-    public void addQuarantine(Long quarantineId, String reason, String comments) {
-        quarantines.add(new Quarantine(quarantineId, reason, comments));
+    public void addQuarantine(Long quarantineId, String reason, String comments, Boolean isStopsManufacturing) {
+        quarantines.add(new Quarantine(quarantineId, reason, comments, isStopsManufacturing));
     }
 
-    public void updateQuarantine(Long quarantineId, String reason, String comments) {
+        public void updateQuarantine(Long quarantineId, String reason, String comments, Boolean isStopsManufacturing) {
         quarantines = new ArrayList<>(quarantines.stream()
             .map(quarantine -> {
                 if (quarantine.externId().equals(quarantineId)) {
-                    return new Quarantine(quarantine.externId(), reason, comments);
+                    return new Quarantine(quarantine.externId(), reason, comments, isStopsManufacturing);
                 }
                 return quarantine;
             })

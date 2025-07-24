@@ -31,7 +31,7 @@ public class AddQuarantinedUseCase implements UseCase<Mono<InventoryOutput>, Add
     public Mono<InventoryOutput> execute(AddQuarantineInput addQuarantineInput) {
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(addQuarantineInput.product().unitNumber(), addQuarantineInput.product().productCode())
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
-            .flatMap(la -> inventoryAggregateRepository.saveInventory(la.addQuarantine(addQuarantineInput.quarantineId(), addQuarantineInput.reason(), addQuarantineInput.comments())))
+            .flatMap(la -> inventoryAggregateRepository.saveInventory(la.addQuarantine(addQuarantineInput.quarantineId(), addQuarantineInput.reason(), addQuarantineInput.comments(),addQuarantineInput.stopsManufacturing())))
             .map(InventoryAggregate::getInventory)
             .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.QUARANTINE_APPLIED)))
             .map(mapper::toOutput);    }

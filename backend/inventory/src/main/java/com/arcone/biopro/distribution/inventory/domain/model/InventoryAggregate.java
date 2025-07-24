@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.domain.exception.UnavailableStat
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.*;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -178,11 +179,17 @@ public class InventoryAggregate {
         if (inventory.getQuarantines().isEmpty()) {
             removeProperty(PropertyKey.QUARANTINED);
         }
+
+        validateAndDeleteStopManofactiring();
+
         return this;
     }
 
-    public InventoryAggregate addQuarantine(Long quarantineId, String reason, String comments) {
-        inventory.addQuarantine(quarantineId, reason, comments);
+    public InventoryAggregate addQuarantine(Long quarantineId, String reason, String comments, Boolean isStopsManufacturing) {
+        inventory.addQuarantine(quarantineId, reason, comments, isStopsManufacturing);
+        if (isStopsManufacturing){
+            addProperty(PropertyKey.STOP_MANUFACTURING, "Y");
+        }
         addQuarantineFlag();
         return this;
     }
@@ -192,9 +199,23 @@ public class InventoryAggregate {
         return this;
     }
 
-    public InventoryAggregate updateQuarantine(Long quarantineId, String reason, String comments) {
-        inventory.updateQuarantine(quarantineId, reason, comments);
+    public InventoryAggregate updateQuarantine(Long quarantineId, String reason, String comments, boolean isStopsManufacturing) {
+        inventory.updateQuarantine(quarantineId, reason, comments, isStopsManufacturing);
+        if (isStopsManufacturing){
+            addProperty(PropertyKey.STOP_MANUFACTURING, "Y");
+        } else {
+            validateAndDeleteStopManofactiring();
+        }
         return this;
+    }
+
+    private void validateAndDeleteStopManofactiring() {
+        boolean isStopManofactiringPresent = this.getInventory().getQuarantines()
+            .stream()
+            .anyMatch(Quarantine::stopManufacturing);
+        if (!isStopManofactiringPresent){
+            removeProperty(PropertyKey.STOP_MANUFACTURING);
+        }
     }
 
     private void transitionStatus(InventoryStatus newStatus, String statusReason) {
