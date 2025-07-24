@@ -667,8 +667,8 @@ class GetUnlabeledProductsUseCaseTest {
                 var firstNotification = notifications.getFirst();
 
                 assertEquals("WARN", firstNotification.notificationType());
-                assertEquals("INVENTORY_IS_UNLABELED", firstNotification.name());
-                assertEquals("Test Message", firstNotification.message());
+                assertEquals("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR", firstNotification.name());
+                assertEquals("This unit does not match the order product criteria", firstNotification.message());
             })
             .verifyComplete();
 
