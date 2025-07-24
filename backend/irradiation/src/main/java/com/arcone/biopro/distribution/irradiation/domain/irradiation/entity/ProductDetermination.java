@@ -13,12 +13,14 @@ public class ProductDetermination {
     private final Integer id;
     private final ProductCode sourceProductCode;
     private final ProductCode targetProductCode;
+    private final String targetProductDescription;
     private final boolean active;
 
-    public ProductDetermination(Integer id, ProductCode sourceProductCode, ProductCode targetProductCode, boolean active) {
+    public ProductDetermination(Integer id, ProductCode sourceProductCode, ProductCode targetProductCode, String targetProductDescription, boolean active) {
         this.id = id;
         this.sourceProductCode = sourceProductCode;
         this.targetProductCode = targetProductCode;
+        this.targetProductDescription = targetProductDescription;
         this.active = active;
     }
 

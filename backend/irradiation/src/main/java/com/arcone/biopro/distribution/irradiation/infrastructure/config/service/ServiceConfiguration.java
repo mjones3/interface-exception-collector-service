@@ -1,6 +1,9 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.config.service;
 
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.ProductDeterminationRepository;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.service.LotNumberValidationService;
+import com.arcone.biopro.distribution.irradiation.domain.service.ProductDeterminationService;
+import com.arcone.biopro.distribution.irradiation.domain.service.ProductDeterminationServiceImpl;
 import com.arcone.biopro.distribution.irradiation.infrastructure.service.LotNumberValidationServiceImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -17,5 +20,10 @@ public class ServiceConfiguration {
     @Bean
     public LotNumberValidationService lotNumberValidationService(@Qualifier("supplyRSocketRequester") RSocketRequester supplyRSocketRequester) {
         return new LotNumberValidationServiceImpl(supplyRSocketRequester);
+    }
+
+    @Bean
+    public ProductDeterminationService productDeterminationService(ProductDeterminationRepository repository) {
+        return new ProductDeterminationServiceImpl(repository);
     }
 }

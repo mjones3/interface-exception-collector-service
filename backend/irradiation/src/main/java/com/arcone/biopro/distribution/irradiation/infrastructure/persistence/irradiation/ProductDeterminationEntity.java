@@ -28,6 +28,9 @@ class ProductDeterminationEntity implements Serializable, Persistable<Integer> {
     @Column("target_product_code")
     private String targetProductCode;
 
+    @Column("target_product_description")
+    private String targetProductDescription;
+
     private Boolean active;
 
     @Column("create_date")
