@@ -3,8 +3,6 @@ Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
     Background:
-    | 44600011     | DO1         | Distribution Only | 5        | A         |  | PLASMA_MFG_NONINJECTABLE         | REFRIGERATED         | CUSTOMER          | LABELED      | false                | W036825158911 | EA007V00   | SATISFACTORY   | Product Family does not match                                                                             | WARN         |
-    | 44600011     | DO1         | Distribution Only | 5        | A         |  | PLASMA_MFG_NONINJECTABLE         | REFRIGERATED         | CUSTOMER          | LABELED      | false                | W036825158911 | EA007V00   | SATISFACTORY   | Product Family does not match                                                                             | WARN         |
         Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770,999771,999772,999773,999774,999775,999776,4440009,45200007,45200008,45200009,45200010,45200011,45200012,45200013,45200014,45200015,44600011,44600012,44600013,44600014".
 
     @ui @DIS-125 @DIS-78 @DIS-56 @DIS-194 @DIS-162
