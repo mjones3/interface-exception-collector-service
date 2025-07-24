@@ -2,8 +2,8 @@ package com.arcone.biopro.distribution.irradiation.application.usecase;
 
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.controller.errors.DeviceValidationFailureException;
 import com.arcone.biopro.distribution.irradiation.application.dto.BatchProductDTO;
+import com.arcone.biopro.distribution.irradiation.application.mapper.BatchProductMapper;
 import com.arcone.biopro.distribution.irradiation.domain.exception.InventoryValidationException;
-import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Inventory;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.BatchRepository;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.DeviceRepository;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.InventoryClient;
@@ -24,6 +24,7 @@ public class ValidateDeviceOnCloseBatchUseCase {
     private final DeviceRepository deviceRepository;
     private final BatchRepository batchRepository;
     private final InventoryClient inventoryClient;
+    private final BatchProductMapper batchProductMapper;
 
     public Flux<BatchProductDTO> execute(String deviceId, String location) {
         return deviceRepository.findByDeviceIdAndLocation(deviceId, location)
@@ -32,13 +33,7 @@ public class ValidateDeviceOnCloseBatchUseCase {
             .switchIfEmpty(Mono.error(new DeviceValidationFailureException("Device is not listed in any open batch")))
             .flatMap(batch -> batchRepository.findBatchItemsByBatchId(batch.getId().getValue()))
             .flatMap(item -> fetchProduct(item.unitNumber(), item.productCode())
-                .map(inventoryOutput -> BatchProductDTO.builder()
-                    .unitNumber(inventoryOutput.unitNumber())
-                    .productCode(inventoryOutput.productCode())
-                    .productFamily(inventoryOutput.productFamily())
-                    .productDescription(inventoryOutput.productDescription())
-                    .status(inventoryOutput.inventoryStatus())
-                    .build()));
+                .map(batchProductMapper::toDTO));
     }
 
     private Mono<InventoryOutput> fetchProduct(UnitNumber unitNumber, String productCode) {

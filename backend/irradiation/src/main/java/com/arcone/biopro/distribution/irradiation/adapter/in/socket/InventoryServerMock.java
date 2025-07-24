@@ -285,6 +285,11 @@ public class InventoryServerMock {
                 .productDescription("Blood Sample Type A")
                 .productFamily("RED_BLOOD_CELLS")
                 .shortDescription("Type A Sample")
+                .quarantines(List.of(InventoryQuarantineOutput.builder()
+                    .reason("UNDER_INVESTIGATION")
+                    .comments("")
+                    .stopsManufacturing(null)
+                    .build()))
                 .build()
         );
     }
