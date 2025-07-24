@@ -165,7 +165,7 @@ Feature: Shipment fulfillment request
             | Order Number | Customer ID | Customer Name             | Quantity | BloodType | ProductFamily                    | UN            | Code     | Category         | Shipment Type     | Label Status | Quarantined Products |
             | 4440006      |DL1          | Distribution and Labeling | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530444001 | E5107V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | false                |
             | 4440007      |234567891    | MDL Hub 2                 | 10       | A         | APHERESIS_PLATELETS_LEUKOREDUCED | W812530444002 | EA007V00 | ROOM_TEMPERATURE | INTERNAL_TRANSFER | LABELED      | false                |
-            | 4440008      |DO1          | Distribution Only         | 5        | AB        | PLASMA_TRANSFUSABLE              | W036898786758 | E0707V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 |
+            | 4440008      |DO1          | Distribution Only         | 5        | AB        | PLASMA_TRANSFUSABLE              | W036898786758 | E0701V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 |
 
 
 
