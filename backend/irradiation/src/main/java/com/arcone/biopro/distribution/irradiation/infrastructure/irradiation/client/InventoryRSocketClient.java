@@ -42,7 +42,7 @@ public class InventoryRSocketClient implements InventoryClient {
     public Mono<InventoryOutput> getInventoryByUnitNumberAndProductCode(UnitNumber unitNumber, String productCode) {
         return requester
             .route("getInventoryByUnitNumberAndProductCode")
-            .data(new GetInventoryByUnitNumberAndProductCodeRequest(unitNumber,productCode))
+            .data(new GetInventoryByUnitNumberAndProductCodeRequest(unitNumber.value(),productCode))
             .retrieveMono(InventoryOutput.class)
             .doOnNext(response -> log.debug("Found inventory: {}", response))
             .onErrorResume(error -> {

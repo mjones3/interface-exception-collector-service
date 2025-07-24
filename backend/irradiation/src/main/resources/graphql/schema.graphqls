@@ -65,4 +65,5 @@ type BatchProduct {
     productFamily: String
     productDescription: String
     status: String
+    quarantines: [InventoryQuarantine]
 }

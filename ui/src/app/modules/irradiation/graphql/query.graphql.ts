@@ -60,6 +60,12 @@ const VALIDATE_DEVICE_ON_CLOSE_BATCH = gql`
             productFamily
             productDescription
             status
+            quarantines {
+                reason
+                comments
+                stopsManufacturing
+            }
+
         }
     }
 `;

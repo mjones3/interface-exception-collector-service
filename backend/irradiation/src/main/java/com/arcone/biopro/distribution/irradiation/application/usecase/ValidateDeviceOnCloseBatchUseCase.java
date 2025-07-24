@@ -31,7 +31,7 @@ public class ValidateDeviceOnCloseBatchUseCase {
             .flatMapMany(device -> batchRepository.findActiveBatchByDeviceId(DeviceId.of(deviceId)))
             .switchIfEmpty(Mono.error(new DeviceValidationFailureException("Device is not listed in any open batch")))
             .flatMap(batch -> batchRepository.findBatchItemsByBatchId(batch.getId().getValue()))
-            .flatMap(item -> validateProduct(item.unitNumber(), item.productCode())
+            .flatMap(item -> fetchProduct(item.unitNumber(), item.productCode())
                 .map(inventoryOutput -> BatchProductDTO.builder()
                     .unitNumber(inventoryOutput.unitNumber())
                     .productCode(inventoryOutput.productCode())
@@ -41,7 +41,7 @@ public class ValidateDeviceOnCloseBatchUseCase {
                     .build()));
     }
 
-    private Mono<InventoryOutput> validateProduct(UnitNumber unitNumber, String productCode) {
+    private Mono<InventoryOutput> fetchProduct(UnitNumber unitNumber, String productCode) {
         return inventoryClient.getInventoryByUnitNumberAndProductCode(unitNumber, productCode)
             .doOnNext(inventory -> log.info("Inventory validation successful for unit: {} product: {}", unitNumber, productCode))
             .onErrorMap(throwable -> throwable instanceof InventoryValidationException ?

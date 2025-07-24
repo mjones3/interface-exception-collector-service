@@ -53,6 +53,9 @@ public class RepositorySteps {
     @Getter
     private String lastCreatedDeviceId;
 
+    @Getter
+    private Long lastCreatedBatchId;
+
     @Given("I have a device {string} at location {string} with status {string}")
     public void iHaveAValidDeviceAtLocation(String deviceId, String location, String status) {
         DeviceEntity device = new DeviceEntity(deviceId, location, status);
@@ -167,6 +170,7 @@ public class RepositorySteps {
     public Long createBatch(String deviceId, LocalDateTime startTime, LocalDateTime endTime) {
         BatchEntity batch = new BatchEntity(deviceId, startTime, endTime);
         BatchEntity savedBatch = batchRepository.save(batch).block();
+        this.lastCreatedBatchId = savedBatch.getId();
         return savedBatch.getId();
     }
 
