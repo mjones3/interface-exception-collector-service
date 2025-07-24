@@ -189,12 +189,12 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
             })
             .filter(inventoryValidationResponseDTO -> Collections.disjoint(ineligibles, inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
                 .map(InventoryNotificationDTO::errorName).toList()))
-            .switchIfEmpty(Flux.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_LABELED_ERROR, List.of(NotificationDTO
+            .switchIfEmpty(Flux.error(new ProductValidationException(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR, List.of(NotificationDTO
                 .builder()
                 .notificationType(NotificationType.WARN.name())
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message(ShipmentServiceMessages.INVENTORY_LABELED_ERROR)
-                .name("INVENTORY_LABELED_ERROR")
+                .message(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR)
+                .name("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR")
                 .build()))))
             .flatMap(inventoryValidationResponseDTO -> Mono.just(inventoryValidationResponseDTO.inventoryResponseDTO()));
     }
