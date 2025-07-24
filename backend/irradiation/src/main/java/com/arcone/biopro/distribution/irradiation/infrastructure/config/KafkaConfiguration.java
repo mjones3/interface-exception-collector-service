@@ -1,21 +1,26 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.config;
 
+import com.arcone.biopro.distribution.irradiation.adapter.common.EventMessage;
 import com.arcone.biopro.distribution.irradiation.adapter.in.listener.DeviceCreated;
 import com.arcone.biopro.distribution.irradiation.adapter.in.listener.ProductStored;
+import com.arcone.biopro.distribution.irradiation.adapter.out.kafka.dto.ProductModified;
+import com.arcone.biopro.distribution.irradiation.adapter.out.kafka.dto.QuarantineProduct;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
+import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.admin.NewTopic;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -37,6 +42,12 @@ class KafkaConfiguration {
 
     @Value("${topic.product.stored.name}")
     private String productStoredTopic;
+
+    @Value("${topic.product.quarantine.name}")
+    private String quarantineProductTopic;
+
+    @Value("${topic.product.modified.name}")
+    private String productModifiedTopic;
 
     @Bean
     @Qualifier("deviceCreatedTopic")
@@ -84,7 +95,6 @@ class KafkaConfiguration {
         ObjectMapper objectMapper,
         MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
-        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
         return SenderOptions.<String, String>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
@@ -96,6 +106,73 @@ class KafkaConfiguration {
         return new ReactiveKafkaProducerTemplate<>(kafkaSenderOptions);
     }
 
+    @Bean
+    SenderOptions<String, EventMessage<QuarantineProduct>> quarantineProductSenderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
+        MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        return SenderOptions.<String, EventMessage<QuarantineProduct>>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1)
+            .producerListener(new MicrometerProducerListener(meterRegistry));
+    }
+
+    @Bean
+    SenderOptions<String, EventMessage<ProductModified>> productModifiedSenderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
+        MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        return SenderOptions.<String, EventMessage<ProductModified>>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1)
+            .producerListener(new MicrometerProducerListener(meterRegistry));
+    }
+
+    @Bean
+    NewTopic quarantineProductTopic(
+        @Value("${topic.product.quarantine.partitions:1}") Integer partitions,
+        @Value("${topic.product.quarantine.replicas:1}") Integer replicas
+    ) {
+        return TopicBuilder.name(quarantineProductTopic)
+            .partitions(partitions)
+            .replicas(replicas)
+            .build();
+    }
+
+    @Bean
+    NewTopic productModifiedTopic(
+        @Value("${topic.product.modified.partitions:1}") Integer partitions,
+        @Value("${topic.product.modified.replicas:1}") Integer replicas
+    ) {
+        return TopicBuilder.name(productModifiedTopic)
+            .partitions(partitions)
+            .replicas(replicas)
+            .build();
+    }
+
+    @AsyncPublisher(operation = @AsyncOperation(
+        channelName = "QuarantineProduct",
+        description = "Message for product quarantine process",
+        payloadType = QuarantineProduct.class
+    ))
+    @Bean
+    ReactiveKafkaProducerTemplate<String, EventMessage<QuarantineProduct>> producerQuarantineProductTemplate(
+        SenderOptions<String, EventMessage<QuarantineProduct>> quarantineProductSenderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(quarantineProductSenderOptions);
+    }
+
+    @AsyncPublisher(operation = @AsyncOperation(
+        channelName = "ProductModified",
+        description = "Message for product modification event",
+        payloadType = ProductModified.class
+    ))
+    @Bean
+    ReactiveKafkaProducerTemplate<String, EventMessage<ProductModified>> producerProductModifiedTemplate(
+        SenderOptions<String, EventMessage<ProductModified>> productModifiedSenderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(productModifiedSenderOptions);
+    }
 }
 
 

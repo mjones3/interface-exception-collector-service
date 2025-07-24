@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.irradiation.adapter.in.listener;
+package com.arcone.biopro.distribution.irradiation.adapter.common;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
