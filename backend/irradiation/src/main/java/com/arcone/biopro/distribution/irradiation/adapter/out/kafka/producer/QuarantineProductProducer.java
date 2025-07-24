@@ -11,12 +11,12 @@ import reactor.core.publisher.Mono;
 @Component
 @Slf4j
 public class QuarantineProductProducer {
-    private final ReactiveKafkaProducerTemplate<String, EventMessage<QuarantineProduct>> kafkaTemplate;
+    private final ReactiveKafkaProducerTemplate<String, EventMessage<QuarantineProduct>> producerQuarantineTemplate;
     private final String topic;
 
-    public QuarantineProductProducer(ReactiveKafkaProducerTemplate<String, EventMessage<QuarantineProduct>> kafkaTemplate,
+    public QuarantineProductProducer(ReactiveKafkaProducerTemplate<String, EventMessage<QuarantineProduct>> producerQuarantineTemplate,
                                     @Value("${topic.product.quarantine.name}") String topic) {
-        this.kafkaTemplate = kafkaTemplate;
+        this.producerQuarantineTemplate = producerQuarantineTemplate;
         this.topic = topic;
     }
 
@@ -24,7 +24,7 @@ public class QuarantineProductProducer {
         var message = new EventMessage<>("QuarantineProduct", "1.0", payload);
 
         String key = payload.products().isEmpty() ? "unknown" : payload.products().getFirst().unitNumber();
-        return kafkaTemplate.send(topic, key, message)
+        return producerQuarantineTemplate.send(topic, key, message)
             .doOnSuccess(result -> log.info("Sent quarantine event for {} products", payload.products().size()))
             .doOnError(error -> log.error("Error sending quarantine event", error))
             .then();

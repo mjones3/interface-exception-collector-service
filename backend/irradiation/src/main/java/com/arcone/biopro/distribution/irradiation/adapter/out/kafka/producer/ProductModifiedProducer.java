@@ -11,12 +11,12 @@ import reactor.core.publisher.Mono;
 @Component
 @Slf4j
 public class ProductModifiedProducer {
-    private final ReactiveKafkaProducerTemplate<String, EventMessage<ProductModified>> kafkaTemplate;
+    private final ReactiveKafkaProducerTemplate<String, EventMessage<ProductModified>> producerProductModifiedTemplate;
     private final String topic;
 
-    public ProductModifiedProducer(ReactiveKafkaProducerTemplate<String, EventMessage<ProductModified>> kafkaTemplate,
+    public ProductModifiedProducer(ReactiveKafkaProducerTemplate<String, EventMessage<ProductModified>> producerProductModifiedTemplate,
                                   @Value("${topic.product.modified.name}") String topic) {
-        this.kafkaTemplate = kafkaTemplate;
+        this.producerProductModifiedTemplate = producerProductModifiedTemplate;
         this.topic = topic;
     }
 
@@ -25,7 +25,7 @@ public class ProductModifiedProducer {
     public Mono<Void> publishProductModified(ProductModified payload) {
         var message = new EventMessage<>("ProductModified", "1.0", payload);
 
-        return kafkaTemplate.send(topic, payload.unitNumber(), message)
+        return producerProductModifiedTemplate.send(topic, payload.unitNumber(), message)
             .doOnSuccess(result -> log.info("Sent product modified event for unit: {}", payload.unitNumber()))
             .doOnError(error -> log.error("Error sending product modified event", error))
             .then();
