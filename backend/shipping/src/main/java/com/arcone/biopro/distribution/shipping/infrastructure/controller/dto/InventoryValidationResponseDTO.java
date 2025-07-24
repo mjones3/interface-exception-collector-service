@@ -3,8 +3,8 @@ package com.arcone.biopro.distribution.shipping.infrastructure.controller.dto;
 import lombok.Builder;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Builder
@@ -43,18 +43,20 @@ public record InventoryValidationResponseDTO(
     }
 
     public boolean hasOnlyNotificationTypes(final List<String> types) {
-        if(inventoryNotificationsDTO == null){
+        if (inventoryNotificationsDTO == null) {
             throw new IllegalArgumentException("inventoryNotificationsDTO is null");
         }
 
-        if(types == null){
+        if (types == null) {
             throw new IllegalArgumentException("types is null");
         }
 
-        return  !Collections.disjoint(inventoryNotificationsDTO.stream()
+        var typesSet = new TreeSet<>(types);
+        var notificationTypesSet = inventoryNotificationsDTO.stream()
             .map(InventoryNotificationDTO::errorName)
-            .distinct()
-                .sorted()
-            .toList(), types.stream().sorted().distinct().toList());
+            .collect(Collectors.toCollection(TreeSet::new));
+
+        return typesSet.equals(notificationTypesSet);
     }
+
 }

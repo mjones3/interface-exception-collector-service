@@ -127,22 +127,17 @@ public class PackItemUseCase implements PackItemService {
                         return Mono.just(inventoryValidationResponseDTO);
                     } else {
 
-                          var ineligibleList = new ArrayList<String>();
-                          var skipError = false;
-
-                          if(INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
-                            && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts()){
-                              ineligibleList.add(QUARANTINED_NOTIFICATION_TYPE);
-                              skipError = true;
+                          var ineligiblesToSkip = new ArrayList<String>();
+                          if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType()) && isTrue(shipment.getQuarantinedProducts())){
+                              ineligiblesToSkip.add(QUARANTINED_NOTIFICATION_TYPE);
                           }
 
-                          if(INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
+                          if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
                               && UNLABELED_STATUS.equals(shipment.getLabelStatus())){
-                              ineligibleList.add(UNLABELED_NOTIFICATION_TYPE);
-                              skipError = true;
+                              ineligiblesToSkip.add(UNLABELED_NOTIFICATION_TYPE);
                           }
 
-                          if(skipError && inventoryValidationResponseDTO.hasOnlyNotificationTypes(ineligibleList)){
+                          if (!ineligiblesToSkip.isEmpty() && inventoryValidationResponseDTO.hasOnlyNotificationTypes(ineligiblesToSkip)) {
                               var inventoryResponseDto = inventoryValidationResponseDTO.hasOnlyNotificationType(QUARANTINED_NOTIFICATION_TYPE) ? transformQuarantinedInventoryResponseDTO(inventoryValidationResponseDTO): transformUnlabeledInventoryResponseDTO(inventoryValidationResponseDTO);
                               return Mono.just(inventoryResponseDto);
                           }

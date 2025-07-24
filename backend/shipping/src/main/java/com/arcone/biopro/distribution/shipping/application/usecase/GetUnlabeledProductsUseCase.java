@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,6 +35,7 @@ import java.util.Map;
 
 import static java.lang.Boolean.FALSE;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.springframework.util.CollectionUtils.findFirstMatch;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
@@ -163,39 +163,25 @@ public class GetUnlabeledProductsUseCase implements GetUnlabeledProductsService 
             )
             .filter(inventoryValidationResponseDTO -> {
                 if (UNLABELED_STATUS.equals(shipment.getLabelStatus()) && !isEmpty(inventoryValidationResponseDTO.inventoryNotificationsDTO())) {
-                    return inventoryValidationResponseDTO.hasNotificationType(UNLABELED_NOTIFICATION_TYPE);
+                    var hasUnalabeledNotification = inventoryValidationResponseDTO.hasNotificationType(UNLABELED_NOTIFICATION_TYPE);
+                    if (!hasUnalabeledNotification) {
+                        return false;
+                    }
+                    var firstIneligibleMatch = findFirstMatch(ineligibles, inventoryValidationResponseDTO.inventoryNotificationsDTO().stream().map(InventoryNotificationDTO::errorName).toList());
+                    return firstIneligibleMatch == null;
                 }
                 return isEmpty(inventoryValidationResponseDTO.inventoryNotificationsDTO());
             })
-            .flatMap(inventoryValidationResponseDTO -> {
-                var firstMatch = CollectionUtils.findFirstMatch(ineligibles, inventoryValidationResponseDTO.inventoryNotificationsDTO().stream().map(InventoryNotificationDTO::errorName).toList());
-                if (firstMatch != null) {
-                    var notification = inventoryValidationResponseDTO.inventoryNotificationsDTO().getFirst();
-                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
-                        , inventoryValidationResponseDTO.inventoryResponseDTO()
-                        , List.of(NotificationDTO
-                        .builder()
+            .switchIfEmpty(Flux.error(
+                new ProductValidationException(
+                    ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR,
+                    List.of(NotificationDTO.builder()
+                        .notificationType(NotificationType.WARN.name())
                         .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .name(notification.errorName())
-                        .message(notification.errorMessage())
-                        .code(notification.errorCode())
-                        .action(notification.action())
-                        .notificationType(notification.errorType())
-                        .reason(notification.reason())
-                        .details(notification.details())
-                        .build())));
-                }
-                return Mono.just(inventoryValidationResponseDTO);
-            })
-            .filter(inventoryValidationResponseDTO -> Collections.disjoint(ineligibles, inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
-                .map(InventoryNotificationDTO::errorName).toList()))
-            .switchIfEmpty(Flux.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_LABELED_ERROR, List.of(NotificationDTO
-                .builder()
-                .notificationType(NotificationType.WARN.name())
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message(ShipmentServiceMessages.INVENTORY_LABELED_ERROR)
-                .name("INVENTORY_LABELED_ERROR")
-                .build()))))
+                        .message(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR)
+                        .name("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR")
+                        .build()
+            ))))
             .flatMap(inventoryValidationResponseDTO -> Mono.just(inventoryValidationResponseDTO.inventoryResponseDTO()));
     }
 
