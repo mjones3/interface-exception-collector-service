@@ -574,7 +574,7 @@ public class ShipmentFulfillmentSteps {
     @When("I receive a shipment fulfillment request event with Order Number as {string}, Priority as {string}, Shipping Date as {string} , Shipment Type defined as {string}, Label Status as {string} and Quarantined Products as {string}.")
     public void iReceiveAShipmentFulfillmentRequestEventWithOrderExternalIDAsOrderNumberAsPriorityAsShippingDateAsShipmentTypeDefinedAsLabelStatusAsAndQuarantinedProductsAs(String orderNumber, String priority, String shipDate
         , String shipmentType, String labelStatus, String quarantinedProducts) throws Exception {
-        var shipDateFormat = shipDate != null && !shipDate.isBlank() ? TestUtils.parseDateKeyword(shipDate) : TestUtils.parseDateKeyword("<today>") ;
+        var shipDateFormat = shipDate != null && !shipDate.isBlank() ? TestUtils.parseDateKeyword(shipDate) : TestUtils.parseDateKeyword("<today>");
         this.orderPriority = priority;
         context.setOrderNumber(shipmentTestingController.createShippingRequest(orderNumber, priority, shipDateFormat, shipmentType, labelStatus, Boolean.parseBoolean(quarantinedProducts)));
 
@@ -628,6 +628,16 @@ public class ShipmentFulfillmentSteps {
         var productList = TestUtils.getCommaSeparatedList(products);
         for (var product : productList) {
             fillProductsPage.checkAvailableProductButton(product);
+        }
+    }
+
+    @Then("I should not see the product selection option with the products {string}.")
+    public void iShouldNotSeeTheProductSelectionOptionWithTheProducts(String products) {
+        var productList = TestUtils.getCommaSeparatedList(products);
+        if (!Arrays.stream(productList).toList().isEmpty()) {
+            for (var product : productList) {
+                fillProductsPage.checkNotAvailableProductButton(product);
+            }
         }
     }
 
