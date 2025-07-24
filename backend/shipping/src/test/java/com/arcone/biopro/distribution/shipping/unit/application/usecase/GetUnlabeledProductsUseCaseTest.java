@@ -360,8 +360,8 @@ class GetUnlabeledProductsUseCaseTest {
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
                 assertEquals("WARN", firstNotification.notificationType());
-                assertEquals("INVENTORY_LABELED_ERROR", firstNotification.name());
-                assertEquals(ShipmentServiceMessages.INVENTORY_LABELED_ERROR, firstNotification.message());
+                assertEquals("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR", firstNotification.name());
+                assertEquals(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR, firstNotification.message());
 
             })
             .verifyComplete();
@@ -465,8 +465,8 @@ class GetUnlabeledProductsUseCaseTest {
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
                 assertEquals("WARN", firstNotification.notificationType());
-                assertEquals("INVENTORY_LABELED_ERROR", firstNotification.name());
-                assertEquals(ShipmentServiceMessages.INVENTORY_LABELED_ERROR, firstNotification.message());
+                assertEquals("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR", firstNotification.name());
+                assertEquals(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR, firstNotification.message());
 
             })
             .verifyComplete();
