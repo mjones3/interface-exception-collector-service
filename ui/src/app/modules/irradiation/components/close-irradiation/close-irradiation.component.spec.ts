@@ -11,7 +11,7 @@ import { IrradiationService } from '../../services/irradiation.service';
 import { ProcessHeaderService, FacilityService } from '@shared';
 import { ProductIconsService } from '../../../../shared/services/product-icon.service';
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 @Component({
   selector: 'biopro-record-visual-inspection-modal',
@@ -45,7 +45,8 @@ describe('CloseIrradiationComponent', () => {
       })
     };
     irradiationService = { 
-      validateCheckDigit: jest.fn().mockReturnValue(of({ data: { checkDigit: { isValid: true } } }))
+      validateCheckDigit: jest.fn().mockReturnValue(of({ data: { checkDigit: { isValid: true } } })),
+      validateDeviceOnCloseBatch: jest.fn()
     };
     const mockProcessHeaderService = { setActions: jest.fn() };
     const mockProductIconsService = { getIconByProductFamily: jest.fn().mockReturnValue('icon') };
@@ -189,6 +190,52 @@ describe('CloseIrradiationComponent', () => {
       ] as any;
       
       expect(component.isSubmitEnabled()).toBe(false);
+    });
+  });
+
+  describe('loadIrradiationId', () => {
+    beforeEach(() => {
+      component.currentLocation = 'TEST_LOCATION';
+      jest.spyOn(component as any, 'showMessage').mockImplementation(() => {});
+      jest.spyOn(component as any, 'populateIrradiationBatch').mockImplementation(() => {});
+    });
+
+    it('should show error when no facility location available', () => {
+      component.currentLocation = '';
+      
+      component.loadIrradiationId('IRR001');
+      
+      expect(component['showMessage']).toHaveBeenCalledWith('ERROR', 'No facility location available');
+      expect(irradiationService.validateDeviceOnCloseBatch).not.toHaveBeenCalled();
+    });
+
+    it('should call validateDeviceOnCloseBatch with correct parameters', () => {
+      const irradiationId = 'IRR001';
+      irradiationService.validateDeviceOnCloseBatch.mockReturnValue(of({ data: { validateDeviceOnCloseBatch: [] } }));
+      
+      component.loadIrradiationId(irradiationId);
+      
+      expect(irradiationService.validateDeviceOnCloseBatch).toHaveBeenCalledWith(irradiationId, 'TEST_LOCATION');
+    });
+
+    it('should populate irradiation batch when products are returned', () => {
+      const mockProducts = [{ unitNumber: 'UNIT001', productCode: 'PROD001', productDescription: 'Product 1', productFamily: 'Family1' }];
+      irradiationService.validateDeviceOnCloseBatch.mockReturnValue(of({ data: { validateDeviceOnCloseBatch: mockProducts } }));
+      jest.spyOn(component.unitNumberComponent.controlUnitNumber, 'enable');
+      
+      component.loadIrradiationId('IRR001');
+      
+      expect(component['populateIrradiationBatch']).toHaveBeenCalled();
+      expect(component.unitNumberComponent.controlUnitNumber.enable).toHaveBeenCalled();
+    });
+
+    it('should handle service error', () => {
+      const error = { message: 'Service error' };
+      irradiationService.validateDeviceOnCloseBatch.mockReturnValue(throwError(error));
+      
+      component.loadIrradiationId('IRR001');
+      
+      expect(component['showMessage']).toHaveBeenCalledWith('ERROR', 'Service error');
     });
   });
 });

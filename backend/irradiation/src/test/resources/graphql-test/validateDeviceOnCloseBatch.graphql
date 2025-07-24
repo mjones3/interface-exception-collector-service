@@ -5,5 +5,10 @@ query validateDeviceOnCloseBatch($deviceId: String!, $location: String!) {
         productFamily
         productDescription
         status
+        quarantines {
+            reason
+            comments
+            stopsManufacturing
+        }
     }
 }

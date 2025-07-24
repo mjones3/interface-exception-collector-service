@@ -433,19 +433,23 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.irradiationService.validateDeviceOnCloseBatch(irradiationId, this.currentLocation).subscribe({
             next: (result) => {
                 const products = result.data?.validateDeviceOnCloseBatch || [];
-                const irradiationProducts = products.map(product => ({
-                    unitNumber: product.unitNumber,
-                    productCode: product.productCode,
-                    productDescription: product.productDescription,
-                    status: PENDING_INSPECTION,
-                    productFamily: product.productFamily,
-                    icon: this.findIconsByProductFamily(product.productFamily),
-                    statuses: this.getStatuses(product.status),
-                    disabled: true
-                })) as IrradiationProductDTO[];
-                this.populateIrradiationBatch(irradiationProducts);
-                this.unitNumberComponent.controlUnitNumber.enable();
-                setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
+                if (products) {
+                    const irradiationProducts = products.map(product => ({
+                        unitNumber: product.unitNumber,
+                        productCode: product.productCode,
+                        productDescription: product.productDescription,
+                        productFamily: product.productFamily,
+                        icon: this.findIconsByProductFamily(product.productFamily),
+                        status: this.getFinalStatus(product),
+                        statuses: this.getStatuses(this.getFinalStatus(product)),
+                        disabled: true
+                    })) as IrradiationProductDTO[];
+                    this.populateIrradiationBatch(irradiationProducts);
+                    this.unitNumberComponent.controlUnitNumber.enable();
+                    setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
+                } else {
+                    this.showMessage(MessageType.ERROR, 'Invalid products by irradiator id');
+                }
             },
             error: (error) => {
                 this.showMessage(MessageType.ERROR, error.message);

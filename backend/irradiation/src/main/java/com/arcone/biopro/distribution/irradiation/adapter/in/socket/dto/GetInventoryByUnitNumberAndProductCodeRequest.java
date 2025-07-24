@@ -4,6 +4,6 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject
 import lombok.Builder;
 
 @Builder
-public record GetInventoryByUnitNumberAndProductCodeRequest(UnitNumber unitNumber,
+public record GetInventoryByUnitNumberAndProductCodeRequest(String unitNumber,
                                                             String productCode) {
 }

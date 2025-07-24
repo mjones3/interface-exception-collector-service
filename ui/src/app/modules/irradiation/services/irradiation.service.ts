@@ -100,7 +100,7 @@ export class IrradiationService {
     public validateDeviceOnCloseBatch(
         deviceId: string, location: string
     ): Observable<
-        ApolloQueryResult<{ validateDeviceOnCloseBatch: { unitNumber: string, productCode: string, productFamily: string, productDescription: string, status: string }[] }>
+        ApolloQueryResult<{ validateDeviceOnCloseBatch: IrradiationProductDTO[] }>
     > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,

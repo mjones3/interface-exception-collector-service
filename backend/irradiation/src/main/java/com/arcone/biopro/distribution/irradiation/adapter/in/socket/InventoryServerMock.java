@@ -278,7 +278,7 @@ public class InventoryServerMock {
             request.unitNumber(), request.productCode());
         return Mono.just(
             InventoryOutput.builder()
-                .unitNumber(request.unitNumber().value())
+                .unitNumber(request.unitNumber())
                 .productCode(request.productCode())
                 .location("123456789")
                 .inventoryStatus("AVAILABLE")
