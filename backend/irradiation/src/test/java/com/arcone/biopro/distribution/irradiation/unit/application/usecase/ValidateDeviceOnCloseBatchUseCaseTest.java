@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.irradiation.unit.application.usecase;
 
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.controller.errors.DeviceValidationFailureException;
+import com.arcone.biopro.distribution.irradiation.application.mapper.BatchProductMapper;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceOnCloseBatchUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.exception.InventoryValidationException;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Batch;
@@ -43,12 +44,13 @@ class ValidateDeviceOnCloseBatchUseCaseTest {
     private InventoryClient inventoryClient;
 
     @Mock
+    private BatchProductMapper batchProductMapper;
+
+    @Mock
     private Device device;
 
     @Mock
     private Batch batch;
-
-
 
     @InjectMocks
     private ValidateDeviceOnCloseBatchUseCase validateDeviceOnCloseBatchUseCase;
@@ -82,6 +84,15 @@ class ValidateDeviceOnCloseBatchUseCaseTest {
             .thenReturn(Flux.just(batchItem));
         when(inventoryClient.getInventoryByUnitNumberAndProductCode(any(UnitNumber.class), anyString()))
             .thenReturn(Mono.just(inventoryOutput));
+        when(batchProductMapper.toDTO(inventoryOutput))
+            .thenReturn(BatchProductDTO.builder()
+                .unitNumber("W777725001001")
+                .productCode("E0867V00")
+                .productFamily("BLOOD_SAMPLES")
+                .productDescription("Blood Sample Type A")
+                .status("AVAILABLE")
+                .quarantines(List.of())
+                .build());
 
         Flux<BatchProductDTO> result = validateDeviceOnCloseBatchUseCase.execute(deviceId, location);
 
@@ -89,7 +100,8 @@ class ValidateDeviceOnCloseBatchUseCaseTest {
             .expectNextMatches(dto -> 
                 "W777725001001".equals(dto.unitNumber()) &&
                 "E0867V00".equals(dto.productCode()) &&
-                "BLOOD_SAMPLES".equals(dto.productFamily()))
+                "BLOOD_SAMPLES".equals(dto.productFamily()) &&
+                "AVAILABLE".equals(dto.status()))
             .verifyComplete();
     }
 
