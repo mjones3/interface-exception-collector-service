@@ -9,6 +9,7 @@ type Query {
 
 type Mutation {
     submitBatch(input: SubmitBatchInput!): BatchSubmissionResult!
+    completeBatch(input: CompleteBatchInput!): BatchSubmissionResult!
 }
 
 type Inventory {
@@ -47,6 +48,18 @@ input BatchItemInput {
     unitNumber: String!
     productCode: String!
     lotNumber: String!
+}
+
+input CompleteBatchInput {
+    batchId: String!
+    endTime: String!
+    batchItems: [BatchItemCompletionInput!]!
+}
+
+input BatchItemCompletionInput {
+    unitNumber: String!
+    productCode: String!
+    isIrradiated: Boolean!
 }
 
 type BatchSubmissionResult {

@@ -29,5 +29,4 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             .findByKeyInAndActiveTrue(keys)
             .map(configurationEntityMapper::toDomain);
     }
-
 }

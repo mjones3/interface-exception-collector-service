@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.re
 
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Batch;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.BatchRepository;
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchId;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchItem;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.DeviceId;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchEntity;
@@ -24,6 +25,7 @@ interface BatchEntityRepository extends ReactiveCrudRepository<BatchEntity, Long
 interface BatchItemEntityRepository extends ReactiveCrudRepository<BatchItemEntity, Long> {
     Flux<BatchItemEntity> findByBatchId(Long batchId);
     Mono<Boolean> existsByUnitNumber(String unitNumber);
+    Mono<BatchItemEntity> findByBatchIdAndUnitNumberAndProductCode(Long batchId, String unitNumber, String productCode);
 }
 
 @Repository
@@ -109,6 +111,61 @@ public class BatchRepositoryImpl implements BatchRepository {
                 .bind("productCode", productCode)
                 .map(row -> row.get(0, Boolean.class))
                 .one();
+    }
+
+    @Override
+    public Mono<Batch> findById(BatchId batchId) {
+        return batchRepository.findById(batchId.getValue())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Mono<Batch> completeBatch(BatchId batchId, LocalDateTime endTime) {
+        return batchRepository.findById(batchId.getValue())
+                .flatMap(entity -> {
+                    entity.setEndTime(endTime);
+                    entity.setModificationDate(ZonedDateTime.now());
+                    return batchRepository.save(entity);
+                })
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Mono<Void> updateBatchItemNewProductCode(BatchId batchId, String unitNumber, String productCode, String newProductCode) {
+        String sql = """
+            UPDATE bld_batch_item 
+            SET new_product_code = :newProductCode, modification_date = NOW()
+            WHERE batch_id = :batchId AND unit_number = :unitNumber AND product_code = :productCode
+            """;
+
+        return databaseClient.sql(sql)
+                .bind("newProductCode", newProductCode)
+                .bind("batchId", batchId.getValue())
+                .bind("unitNumber", unitNumber)
+                .bind("productCode", productCode)
+                .fetch()
+                .rowsUpdated()
+                .then();
+    }
+
+    @Override
+    public Mono<BatchItem> findBatchItem(BatchId batchId, String unitNumber, String productCode) {
+        return batchItemRepository.findByBatchIdAndUnitNumberAndProductCode(
+                batchId.getValue(), unitNumber, productCode)
+                .map(this::mapToBatchItemWithDefaults);
+    }
+
+    private BatchItem mapToBatchItemWithDefaults(BatchItemEntity entity) {
+        return BatchItem.builder()
+                .unitNumber(new com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.UnitNumber(entity.getUnitNumber()))
+                .productCode(entity.getProductCode())
+                .lotNumber(entity.getLotNumber())
+                .newProductCode(entity.getNewProductCode())
+                .expirationDate(entity.getExpirationDate())
+                .productFamily(entity.getProductFamily())
+                .productDescription(null)
+                .irradiated(false)
+                .build();
     }
 
 }

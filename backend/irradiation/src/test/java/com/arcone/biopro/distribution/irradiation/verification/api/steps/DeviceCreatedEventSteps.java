@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.irradiation.verification.api.steps;
 
 import com.arcone.biopro.distribution.irradiation.adapter.in.listener.DeviceCreated;
-import com.arcone.biopro.distribution.irradiation.adapter.in.listener.EventMessage;
+import com.arcone.biopro.distribution.irradiation.adapter.common.EventMessage;
 import com.arcone.biopro.distribution.irradiation.application.usecase.CreateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Device;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.DeviceRepository;
