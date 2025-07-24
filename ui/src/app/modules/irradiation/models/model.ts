@@ -28,21 +28,6 @@ export interface VisualInspectionRequestDTO {
 export interface ValidationDataDTO {
     unitNumber: string;
     productCode: string;
-    productDescription: string;
-    productFamily?: string;
-    icon?: string;
-    consequence?: ConsequenceDTO;
-}
-
-export interface ConsequenceDTO {
-    consequenceReasons: string[];
-    consequenceType: ConsequenceType;
-}
-
-export enum ConsequenceType {
-    NONE = 'NONE',
-    DISCARD = 'DISCARD',
-    QUARANTINE = 'QUARANTINE',
 }
 
 export const MessageType = {
