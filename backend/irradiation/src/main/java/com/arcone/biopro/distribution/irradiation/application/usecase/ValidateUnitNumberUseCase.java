@@ -80,6 +80,7 @@ public class ValidateUnitNumberUseCase {
             .statusReason(dto.statusReason())
             .unsuitableReason(dto.unsuitableReason())
             .expired(dto.expired())
+            .isImported(dto.isImported())
             .quarantines(dto.quarantines())
             .alreadyIrradiated(alreadyIrradiated)
             .notConfigurableForIrradiation(notConfigurable)
