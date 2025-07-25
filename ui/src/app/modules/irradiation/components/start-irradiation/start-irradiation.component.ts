@@ -365,7 +365,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
             return false;
         }
         if (selectedOption.isBeingIrradiated) {
-            this.showMessage(MessageType.ERROR, 'Product is being irradiated"')
+            this.showMessage(MessageType.ERROR, 'Product is being irradiated')
             return false;
         }
         return true;
