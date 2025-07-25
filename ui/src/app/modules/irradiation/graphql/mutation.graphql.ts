@@ -9,6 +9,16 @@ const START_IRRADIATION_SUBMIT_BATCH = gql`
     }
 `;
 
+const COMPLETE_BATCH = gql`
+    mutation completeBatch($input: CompleteBatchInput!) {
+        completeBatch(input: $input) {
+            success
+            message
+        }
+    }
+`;
+
 export {
     START_IRRADIATION_SUBMIT_BATCH,
+    COMPLETE_BATCH,
 };

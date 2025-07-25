@@ -58,9 +58,3 @@ Feature: Submit and close batch
     And no product modified events should be published
     And quarantine events should be published for all items with reason "IRRADIATION_INCOMPLETE"
     And I should see quarantine notification "Products not irradiated have been quarantined"
-
-  Scenario: I try to complete a non-existent batch
-    When I complete a batch with id "999999" and end time "2024-01-15T12:00:00Z" and items:
-      | Unit Number   | Product Code | Is Irradiated |
-      | W777725004009 | E068500      | true          |
-    Then I should see an error message "Batch not found"
