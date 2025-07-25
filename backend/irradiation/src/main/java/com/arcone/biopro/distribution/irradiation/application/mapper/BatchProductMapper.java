@@ -5,9 +5,10 @@ import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.cli
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = MapperUtils.class)
 public interface BatchProductMapper {
 
     @Mapping(source = "inventoryStatus", target = "status")
+    @Mapping(source = ".", target = "isImported", qualifiedByName = "hasImportedFlag")
     BatchProductDTO toDTO(InventoryOutput inventoryOutput);
 }

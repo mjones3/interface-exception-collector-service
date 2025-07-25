@@ -25,6 +25,7 @@ type Inventory {
     alreadyIrradiated: Boolean
     isBeingIrradiated: Boolean
     notConfigurableForIrradiation: Boolean
+    isImported: Boolean
     quarantines: [InventoryQuarantine]
 }
 
@@ -79,5 +80,6 @@ type BatchProduct {
     productFamily: String
     productDescription: String
     status: String
+    isImported: Boolean
     quarantines: [InventoryQuarantine]
 }

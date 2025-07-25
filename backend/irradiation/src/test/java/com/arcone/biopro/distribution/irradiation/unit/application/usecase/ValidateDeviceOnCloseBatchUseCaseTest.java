@@ -60,7 +60,7 @@ class ValidateDeviceOnCloseBatchUseCaseTest {
     void execute_ShouldReturnBatchProducts_WhenValidationSucceeds() {
         String deviceId = "AUTO-DEVICE004";
         String location = "123456789";
-        
+
         InventoryOutput inventoryOutput = InventoryOutput.builder()
             .unitNumber("W777725001001")
             .productCode("E0867V00")
@@ -91,17 +91,19 @@ class ValidateDeviceOnCloseBatchUseCaseTest {
                 .productFamily("BLOOD_SAMPLES")
                 .productDescription("Blood Sample Type A")
                 .status("AVAILABLE")
+                .isImported(false)
                 .quarantines(List.of())
                 .build());
 
         Flux<BatchProductDTO> result = validateDeviceOnCloseBatchUseCase.execute(deviceId, location);
 
         StepVerifier.create(result)
-            .expectNextMatches(dto -> 
+            .expectNextMatches(dto ->
                 "W777725001001".equals(dto.unitNumber()) &&
                 "E0867V00".equals(dto.productCode()) &&
                 "BLOOD_SAMPLES".equals(dto.productFamily()) &&
-                "AVAILABLE".equals(dto.status()))
+                "AVAILABLE".equals(dto.status()) &&
+                Boolean.FALSE.equals(dto.isImported()))
             .verifyComplete();
     }
 
