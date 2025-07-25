@@ -1,6 +1,6 @@
-mutation completeBatch($batchId: String!, $endTime: String!, $batchItems: [BatchItemCompletionInput!]!) {
+mutation completeBatch($deviceId: String!, $endTime: String!, $batchItems: [BatchItemCompletionInput!]!) {
     completeBatch(input: {
-        batchId: $batchId,
+        deviceId: $deviceId,
         endTime: $endTime,
         batchItems: $batchItems
     }) {

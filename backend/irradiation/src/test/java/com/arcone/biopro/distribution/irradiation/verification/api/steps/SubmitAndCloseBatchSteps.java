@@ -44,8 +44,7 @@ public class SubmitAndCloseBatchSteps {
     public void iHaveAnExistingBatchWithProducts(DataTable dataTable) {
         String deviceId = irradiationContext.getDeviceId();
         if (deviceId == null || deviceId.isEmpty()) {
-            deviceId = "AUTO-DEVICE100";
-            repositorySteps.iHaveAValidDeviceAtLocation(deviceId, "123456789", "ACTIVE");
+            throw new IllegalStateException("Device ID should be set from background step");
         }
 
         Long createdBatchId = repositorySteps.createBatch(deviceId, LocalDateTime.now(), null);
@@ -67,14 +66,14 @@ public class SubmitAndCloseBatchSteps {
 
     @When("I complete the batch with end time {string} and items:")
     public void iCompleteTheBatchWithEndTimeAndItems(String endTimeStr, DataTable dataTable) {
-        this.endTime = convertToLocalDateTimeFormat(endTimeStr);
+        this.endTime = endTimeStr;
+        String deviceId = irradiationContext.getDeviceId();
         
-        if (this.batchId == null) {
-            this.batchId = irradiationContext.getBatchId();
+        if (deviceId == null || deviceId.isEmpty()) {
+            throw new IllegalStateException("Device ID should be set from background step");
         }
 
-        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
-        this.batchItems = rows.stream()
+        this.batchItems = dataTable.asMaps(String.class, String.class).stream()
                 .map(row -> Map.<String, Object>of(
                     "unitNumber", row.get("Unit Number"),
                     "productCode", row.get("Product Code"),
@@ -82,37 +81,17 @@ public class SubmitAndCloseBatchSteps {
                 ))
                 .toList();
 
-        try {
-            BatchSubmissionResultDTO response = graphQlTester
-                    .documentName("completeBatch")
-                    .variable("batchId", this.batchId)
-                    .variable("endTime", this.endTime)
-                    .variable("batchItems", this.batchItems)
-                    .execute()
-                    .errors()
-                    .satisfy(errors -> {
-                        if (!errors.isEmpty()) {
-                            this.errorMessage = errors.get(0).getMessage();
-                        }
-                    })
-                    .path("completeBatch")
-                    .entity(BatchSubmissionResultDTO.class)
-                    .get();
-
-            this.result = response;
-            if (!response.success()) {
-                this.errorMessage = response.message();
-            } else {
-                Thread.sleep(1000);
-            }
-        } catch (Exception e) {
-            String message = e.getMessage();
-            if (message.contains("Batch not found") || message.contains("completeBatch") || message.contains("null")) {
-                this.errorMessage = "Batch not found";
-            } else {
-                this.errorMessage = message;
-            }
-        }
+        this.result = graphQlTester
+                .documentName("completeBatch")
+                .variable("deviceId", deviceId)
+                .variable("endTime", convertToLocalDateTimeFormat(this.endTime))
+                .variable("batchItems", this.batchItems)
+                .execute()
+                .errors()
+                .verify()
+                .path("completeBatch")
+                .entity(BatchSubmissionResultDTO.class)
+                .get();
     }
 
     @When("I complete a batch with id {string} and end time {string} and items:")
@@ -123,9 +102,12 @@ public class SubmitAndCloseBatchSteps {
 
     @Then("the batch should be successfully completed")
     public void theBatchShouldBeCompletedSuccessfully() {
-        assertNotNull(result, "Batch completion result should not be null");
-        assertTrue(result.success(), "Batch completion should be successful");
-        assertEquals(Long.parseLong(batchId), result.batchId(), "Batch ID should match");
+        if (result == null) {
+            fail("Batch completion result should not be null. Error: " + (errorMessage != null ? errorMessage : "Unknown error"));
+        }
+        if (!result.success()) {
+            fail("Batch completion should be successful. Error: " + (result.message() != null ? result.message() : "Unknown error"));
+        }
     }
 
     @Then("all products should be updated with new product codes:")
@@ -133,9 +115,9 @@ public class SubmitAndCloseBatchSteps {
         assertNotNull(result, "Batch completion result should not be null");
         assertTrue(result.success(), "Batch should be completed successfully");
 
-        dataTable.asMaps(String.class, String.class).forEach(update -> 
+        dataTable.asMaps(String.class, String.class).forEach(update ->
             repositorySteps.verifyProductCodeUpdate(
-                update.get("Unit Number"), 
+                update.get("Unit Number"),
                 update.get("New Product Code")
             )
         );
@@ -276,7 +258,7 @@ public class SubmitAndCloseBatchSteps {
     @And("I should see quarantine notification {string}")
     public void iShouldSeeQuarantineNotification(String expectedNotification) {
         assertNotNull(result, "Batch completion result should not be null");
-        
+
         if (!result.success()) {
             fail("Expected quarantine notification but batch completion failed");
         }
