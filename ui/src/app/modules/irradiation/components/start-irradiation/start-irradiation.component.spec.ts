@@ -605,7 +605,7 @@ describe('StartIrradiationComponent', () => {
       const result = (component as any).isNotAnExistingIrradiatedProduct(product);
       
       expect(result).toBe(false);
-      expect(mockToastrService.error).toHaveBeenCalledWith('Product is being irradiated"');
+      expect(mockToastrService.error).toHaveBeenCalledWith('Product is being irradiated');
     });
 
     it('should return true when product is valid for irradiation', () => {
