@@ -276,6 +276,21 @@ public class InventoryServerMock {
     Mono<InventoryOutput> getInventoryByUnitNumberAndProductCode(GetInventoryByUnitNumberAndProductCodeRequest request) {
         log.info("Mock server received request for getInventoryByUnitNumberAndProductCode with unitNumber: {} and productCode: {}",
             request.unitNumber(), request.productCode());
+        if ( (request.unitNumber().startsWith("W777725004001") || request.unitNumber().startsWith("W777725004002") ||
+            request.unitNumber().startsWith("W777725004003") || request.unitNumber().startsWith("W777725004004") ||
+            request.unitNumber().startsWith("W777725004006"))   && request.productCode().startsWith("E033600")) {
+            return Mono.just(
+                createInventory(request.unitNumber(), "E033600", "AVAILABLE", "123456789", "AS1 LR RBC")
+            );
+        }
+
+        if ( (request.unitNumber().startsWith("W777725004001") || request.unitNumber().startsWith("W777725004003") ||
+            request.unitNumber().startsWith("W777725004005")) && request.productCode().startsWith("E068600")) {
+            return Mono.just(
+                createInventory(request.unitNumber(), "E068600", "AVAILABLE", "123456789", "APH AS3 LR RBC C2")
+            );
+        }
+
         return Mono.just(
             InventoryOutput.builder()
                 .unitNumber(request.unitNumber())

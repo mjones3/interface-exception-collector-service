@@ -1,5 +1,4 @@
 # Feature Unit Number reference: W777725002xxx
-@skipOnPipeline
 @ui @LAB-576 @AOA-61 @hzd9
 Feature: Start Irradiation Batch
 
@@ -216,7 +215,8 @@ Feature: Start Irradiation Batch
             And I scan the lot number "<Lot Number>"
 
             When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
-            Then I see the "Warning" message "No products eligible for irradiation"
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "Product is being irradiated"
             And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:

@@ -11,6 +11,7 @@ public interface IrradiationInventoryMapper {
     @Mapping(target = "location", source = "location.value")
     @Mapping(target = "alreadyIrradiated", ignore = true)
     @Mapping(target = "notConfigurableForIrradiation", ignore = true)
+    @Mapping(target = "isBeingIrradiated", ignore = true)
     IrradiationInventoryOutput toDomain(Inventory inventory);
 }
 

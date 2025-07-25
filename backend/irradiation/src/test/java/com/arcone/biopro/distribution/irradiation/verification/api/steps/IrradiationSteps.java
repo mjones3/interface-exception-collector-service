@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInv
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
 import com.arcone.biopro.distribution.irradiation.verification.api.support.IrradiationContext;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -154,5 +155,13 @@ public class IrradiationSteps {
         assertEquals(irradiationContext.getInventoryList().getFirst().productCode(), productCode);
         assertEquals(irradiationContext.getInventoryList().getFirst().unitNumber(), unitNumber);
         assertTrue(irradiationContext.getInventoryList().getFirst().expired());
+    }
+
+    @And("I verify that product {string} in the unit {string} is flagged as is being irradiated")
+    public void iVerifyThatProductInTheUnitIsFlaggedAsIsBeingIrradiated(String productCode, String unitNumber) {
+        var inventory = irradiationContext.getInventoryList().stream()
+            .filter(inv -> inv.productCode().equals(productCode) && inv.unitNumber().equals(unitNumber)).findFirst();
+        assertTrue(inventory.isPresent());
+        assertTrue(Boolean.TRUE.equals(inventory.get().isBeingIrradiated()));
     }
 }

@@ -21,8 +21,7 @@ import {UnitNumberCardComponent} from "../../../../shared/components/unit-number
 import {ProductIconsService} from "../../../../shared/services/product-icon.service";
 import {
     IrradiationProductDTO, IrradiationResolveData,
-    MessageType, RecordVisualInpectionResult, ValidateUnitEvent,
-    ValidationDataDTO
+    MessageType, RecordVisualInpectionResult, ValidateUnitEvent
 } from "../../models/model";
 import {ActivatedRoute, Router} from "@angular/router";
 import {IrradiationService} from "../../services/irradiation.service";
@@ -178,10 +177,37 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     submit() {
-        //TODO: add here the submit endpoint
-        this.currentDateTime = ''
-        this.showMessage(MessageType.SUCCESS, 'Batch successfully closed. Label irradiated products.');
-        this.redirect();
+        const enabledProducts = this.products.filter(p => !p.disabled);
+        const input = {
+            deviceId: this.form.get('irradiatorId')?.value,
+            endTime: new Date().toISOString().slice(0, 19),
+            batchItems: enabledProducts.map(product => ({
+                unitNumber: product.unitNumber,
+                productCode: product.productCode,
+                isIrradiated: product.statuses.some(status => status.value === IRRADIATED)
+            }))
+        };
+
+        this.irradiationService.completeBatch(input).subscribe({
+            next: (result) => {
+                const response = result.data?.completeBatch;
+                if (response?.success) {
+                    this.showMessage(MessageType.SUCCESS, 'Batch successfully closed. Label irradiated products.');
+                    const notIrradiatedCount = enabledProducts.filter(p => !p.statuses.some(s => s.value === IRRADIATED)).length;
+                    if (notIrradiatedCount > 0) {
+                        const productText = notIrradiatedCount === 1 ? 'product' : 'products';
+                        const hasText = notIrradiatedCount === 1 ? 'has' : 'have';
+                        this.showMessage(MessageType.ERROR, `${notIrradiatedCount} ${productText} not irradiated ${hasText} been quarantined`);
+                    }
+                } else {
+                    this.showMessage(MessageType.ERROR, response?.message || 'Failed to close batch');
+                }
+                this.redirect();
+            },
+            error: (error) => {
+                this.showMessage(MessageType.ERROR, error.message || 'Failed to close batch');
+            }
+        });
     }
 
 
@@ -304,14 +330,6 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.unitNumberComponent.focusOnUnitNumber();
 
         this.allProducts.push({...newProduct});
-    }
-
-    private notInProductList(product: ValidationDataDTO) {
-        return !this.products.find(
-            (p) =>
-                p.productCode === product.productCode &&
-                p.unitNumber === product.unitNumber
-        );
     }
 
     get numberOfUnits() {
@@ -442,7 +460,6 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                         icon: this.findIconsByProductFamily(product.productFamily),
                         status: this.getFinalStatus(product),
                         statuses: this.getStatuses(this.getFinalStatus(product)),
-                        disabled: true
                     })) as IrradiationProductDTO[];
                     this.populateIrradiationBatch(irradiationProducts);
                     this.unitNumberComponent.controlUnitNumber.enable();
