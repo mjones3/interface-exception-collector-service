@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.client;
 
+import com.arcone.biopro.distribution.irradiation.domain.model.Property;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ public record InventoryOutput(
     String statusReason,
     String unsuitableReason,
     Boolean expired,
-    List<InventoryQuarantineOutput> quarantines) {
+    List<InventoryQuarantineOutput> quarantines,
+    List<Property> properties) {
 }
 
