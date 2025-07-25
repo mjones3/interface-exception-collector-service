@@ -8,7 +8,7 @@ import java.util.List;
 
 @Builder
 public record CompleteBatchCommand(
-    String batchId,
+    String deviceId,
     LocalDateTime endTime,
     List<BatchItemCompletionDTO> batchItems
 ) {

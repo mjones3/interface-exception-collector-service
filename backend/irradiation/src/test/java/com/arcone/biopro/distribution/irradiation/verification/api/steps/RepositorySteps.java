@@ -68,12 +68,12 @@ public class RepositorySteps {
         DeviceEntity existingDevice = deviceRepository.findAll()
             .filter(device -> deviceId.equals(device.getDeviceId()))
             .blockFirst();
-        
+
         if (existingDevice == null) {
             DeviceEntity device = new DeviceEntity(deviceId, location, status);
             deviceRepository.save(device).block();
         }
-        
+
         this.lastCreatedDeviceId = deviceId;
 
         // Store device ID in context for later use
@@ -193,10 +193,10 @@ public class RepositorySteps {
     @Given("An irradiation batch has been started with the following units for irradiator {string}")
     public void anIrradiationBatchHasBeenStartedWithTheFollowingUnits(String deviceId, DataTable dataTable) {
         deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
-        long batchId = createBatch(deviceId,LocalDateTime.now(), LocalDateTime.now());
+        long batchId = createBatch(deviceId,LocalDateTime.now(), null);
         List<Map<String, String>> batchItems = dataTable.asMaps();
         for (Map<String, String> item : batchItems) {
-            createBatchItem(batchId,item.get("Lot Number"), item.get("Unit Number"),item.get("Product Code"), null);
+            createBatchItem(batchId, item.get("Unit Number"), item.get("Lot Number"), item.get("Product Code"), null);
         }
     }
 
@@ -223,7 +223,7 @@ public class RepositorySteps {
         if (expirationDate != null && !expirationDate.isEmpty()) {
             expiration = LocalDateTime.parse(expirationDate + "T23:59:00");
         }
-        
+
         BatchItemEntity batchItem = BatchItemEntity.builder()
             .batchId(batchId)
             .unitNumber(unitNumber)

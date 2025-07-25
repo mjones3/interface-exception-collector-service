@@ -4,8 +4,9 @@ import com.arcone.biopro.distribution.irradiation.application.irradiation.comman
 import com.arcone.biopro.distribution.irradiation.application.irradiation.dto.BatchSubmissionResultDTO;
 import com.arcone.biopro.distribution.irradiation.application.usecase.CommandUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.aggregate.IrradiationAggregate;
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.BatchRepository;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.service.BatchCompletionService;
-import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchId;
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.DeviceId;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -13,33 +14,33 @@ import reactor.core.publisher.Mono;
 public class CompleteBatchUseCase implements CommandUseCase<CompleteBatchCommand, BatchSubmissionResultDTO> {
 
     private final BatchCompletionService batchCompletionService;
+    private final BatchRepository batchRepository;
 
-    public CompleteBatchUseCase(BatchCompletionService batchCompletionService) {
+    public CompleteBatchUseCase(BatchCompletionService batchCompletionService, BatchRepository batchRepository) {
         this.batchCompletionService = batchCompletionService;
+        this.batchRepository = batchRepository;
     }
 
     @Override
     public Mono<BatchSubmissionResultDTO> execute(CompleteBatchCommand command) {
-        try {
-            BatchId batchId = BatchId.of(Long.parseLong(command.batchId()));
+        DeviceId deviceId = DeviceId.of(command.deviceId());
 
-            var itemCompletions = command.batchItems().stream()
-                    .map(dto -> new IrradiationAggregate.BatchItemCompletion(
-                        dto.unitNumber(), dto.productCode(), dto.isIrradiated()))
-                    .toList();
+        var itemCompletions = command.batchItems().stream()
+                .map(dto -> new IrradiationAggregate.BatchItemCompletion(
+                    dto.unitNumber(), dto.productCode(), dto.isIrradiated()))
+                .toList();
 
-            return batchCompletionService.prepareBatchCompletion(batchId, itemCompletions, command.endTime())
-                    .flatMap(batchCompletionService::completeBatch)
-                    .thenReturn(buildSuccessResult(command.batchId()));
-
-        } catch (NumberFormatException e) {
-            return Mono.error(new RuntimeException("Invalid batch ID format"));
-        }
+        return batchRepository.findActiveBatchByDeviceId(deviceId)
+                .switchIfEmpty(Mono.error(new RuntimeException("No active batch found for device: " + command.deviceId())))
+                .flatMap(batch -> batchCompletionService.prepareBatchCompletion(
+                    batch.getId(), itemCompletions, command.endTime())
+                    .flatMap(aggregate -> batchCompletionService.completeBatch(aggregate)
+                        .thenReturn(buildSuccessResult(batch.getId().getValue()))));
     }
 
-    private BatchSubmissionResultDTO buildSuccessResult(String batchId) {
+    private BatchSubmissionResultDTO buildSuccessResult(Long batchId) {
         return BatchSubmissionResultDTO.builder()
-                .batchId(Long.parseLong(batchId))
+                .batchId(batchId)
                 .message("Batch completed successfully")
                 .success(true)
                 .build();
