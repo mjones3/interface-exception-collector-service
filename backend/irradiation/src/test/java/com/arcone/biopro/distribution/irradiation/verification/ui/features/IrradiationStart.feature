@@ -215,7 +215,8 @@ Feature: Start Irradiation Batch
             And I scan the lot number "<Lot Number>"
 
             When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
-            Then I see the "Warning" message "No products eligible for irradiation"
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "Product is being irradiated"
             And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
