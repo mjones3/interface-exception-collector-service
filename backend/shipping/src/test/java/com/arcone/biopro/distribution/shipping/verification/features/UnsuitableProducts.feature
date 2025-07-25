@@ -1,9 +1,9 @@
-@AOA-40 @AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19
+@AOA-40 @AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19 @AOA-197
 Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770,999771,999772,999773,999774,999775,999776,4440009,45200007,45200008,45200009,45200010,45200011,45200012,45200013,45200014,45200015".
+        Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770,999771,999772,999773,999774,999775,999776,4440009,45200007,45200008,45200009,45200010,45200011,45200012,45200013,45200014,45200015,44600011,44600012,44600013,44600014".
 
     @ui @DIS-125 @DIS-78 @DIS-56 @DIS-194 @DIS-162
     Scenario Outline: Entering an unsuitable product
@@ -51,7 +51,8 @@ Feature: Prevent filling a shipment with unsuitable products
         Rule: I should be able to fill an internal transfer order with quarantined products as requested.
         Rule: I should not be able to fill the same internal order with both quarantined and not quarantined products.
         Rule: I should not be able to select an unlabeled product when the the internal transfer is for labeled products.
-        @api @DIS-254 @bug @DIS-321 @DIS-336 @DIS-337 @DIS-444 @DIS-452
+        Rule: I should not be able to fill orders with unacceptable cryo and cryo-reduced plasma Products.
+        @api @DIS-254 @bug @DIS-321 @DIS-336 @DIS-337 @DIS-444 @DIS-452 @DIS-446
         Scenario Outline: Fill shipments with ineligible Products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Temperature Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
             And The visual inspection configuration is "enabled".
@@ -82,5 +83,8 @@ Feature: Prevent filling a shipment with unsuitable products
                 | 45200014     | DO1         | Distribution Only | 5        | A         | APHERESIS_PLATELETS_LEUKOREDUCED | ROOM_TEMPERATURE     | INTERNAL_TRANSFER | LABELED      | false                | W036825158909 | EA007V00   | SATISFACTORY   | This product is not labeled and cannot be shipped                                                         | WARN         |
                 | 45200013     | DO1         | Distribution Only | 5        | A         | APHERESIS_PLATELETS_LEUKOREDUCED | ROOM_TEMPERATURE     | INTERNAL_TRANSFER | LABELED      | true                 | W036825158910 | EA007V00   | SATISFACTORY   | Shipment can only contain quarantined products                                                            | WARN         |
                 | 45200015     | DO1         | Distribution Only | 5        | A         | APHERESIS_PLATELETS_LEUKOREDUCED | ROOM_TEMPERATURE     | INTERNAL_TRANSFER | UNLABELED    | false                | W036825158910 | EA007V00   | SATISFACTORY   | Shipment can only contain unlabeled products                                                              | WARN         |
-
+                | 44600011     | DO1         | Distribution Only | 5        | B         | PLASMA_MFG_NONINJECTABLE         | REFRIGERATED         | CUSTOMER          | LABELED      | false                | W013682515113 | E0701V00   | SATISFACTORY   | Product Family does not match                                                                             | WARN         |
+                | 44600012     | DO1         | Distribution Only | 5        | B         | PLASMA_MFG_INJECTABLE            | FROZEN               | CUSTOMER          | LABELED      | false                | W036825151112 | E5879V00   | SATISFACTORY   | Product Family does not match                                                                             | WARN         |
+                | 44600013     | DO1         | Distribution Only | 5        | A         | CRYOPRECIPITATE                  | FROZEN               | CUSTOMER          | LABELED      | false                | W036825151111 | E5165V00   | SATISFACTORY   | Blood type does not match                                                                                 | WARN         |
+                | 44600014     | DO1         | Distribution Only | 5        | AP        | PLASMA_TRANSFUSABLE              | FROZEN               | CUSTOMER          | LABELED      | false                | W036825151114 | E2617V00   | SATISFACTORY   | This product is expired and has been discarded. Place in biohazard container.                             | INFO         |
 

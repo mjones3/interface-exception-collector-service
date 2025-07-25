@@ -75,6 +75,10 @@ export class ProductIconsService {
         {
             productFamily: 'WASHED_PRT_APHERESIS_PLATELETS',
             value: 'biopro:product-platelets',
+        },
+        {
+            productFamily: 'CRYOPRECIPITATE',
+            value: 'biopro:cryo',
         }
     ];
 
