@@ -60,7 +60,7 @@ export const ProductFamilyMap: Record<keyof typeof ProductFamily, string> = {
     CRYOPRECIPITATE: 'Cryoprecipitate',
     WASHED_RED_BLOOD_CELLS: 'Washed Red Blood Cells',
     WASHED_APHERESIS_PLATELETS: 'Washed Apheresis Platelets',
-    WASHED_PRT_APHERESIS_PLATELETS: 'Washed PRT Apheresis Platelets'
+    WASHED_PRT_APHERESIS_PLATELETS: 'Washed Prt Apheresis Platelets'
 };
 
 export const PriorityMap: Record<keyof typeof Priority, string> = {
