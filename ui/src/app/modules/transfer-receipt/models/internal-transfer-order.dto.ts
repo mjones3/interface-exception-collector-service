@@ -1,6 +1,8 @@
 import { LookUpDto } from "@shared";
 
 export interface TransferInformationDTO {
+    productCategory: string;
+    receivedDifferentLocation: boolean;
     orderNumber: string;
     temperatureUnit: string;
     displayTransitInformation: boolean;

@@ -22,7 +22,6 @@
                 color="primary"
                 icon="heroicons_outline:arrow-right-circle"
                 [disabled]="!isFormValid()"
-                (clickEvent)="transferContinue()"
             />
         </div>
     </ng-template>
@@ -40,6 +39,7 @@
                             matInput
                             required
                             (keydown.enter)="onEnterTransferOrder()"
+                            (keydown.tab)="onEnterTransferOrder()"
                         />
                     @if (transferInformationForm.controls.transferOrderNumber.hasError('required')) { <mat-error>Transfer Order Number is required</mat-error> }
                 </mat-form-field>
@@ -53,26 +53,62 @@
                         matInput
                         (keydown.enter)="this.triggerElementBlur($event)"
                         />
-                </mat-form-field>
+                    </mat-form-field>
 
-                    <div class="md:col-span-6">
-                        <biopro-transit-time-form
-                            #transitTimeForm
-                            [availableTimeZones]="availableTimeZonesSignal()"
-                            [humanReadableTime]="transitTimeHumanReadableSignal()"
-                            [temperatureCategory]="transferInformationForm?.controls?.temperatureCategory.value"
-                            (updateTransitTimeQuarantineSignal)="updateTransitTimeQuarantine($event)"
-                            (updatetransitTimeHumanReadableSignal)="updateTransitTimeHumanReadable($event)"
-                        />
-                    </div>
+                    @if (temperatureQuarantineSignal() || transitTimeQuarantineSignal() ||isDifferentLocationSignal()) {
+                        <div class="grid gap-4 md:col-span-6 md:pb-4">
+                            @if(temperatureQuarantineSignal(); as temperatureQuarantineNotification){
+                            <div class="md:col-span-6">
+                                <biopro-global-message
+                                    [messageType]="NotificationTypeMap[temperatureQuarantineNotification.type].type"
+                                    [message]="temperatureQuarantineNotification.message"
+                                    [appearance]="'border'"
+                                />
+                            </div>
+                            }
+                            @if(transitTimeQuarantineSignal(); as transitTimeQuarantineNotification){
+                            <div class="md:col-span-6">
+                                <biopro-global-message
+                                    [messageType]="NotificationTypeMap[transitTimeQuarantineNotification.type].type"
+                                    [message]="transitTimeQuarantineNotification.message"
+                                    [appearance]="'border'"
+                                />
+                            </div>
+                            }
+                            @if(isDifferentLocationSignal()){
+                                <div class="md:col-span-6">
+                                    <biopro-global-message
+                                        [messageType]="'warning'"
+                                        [message]="'Order received at a different facility. Please add comments to record receipt at this location.'"
+                                        [appearance]="'border'"
+                                    />
+                                </div>
+                            }
+                        </div>
+                        }
 
-                    <div class="md:col-span-6">
-                        <biopro-temperature-form
-                            #temperatureForm
-                            [temperatureCategory]="transferInformationForm?.controls?.temperatureCategory.value"
-                            (updateTemperatureQuarantineSignal)="updateTemperatureQuarantine($event)"
-                        />
-                    </div>
+                        @if (transferInformationSignal()?.displayTransitInformation) {
+                            <div class="md:col-span-6">
+                                <biopro-transit-time-form
+                                    #transitTimeForm
+                                    [availableTimeZones]="availableTimeZonesSignal()"
+                                    [humanReadableTime]="transitTimeHumanReadableSignal()"
+                                    [temperatureCategory]="transferInformationForm?.controls?.temperatureCategory.value"
+                                    (updateTransitTimeQuarantineSignal)="updateTransitTimeQuarantine($event)"
+                                    (updatetransitTimeHumanReadableSignal)="updateTransitTimeHumanReadable($event)"
+                                />
+                            </div>
+                        }
+
+                        @if(transferInformationSignal()?.displayTemperature){
+                            <div class="md:col-span-6">
+                                <biopro-temperature-form
+                                    #temperatureForm
+                                    [temperatureCategory]="transferInformationForm?.controls?.temperatureCategory.value"
+                                    (updateTemperatureQuarantineSignal)="updateTemperatureQuarantine($event)"
+                                />
+                            </div>
+                        }
 
                 <!-- Comments -->
                 <mat-form-field class="md:col-span-6" [formGroup]="transferInformationForm">
@@ -80,14 +116,19 @@
                     <textarea
                         data-testid="comments"
                         formControlName="comments"
+                        [maxLength]="commentsMaxLength"
                         matInput
                         rows="3"
                         autocomplete="off"
                     ></textarea>
                     <mat-hint align="end">
-                        {{ transferInformationForm.controls['comments'].value?.length }} /
+                        {{ transferInformationForm.controls.comments.value?.length }} /
                         {{ commentsMaxLength }}
                     </mat-hint>
+                    @if (transferInformationForm.controls.comments.hasError('required')) 
+                        {
+                            <mat-error>Comments is required</mat-error>
+                         }
                 </mat-form-field>
             </div>
         </fuse-card>

@@ -102,4 +102,33 @@ describe('TransitTimeFormComponent', () => {
     
     expect(mockElement.blur).toHaveBeenCalled();
   });
+
+  it('should set max date to now for transit start date', () => {
+    const nowDate = new Date().toISOString().split('T')[0]; 
+    const startDateInput = fixture.debugElement.nativeElement.querySelector('[data-testid="transit-time-start-date"]');
+    expect(startDateInput.max).toBe(nowDate);
+  });
+
+  it('should set min date to start date value for transit end date when start date is set', () => {
+    const testDate = new Date('2024-01-15').toISOString().split('T')[0];;
+    component.formGroup().patchValue({ startDate: testDate });
+    fixture.detectChanges();
+    const endDateInput = fixture.debugElement.nativeElement.querySelector('[data-testid="transit-time-end-date"]');
+    expect(endDateInput.min).toBe(testDate);
+  });
+
+  it('should set min date to now for transit end date when start date is not set', () => {
+    const nowDate = new Date().toISOString().split('T')[0];
+    component.formGroup().patchValue({ startDate: null });
+    fixture.detectChanges();
+    
+    const endDateInput = fixture.debugElement.nativeElement.querySelector('[data-testid="transit-time-end-date"]');
+    expect(endDateInput.min).toBe(nowDate);
+  });
+
+  it('should set max date to now for transit end date', () => {
+    const nowDate = new Date().toISOString().split('T')[0];
+    const endDateInput = fixture.debugElement.nativeElement.querySelector('[data-testid="transit-time-end-date"]');
+    expect(endDateInput.max).toBe(nowDate);
+  });
 });

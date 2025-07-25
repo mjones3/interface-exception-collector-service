@@ -14,6 +14,7 @@
       <mat-datepicker-toggle matIconSuffix [for]="transitTimeStartDatePicker"></mat-datepicker-toggle>
       <mat-datepicker #transitTimeStartDatePicker></mat-datepicker>
       @if (formGroup().controls.startDate.hasError('required')) { <mat-error>Transit Start Date is required</mat-error> }
+      @if (formGroup().controls.startDate.hasError('matDatepickerMax')) { <mat-error>Transit Start Date cannot be in the future</mat-error> }
     </mat-form-field>
 
     <mat-form-field class="md:col-span-2" [formGroup]="formGroup()">
@@ -57,6 +58,7 @@
       <mat-datepicker #transitTimeEndDatePicker></mat-datepicker>
       @if (formGroup().controls.endDate.hasError('required')) { <mat-error>Transit End Date is required</mat-error> }
       @if (formGroup().controls.endDate.hasError('matDatepickerMin')) { <mat-error>Transit End Date cannot be before the Transit Start Date</mat-error> }
+      @if (formGroup().controls.endDate.hasError('matDatepickerMax')) { <mat-error>Transit End Date cannot be in the future</mat-error> }
     </mat-form-field>
 
     <mat-form-field class="md:col-span-2" [formGroup]="formGroup()">

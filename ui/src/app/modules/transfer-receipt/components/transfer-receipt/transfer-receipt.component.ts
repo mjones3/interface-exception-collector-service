@@ -8,7 +8,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
-import { LookUpDto, ProcessHeaderComponent, ProcessHeaderService } from '@shared';
+import { LookUpDto, NotificationTypeMap, ProcessHeaderComponent, ProcessHeaderService } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { CookieService } from 'ngx-cookie-service';
 import { Store } from '@ngrx/store';
@@ -28,6 +28,7 @@ import { ReceivingService } from 'app/modules/imports/service/receiving.service'
 import { TransferReceiptService } from '../../services/transfer-receipt.service';
 import { DeviceIdValidator } from 'app/shared/forms/device-id.validator';
 import { TemperatureDeviceService } from 'app/shared/services/temperature-device.service';
+import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
 
 @Component({
   selector: 'biopro-transfer-receipt',
@@ -51,10 +52,13 @@ import { TemperatureDeviceService } from 'app/shared/services/temperature-device
     MatSelect,
     MatDatepicker,
     MatDatepickerInput,
+    GlobalMessageComponent
   ],
   templateUrl: './transfer-receipt.component.html'
 })
 export class TransferReceiptComponent {
+  protected readonly NotificationTypeMap = NotificationTypeMap;
+  readonly commentsMaxLength: number = 250;
 
   processHeaderService = inject(ProcessHeaderService);
   formBuilder = inject(FormBuilder);
@@ -85,20 +89,17 @@ export class TransferReceiptComponent {
   transitTimeHumanReadableSignal = signal<string>(null);
   transitTimeQuarantineSignal = signal<UseCaseNotificationDTO>(null);
   transferOrderNumberSignal = toSignal(this.transferInformationForm.controls.transferOrderNumber.valueChanges);
+  isDifferentLocationSignal = signal<boolean>(false);
 
-  
   temperatureQuarantineSignal = signal<UseCaseNotificationDTO>(null);
   thermometerField = viewChild<ElementRef<HTMLInputElement>>('thermometerId');
   temperatureField = viewChild<ElementRef<HTMLInputElement>>('temperature');
   now = new Date();
-  readonly commentsMaxLength = 250;
 
   cancel(): void {
     this.transferInformationForm.reset();
-  }
-
-  transferContinue(){
-    //TODO
+    this.transitTimeFormComponent()?.reset();
+    this.temperatureFormComponent()?.reset();
   }
 
   onEnterTransferOrder(): void {
@@ -109,7 +110,9 @@ export class TransferReceiptComponent {
     this.triggerQueryTransferOrderNumber(orderNumber)
         .subscribe(transferInformationDTO => {
             this.updateFormValidators(transferInformationDTO);
-            this.transferInformationForm.controls.temperatureCategory.setValue(transferInformationDTO.temperatureUnit);
+            this.isDifferentLocationSignal.set(transferInformationDTO.receivedDifferentLocation)
+            this.transferInformationForm.controls.temperatureCategory.setValue(transferInformationDTO.productCategory);
+            this.transferInformationForm.controls.transferOrderNumber.setValue(transferInformationDTO.orderNumber);
             this.cdr.detectChanges();
             this.transitTimeFormComponent()?.setEndZone(transferInformationDTO.defaultTimeZone);
             this.transferInformationForm.updateValueAndValidity();
@@ -138,7 +141,16 @@ export class TransferReceiptComponent {
   updateFormValidators(transferInformationDTO: TransferInformationDTO): void {
     this.updateFormValidationForTransitTime(transferInformationDTO.displayTransitInformation);
     this.updateFormValidationForTemperature(transferInformationDTO.displayTemperature);
-}
+    this.updateValidtatorForComments(transferInformationDTO.receivedDifferentLocation);
+  }
+
+  updateValidtatorForComments(isCommentRequired: boolean){
+    this.transferInformationForm.controls.comments.clearValidators();
+    if (isCommentRequired) {
+        this.transferInformationForm.controls.comments.addValidators([Validators.required]);
+    }
+    this.transferInformationForm.controls.comments.updateValueAndValidity();
+  }
 
   updateFormValidationForTransitTime(useTransitTime: boolean) {
     this.transitTimeFormComponent()?.updateValidators(useTransitTime);
@@ -161,7 +173,7 @@ export class TransferReceiptComponent {
     const transitTimeValid = !this.transferInformationSignal()?.displayTransitInformation || this.transitTimeFormComponent()?.formGroup().valid;
     const temperatureValid = !this.transferInformationSignal()?.displayTemperature || this.temperatureFormComponent()?.formGroup().valid;
     return internalTransferFormValid && transitTimeValid && temperatureValid;
-}
+  }
 
   updateTransitTimeQuarantine(data: UseCaseNotificationDTO){
     this.transitTimeQuarantineSignal.set(data);

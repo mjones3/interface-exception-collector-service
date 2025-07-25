@@ -26,10 +26,8 @@ import { MatOption, MatSelect } from '@angular/material/select';
 import { ToastrService } from 'ngx-toastr';
 import { UseCaseNotificationDTO } from '../../../../shared/models/use-case-response.dto';
 
-import { DateTime } from 'luxon';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
 import { TemperatureProductCategoryIconMap } from '../../models/product-information.dto';
-import { TransitTimeValidationModel } from 'app/shared/forms/transit-time-form-group.validator';
 import { TemperatureFormComponent } from 'app/shared/components/temperature-form/temperature-form.component';
 import { TransitTimeFormComponent } from 'app/shared/components/transit-time-form/transit-time-form.component';
 import { DeviceIdValidator } from 'app/shared/forms/device-id.validator';
