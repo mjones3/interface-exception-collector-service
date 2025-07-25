@@ -68,7 +68,7 @@ class RemoveQuarantinedUseCaseTest {
             .histories(new ArrayList<>(List.of(new History(InventoryStatus.AVAILABLE, null, null))))
             .expirationDate(LocalDateTime.now().plusDays(1))
             .quarantines(new ArrayList<>(List.of(
-                new Quarantine(1L, "Contamination", "Suspected contamination")
+                new Quarantine(1L, "Contamination", "Suspected contamination",false)
             )))
             .build();
 

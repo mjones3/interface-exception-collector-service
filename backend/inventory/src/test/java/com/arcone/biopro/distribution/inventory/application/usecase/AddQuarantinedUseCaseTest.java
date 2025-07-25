@@ -58,7 +58,8 @@ class AddQuarantinedUseCaseTest {
             Product.builder().unitNumber("W777724111111").productCode("E1624V00").build(),
             1L,
             "Contamination",
-            "Suspected contamination"
+            "Suspected contamination",
+            false
         );
 
         Inventory inventory = Inventory.builder()

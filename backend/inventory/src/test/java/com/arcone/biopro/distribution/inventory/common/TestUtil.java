@@ -17,11 +17,11 @@ public class TestUtil {
 
     public static List<Quarantine> createQuarantines() {
         return List.of(
-            new Quarantine(1L, "ABS_POSITIVE", null),
-            new Quarantine(2L, "BCA_UNIT_NEEDED", null),
-            new Quarantine(3L, "CCP_ELIGIBLE", null),
-            new Quarantine(4L, "FAILED_VISUAL_INSPECTION", null),
-            new Quarantine(5L, "OTHER_SEE_COMMENTS", "The blood bag is in quarantine for safety testing to ensure it’s free from contaminants and safe for transfusion.")
+            new Quarantine(1L, "ABS_POSITIVE", null, false),
+            new Quarantine(2L, "BCA_UNIT_NEEDED", null, false),
+            new Quarantine(3L, "CCP_ELIGIBLE", null, false),
+            new Quarantine(4L, "FAILED_VISUAL_INSPECTION", null, false),
+            new Quarantine(5L, "OTHER_SEE_COMMENTS", "The blood bag is in quarantine for safety testing to ensure it’s free from contaminants and safe for transfusion.", false)
 
         );
     }
