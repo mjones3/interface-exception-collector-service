@@ -30,14 +30,17 @@ export const GET_UNLABELED_PRODUCTS = gql<
             getUnlabeledProductsRequest: $getUnlabeledProductsRequest
         ) {
             ruleCode
-            results
-            notifications{
+            notifications {
                 statusCode
-                name
                 notificationType
+                name
+                action
+                reason
                 message
+                details
             }
             _links
+            results
         }
     }
 `;

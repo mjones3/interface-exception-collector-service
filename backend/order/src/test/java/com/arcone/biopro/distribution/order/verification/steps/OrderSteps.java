@@ -35,12 +35,12 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -173,7 +173,7 @@ public class OrderSteps {
         if (NULL_VALUE.equals(date)) {
             dateValue = "null";
         } else if (CURRENT_DATE.equals(date)) {
-            dateValue = "\"" + LocalDate.now() + "\"";
+            dateValue = "\"" + LocalDate.now(ZoneId.of("UTC")) + "\"";
         } else {
             dateValue = "\"" + date + "\"";
         }
@@ -340,7 +340,7 @@ public class OrderSteps {
         } else {
             this.labelStatus = labelStatus;
         }
-        if("<null>".equalsIgnoreCase(desiredShipDate)){
+        if ("<null>".equalsIgnoreCase(desiredShipDate)) {
             desiredShipDate = null;
         } else {
             desiredShipDate = "'" + desiredShipDate + "'";
@@ -474,7 +474,7 @@ public class OrderSteps {
     @And("I {string} see the number of Available Inventories for each line item.")
     public void checkAvailableInventory(String canCannot) {
         if ("can".equalsIgnoreCase(canCannot)) {
-        orderDetailsPage.checkAvailableInventory(this.productFamilies, this.bloodTypes, this.quantityList);
+            orderDetailsPage.checkAvailableInventory(this.productFamilies, this.bloodTypes, this.quantityList);
         } else {
             orderDetailsPage.checkInventoryUnavailable(this.productFamilies, this.bloodTypes, this.quantityList);
         }
@@ -909,6 +909,7 @@ public class OrderSteps {
             Assert.fail("Invalid search key.");
         }
     }
+
     @When("I search for orders by {string} and {string}.")
     public void iSearchForOrdersByExternalID(String keys, String values) {
         String[] KeyList = testUtils.getCommaSeparatedList(keys);
@@ -1447,7 +1448,7 @@ public class OrderSteps {
 
     @When("I request to generate the Pick List.")
     public void iRequestToGenerateThePickList() {
-        var response = orderController.generatePickList(context.getOrderId(),false);
+        var response = orderController.generatePickList(context.getOrderId(), false);
         Assert.assertNotNull(response);
         this.pickListResponse = (Map) response.get("data");
     }
@@ -1463,10 +1464,10 @@ public class OrderSteps {
         Assert.assertNotNull(picklistItems);
         var item = (Map) picklistItems.get(0);
         var shortDateList = (List) item.get("shortDateList");
-        if("SHOULD".equalsIgnoreCase(shouldShouldNot)){
+        if ("SHOULD".equalsIgnoreCase(shouldShouldNot)) {
             Assert.assertNotNull(item);
             Assert.assertFalse(shortDateList.isEmpty());
-        }else{
+        } else {
             Assert.assertTrue(shortDateList.isEmpty());
         }
     }

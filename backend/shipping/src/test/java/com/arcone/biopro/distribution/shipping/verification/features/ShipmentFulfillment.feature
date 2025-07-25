@@ -2,8 +2,8 @@
 Feature: Shipment fulfillment request
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,W036825158907,W036898786758,W812530107009,W036825185915,W812530107010,W812530444001,W812530444002,W036825158914,W036825158916,W036825158912,W036898786802".
-        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008,44400010,44400011,44400012,44400013,44400014,45200001,45200002,45200003,45200004,45200005,45200006".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,W036825158907,W036898786758,W812530107009,W036825185915,W812530107010,W812530444001,W812530444002,W036825158914,W036825158916,W036825158912,W036898786802,W036898445901,W036898445902".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008,44400010,44400011,44400012,44400013,44400014,44400015,45200001,45200002,45200003,45200004,45200004,45200005,45200006,45200007".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -165,7 +165,7 @@ Feature: Shipment fulfillment request
             | Order Number | Customer ID | Customer Name             | Quantity | BloodType | ProductFamily                    | UN            | Code     | Category         | Shipment Type     | Label Status | Quarantined Products |
             | 4440006      |DL1          | Distribution and Labeling | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530444001 | E5107V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | false                |
             | 4440007      |234567891    | MDL Hub 2                 | 10       | A         | APHERESIS_PLATELETS_LEUKOREDUCED | W812530444002 | EA007V00 | ROOM_TEMPERATURE | INTERNAL_TRANSFER | LABELED      | false                |
-            | 4440008      |DO1          | Distribution Only         | 5        | AB        | PLASMA_TRANSFUSABLE              | W036898786758 | E0707V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 |
+            | 4440008      |DO1          | Distribution Only         | 5        | AB        | PLASMA_TRANSFUSABLE              | W036898786758 | E0701V00 | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 |
 
 
 
@@ -184,16 +184,18 @@ Feature: Shipment fulfillment request
         When I add the unit "<UN>" with product code "<Code>".
         And I define visual inspection as "Satisfactory", if needed.
         Then I should see the list of packed products added including "<UN>" and "<Code>".
+        And I should not see the product selection option with the products "<negative_product_list>".
         And I should see the inspection status as "Satisfactory", if applicable.
         And I "<ShouldShouldNot>" see the product status as "Quarantined".
 
         Examples:
-            | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                                               | Family                           | Type | UN               | Code       | Inspection Config | Category         | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
-            | 44400010     | 1           | Testing Customer  | 10,5,8   | ANY,B,O   | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE              | ANY  | =W03689878680200 | =<E7648V00 | enabled           | FROZEN           | CUSTOMER          | LABELED      | false                | should not      |
-            | 44400011     | 1           | Testing Customer  | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED                            | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W81253010700800 | =<EA141V00 | enabled           | ROOM_TEMPERATURE | CUSTOMER          | LABELED      | false                | should not      |
-            | 44400012     | 1           | Testing Customer  | 2        | B         | PRT_APHERESIS_PLATELETS                                     | PRT APHERESIS PLATELETS          | B    | =W81253010701000 | =<EB317V00 | enabled           | REFRIGERATED     | CUSTOMER          | LABELED      | false                | should not      |
-            | 44400013     | 1           | Testing Customer  | 2        | AP        | RED_BLOOD_CELLS_LEUKOREDUCED                                | RED BLOOD CELLS LEUKOREDUCED     | AP   | =W81253010701200 | =<E5107V00 | enabled           | FROZEN           | CUSTOMER          | LABELED      | false                | should not      |
-            | 44400014     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE                                         | PLASMA TRANSFUSABLE              | ANY  | =W03689878675800 | =<E0707V00 | enabled           | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 | should          |
+            | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                                               | Family                           | Type | UN               | Code       | Inspection Config | Category         | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot | negative_product_list       |
+            | 44400010     | 1           | Testing Customer  | 10,5,8   | ANY,B,O   | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE              | ANY  | =W03689878680200 | =<E7648V00 | enabled           | FROZEN           | CUSTOMER          | LABELED      | false                | should not      |                             |
+            | 44400011     | 1           | Testing Customer  | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED                            | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W81253010700800 | =<EA141V00 | enabled           | ROOM_TEMPERATURE | CUSTOMER          | LABELED      | false                | should not      |                             |
+            | 44400012     | 1           | Testing Customer  | 2        | B         | PRT_APHERESIS_PLATELETS                                     | PRT APHERESIS PLATELETS          | B    | =W81253010701000 | =<EB317V00 | enabled           | REFRIGERATED     | CUSTOMER          | LABELED      | false                | should not      |                             |
+            | 44400013     | 1           | Testing Customer  | 2        | AP        | RED_BLOOD_CELLS_LEUKOREDUCED                                | RED BLOOD CELLS LEUKOREDUCED     | AP   | =W81253010701200 | =<E5107V00 | enabled           | FROZEN           | CUSTOMER          | LABELED      | false                | should not      |                             |
+            | 44400014     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE                                         | PLASMA TRANSFUSABLE              | ANY  | =W03689878675800 | =<E0701V00 | enabled           | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 | should          | LR_RBC,PRODUCT_DESCRIPTION1 |
+            | 44400015     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE                                         | PLASMA TRANSFUSABLE              | ANY  | =W03689844590200 | =<E0701V00 | enabled           | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 | should          | GENERIC2                    |
 
 
 
@@ -213,15 +215,17 @@ Feature: Shipment fulfillment request
             When I add the unit "<UN>".
             And I define visual inspection as "Satisfactory", if needed.
             Then I should see the product selection option with the products "<product_list>".
+            And I should not see the product selection option with the products "<negative_product_list>".
             When I select the product "<product_description>".
             Then I should see the list of packed products added including "<UN>" and "<product_description>".
             And I should see the inspection status as "Satisfactory", if applicable.
             And I "<ShouldShouldNot>" see the product status as "Quarantined".
             Examples:
-                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | Family                       | Type | UN               | product_description | product_list                         | Inspection Config | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
-                | 45200001     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689878675800 | CPD PLS MI 48H      | LR_RBC,CPD PLS MI 24H,CPD PLS MI 48H | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
-                | 45200002     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ANY  | =W03682518591500 | CPD PLS MI 24H      | LR_RBC,CPD PLS MI 24H                | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
-                | 45200003     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03682515890700 | CPD PLS MI 48H      | CPD PLS MI 24H,CPD PLS MI 48H        | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | Family                       | Type | UN               | product_description  | product_list                                              | negative_product_list | Inspection Config | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
+                | 45200001     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689878675800 | CPD PLS MI 48H       | LR_RBC,CPD PLS MI 24H,CPD PLS MI 48H,PRODUCT_DESCRIPTION1 | PRODUCT_DESCRIPTION2  | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should not      |
+                | 45200002     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ANY  | =W03682518591500 | CPD PLS MI 24H       | LR_RBC,CPD PLS MI 24H                                     |                       | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
+                | 45200003     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03682515890700 | CPD PLS MI 48H       | CPD PLS MI 24H,CPD PLS MI 48H                             |                       | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should not      |
+                | 45200007     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689844590100 | APH PLASMA 24H EXP 3 | APH PLASMA 24H EXP 2,APH PLASMA 24H EXP 3                 | APH PLASMA 24H EXP 1  | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
 
 
     Rule: I should be able to see all eligible products for a given unit number.
@@ -250,8 +254,8 @@ Feature: Shipment fulfillment request
             Then I should see a "CAUTION" message: "All products associated with this unit have already been selected".
             Examples:
                 | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                    | Family                           | Type | UN               | product_description | Inspection Config | Category         | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
-                | 45200004     | DO1         | Distribution Only | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W03682515891400 | Apheresis PLATELETS | enabled           | ROOM_TEMPERATURE | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | 45200004     | DO1         | Distribution Only | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W03682515891400 | Apheresis PLATELETS | enabled           | ROOM_TEMPERATURE | INTERNAL_TRANSFER | UNLABELED    | true                 | should not      |
                 | 45200005     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | RED BLOOD CELLS LEUKOREDUCED     | ANY  | =W03682515891200 | LR_RBC              | enabled           | FROZEN           | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
-                | 45200006     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE              | PLASMA TRANSFUSABLE              | ANY  | =W03682515891600 | CPD PLS MI 48H      | disabled          | FROZEN           | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | 45200006     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE              | PLASMA TRANSFUSABLE              | ANY  | =W03682515891600 | CPD PLS MI 48H      | disabled          | FROZEN           | INTERNAL_TRANSFER | UNLABELED    | true                 | should not      |
 
 

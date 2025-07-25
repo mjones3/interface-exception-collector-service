@@ -296,6 +296,11 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.waitForVisible(availableProductButton(product));
     }
 
+    public void checkNotAvailableProductButton(String product) {
+        log.debug("Checking available product button for product {}.", product);
+        sharedActions.waitForNotVisible(availableProductButton(product));
+    }
+
     public void selectAvailableProduct(String product) {
         log.debug("Selecting available product {}.", product);
         sharedActions.click(availableProductButton(product));

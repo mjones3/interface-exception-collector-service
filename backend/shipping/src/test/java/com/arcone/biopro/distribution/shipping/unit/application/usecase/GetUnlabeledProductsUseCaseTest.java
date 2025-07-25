@@ -28,6 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -329,51 +330,6 @@ class GetUnlabeledProductsUseCaseTest {
     }
 
     @Test
-    public void shouldNotGetUnlabeledProductsWhenIneligibleProducts(){
-
-        var item = Mockito.mock(ShipmentItem.class);
-        Mockito.when(item.getId()).thenReturn(1L);
-        Mockito.when(item.getShipmentId()).thenReturn(1L);
-        Mockito.when(item.getProductFamily()).thenReturn("PRODUCT_FAMILY");
-        Mockito.when(item.getBloodType()).thenReturn(BloodType.ANY);
-
-        var shipmentMock = Mockito.mock(Shipment.class);
-        Mockito.when(shipmentMock.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
-        Mockito.when(shipmentMock.getLabelStatus()).thenReturn("UNLABELED");
-        Mockito.when(shipmentMock.getProductCategory()).thenReturn("FROZEN");
-
-        Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(shipmentMock));
-
-        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(item));
-
-        Mockito.when(inventoryRsocketClient.validateInventoryByUnitNumber(Mockito.any())).thenReturn(Flux.just(InventoryValidationResponseDTO
-            .builder()
-            .inventoryNotificationsDTO(List.of(InventoryNotificationDTO.builder()
-                .errorName("INVENTORY_NOT_FOUND_IN_LOCATION")
-                    .errorType("WARN")
-                    .errorMessage("This product is not in the inventory and cannot be shipped")
-                .build()))
-            .build()));
-
-        StepVerifier
-            .create(useCase.getUnlabeledProducts(GetUnlabeledProductsRequest.builder()
-                .unitNumber("UN")
-                .shipmentItemId(1L)
-                .locationCode("LOCATION_CODE")
-                .build()))
-            .consumeNextWith(detail -> {
-                var firstNotification = detail.notifications().getFirst();
-                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
-                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
-                assertEquals("WARN", firstNotification.notificationType());
-                assertEquals("INVENTORY_NOT_FOUND_IN_LOCATION", firstNotification.name());
-                assertEquals(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR, firstNotification.message());
-
-            })
-            .verifyComplete();
-    }
-
-    @Test
     public void shouldNotGetUnlabeledProductsWhenUnitDoesNotExist(){
 
         var item = Mockito.mock(ShipmentItem.class);
@@ -404,8 +360,113 @@ class GetUnlabeledProductsUseCaseTest {
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
                 assertEquals("WARN", firstNotification.notificationType());
-                assertEquals("BAD_REQUEST", firstNotification.name());
-                assertEquals(ShipmentServiceMessages.UNIT_DOES_NOT_EXIST_ERROR, firstNotification.message());
+                assertEquals("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR", firstNotification.name());
+                assertEquals(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR, firstNotification.message());
+
+            })
+            .verifyComplete();
+    }
+
+    @Test
+    public void shouldNotGetUnlabeledProductsWhenUnitIsLabeled(){
+
+        var item = Mockito.mock(ShipmentItem.class);
+        Mockito.when(item.getId()).thenReturn(1L);
+        Mockito.when(item.getShipmentId()).thenReturn(1L);
+        Mockito.when(item.getProductFamily()).thenReturn("PRODUCT_FAMILY");
+        Mockito.when(item.getBloodType()).thenReturn(BloodType.ANY);
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+        Mockito.when(shipmentMock.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+        Mockito.when(shipmentMock.getLabelStatus()).thenReturn("UNLABELED");
+        Mockito.when(shipmentMock.getProductCategory()).thenReturn("FROZEN");
+
+        Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(shipmentMock));
+
+        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(item));
+
+        Mockito.when(inventoryRsocketClient.validateInventoryByUnitNumber(Mockito.any())).thenReturn(Flux.just(InventoryValidationResponseDTO
+            .builder()
+            .inventoryNotificationsDTO(Collections.emptyList())
+            .inventoryResponseDTO(InventoryResponseDTO.builder()
+                .status("AVAILABLE")
+                .productCode("PRODUCT_CODE")
+                .unitNumber("UNIT_NUMBER")
+                .productFamily("PRODUCT_FAMILY")
+                .aboRh("AP")
+                .temperatureCategory("FROZEN")
+                .productDescription("PRODUCT_DESCRIPTION")
+                .isLabeled(true)
+                .build())
+            .build()));
+
+        StepVerifier
+            .create(useCase.getUnlabeledProducts(GetUnlabeledProductsRequest.builder()
+                .unitNumber("UN")
+                .shipmentItemId(1L)
+                .locationCode("LOCATION_CODE")
+                .build()))
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals("INVENTORY_LABELED_ERROR", firstNotification.name());
+                assertEquals(ShipmentServiceMessages.INVENTORY_LABELED_ERROR, firstNotification.message());
+
+            })
+            .verifyComplete();
+    }
+
+    @Test
+    public void shouldNotGetUnlabeledProductsWhenUnitIsLabeledAndQuarantined(){
+
+        var item = Mockito.mock(ShipmentItem.class);
+        Mockito.when(item.getId()).thenReturn(1L);
+        Mockito.when(item.getShipmentId()).thenReturn(1L);
+        Mockito.when(item.getProductFamily()).thenReturn("PRODUCT_FAMILY");
+        Mockito.when(item.getBloodType()).thenReturn(BloodType.ANY);
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+        Mockito.when(shipmentMock.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+        Mockito.when(shipmentMock.getLabelStatus()).thenReturn("UNLABELED");
+        Mockito.when(shipmentMock.getQuarantinedProducts()).thenReturn(true);
+        Mockito.when(shipmentMock.getProductCategory()).thenReturn("FROZEN");
+
+        Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(shipmentMock));
+
+        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(item));
+
+        Mockito.when(inventoryRsocketClient.validateInventoryByUnitNumber(Mockito.any())).thenReturn(Flux.just(InventoryValidationResponseDTO
+            .builder()
+            .inventoryNotificationsDTO(List.of(InventoryNotificationDTO.builder()
+                .errorName("INVENTORY_IS_QUARANTINED")
+                .build()))
+            .inventoryResponseDTO(InventoryResponseDTO.builder()
+                .status("AVAILABLE")
+                .productCode("PRODUCT_CODE")
+                .unitNumber("UNIT_NUMBER")
+                .productFamily("PRODUCT_FAMILY")
+                .aboRh("AP")
+                .temperatureCategory("FROZEN")
+                .productDescription("PRODUCT_DESCRIPTION")
+                .isLabeled(true)
+                .build())
+            .build()));
+
+        StepVerifier
+            .create(useCase.getUnlabeledProducts(GetUnlabeledProductsRequest.builder()
+                .unitNumber("UN")
+                .shipmentItemId(1L)
+                .locationCode("LOCATION_CODE")
+                .build()))
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR", firstNotification.name());
+                assertEquals(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR, firstNotification.message());
 
             })
             .verifyComplete();
@@ -537,6 +598,130 @@ class GetUnlabeledProductsUseCaseTest {
                 assertEquals("PRODUCT_CODE2", firstProduct.productCode());
                 assertEquals("PRODUCT_DESCRIPTION", firstProduct.productDescription());
                 assertEquals("AVAILABLE", firstProduct.status());
+
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldNotReturnMultipleNotificationsWhenUnlabeledProducts(){
+
+        var item = Mockito.mock(ShipmentItem.class);
+        Mockito.when(item.getId()).thenReturn(1L);
+        Mockito.when(item.getShipmentId()).thenReturn(1L);
+        Mockito.when(item.getProductFamily()).thenReturn("PRODUCT_FAMILY");
+        Mockito.when(item.getBloodType()).thenReturn(BloodType.ANY);
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+        Mockito.when(shipmentMock.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+        Mockito.when(shipmentMock.getLabelStatus()).thenReturn("UNLABELED");
+        Mockito.when(shipmentMock.getProductCategory()).thenReturn("FROZEN");
+
+        Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(shipmentMock));
+
+        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(item));
+
+        var packedItem = Mockito.mock(ShipmentItemPacked.class);
+        Mockito.when(packedItem.getProductCode()).thenReturn("PRODUCT_CODE1");
+        Mockito.when(packedItem.getUnitNumber()).thenReturn("UNIT_NUMBER1");
+
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+
+        Mockito.when(inventoryRsocketClient.validateInventoryByUnitNumber(Mockito.any())).thenReturn(Flux.just(InventoryValidationResponseDTO
+            .builder()
+            .inventoryNotificationsDTO(List.of(InventoryNotificationDTO.builder()
+                .errorName("INVENTORY_IS_UNLABELED")
+                    .errorType("WARN")
+                    .errorMessage("Test Message")
+                .errorCode(6)
+                .build(),InventoryNotificationDTO
+                .builder()
+                    .errorName("INVENTORY_IS_PACKED")
+                .build()))
+            .inventoryResponseDTO(InventoryResponseDTO.builder()
+                .status("AVAILABLE")
+                .productCode("PRODUCT_CODE2")
+                .unitNumber("UNIT_NUMBER2")
+                .productFamily("PRODUCT_FAMILY")
+                .aboRh("AP")
+                .temperatureCategory("FROZEN")
+                .productDescription("PRODUCT_DESCRIPTION")
+                .isLabeled(false)
+                .build())
+            .build()));
+
+
+        StepVerifier
+            .create(useCase.getUnlabeledProducts(GetUnlabeledProductsRequest.builder()
+                .unitNumber("UN")
+                .shipmentItemId(1L)
+                .locationCode("LOCATION_CODE")
+                .build()))
+            .consumeNextWith(detail -> {
+                var notifications = detail.notifications();
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertNotNull(notifications);
+                assertEquals(1,notifications.size());
+
+                var firstNotification = notifications.getFirst();
+
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR", firstNotification.name());
+                assertEquals("This unit does not match the order product criteria", firstNotification.message());
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldNotGetUnlabeledProductsWhenOrderCriteriaDoesNotMatchInventoryDetailsNull(){
+
+        var item = Mockito.mock(ShipmentItem.class);
+        Mockito.when(item.getId()).thenReturn(1L);
+        Mockito.when(item.getShipmentId()).thenReturn(1L);
+        Mockito.when(item.getProductFamily()).thenReturn("PRODUCT_FAMILY");
+        Mockito.when(item.getBloodType()).thenReturn(BloodType.ANY);
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+        Mockito.when(shipmentMock.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+        Mockito.when(shipmentMock.getLabelStatus()).thenReturn("UNLABELED");
+        Mockito.when(shipmentMock.getProductCategory()).thenReturn("REFRIGERATED");
+
+        Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(shipmentMock));
+
+        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(item));
+
+        Mockito.when(inventoryRsocketClient.validateInventoryByUnitNumber(Mockito.any())).thenReturn(Flux.just(InventoryValidationResponseDTO
+            .builder()
+            .inventoryNotificationsDTO(List.of(InventoryNotificationDTO.builder()
+                .errorName("INVENTORY_IS_UNLABELED")
+                .build()))
+            .inventoryResponseDTO(InventoryResponseDTO.builder()
+                .status("AVAILABLE")
+                .productCode("PRODUCT_CODE")
+                .unitNumber("UNIT_NUMBER")
+                .productFamily(null)
+                .aboRh("AP")
+                .temperatureCategory(null)
+                .productDescription("PRODUCT_DESCRIPTION")
+                .isLabeled(false)
+                .build())
+            .build()));
+
+        StepVerifier
+            .create(useCase.getUnlabeledProducts(GetUnlabeledProductsRequest.builder()
+                .unitNumber("UN")
+                .shipmentItemId(1L)
+                .locationCode("LOCATION_CODE")
+                .build()))
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR", firstNotification.name());
+                assertEquals(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR, firstNotification.message());
 
             })
             .verifyComplete();

@@ -388,7 +388,7 @@ export class RecoveredPlasmaService {
     ): void {
         const message = notification.message;
         const details = notification.details;
-        this.confirmationAcknowledgmentService.notificationConfirmation(
+        this.confirmationAcknowledgmentService.openAcknowledgmentDialog(
             message,
             details,
             ()=> {
