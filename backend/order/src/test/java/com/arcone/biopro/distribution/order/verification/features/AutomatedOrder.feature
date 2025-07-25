@@ -1,4 +1,4 @@
-@api @AOA-152 @AOA-240 @AOA-128 @AOA-105 @AOA-19 @AOA-197
+@api @AOA-152 @AOA-240 @AOA-128 @AOA-105 @AOA-19 @AOA-197 @AOA-294
 Feature: Validate order
 
     Background:
@@ -13,23 +13,23 @@ Feature: Validate order
         When The system process the order request.
         Then A biopro Order will be available in the Distribution local data store.
         Examples:
-            | External ID     | JsonPayloadName                                              |
-            | 114117922233500 | order-inbound-scenario-1-happy-path.json                     |
-            | 114117922233521 | order-inbound-scenario-aph-rbc-product.json                  |
-            | 114117922233522 | order-inbound-scenario-whole-blood-product.json              |
-            | 114117922233523 | order-inbound-scenario-whole-blood-leukoreduced-product.json |
-            | 114117922233524 | order-inbound-scenario-red-blood-cells-product.json          |
-            | DIS323000000001 | order-inbound-scenario-DIS-323_no_create_employee_code.json  |
-            | DIS336000000002 | order-inbound-scenario-DIS-336_apheresis-platelets.json      |
-            | DIS336000000003 | order-inbound-scenario-DIS-336_prt-apheresis-platelets.json  |
-            | DIS337000000001 | order-inbound-scenario-DIS-337_frozen-rbc.json               |
-            | DIS440000000001 | order-inbound-internal-transfer-scenario-1-happy-path.json   |
-            | DIS446000000001 | order-inbound-scenario-DIS-446_plasma_mfg_noninjectable.json |
-            | DIS446000000002 | order-inbound-scenario-DIS-446_plasma_mfg_injectable.json    |
-            | DIS446000000003 | order-inbound-scenario-DIS-446_cryoprecipitate.json          |
-            | DIS479000000001 | order-inbound-scenario-DIS-479_washed-apheresis-platelets.json          |
-            | DIS479000000002 | order-inbound-scenario-DIS-479_washed-prt-apheresis-platelets.json      |
-            | DIS479000000003 | order-inbound-scenario-DIS-479_washed-red-blood-cells.json              |
+            | External ID     | JsonPayloadName                                                    |
+            | 114117922233500 | order-inbound-scenario-1-happy-path.json                           |
+            | 114117922233521 | order-inbound-scenario-aph-rbc-product.json                        |
+            | 114117922233522 | order-inbound-scenario-whole-blood-product.json                    |
+            | 114117922233523 | order-inbound-scenario-whole-blood-leukoreduced-product.json       |
+            | 114117922233524 | order-inbound-scenario-red-blood-cells-product.json                |
+            | DIS323000000001 | order-inbound-scenario-DIS-323_no_create_employee_code.json        |
+            | DIS336000000002 | order-inbound-scenario-DIS-336_apheresis-platelets.json            |
+            | DIS336000000003 | order-inbound-scenario-DIS-336_prt-apheresis-platelets.json        |
+            | DIS337000000001 | order-inbound-scenario-DIS-337_frozen-rbc.json                     |
+            | DIS440000000001 | order-inbound-internal-transfer-scenario-1-happy-path.json         |
+            | DIS446000000001 | order-inbound-scenario-DIS-446_plasma_mfg_noninjectable.json       |
+            | DIS446000000002 | order-inbound-scenario-DIS-446_plasma_mfg_injectable.json          |
+            | DIS446000000003 | order-inbound-scenario-DIS-446_cryoprecipitate.json                |
+            | DIS479000000001 | order-inbound-scenario-DIS-479_washed-apheresis-platelets.json     |
+            | DIS479000000002 | order-inbound-scenario-DIS-479_washed-prt-apheresis-platelets.json |
+            | DIS479000000003 | order-inbound-scenario-DIS-479_washed-red-blood-cells.json         |
 
     @DIS-377 @rc
     Scenario Outline: Creating a BioPro order using a custom shipping method configuration from a valid order inbound request

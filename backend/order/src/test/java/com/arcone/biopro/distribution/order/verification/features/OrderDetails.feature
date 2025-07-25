@@ -1,4 +1,4 @@
-@ui @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19 @AOA-197
+@ui @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19 @AOA-197 @AOA-294
 Feature: View order details
 
     Background:
@@ -48,13 +48,13 @@ Feature: View order details
                 | ORDERDIS479002 | 123456789    | STAT     | OPEN   | WASHED_PRT_APHERESIS_PLATELETS, WASHED_PRT_APHERESIS_PLATELETS    | AB,O      | 10, 5    | CUSTOMER          | FEDEX           | ROOM_TEMPERATURE | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment | <null>               | <null>       | can        | cannot      |
                 | ORDERDIS479003 | 123456789    | STAT     | OPEN   | WASHED_RED_BLOOD_CELLS, WASHED_RED_BLOOD_CELLS                    | AP,ON     | 10, 5    | CUSTOMER          | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment | <null>               | <null>       | can        | cannot      |
 
-    Rule: I should be able to create the order fulfillment request when the pick list is generated.Rule: The BioPro order status must be updated to InProgress when an order is being fulfilled.
+            Rule: I should be able to create the order fulfillment request when the pick list is generated.Rule: The BioPro order status must be updated to InProgress when an order is being fulfilled.
             Rule: I should not be able to generate multiple pick lists for the same order.
             Rule: I should be able to view or reprint the pick list that was previously generated.
             Rule: I should be able to see the short-dated products if applicable.
             Rule: I should be able to generate pick list for internal transfer order.
             Rule: The shipment details for cryo and cryo-reduced plasma should be generated.
-    Rule: The shipment details for washed apheresis platelets products, for washed PRT apheresis platelets products, and for washed red blood cells products should be generated.
+            Rule: The shipment details for washed apheresis platelets products, for washed PRT apheresis platelets products, and for washed red blood cells products should be generated.
             @DIS-121 @DIS-100 @DIS-253 @bug @DIS-321 @DIS-442 @DIS-446 @DIS-479
             Scenario Outline: Generate pick list no short date products
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>", and Quarantined Products as "<Quarantined Products>", and Label Status as "<Label Status>".

@@ -1,4 +1,4 @@
-@AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19 @AOA-197
+@AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19 @AOA-197 @AOA-294
 Feature: Shipment fulfillment request
 
     Background:
@@ -114,9 +114,9 @@ Feature: Shipment fulfillment request
        Rule: I should be able to fill orders with Apheresis Platelets (PRT and BacT) Products.
        Rule: I should be able to fill orders with Frozen RBCs Products.
        Rule: I should be able to fill orders with cryo and cryo-reduced plasma Products.
-    Rule: I should be able to fill orders with washed apheresis platelets products.
-        Rule: I should be able to fill orders with washed PRT apheresis platelets products.
-    Rule: I should be able to fill orders with washed red blood cells products.
+       Rule: I should be able to fill orders with washed apheresis platelets products.
+       Rule: I should be able to fill orders with washed PRT apheresis platelets products.
+       Rule: I should be able to fill orders with washed red blood cells products.
        @api @DIS-254 @DIS-336 @DIS-337 @DIS-446 @DIS-479
        Scenario Outline: Ship Whole Blood and Derived Products.
            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>" , Temperature Category "<Category>".

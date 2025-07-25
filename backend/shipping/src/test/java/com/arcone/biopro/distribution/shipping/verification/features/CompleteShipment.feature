@@ -1,4 +1,4 @@
-@AOA-6 @AOA-40 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19 @AOA-197
+@AOA-6 @AOA-40 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19 @AOA-197 @AOA-294
 Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
@@ -18,7 +18,7 @@ Feature: Complete Shipment Feature
         Rule: I should be able to complete a shipment with for washed PRT apheresis platelets products.
         Rule: I should be able to complete a shipment with washed red blood cells products.
 
-        @ui  @DIS-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21 @DIS-201 @bug @DIS-273 @DIS-254 @DIS-336 @DIS-337 @DIS-446
+        @ui  @DIS-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21 @DIS-201 @bug @DIS-273 @DIS-254 @DIS-336 @DIS-337 @DIS-446 @DIS-479
         Scenario Outline: Complete Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>" , Temperature Category "<Category>".
             And The check digit configuration is "disabled".

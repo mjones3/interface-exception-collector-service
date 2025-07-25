@@ -267,7 +267,10 @@ public class OrderTestingController {
             "CRYOPRECIPITATE", "Cryoprecipitate",
             "PLASMA_TRANSFUSABLE", "Plasma Transfusable",
             "PLASMA_MFG_NONINJECTABLE", "Plasma Mfg Noninjectable",
-            "PLASMA_MFG_INJECTABLE", "Plasma Mfg Injectable"
+            "PLASMA_MFG_INJECTABLE", "Plasma Mfg Injectable",
+            "WASHED_APHERESIS_PLATELETS", "Washed Apheresis Platelets",
+            "WASHED_PRT_APHERESIS_PLATELETS", "Washed Prt Apheresis Platelets",
+            "WASHED_RED_BLOOD_CELLS", "Washed Red Blood Cells"
         );
         return productFamilyDescription.get(productFamilyKey);
     }
