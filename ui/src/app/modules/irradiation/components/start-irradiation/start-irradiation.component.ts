@@ -308,6 +308,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                 unsuitableReason: inventory.unsuitableReason,
                 alreadyIrradiated: inventory.alreadyIrradiated,
                 notConfigurableForIrradiation: inventory.notConfigurableForIrradiation,
+                isBeingIrradiated: inventory.isBeingIrradiated,
                 quarantines: inventory.quarantines
             }));
 
