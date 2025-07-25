@@ -7,7 +7,7 @@ import java.util.List;
 
 @Builder
 public record CompleteBatchInput(
-    String batchId,
+    String deviceId,
     LocalDateTime endTime,
     List<BatchItemCompletionInput> batchItems
 ) {

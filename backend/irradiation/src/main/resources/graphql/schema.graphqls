@@ -51,7 +51,7 @@ input BatchItemInput {
 }
 
 input CompleteBatchInput {
-    batchId: String!
+    deviceId: String!
     endTime: String!
     batchItems: [BatchItemCompletionInput!]!
 }

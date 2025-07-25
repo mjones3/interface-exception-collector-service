@@ -178,10 +178,37 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     submit() {
-        //TODO: add here the submit endpoint
-        this.currentDateTime = ''
-        this.showMessage(MessageType.SUCCESS, 'Batch successfully closed. Label irradiated products.');
-        this.redirect();
+        const enabledProducts = this.products.filter(p => !p.disabled);
+        const input = {
+            deviceId: this.form.get('irradiatorId')?.value,
+            endTime: new Date().toISOString().slice(0, 19),
+            batchItems: enabledProducts.map(product => ({
+                unitNumber: product.unitNumber,
+                productCode: product.productCode,
+                isIrradiated: product.statuses.some(status => status.value === IRRADIATED)
+            }))
+        };
+
+        this.irradiationService.completeBatch(input).subscribe({
+            next: (result) => {
+                const response = result.data?.completeBatch;
+                if (response?.success) {
+                    this.showMessage(MessageType.SUCCESS, 'Batch successfully closed. Label irradiated products.');
+                    const notIrradiatedCount = enabledProducts.filter(p => !p.statuses.some(s => s.value === IRRADIATED)).length;
+                    if (notIrradiatedCount > 0) {
+                        const productText = notIrradiatedCount === 1 ? 'product' : 'products';
+                        const hasText = notIrradiatedCount === 1 ? 'has' : 'have';
+                        this.showMessage(MessageType.ERROR, `${notIrradiatedCount} ${productText} not irradiated ${hasText} been quarantined`);
+                    }
+                } else {
+                    this.showMessage(MessageType.ERROR, response?.message || 'Failed to close batch');
+                }
+                this.redirect();
+            },
+            error: (error) => {
+                this.showMessage(MessageType.ERROR, error.message || 'Failed to close batch');
+            }
+        });
     }
 
 

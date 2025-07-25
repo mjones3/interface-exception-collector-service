@@ -1,5 +1,4 @@
 # Feature Unit Number reference: W777725002xxx
-@skipOnPipeline
 @ui @LAB-576 @AOA-61 @hzd9
 Feature: Start Irradiation Batch
 
