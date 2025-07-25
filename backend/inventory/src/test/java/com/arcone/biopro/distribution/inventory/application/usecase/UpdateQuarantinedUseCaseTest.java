@@ -57,7 +57,7 @@ class UpdateQuarantinedUseCaseTest {
 
         updateQuarantineInput = new UpdateQuarantineInput(
             Product.builder().unitNumber("W777724111111").productCode("E1624V00").build(),
-            1L, "OTHER", "Other comment"
+            1L, "OTHER", "Other comment", false
         );
 
         Inventory inventory = Inventory.builder()
@@ -66,7 +66,7 @@ class UpdateQuarantinedUseCaseTest {
             .histories(new ArrayList<>(List.of(new History(InventoryStatus.AVAILABLE, null, null))))
             .expirationDate(LocalDateTime.now().plusDays(1))
             .quarantines(new ArrayList<>(List.of(
-                new Quarantine(1L, "Contamination", "Suspected contamination")
+                new Quarantine(1L, "Contamination", "Suspected contamination", false)
             )))
             .build();
 

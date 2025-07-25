@@ -226,7 +226,7 @@ public class KafkaListenersSteps {
         InventoryStatus status = statusParam;
 
         if (topicName.equals(quarantineRemovedTopic) || topicName.equals(quarantineUpdatedTopic)) {
-            quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
+            quarantines = List.of(new Quarantine(1L, "OTHER", "a comment", false));
             histories = List.of(new History(InventoryStatus.AVAILABLE, null, null));
         }
 
