@@ -864,7 +864,9 @@ class PackItemUseCaseTest {
             .details(Arrays.asList("REASON1", "REASON2", "REASON3"))
             .build()));
 
-        Mockito.when(validationResponseDTO.hasOnlyNotificationType(Mockito.eq("INVENTORY_IS_QUARANTINED"))).thenReturn(true);
+        Mockito.when(validationResponseDTO.hasNotificationType(Mockito.eq("INVENTORY_IS_QUARANTINED"))).thenReturn(true);
+
+        Mockito.when(validationResponseDTO.hasOnlyNotificationTypes(Mockito.eq(List.of("INVENTORY_IS_QUARANTINED")))).thenReturn(true);
 
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
@@ -910,6 +912,7 @@ class PackItemUseCaseTest {
         Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         Mockito.when(secondVerificationService.resetVerification(Mockito.any(Shipment.class))).thenReturn(Mono.just(Shipment.builder().build()));
+
 
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
@@ -1223,7 +1226,140 @@ class PackItemUseCaseTest {
         Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
 
 
-        Mockito.when(validationResponseDTO.hasOnlyNotificationType(Mockito.eq("INVENTORY_IS_UNLABELED"))).thenReturn(true);
+        Mockito.when(validationResponseDTO.hasNotificationType(Mockito.eq("INVENTORY_IS_UNLABELED"))).thenReturn(true);
+
+        Mockito.when(validationResponseDTO.hasOnlyNotificationTypes(Mockito.eq(List.of("INVENTORY_IS_UNLABELED")))).thenReturn(true);
+
+        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
+            .productFamily("PLASMA_TRANSFUSABLE")
+            .id(1L)
+            .bloodType(BloodType.ANY)
+            .shipmentId(1L)
+            .quantity(10)
+            .build()));
+
+
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any(ShipmentItemPacked.class))).thenReturn(Mono.just(ShipmentItemPacked.builder()
+            .id(1L)
+            .unitNumber("UN")
+            .shipmentItemId(1L)
+            .productCode("product_code")
+            .packedByEmployeeId("test")
+            .shipmentItemId(1L)
+            .build()));
+
+        Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(Mockito.anyLong())).thenReturn(Flux.just(ShipmentItemPacked.builder()
+            .id(1L)
+            .unitNumber("UN")
+            .productCode("product_code")
+            .packedByEmployeeId("test")
+            .shipmentItemId(1L)
+            .build()));
+
+
+        Mockito.when(shipmentItemPackedRepository.countAllByShipmentItemId(Mockito.anyLong())).thenReturn(Mono.just(0));
+
+        ShipmentItemShortDateProduct shortDateItem = Mockito.mock(ShipmentItemShortDateProduct.class);
+        Mockito.when(shortDateItem.getProductCode()).thenReturn("ABCD");
+        Mockito.when(shortDateItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
+
+        Mockito.when(shipmentItemShortDateProductRepository.findAllByShipmentItemId(Mockito.anyLong())).thenReturn(Flux.just(shortDateItem));
+
+        Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
+
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
+
+        Mockito.when(secondVerificationService.resetVerification(Mockito.any(Shipment.class))).thenReturn(Mono.just(Shipment.builder().build()));
+
+        Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
+            .unitNumber("UN")
+            .shipmentItemId(1L)
+            .employeeId("test")
+            .locationCode("123456789")
+            .productCode("123")
+            .visualInspection(VisualInspection.SATISFACTORY)
+            .build());
+
+        StepVerifier
+            .create(packDetail)
+            .consumeNextWith(detail -> {
+                assertEquals(HttpStatus.OK, detail.ruleCode());
+                assertNull(detail.notifications());
+                assertNotNull(detail.results());
+
+                var ruleResults = detail.results().get("results");
+                var firstRuleResult = ruleResults.getFirst();
+                assertNotNull(ruleResults);
+                assertNotNull(firstRuleResult);
+
+                var shipmentItem = (ShipmentItemResponseDTO) firstRuleResult;
+                var firstPackedItem = shipmentItem.packedItems().getFirst();
+                assertEquals("UN", firstPackedItem.unitNumber());
+                assertEquals("product_code", firstPackedItem.productCode());
+                assertEquals("test", firstPackedItem.packedByEmployeeId());
+
+
+                var firstShortDateProduct = shipmentItem.shortDateProducts().getFirst();
+                assertEquals("UNIT_NUMBER", firstShortDateProduct.unitNumber());
+                assertEquals("ABCD", firstShortDateProduct.productCode());
+            })
+            .verifyComplete();
+
+
+    }
+
+    @Test
+    public void shouldPackItemWhenInventoryIsNotLabeledAndShipTypeInternalTransferAndLabelStatusIsUnLabelAndQuarantined() {
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+        Mockito.when(shipmentMock.getProductCategory()).thenReturn("FROZEN");
+        Mockito.when(shipmentMock.getShipmentType()).thenReturn("INTERNAL_TRANSFER");
+        Mockito.when(shipmentMock.getQuarantinedProducts()).thenReturn(true);
+        Mockito.when(shipmentMock.getLabelStatus()).thenReturn("UNLABELED");
+
+        Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(shipmentMock));
+        Mockito.when(shipmentRepository.findShipmentByItemId(Mockito.anyLong())).thenReturn(Mono.just(shipmentMock));
+
+
+
+        InventoryValidationResponseDTO validationResponseDTO = InventoryValidationResponseDTO
+            .builder()
+            .inventoryResponseDTO(InventoryResponseDTO
+                .builder()
+                .productFamily("PLASMA_TRANSFUSABLE")
+                .id(UUID.randomUUID())
+                .aboRh("AP")
+                .locationCode("123456789")
+                .productCode("E0701V00")
+                .collectionDate(ZonedDateTime.now())
+                .unitNumber("W036898786756")
+                .productDescription("PRODUCT_DESCRIPTION")
+                .temperatureCategory("FROZEN")
+                .expirationDate(LocalDateTime.now())
+                .isLabeled(false)
+                .build())
+            .inventoryNotificationsDTO(List.of(InventoryNotificationDTO.builder()
+                .errorMessage(ShipmentServiceMessages.INVENTORY_UNLABELED_ERROR)
+                .reason("REASON")
+                .errorType("WARN")
+                .errorName("INVENTORY_IS_UNLABELED")
+                .action("ACTION")
+                .errorCode(6)
+
+                .build(),InventoryNotificationDTO.builder()
+                .errorMessage(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR)
+                .reason("REASON")
+                .errorType("WARN")
+                .errorName("INVENTORY_IS_QUARANTINED")
+                .action("ACTION")
+                .errorCode(156)
+
+                .build()))
+            .build();
+
+        Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("PLASMA_TRANSFUSABLE")

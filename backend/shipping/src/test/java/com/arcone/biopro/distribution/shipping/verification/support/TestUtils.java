@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shipping.verification.support;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -100,7 +102,10 @@ public class TestUtils {
     }
 
     public static String[] getCommaSeparatedList(String param) {
-        return Arrays.stream(param.split(",")).map(String::trim).toArray(String[]::new);
+        return Arrays.stream(param.split(","))
+            .map(StringUtils::stripToNull)
+            .filter(Objects::nonNull)
+            .toArray(String[]::new);
     }
 
     public static String parseDateKeyword(String keyword) {

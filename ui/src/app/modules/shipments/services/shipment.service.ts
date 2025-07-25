@@ -187,7 +187,7 @@ export class ShipmentService {
         );
     }
 
-    public getUnlabeledProducts(getUnlabeledProductsRequest: GetUnlabeledProductsRequestDTO): Observable<ApolloQueryResult<{ getUnlabeledProducts: RuleResponseDTO<{ results: [ ProductResponseDTO[] ] }> }>> {
+    public getUnlabeledProducts(getUnlabeledProductsRequest: GetUnlabeledProductsRequestDTO): Observable<ApolloQueryResult<{ getUnlabeledProducts: RuleResponseDTO }>> {
         return this.dynamicGraphqlPathService
             .executeQuery(
                 this.servicePath,
