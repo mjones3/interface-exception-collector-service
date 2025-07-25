@@ -90,6 +90,7 @@ public class PopUpPage extends CommonPageFactory {
     public boolean waitForSpecificPopUpMessage(String title, String message, int timeoutSeconds) {
         try {
             PageElement popUp = driver.waitForElement(getSpecificPopUpLocator(title, message), timeoutSeconds );
+            popUp.waitForVisible(10);
             if (popUp.isDisplayed()) {
                 log.info("Pop-up with title '{}' and message '{}' is displayed.", title, message);
                 popUp.waitForClickable();
