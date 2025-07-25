@@ -132,4 +132,4 @@ Feature: Scan Unit Number for Irradiation
         And I'm in the irradiation service at the location "123456789"
         And the product "E003300" in the unit "W777725001013" was already irradiated in a opened batch for device "AUTO-DEVICE1013"
         When I scan the unit number "W777725001013" in irradiation
-        Then I see the error message "No products eligible for irradiation"
+        And I verify that product "E003300" in the unit "W777725001013" is flagged as is being irradiated

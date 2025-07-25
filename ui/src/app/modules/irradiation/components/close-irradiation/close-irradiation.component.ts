@@ -21,8 +21,7 @@ import {UnitNumberCardComponent} from "../../../../shared/components/unit-number
 import {ProductIconsService} from "../../../../shared/services/product-icon.service";
 import {
     IrradiationProductDTO, IrradiationResolveData,
-    MessageType, RecordVisualInpectionResult, ValidateUnitEvent,
-    ValidationDataDTO
+    MessageType, RecordVisualInpectionResult, ValidateUnitEvent
 } from "../../models/model";
 import {ActivatedRoute, Router} from "@angular/router";
 import {IrradiationService} from "../../services/irradiation.service";
@@ -333,14 +332,6 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.allProducts.push({...newProduct});
     }
 
-    private notInProductList(product: ValidationDataDTO) {
-        return !this.products.find(
-            (p) =>
-                p.productCode === product.productCode &&
-                p.unitNumber === product.unitNumber
-        );
-    }
-
     get numberOfUnits() {
         return this.products
             .filter(p => !p.disabled)
@@ -469,7 +460,6 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                         icon: this.findIconsByProductFamily(product.productFamily),
                         status: this.getFinalStatus(product),
                         statuses: this.getStatuses(this.getFinalStatus(product)),
-                        disabled: true
                     })) as IrradiationProductDTO[];
                     this.populateIrradiationBatch(irradiationProducts);
                     this.unitNumberComponent.controlUnitNumber.enable();

@@ -308,6 +308,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                 unsuitableReason: inventory.unsuitableReason,
                 alreadyIrradiated: inventory.alreadyIrradiated,
                 notConfigurableForIrradiation: inventory.notConfigurableForIrradiation,
+                isBeingIrradiated: inventory.isBeingIrradiated,
                 quarantines: inventory.quarantines
             }));
 
@@ -362,6 +363,10 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
        }
         if (selectedOption.notConfigurableForIrradiation) {
             this.showMessage(MessageType.ERROR, 'Product not configured for Irradiation')
+            return false;
+        }
+        if (selectedOption.isBeingIrradiated) {
+            this.showMessage(MessageType.ERROR, 'Product is being irradiated')
             return false;
         }
         return true;

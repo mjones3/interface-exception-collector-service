@@ -167,10 +167,11 @@ describe('StartIrradiationComponent', () => {
     comments: '',
     statusReason: null,
     unsuitableReason: null,
-    expired: null,
-    alreadyIrradiated: null,
-    notConfigurableForIrradiation: null,
-    quarantines: null
+    expired: false,
+    alreadyIrradiated: false,
+    notConfigurableForIrradiation: false,
+    isBeingIrradiated: false,
+    quarantines: []
   });
 
   it('should create', () => {
@@ -212,6 +213,7 @@ describe('StartIrradiationComponent', () => {
   it('should load irradiation device when valid ID is provided', () => {
     component.loadIrradiationId('IRR-001');
     expect(mockIrradiationService.loadDeviceById).toHaveBeenCalledWith('IRR-001', component.currentLocation);
+    expect(component.deviceId).toBe(true);
   });
 
   it('should handle error when loading irradiation device', () => {
@@ -225,6 +227,7 @@ describe('StartIrradiationComponent', () => {
 
     // Verify error was shown
     expect(mockToastrService.error).toHaveBeenCalledWith('Error loading device');
+    expect(component.deviceId).toBe(false);
   });
 
   it('should reset all data when cancel confirmation dialog is confirmed', () => {
@@ -234,6 +237,7 @@ describe('StartIrradiationComponent', () => {
     component.initialProductsState = [testProduct];
     component.selectedProducts = [testProduct];
     component.allProducts = [testProduct];
+    component.deviceId = true;
 
     // Call openCancelConfirmationDialog which eventually calls cancel
     component.openCancelConfirmationDialog();
@@ -247,6 +251,7 @@ describe('StartIrradiationComponent', () => {
     expect(component.initialProductsState).toEqual([]);
     expect(component.selectedProducts).toEqual([]);
     expect(component.allProducts).toEqual([]);
+    expect(component.deviceId).toBe(false);
   });
 
   it('should submit batch when form is valid and units are added', () => {
@@ -560,6 +565,67 @@ describe('StartIrradiationComponent', () => {
 
       expect(result).toBe(true);
       expect(product.status).toBe('Quarantined');
+    });
+
+    it('should handle quarantine with proper null check logic', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: [{ reason: 'Test', comments: 'Test', stopsManufacturing: null }]
+      };
+
+      const result = (component as any).handleQuarantine(product);
+
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
+    });
+  });
+
+  describe('isNotAnExistingIrradiatedProduct', () => {
+    it('should return false when product is already irradiated', () => {
+      const product = { ...createTestProduct(), alreadyIrradiated: true };
+      
+      const result = (component as any).isNotAnExistingIrradiatedProduct(product);
+      
+      expect(result).toBe(false);
+      expect(mockToastrService.error).toHaveBeenCalledWith('This product has already been irradiated');
+    });
+
+    it('should return false when product is not configurable for irradiation', () => {
+      const product = { ...createTestProduct(), notConfigurableForIrradiation: true };
+      
+      const result = (component as any).isNotAnExistingIrradiatedProduct(product);
+      
+      expect(result).toBe(false);
+      expect(mockToastrService.error).toHaveBeenCalledWith('Product not configured for Irradiation');
+    });
+
+    it('should return false when product is being irradiated', () => {
+      const product = { ...createTestProduct(), isBeingIrradiated: true };
+      
+      const result = (component as any).isNotAnExistingIrradiatedProduct(product);
+      
+      expect(result).toBe(false);
+      expect(mockToastrService.error).toHaveBeenCalledWith('Product is being irradiated');
+    });
+
+    it('should return true when product is valid for irradiation', () => {
+      const product = createTestProduct();
+      
+      const result = (component as any).isNotAnExistingIrradiatedProduct(product);
+      
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('disableCancelButton', () => {
+    it('should return true when deviceId is false', () => {
+      component.deviceId = false;
+      expect(component.disableCancelButton).toBe(true);
+    });
+
+    it('should return false when deviceId is true', () => {
+      component.deviceId = true;
+      expect(component.disableCancelButton).toBe(false);
     });
   });
 });

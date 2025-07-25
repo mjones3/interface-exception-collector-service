@@ -29,6 +29,7 @@ const VALIDATE_UNIT = gql`
             expired
             alreadyIrradiated
             notConfigurableForIrradiation
+            isBeingIrradiated
             quarantines {
                 reason
                 comments

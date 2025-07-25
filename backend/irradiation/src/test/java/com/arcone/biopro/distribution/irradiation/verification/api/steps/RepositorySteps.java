@@ -185,9 +185,23 @@ public class RepositorySteps {
 
     @And("the product {string} in the unit {string} was already irradiated in a opened batch for device {string}")
     public void theProductInTheUnitWasAlreadyIrradiatedInAOpenedBatchForDevice(String productCode, String unitNumber, String deviceId) {
+        // Create device first
         deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
-        var batch = batchRepository.save(BatchEntity.builder().deviceId(deviceId).startTime(LocalDateTime.now()).build()).block();
-        batchItemRepository.save(BatchItemEntity.builder().batchId(batch.getId()).lotNumber("123").unitNumber(unitNumber).productCode(productCode).build()).block();
+        
+        // Create open batch (endTime = null)
+        var batch = batchRepository.save(BatchEntity.builder()
+            .deviceId(deviceId)
+            .startTime(LocalDateTime.now())
+            .endTime(null)
+            .build()).block();
+        
+        // Create batch item
+        batchItemRepository.save(BatchItemEntity.builder()
+            .batchId(batch.getId())
+            .lotNumber("123")
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .build()).block();
     }
 
     @Given("An irradiation batch has been started with the following units for irradiator {string}")

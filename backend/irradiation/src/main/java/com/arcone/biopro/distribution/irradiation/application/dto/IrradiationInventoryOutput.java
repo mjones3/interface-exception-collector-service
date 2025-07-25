@@ -18,6 +18,7 @@ public record IrradiationInventoryOutput(
     String statusReason,
     String unsuitableReason,
     Boolean expired,
+    Boolean isBeingIrradiated,
     List<InventoryQuarantine> quarantines,
     boolean alreadyIrradiated,
     boolean notConfigurableForIrradiation) {
