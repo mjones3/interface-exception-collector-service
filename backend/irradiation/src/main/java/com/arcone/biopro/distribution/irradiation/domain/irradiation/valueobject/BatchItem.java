@@ -14,6 +14,8 @@ public record BatchItem(
     String lotNumber,
     String newProductCode,
     LocalDateTime expirationDate,
-    String productFamily
+    String productFamily,
+    String productDescription,
+    boolean irradiated
 ) {
 }

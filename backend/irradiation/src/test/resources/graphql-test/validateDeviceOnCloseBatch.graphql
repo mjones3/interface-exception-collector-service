@@ -1,0 +1,14 @@
+query validateDeviceOnCloseBatch($deviceId: String!, $location: String!) {
+    validateDeviceOnCloseBatch(deviceId: $deviceId, location: $location) {
+        unitNumber
+        productCode
+        productFamily
+        productDescription
+        status
+        quarantines {
+            reason
+            comments
+            stopsManufacturing
+        }
+    }
+}

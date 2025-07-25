@@ -282,5 +282,17 @@ topic:
   device:
     created:
       name: DeviceCreated
+  product:
+    stored:
+      name: ProductStored
+    modified:
+      name: ProductModified
+      partitions: 1
+      replicas: 1
+    quarantine:
+      name: QuarantineProduct
+      partitions: 1
+      replicas: 1
+
 
 

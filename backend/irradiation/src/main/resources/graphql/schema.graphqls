@@ -4,10 +4,12 @@ type Query {
     readConfiguration(keys: [String]): [ConfigurationDTO]
     checkDigit(unitNumber: String!, checkDigit: String!): CheckDigitResponseDTO!
     validateLotNumber(lotNumber: String!, type: String!): Boolean
+    validateDeviceOnCloseBatch(deviceId: String!, location: String!): [BatchProduct]
 }
 
 type Mutation {
     submitBatch(input: SubmitBatchInput!): BatchSubmissionResult!
+    completeBatch(input: CompleteBatchInput!): BatchSubmissionResult!
 }
 
 type Inventory {
@@ -33,7 +35,7 @@ type ConfigurationDTO {
 type InventoryQuarantine {
     reason: String!,
     comments: String,
-    stopsManufacturing: Boolean!
+    stopsManufacturing: Boolean
 }
 
 input SubmitBatchInput {
@@ -48,6 +50,18 @@ input BatchItemInput {
     lotNumber: String!
 }
 
+input CompleteBatchInput {
+    batchId: String!
+    endTime: String!
+    batchItems: [BatchItemCompletionInput!]!
+}
+
+input BatchItemCompletionInput {
+    unitNumber: String!
+    productCode: String!
+    isIrradiated: Boolean!
+}
+
 type BatchSubmissionResult {
     batchId: ID!
     message: String!
@@ -56,4 +70,13 @@ type BatchSubmissionResult {
 
 type CheckDigitResponseDTO {
     isValid: Boolean
+}
+
+type BatchProduct {
+    unitNumber: String
+    productCode: String
+    productFamily: String
+    productDescription: String
+    status: String
+    quarantines: [InventoryQuarantine]
 }

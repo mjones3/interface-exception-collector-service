@@ -1,10 +1,8 @@
 import {
     AfterViewInit,
-    ChangeDetectorRef,
     Component,
     effect,
     inject,
-    Input,
     OnInit,
     TemplateRef,
     ViewChild, ViewEncapsulation
@@ -14,7 +12,6 @@ import {FuseCardComponent} from "../../../../../@fuse";
 import {InputComponent} from "../../../../shared/components/input/input.component";
 import {MatDivider} from "@angular/material/divider";
 import {
-    FacilityService,
     ProcessHeaderComponent,
     ProcessHeaderService,
     ScanUnitNumberCheckDigitComponent
@@ -23,10 +20,8 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/
 import {UnitNumberCardComponent} from "../../../../shared/components/unit-number-card/unit-number-card.component";
 import {ProductIconsService} from "../../../../shared/services/product-icon.service";
 import {
-    ConsequenceType,
-    IrradiationProductDTO,
-    MessageType, ReasonDTO,
-    RecordVisualInpectionResult,
+    IrradiationProductDTO, IrradiationResolveData,
+    MessageType, RecordVisualInpectionResult, ValidateUnitEvent,
     ValidationDataDTO
 } from "../../models/model";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -38,6 +33,9 @@ import {NgStyle} from "@angular/common";
 import {
     RecordVisualInspectionModalComponent
 } from "../record-visual-inspection-modal/record-visual-inspection-modal.component";
+import {EMPTY} from "rxjs";
+import {Cookie} from "../../../../shared/types/cookie.enum";
+import {CookieService} from "ngx-cookie-service";
 
 const AVAILABLE = 'AVAILABLE';
 const QUARANTINED = 'QUARANTINED';
@@ -45,6 +43,8 @@ const PENDING_INSPECTION = 'PENDING INSPECTION';
 const EXPIRED = 'EXPIRED';
 const IRRADIATED = 'IRRADIATED';
 const NOT_IRRADIATED = 'NOT IRRADIATED';
+const UNSUITABLE = 'UNSUITABLE';
+const DISCARDED = 'DISCARDED';
 
 @Component({
     selector: 'biopro-close-irradiation',
@@ -67,22 +67,23 @@ const NOT_IRRADIATED = 'NOT IRRADIATED';
 export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     private readonly _productIconService = inject(ProductIconsService);
-    isCheckDigitVisible = true;
     numOfMaxUnits = 0;
     selectedProducts: IrradiationProductDTO[] = [];
     products: IrradiationProductDTO[] = [];
     initialProductsState: IrradiationProductDTO[] = [];
     allProducts: IrradiationProductDTO[] = [];
-
-    @Input() showCheckDigit = true;
+    currentDateTime: string;
+    deviceId: boolean = false;
+    startTime: string
+    showCheckDigit = false
 
     @ViewChild('buttons')
     buttons: TemplateRef<Element>;
 
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
-
     form: FormGroup;
+    currentLocation: string;
 
     constructor(
         private readonly router: Router,
@@ -92,6 +93,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         private readonly toaster: ToastrService,
         private readonly activatedRoute: ActivatedRoute,
         private readonly matDialog: MatDialog,
+        private readonly irradiationService: IrradiationService,
+        private readonly cookieService: CookieService,
     ) {
         effect(() => {
             this.processHeaderService.setActions(this.buttons);
@@ -99,14 +102,13 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
         this.form = this.formBuilder.group({
             irradiatorId: [null, [Validators.required]],
-            lotNumber: [null, [Validators.required]]
         });
     }
 
     ngOnInit() {
-        this.isCheckDigitVisible = (
-            this.activatedRoute.snapshot.data as { useCheckDigit: boolean }
-        )?.useCheckDigit;
+        this.showCheckDigit = (this.activatedRoute.parent?.snapshot.data?.initialData as IrradiationResolveData)
+            .showCheckDigit;
+        this.currentLocation = this.cookieService.get(Cookie.XFacility);
     }
 
     ngAfterViewInit(): void {
@@ -115,10 +117,6 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     get irradiation() {
         return this.form.get('irradiatorId');
-    }
-
-    get lotNumber() {
-        return this.form.get('lotNumber');
     }
 
     openCancelConfirmationDialog(): void {
@@ -154,6 +152,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     private resetAllData() {
+        this.deviceId = false;
         this.products = [];
         this.initialProductsState = [];
         this.selectedProducts = [];
@@ -163,22 +162,67 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     isSubmitEnabled(): boolean {
-        return this.form.valid && this.numberOfUnits > 0;
+        if (this.form.valid && this.numberOfUnits > 0) {
+            const enabledProducts = this.products.filter(p => !p.disabled);
+            return enabledProducts.every(product =>
+                product.statuses.some(status =>
+                    status.value === IRRADIATED || status.value === NOT_IRRADIATED
+                )
+            );
+        }
+        return false
     }
 
     get disableCancelButton() {
-        //return !this.deviceId;
-        return false;
+        return !this.deviceId;
     }
 
     submit() {
-       console.log()
+        //TODO: add here the submit endpoint
+        this.currentDateTime = ''
+        this.showMessage(MessageType.SUCCESS, 'Batch successfully closed. Label irradiated products.');
+        this.redirect();
     }
 
 
-    validateUnit(event: { unitNumber: string }) {
-        console.log('validateUnit', event);
-        const unitNumber = event.unitNumber;
+    validateUnit(event: ValidateUnitEvent) {
+        const { unitNumber, checkDigit, scanner } = event;
+        if (!unitNumber) return;
+        const now = new Date();
+        this.currentDateTime = now.toLocaleDateString('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric'
+        }) + ' ' + now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        this.startTime = now.toISOString().slice(0, 19);
+        if (this.showCheckDigit && !scanner) {
+            this.irradiationService.validateCheckDigit(unitNumber, checkDigit).subscribe({
+                next: (result) => {
+                    const isValid = result.data?.checkDigit?.isValid ?? false;
+                    if (!isValid) {
+                        if (checkDigit) {
+                            this.showMessage(MessageType.ERROR, 'Invalid check digit');
+                        }
+                        this.unitNumberComponent.setValidatorsForCheckDigit(true);
+                        this.unitNumberComponent.focusOnCheckDigit();
+                        return EMPTY;
+                    }
+                    this.validateUnitNumber(unitNumber);
+                },
+                error: (error) => {
+                    this.showMessage(MessageType.ERROR, error.message);
+                }
+            });
+        } else {
+            this.validateUnitNumber(unitNumber);
+        }
+    }
+
+    private validateUnitNumber(unitNumber: string) {
         if (unitNumber) {
             this.products.filter(p =>
                 p.unitNumber === unitNumber
@@ -189,7 +233,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.unitNumberComponent.reset();
     }
 
-    private populateCentrifugationBatch(irradiationProducts: IrradiationProductDTO[]) {
+    private populateIrradiationBatch(irradiationProducts: IrradiationProductDTO[]) {
 
         irradiationProducts.forEach((product) => {
             this.addProductToList(product);
@@ -224,10 +268,28 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             case AVAILABLE:
                 return 'bg-green-500 text-white';
             case EXPIRED:
+            case UNSUITABLE:
+            case DISCARDED:
                 return 'bg-red-500 text-white';
             default:
                 return 'bg-gray-500 text-white';
         }
+    }
+
+    private getFinalStatus(inventory: IrradiationProductDTO) {
+        if (inventory.status === DISCARDED) {
+            return DISCARDED;
+        }
+        if (inventory.expired) {
+            return EXPIRED;
+        }
+        if (inventory.unsuitableReason) {
+            return UNSUITABLE;
+        }
+        if (inventory.quarantines && inventory.quarantines.length !==0) {
+            return QUARANTINED;
+        }
+        return AVAILABLE;
     }
 
     private addProductToList(newProduct: IrradiationProductDTO) {
@@ -364,69 +426,39 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     loadIrradiationId(irradiationId: string) {
-        const irradiationProducts: IrradiationProductDTO[] = [
-            {
-                unitNumber: "W036825314134",
-                productCode: 'E468900',
-                productDescription: 'WHOLE BLOOD|CPD/500mL/refg|ResLeu:<5E6',
-                status: 'AVAILABLE',
-                productFamily: 'WHOLE_BLOOD',
-                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
-                order: 1,
-                statuses: this.getStatuses(AVAILABLE),
-                location: '',
-                comments: '',
-                statusReason: '',
-                unsuitableReason: '',
-                expired: false,
-                alreadyIrradiated: false,
-                notConfigurableForIrradiation: false,
-                quarantines: null
+        if (!this.currentLocation) {
+            this.showMessage(MessageType.ERROR, 'No facility location available');
+            return;
+        }
+        this.irradiationService.validateDeviceOnCloseBatch(irradiationId, this.currentLocation).subscribe({
+            next: (result) => {
+                const products = result.data?.validateDeviceOnCloseBatch || [];
+                if (products) {
+                    const irradiationProducts = products.map(product => ({
+                        unitNumber: product.unitNumber,
+                        productCode: product.productCode,
+                        productDescription: product.productDescription,
+                        productFamily: product.productFamily,
+                        icon: this.findIconsByProductFamily(product.productFamily),
+                        status: this.getFinalStatus(product),
+                        statuses: this.getStatuses(this.getFinalStatus(product)),
+                        disabled: true
+                    })) as IrradiationProductDTO[];
+                    this.populateIrradiationBatch(irradiationProducts);
+                    this.unitNumberComponent.controlUnitNumber.enable();
+                    setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
+                } else {
+                    this.showMessage(MessageType.ERROR, 'Invalid products by irradiator id');
+                }
             },
-            {
-                unitNumber: "W036825314134",
-                productCode: 'E468800',
-                productDescription: 'FRESH FROZEN PLASMA|CPD/XX/<=-18C',
-                status: 'QUARANTINED',
-                productFamily: 'WHOLE_BLOOD',
-                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
-                order: 1,
-                statuses: this.getStatuses(QUARANTINED),
-                location: '',
-                comments: '',
-                statusReason: '',
-                unsuitableReason: '',
-                expired: false,
-                alreadyIrradiated: false,
-                notConfigurableForIrradiation: false,
-                quarantines: null
-            },
-            {
-                unitNumber: "W036825314135",
-                productCode: 'E469900',
-                productDescription: 'WHOLE BLOOD|CPD/500mL/refg|ResLeu:<5E6',
-                status: 'AVAILABLE',
-                productFamily: 'WHOLE_BLOOD',
-                icon: this.findIconsByProductFamily('WHOLE_BLOOD'),
-                order: 1,
-                statuses: this.getStatuses(QUARANTINED),
-                location: '',
-                comments: '',
-                statusReason: '',
-                unsuitableReason: '',
-                expired: false,
-                alreadyIrradiated: false,
-                notConfigurableForIrradiation: false,
-                quarantines: null
-            },
-        ];
-
-        this.populateCentrifugationBatch(irradiationProducts);
-        this.unitNumberComponent.form.enable()
+            error: (error) => {
+                this.showMessage(MessageType.ERROR, error.message);
+            }
+        });
     }
 
     redirect() {
-        this.router.navigateByUrl('irradiation');
+        this.router.navigateByUrl('irradiation/start-irradiation');
     }
 
     private showMessage(messageType: MessageType, message: string) {

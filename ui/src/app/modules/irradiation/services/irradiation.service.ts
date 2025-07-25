@@ -13,7 +13,8 @@ import {
     GET_CONFIGURATIONS,
     GET_IRRADIATION_DEVICE_BY_ID,
     VALIDATE_LOT_NUMBER,
-    VALIDATE_UNIT
+    VALIDATE_UNIT,
+    VALIDATE_DEVICE_ON_CLOSE_BATCH
 } from "../graphql/query.graphql";
 import {START_IRRADIATION_SUBMIT_BATCH} from "../graphql/mutation.graphql";
 
@@ -96,5 +97,16 @@ export class IrradiationService {
         );
     }
 
+    public validateDeviceOnCloseBatch(
+        deviceId: string, location: string
+    ): Observable<
+        ApolloQueryResult<{ validateDeviceOnCloseBatch: IrradiationProductDTO[] }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            VALIDATE_DEVICE_ON_CLOSE_BATCH,
+            { deviceId, location }
+        );
+    }
 
 }

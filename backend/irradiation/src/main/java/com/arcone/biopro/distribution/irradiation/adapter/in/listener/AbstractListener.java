@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.adapter.in.listener;
 
+import com.arcone.biopro.distribution.irradiation.adapter.common.EventMessage;
 import com.arcone.biopro.distribution.irradiation.application.usecase.UseCase;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

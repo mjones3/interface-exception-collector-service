@@ -74,6 +74,9 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     currentDateTime: string;
     startTime: string
     private isDialogOpen = false;
+    currentLocation: string;
+    deviceId: boolean = false;
+
     @ViewChild('buttons')
     buttons: TemplateRef<Element>;
 
@@ -87,7 +90,6 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     lotNumberInput: InputComponent;
 
     form: FormGroup;
-    currentLocation: string;
 
     constructor(
         private readonly router: Router,
@@ -195,6 +197,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         this.lotNumber.reset();
         this.unitNumberComponent.controlUnitNumber.reset();
         this.isDialogOpen = false;
+        this.deviceId = false;
         setTimeout(() => this.focusOnIrradiationInput(), 1);
     }
 
@@ -203,8 +206,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     get disableCancelButton() {
-        //return !this.deviceId;
-        return false;
+        return !this.deviceId;
     }
 
     submit() {
@@ -366,9 +368,11 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     private handleQuarantine(product: IrradiationProductDTO) {
-        if (product.quarantines?.some(q => q.stopsManufacturing)) {
-            this.showMessage(MessageType.ERROR, 'This product has been quarantined and cannot be irradiated');
-            return false;
+        if (product.quarantines && product.quarantines.length > 0) {
+            if (product.quarantines?.some(q => (q.stopsManufacturing)?q.stopsManufacturing:false)) {
+                this.showMessage(MessageType.ERROR, 'This product has been quarantined and cannot be irradiated');
+                return false;
+            }
         }
         product.status = 'Quarantined';
         return true;
@@ -389,7 +393,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
         return this.discardService.discardProduct(discardRequestDTO).subscribe({
             next: () => {
-                this.openConfirmationDialog(product);
+                this.openConfirmationDialog(product, reason);
             },
             error: (error) => {
                 this.toaster.error('Unable to reach discard service.');
@@ -398,11 +402,11 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         });
     }
 
-    openConfirmationDialog(selectedProduct: IrradiationProductDTO): void {
+    openConfirmationDialog(selectedProduct: IrradiationProductDTO, reason: string): void {
         const dialogRef = this.confirmationService.open({
             title:
                 selectedProduct.status || 'Acknowledge message',
-            message: 'This product has been discarded for ' + selectedProduct.statusReason + '. Place in biohazard container',
+            message: 'This product has been discarded for ' + reason + '. Place in biohazard container',
             dismissible: false,
             icon: {
                 name: 'heroicons_outline:question-mark-circle',
@@ -452,6 +456,9 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
     }
 
     private getFinalStatus(inventory: IrradiationProductDTO) {
+        if (inventory.status === DISCARDED) {
+            return DISCARDED;
+        }
         if (inventory.expired) {
             return EXPIRED;
         }
@@ -460,9 +467,6 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
         }
         if (inventory.quarantines && inventory.quarantines.length !==0) {
             return QUARANTINED;
-        }
-        if (inventory.status === DISCARDED) {
-            return DISCARDED;
         }
         return AVAILABLE;
     }
@@ -585,8 +589,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
        if (deviceId) {
            this.irradiationService.loadDeviceById(deviceId,this.currentLocation).subscribe({
                next: (result) => {
-                   const validDevice = result.data.validateDevice;
-                   if (validDevice) {
+                   this.deviceId = result.data.validateDevice;
+                   if (this.deviceId) {
                        this.irradiation.disable();
                        this.lotNumber.enable();
                        setTimeout(() => this.focusOnLotNumberInput(), 0);

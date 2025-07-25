@@ -6,9 +6,11 @@ import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.Configurati
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.mapper.ConfigurationDTOMapper;
 import com.arcone.biopro.distribution.irradiation.adapter.irradiation.IrradiationResource;
 import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
+import com.arcone.biopro.distribution.irradiation.application.dto.BatchProductDTO;
 import com.arcone.biopro.distribution.irradiation.application.usecase.CheckDigitUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateUnitNumberUseCase;
+import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceOnCloseBatchUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.model.Configuration;
 import com.arcone.biopro.distribution.irradiation.domain.repository.ConfigurationService;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +48,9 @@ class IrradiationResourceTest {
 
     @Mock
     private CheckDigitUseCase checkDigitUseCase;
+
+    @Mock
+    private ValidateDeviceOnCloseBatchUseCase validateDeviceOnCloseBatchUseCase;
 
     @InjectMocks
     private IrradiationResource irradiationResource;
@@ -272,6 +277,94 @@ class IrradiationResourceTest {
 
         StepVerifier.create(result)
             .expectError(RuntimeException.class)
+            .verify();
+    }
+
+    @Test
+    @DisplayName("Should handle null stopsManufacturing in quarantines")
+    void validateUnit_ShouldHandleNullStopsManufacturing_InQuarantines() {
+        // Given
+        String unitNumber = "W036825280464";
+        String location = "123456789";
+
+        List<com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.InventoryQuarantine> quarantines = List.of(
+            new com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.InventoryQuarantine(
+                "Quality Hold", "Pending review", null // null stopsManufacturing
+            )
+        );
+
+        IrradiationInventoryOutput inventoryWithNullQuarantine = IrradiationInventoryOutput.builder()
+            .unitNumber(unitNumber)
+            .productCode("E453300")
+            .location(location)
+            .status("AVAILABLE")
+            .productDescription("APH AS1 LR RBC C2")
+            .productFamily("RED_BLOOD_CELLS_LEUKOREDUCED")
+            .statusReason(null)
+            .unsuitableReason(null)
+            .expired(false)
+            .alreadyIrradiated(false)
+            .notConfigurableForIrradiation(false)
+            .quarantines(quarantines)
+            .build();
+        when(validateUnitNumberUseCase.execute(unitNumber, location))
+            .thenReturn(Flux.just(inventoryWithNullQuarantine));
+
+        Flux<IrradiationInventoryOutput> result = irradiationResource.validateUnit(unitNumber, location);
+
+        StepVerifier.create(result)
+            .expectNextMatches(inventory ->
+                inventory.quarantines() != null &&
+                inventory.quarantines().size() == 1 &&
+                inventory.quarantines().getFirst().stopsManufacturing() == null
+            )
+            .verifyComplete();
+
+        verify(validateUnitNumberUseCase).execute(unitNumber, location);
+    }
+
+    @Test
+    @DisplayName("Should return batch products when device validation succeeds")
+    void validateDeviceOnCloseBatch_ShouldReturnBatchProducts_WhenValidationSucceeds() {
+        String deviceId = "AUTO-DEVICE004";
+        String location = "123456789";
+        
+        List<BatchProductDTO> expectedProducts = List.of(
+            BatchProductDTO.builder()
+                .unitNumber("W777725001001")
+                .productCode("E0867V00")
+                .productFamily("BLOOD_SAMPLES")
+                .productDescription("Blood Sample Type A")
+                .status("AVAILABLE")
+                .quarantines(List.of())
+                .build()
+        );
+        
+        when(validateDeviceOnCloseBatchUseCase.execute(deviceId, location))
+            .thenReturn(Flux.fromIterable(expectedProducts));
+        
+        Flux<BatchProductDTO> result = irradiationResource.validateDeviceOnCloseBatch(deviceId, location);
+        
+        StepVerifier.create(result)
+            .expectNext(expectedProducts.get(0))
+            .verifyComplete();
+        
+        verify(validateDeviceOnCloseBatchUseCase).execute(deviceId, location);
+    }
+
+    @Test
+    @DisplayName("Should propagate error when device validation fails")
+    void validateDeviceOnCloseBatch_ShouldPropagateError_WhenValidationFails() {
+        String deviceId = "INVALID-DEVICE";
+        String location = "123456789";
+        
+        when(validateDeviceOnCloseBatchUseCase.execute(deviceId, location))
+            .thenReturn(Flux.error(new DeviceValidationFailureException("Device not found")));
+        
+        Flux<BatchProductDTO> result = irradiationResource.validateDeviceOnCloseBatch(deviceId, location);
+        
+        StepVerifier.create(result)
+            .expectError(DeviceValidationFailureException.class)
             .verify();
     }
 }

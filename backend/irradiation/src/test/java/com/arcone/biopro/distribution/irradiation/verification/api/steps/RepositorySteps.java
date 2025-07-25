@@ -3,12 +3,14 @@ package com.arcone.biopro.distribution.irradiation.verification.api.steps;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchEntity;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchItemEntity;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.DeviceEntity;
+import com.arcone.biopro.distribution.irradiation.verification.api.support.IrradiationContext;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.test.context.ContextConfiguration;
@@ -20,6 +22,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @ContextConfiguration
 public class RepositorySteps {
 
@@ -31,6 +34,9 @@ public class RepositorySteps {
 
     @Autowired
     private ReactiveCrudRepository<BatchItemEntity, Long> batchItemRepository;
+
+    @Autowired
+    private IrradiationContext irradiationContext;
 
     @Setter
     private Boolean validationResult;
@@ -50,10 +56,29 @@ public class RepositorySteps {
     @Setter
     private String batchSubmissionError;
 
+    @Getter
+    private String lastCreatedDeviceId;
+
+    @Getter
+    private Long lastCreatedBatchId;
+
     @Given("I have a device {string} at location {string} with status {string}")
     public void iHaveAValidDeviceAtLocation(String deviceId, String location, String status) {
-        DeviceEntity device = new DeviceEntity(deviceId, location, status);
-        deviceRepository.save(device).block();
+        // Check if device already exists
+        DeviceEntity existingDevice = deviceRepository.findAll()
+            .filter(device -> deviceId.equals(device.getDeviceId()))
+            .blockFirst();
+        
+        if (existingDevice == null) {
+            DeviceEntity device = new DeviceEntity(deviceId, location, status);
+            deviceRepository.save(device).block();
+        }
+        
+        this.lastCreatedDeviceId = deviceId;
+
+        // Store device ID in context for later use
+        irradiationContext.setDeviceId(deviceId);
+        irradiationContext.setLocation(location);
     }
 
     @Given("I have an open batch for device {string}")
@@ -102,6 +127,9 @@ public class RepositorySteps {
 
         assertNotNull(batch, "Batch should be created in repository");
 
+        // Store batch ID for later use in completion steps
+        irradiationContext.setBatchId(batch.getId().toString());
+
         List<BatchItemEntity> actualItems = batchItemRepository.findAll()
                 .filter(item -> batch.getId().equals(item.getBatchId()))
                 .collectList()
@@ -118,6 +146,18 @@ public class RepositorySteps {
             assertEquals(expected.get("Product Code"), actual.getProductCode(), "Product code should match");
             assertEquals(expected.get("Irradiator Indicator"), actual.getLotNumber(), "Lot number should match");
         }
+    }
+
+    @Then("the batch should be successfully created")
+    public void theBatchShouldBeSuccessfullyCreated() {
+        BatchEntity batch = batchRepository.findAll()
+                .filter(b -> batchDeviceId.equals(b.getDeviceId()))
+                .blockFirst();
+
+        assertNotNull(batch, "Batch should be created in repository");
+
+        // Store batch ID for later use in completion steps
+        irradiationContext.setBatchId(batch.getId().toString());
     }
 
     @Then("I should see the success message {string}")
@@ -148,5 +188,60 @@ public class RepositorySteps {
         deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
         var batch = batchRepository.save(BatchEntity.builder().deviceId(deviceId).startTime(LocalDateTime.now()).build()).block();
         batchItemRepository.save(BatchItemEntity.builder().batchId(batch.getId()).lotNumber("123").unitNumber(unitNumber).productCode(productCode).build()).block();
+    }
+
+    @Given("An irradiation batch has been started with the following units for irradiator {string}")
+    public void anIrradiationBatchHasBeenStartedWithTheFollowingUnits(String deviceId, DataTable dataTable) {
+        deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
+        long batchId = createBatch(deviceId,LocalDateTime.now(), LocalDateTime.now());
+        List<Map<String, String>> batchItems = dataTable.asMaps();
+        for (Map<String, String> item : batchItems) {
+            createBatchItem(batchId,item.get("Lot Number"), item.get("Unit Number"),item.get("Product Code"), null);
+        }
+    }
+
+    public Long createBatch(String deviceId, LocalDateTime startTime, LocalDateTime endTime) {
+        BatchEntity batch = new BatchEntity(deviceId, startTime, endTime);
+        BatchEntity savedBatch = batchRepository.save(batch).block();
+        this.lastCreatedBatchId = savedBatch.getId();
+        return savedBatch.getId();
+    }
+
+    public void createBatchItem(Long batchId, String unitNumber, String lotNumber, String productCode, String productFamily) {
+        BatchItemEntity batchItem = BatchItemEntity.builder()
+            .batchId(batchId)
+            .unitNumber(unitNumber)
+            .lotNumber(lotNumber)
+            .productCode(productCode)
+            .productFamily(productFamily)
+            .build();
+        batchItemRepository.save(batchItem).block();
+    }
+
+    public void createBatchItemWithExpiration(Long batchId, String unitNumber, String lotNumber, String productCode, String productFamily, String expirationDate) {
+        LocalDateTime expiration = null;
+        if (expirationDate != null && !expirationDate.isEmpty()) {
+            expiration = LocalDateTime.parse(expirationDate + "T23:59:00");
+        }
+        
+        BatchItemEntity batchItem = BatchItemEntity.builder()
+            .batchId(batchId)
+            .unitNumber(unitNumber)
+            .lotNumber(lotNumber)
+            .productCode(productCode)
+            .productFamily(productFamily)
+            .expirationDate(expiration)
+            .build();
+        batchItemRepository.save(batchItem).block();
+    }
+
+    public void verifyProductCodeUpdate(String unitNumber, String expectedNewCode) {
+        BatchItemEntity batchItem = batchItemRepository.findAll()
+            .filter(item -> unitNumber.equals(item.getUnitNumber()))
+            .blockFirst();
+
+        assertNotNull(batchItem, "Batch item should exist for unit number: " + unitNumber);
+        assertEquals(expectedNewCode, batchItem.getNewProductCode(),
+            "New product code should be updated for unit: " + unitNumber);
     }
 }
