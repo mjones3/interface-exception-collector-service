@@ -103,7 +103,7 @@ public class FillProductsPage extends CommonPageFactory {
     }
 
     private String formatProductStatusLocator(String status) {
-        return String.format("//biopro-unit-number-card[@ng-reflect-ineligible-status = contains(text(), '%s')]", status.toUpperCase());
+        return String.format("//biopro-unit-number-card[@ng-reflect-ineligible-status='%s']", status.toUpperCase());
     }
 
     public void addUnit(String unit) throws InterruptedException {
@@ -284,13 +284,10 @@ public class FillProductsPage extends CommonPageFactory {
 
     public void assertQuarantineProductStatusIs(String productStatus, boolean visible) {
         log.debug("Asserting product status is {}.", productStatus);
-        var productStatusLabel = productStatus.equalsIgnoreCase("quarantined")
-            ? "YES"
-            : "NO";
         if(visible){
-            sharedActions.waitForVisible(By.xpath(formatProductStatusLocator(productStatusLabel)));
+            sharedActions.waitForVisible(By.xpath(formatProductStatusLocator(productStatus)));
         }else {
-            sharedActions.waitForNotVisible(By.xpath(formatProductStatusLocator(productStatusLabel)));
+            sharedActions.waitForNotVisible(By.xpath(formatProductStatusLocator(productStatus)));
         }
     }
 

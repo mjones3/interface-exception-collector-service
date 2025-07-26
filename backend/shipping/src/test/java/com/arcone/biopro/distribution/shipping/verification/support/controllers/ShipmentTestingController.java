@@ -406,14 +406,15 @@ public class ShipmentTestingController {
 
             databaseService.executeSql(String.format(insertShipItem, shipmentId, productFamily, bloodType, totalRequested)).block();
 
-
             var createdShipmentItem = databaseService.fetchData(String.format("select id from bld_shipment_item where shipment_id = %s limit 1", createdShipment.get("id"))).first().block();
 
             if (createdShipmentItem != null) {
 
+                var productStatus = quarantinedProducts ? "QUARANTINED" : null;
                 for (int i = 0; i < unitNumbers.size(); i++) {
                     if (itemStatus.equalsIgnoreCase("packed")) {
-                        createPackedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
+                        var productDescription = String.format("%s-%s","APH FFP C",i);
+                        createPackedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i),productDescription,productStatus);
                     } else if (itemStatus.equalsIgnoreCase("verified")) {
                         createVerifiedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
                     } else if (itemStatus.equalsIgnoreCase("unsuitable-verified")) {
@@ -426,13 +427,12 @@ public class ShipmentTestingController {
         return null;
     }
 
-    private void createPackedItem(String shipmentItemId, String unitNumber, String productCode) {
-
+    private void createPackedItem(String shipmentItemId, String unitNumber, String productCode , String productDescription , String productStatus) {
         var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
-            "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id) " +
-            " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','PENDING',null , null);";
+            "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id , product_status) " +
+            " VALUES(%s, '%s', '%s', '%s', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','PENDING',null , null,'%s');";
 
-        databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber, productCode)).block();
+        databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber, productCode,productDescription,productStatus)).block();
     }
 
     private void createUnsuitableVerifiedItem(String shipmentItemId, String unitNumber, String productCode) {
