@@ -137,7 +137,7 @@ Feature: Transfer Receipt
            Then The transfer information continue option should be "enabled".
            Examples:
                | OrderNumber | shipToLocation | CustomerName      | Product_Family      | TemperatureCategory |TemperatureCategoryLabel | LabelStatus | QuarantinedProducts | LocationCodeFrom |LocationNameFrom | comments        |
-               | 45600008    | DO1            | Distribution Only | PLASMA_TRANSFUSABLE | FROZEN              |ROOM TEMPERATURE         | LABELED     | false               | 123456789        |MDL Hub 1        | This is comment |
+               | 45600008    | DO1            | Distribution Only | PLASMA_TRANSFUSABLE | FROZEN              | FROZEN                  | LABELED     | false               | 123456789        |MDL Hub 1        | This is comment |
 
 
    Scenario: : Transfer Receipt Database Clean-up
