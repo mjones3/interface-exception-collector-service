@@ -193,10 +193,6 @@ spring:
   sql:
     init:
       mode: always
-  rsocket:
-    server:
-      port: 8585
-      transport: tcp
 
 otel:
   service:

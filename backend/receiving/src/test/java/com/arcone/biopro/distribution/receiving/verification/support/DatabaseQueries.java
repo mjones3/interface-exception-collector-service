@@ -42,4 +42,12 @@ public class DatabaseQueries {
         return String.format("SELECT count(*) as total FROM bld_import_item WHERE unit_number = '%s' AND product_code = '%s' ", unitNumber,productCode);
     }
 
+    public static String DELETE_INTERNAL_TRANSFER_BY_ORDER_NUMBER_IN(String orderNumberIn) {
+        return String.format("DELETE FROM bld_internal_transfer WHERE order_number IN (%s)", orderNumberIn);
+    }
+
+    public static String DELETE_INTERNAL_TRANSFER_ITEM_BY_ORDER_NUMBER_IN(String orderNumberIn) {
+        return String.format("DELETE FROM bld_internal_transfer_item WHERE internal_transfer_id IN (select id from bld_internal_transfer WHERE order_number IN (%s))", orderNumberIn);
+    }
+
 }

@@ -10,4 +10,5 @@ export interface TransferInformationDTO {
     transitTimeZoneList: LookUpDto[];
     visualInspectionList: LookUpDto[];
     defaultTimeZone: string;
+    defaultStartTimeZone?: string;
 }

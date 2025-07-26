@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.receiving.unit.domain.model;
 
 import com.arcone.biopro.distribution.receiving.domain.model.EnterShippingInformationCommand;
+import com.arcone.biopro.distribution.receiving.domain.model.InternalTransfer;
 import com.arcone.biopro.distribution.receiving.domain.model.Location;
 import com.arcone.biopro.distribution.receiving.domain.model.Lookup;
 import com.arcone.biopro.distribution.receiving.domain.model.ProductConsequence;
@@ -215,6 +216,85 @@ class ShippingInformationTest {
             () -> ShippingInformation.fromNewImportBatch(command, lookupRepository, productConsequenceRepository,locationRepository));
         assertEquals("Product category is required", exception.getMessage());
 
+    }
+
+    @Test
+    void shouldCreateShippingInformationSuccessfullyWhenTransferReceipt() {
+        // Given
+        String productCategory = "ROOM_TEMPERATURE";
+        EnterShippingInformationCommand command = new EnterShippingInformationCommand(
+            productCategory,
+            "EMP123",
+            "LOC456"
+        );
+
+
+
+        List<Lookup> transitTimeZones = Arrays.asList(
+            Lookup.fromRepository(1L,"TIME_ZONE","TZ1","Transit Zone 1", 1,true),
+            Lookup.fromRepository(2L,"TIME_ZONE","TZ2","Transit Zone 2", 1,true)
+
+        );
+
+        List<Lookup> visualInspections = Arrays.asList(
+            Lookup.fromRepository(1L,"TIME_ZONE","VI1","Visual Inspection 1", 1,true),
+            Lookup.fromRepository(1L,"TIME_ZONE","VI2","Visual Inspection 2", 1,true)
+        );
+
+        var mockProductConsequenceTemperature = Mockito.mock(ProductConsequence.class);
+
+        var mockProductConsequenceTransit = Mockito.mock(ProductConsequence.class);
+
+        List<ProductConsequence> temperatureConsequences = Collections.singletonList(mockProductConsequenceTemperature);
+
+        List<ProductConsequence> transitTimeConsequences = Collections.singletonList(mockProductConsequenceTransit);
+
+
+        when(productConsequenceRepository.findAllByProductCategory(anyString())).thenReturn(Flux.just(Mockito.mock(ProductConsequence.class)));
+
+        // Mock repository responses
+        when(lookupRepository.findAllByType("TRANSIT_TIME_ZONE"))
+            .thenReturn(Flux.fromIterable(transitTimeZones));
+        when(lookupRepository.findAllByType("VISUAL_INSPECTION_STATUS"))
+            .thenReturn(Flux.fromIterable(visualInspections));
+        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(productCategory, "TEMPERATURE"))
+            .thenReturn(Flux.fromIterable(temperatureConsequences));
+        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(productCategory, "TRANSIT_TIME"))
+            .thenReturn(Flux.fromIterable(transitTimeConsequences));
+
+        var location = Mockito.mock(Location.class);
+        when(location.getTimeZone()).thenReturn("America/New_York");
+
+        when(locationRepository.findOneByCode("LOC456")).thenReturn(Mono.just(location));
+        when(locationRepository.findOneByCode("LOC458")).thenReturn(Mono.just(location));
+
+        InternalTransfer internalTransfer = Mockito.mock(InternalTransfer.class);
+        when(internalTransfer.getLocationCodeFrom()).thenReturn("LOC458");
+        when(internalTransfer.getOrderNumber()).thenReturn(1L);
+
+
+
+
+        // When
+        ShippingInformation result = ShippingInformation.fromNewTransferReceipt(
+            command,
+            lookupRepository,
+            productConsequenceRepository,
+            locationRepository,internalTransfer
+        );
+
+        // Then
+        assertNotNull(result);
+        assertEquals(productCategory, result.getProductCategory());
+        assertEquals("celsius", result.getTemperatureUnit());
+        assertTrue(result.isDisplayTransitInformation());
+        assertTrue(result.isDisplayTemperature());
+        assertEquals(transitTimeZones, result.getTransitTimeZoneList());
+        assertEquals(visualInspections, result.getVisualInspectionList());
+        assertEquals("America/New_York",result.getDefaultTimeZone());
+        assertEquals(1L,result.getOrderNumber());
+        assertTrue(result.isReceivedDifferentLocation());
+        assertEquals("America/New_York",result.getDefaultStartTimeZone());
     }
 
 }

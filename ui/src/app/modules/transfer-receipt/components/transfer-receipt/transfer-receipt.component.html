@@ -33,7 +33,7 @@
                 <!-- Transfer Order Number -->
                 <mat-form-field class="md:col-span-3" [formGroup]="transferInformationForm">
                     <mat-label>Transfer Order Number</mat-label>
-                        <input 
+                        <input
                             data-testid="transfer-order-nummber"
                             formControlName="transferOrderNumber"
                             matInput
@@ -47,7 +47,7 @@
                 <!-- Temperature Category -->
                 <mat-form-field class="md:col-span-3" [formGroup]="transferInformationForm">
                     <mat-label>Temperature Category</mat-label>
-                        <input 
+                        <input
                         data-testid="temperature-category"
                         formControlName="temperatureCategory"
                         matInput
@@ -79,7 +79,7 @@
                                 <div class="md:col-span-6">
                                     <biopro-global-message
                                         [messageType]="'warning'"
-                                        [message]="'Order received at a different facility. Please add comments to record receipt at this location.'"
+                                        [message]="'Transfer received at a different facility. Please add comments to record receipt at this location.'"
                                         [appearance]="'border'"
                                     />
                                 </div>
@@ -125,7 +125,7 @@
                         {{ transferInformationForm.controls.comments.value?.length }} /
                         {{ commentsMaxLength }}
                     </mat-hint>
-                    @if (transferInformationForm.controls.comments.hasError('required')) 
+                    @if (transferInformationForm.controls.comments.hasError('required'))
                         {
                             <mat-error>Comments is required</mat-error>
                          }

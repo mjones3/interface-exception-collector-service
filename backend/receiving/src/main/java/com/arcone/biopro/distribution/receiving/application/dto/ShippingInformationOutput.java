@@ -16,7 +16,8 @@ public record ShippingInformationOutput(
     List<LookupOutput> visualInspectionList,
     String defaultTimeZone,
     boolean receivedDifferentLocation,
-    Long orderNumber
+    Long orderNumber,
+    String defaultStartTimeZone
 
 ) implements Serializable {
 }

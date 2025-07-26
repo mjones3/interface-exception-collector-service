@@ -44,23 +44,23 @@ import { TransitTimeService } from '@shared';
 })
 export class TransitTimeFormComponent {
   protected readonly NotificationTypeMap = NotificationTypeMap;
-  
+
   formBuilder = inject(FormBuilder);
   transitTimeService = inject(TransitTimeService);
   toastrService = inject(ToastrService);
-  
+
   availableTimeZones = input<LookUpDto[]>([]);
   humanReadableTime = input<string>(null);
   updateTransitTimeQuarantineSignal = output<UseCaseNotificationDTO>();
   updatetransitTimeHumanReadableSignal = output<string>()
   temperatureCategory = input<string>(null);
-  
+
   now = new Date();
-  
+
   formGroup = signal<FormGroup>(this.createFormGroup());
-  
+
   transitTimeValueSignal = toSignal(this.formGroup().valueChanges);
-  
+
   transitTimeValueChangeEffect = effect(() => {
     const transitTime = this.transitTimeValueSignal();
     if (this.formGroup().touched && this.formGroup().valid && transitTime) {
@@ -70,7 +70,7 @@ export class TransitTimeFormComponent {
       this.updatetransitTimeHumanReadableSignal.emit(null);
     }
   }, { allowSignalWrites: true });
-  
+
   private createFormGroup(): FormGroup {
     return this.formBuilder.group({
       startDate: [null as DateTime, { updateOn: 'blur' }],
@@ -81,7 +81,7 @@ export class TransitTimeFormComponent {
       endZone: ['', { updateOn: 'blur' }],
     });
   }
-  
+
   updateValidators(useTransitTime: boolean): void {
     if (useTransitTime) {
       this.formGroup().enable();
@@ -104,15 +104,19 @@ export class TransitTimeFormComponent {
     }
     this.formGroup().updateValueAndValidity();
   }
-  
+
   setEndZone(timeZone: string): void {
     this.formGroup().controls.endZone.setValue(timeZone);
   }
-  
+
+    setStartZone(timeZone: string): void {
+        this.formGroup().controls.startZone.setValue(timeZone);
+    }
+
   reset(): void {
     this.formGroup().reset();
   }
-  
+
   triggerElementBlur(event: Event): void {
     const element = event.target as HTMLElement;
     element.blur();

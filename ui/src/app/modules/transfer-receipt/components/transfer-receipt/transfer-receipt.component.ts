@@ -115,6 +115,7 @@ export class TransferReceiptComponent {
             this.transferInformationForm.controls.transferOrderNumber.setValue(transferInformationDTO.orderNumber);
             this.cdr.detectChanges();
             this.transitTimeFormComponent()?.setEndZone(transferInformationDTO.defaultTimeZone);
+            this.transitTimeFormComponent()?.setStartZone(transferInformationDTO.defaultStartTimeZone);
             this.transferInformationForm.updateValueAndValidity();
         });
   }

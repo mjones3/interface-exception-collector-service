@@ -30,26 +30,27 @@ public class ShippingInformation {
    private List<Lookup> transitTimeZoneList;
    private List<Lookup> visualInspectionList;
    private String defaultTimeZone;
+   private String defaultStartTimeZone;
    private boolean receivedDifferentLocation;
    private Long orderNumber;
 
 
    public static  ShippingInformation fromNewImportBatch(EnterShippingInformationCommand enterShippingInformationCommand , LookupRepository lookupRepository , ProductConsequenceRepository productConsequenceRepository , LocationRepository locationRepository){
 
-       return newShippingInformation(enterShippingInformationCommand , lookupRepository , productConsequenceRepository , locationRepository,false,null);
+       return newShippingInformation(enterShippingInformationCommand , lookupRepository , productConsequenceRepository , locationRepository,false,null , null);
    }
 
    public static ShippingInformation fromNewTransferReceipt(EnterShippingInformationCommand enterShippingInformationCommand , LookupRepository lookupRepository
        , ProductConsequenceRepository productConsequenceRepository , LocationRepository locationRepository , InternalTransfer internalTransfer){
 
        return newShippingInformation(enterShippingInformationCommand , lookupRepository , productConsequenceRepository , locationRepository
-           ,!enterShippingInformationCommand.getLocationCode().equals(internalTransfer.getLocationCodeTo()), internalTransfer.getOrderNumber());
+           ,!enterShippingInformationCommand.getLocationCode().equals(internalTransfer.getLocationCodeTo()), internalTransfer.getOrderNumber(), internalTransfer.getLocationCodeFrom());
 
    }
 
    private static ShippingInformation newShippingInformation(EnterShippingInformationCommand enterShippingInformationCommand
        , LookupRepository lookupRepository , ProductConsequenceRepository productConsequenceRepository
-       , LocationRepository locationRepository , boolean differentLocation , Long orderNumber){
+       , LocationRepository locationRepository , boolean differentLocation , Long orderNumber , String locationCodeFrom){
        validateProductCategory(enterShippingInformationCommand,productConsequenceRepository);
 
        var requireTransitInformation = isTransitTimeRequired(enterShippingInformationCommand.getProductCategory(), productConsequenceRepository);
@@ -63,6 +64,7 @@ public class ShippingInformation {
            .displayTemperature(isTemperatureRequired(enterShippingInformationCommand.getProductCategory(), productConsequenceRepository))
            .defaultTimeZone(getDefaultTimeZone(enterShippingInformationCommand.getLocationCode(),locationRepository,requireTransitInformation))
            .receivedDifferentLocation(differentLocation)
+           .defaultStartTimeZone(locationCodeFrom != null && !locationCodeFrom.isBlank()  ? getDefaultTimeZone(locationCodeFrom,locationRepository,requireTransitInformation) : null)
            .orderNumber(orderNumber)
            .build();
    }
