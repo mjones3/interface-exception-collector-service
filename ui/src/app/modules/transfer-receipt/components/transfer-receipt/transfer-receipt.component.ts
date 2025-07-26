@@ -29,6 +29,7 @@ import { TransferReceiptService } from '../../services/transfer-receipt.service'
 import { DeviceIdValidator } from 'app/shared/forms/device-id.validator';
 import { TemperatureDeviceService } from 'app/shared/services/temperature-device.service';
 import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
+import { ProductCategoryMap } from '../../../../shared/models/product-category.model';
 
 @Component({
   selector: 'biopro-transfer-receipt',
@@ -111,7 +112,7 @@ export class TransferReceiptComponent {
         .subscribe(transferInformationDTO => {
             this.updateFormValidators(transferInformationDTO);
             this.isDifferentLocationSignal.set(transferInformationDTO.receivedDifferentLocation)
-            this.transferInformationForm.controls.temperatureCategory.setValue(transferInformationDTO.productCategory);
+            this.transferInformationForm.controls.temperatureCategory.setValue(ProductCategoryMap[transferInformationDTO.productCategory].toUpperCase());
             this.transferInformationForm.controls.transferOrderNumber.setValue(transferInformationDTO.orderNumber);
             this.cdr.detectChanges();
             this.transitTimeFormComponent()?.setEndZone(transferInformationDTO.defaultTimeZone);

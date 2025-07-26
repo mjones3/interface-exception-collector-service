@@ -67,7 +67,7 @@ Feature: Transfer Receipt
            And The user location is "<shipToLocation>".
            And I am at the Transfer Receipt Page.
            When I enter internal transfer order number "<OrderNumber>".
-           Then I should see the Temperature category information as "<TemperatureCategory>"
+           Then I should see the Temperature category information as "<TemperatureCategoryLabel>"
            Then The temperature field should be "disabled".
            When I enter thermometer ID "THERM-DST-654".
            Then I should see "thermometer ID" field validation error message: "Thermometer does not exist.".
@@ -79,8 +79,8 @@ Feature: Transfer Receipt
            Then The transfer information continue option should be "<continue_status>".
            And  I "<should_should_not>" see a "Caution" alert: "Temperature does not meet thresholds. All products will be quarantined.".
            Examples:
-               | OrderNumber | shipToLocation | CustomerName | Product_Family      | TemperatureCategory | LabelStatus | QuarantinedProducts | LocationCodeFrom |LocationNameFrom | Device Location Code | thermometer ID | Device ID     | Device Type |  Temperature | Temperature Field Status | continue_status | should_should_not |
-               | 45600005    | 234567891      | MDL Hub 2    | PLASMA_TRANSFUSABLE | REFRIGERATED        | LABELED     | false               | 123456789        |MDL Hub 1        | 234567891            | THERM-DST-456  | THERM-DST-456 | THERMOMETER |  11.50       | enabled                  | enabled         | should            |
+               | OrderNumber | shipToLocation | CustomerName | Product_Family      | TemperatureCategory |TemperatureCategoryLabel | LabelStatus | QuarantinedProducts | LocationCodeFrom |LocationNameFrom | Device Location Code | thermometer ID | Device ID     | Device Type |  Temperature | Temperature Field Status | continue_status | should_should_not |
+               | 45600005    | 234567891      | MDL Hub 2    | PLASMA_TRANSFUSABLE | REFRIGERATED        | REFRIGERATED        | LABELED     | false               | 123456789        |MDL Hub 1        | 234567891            | THERM-DST-456  | THERM-DST-456 | THERMOMETER |  11.50       | enabled                  | enabled         | should            |
 
 
 
@@ -102,7 +102,7 @@ Feature: Transfer Receipt
            And The location default timezone is configured as "<defaultLocationTimeZoneFrom>"
            And I am at the Transfer Receipt Page.
            When I enter internal transfer order number "<OrderNumber>".
-           Then I should see the Temperature category information as "<TemperatureCategory>"
+           Then I should see the Temperature category information as "<TemperatureCategoryLabel>"
            And The start time zone field should be pre defined as "<StartTimeZone>".
            And The end time zone field should be pre defined as "<defaultLocationTimeZoneSelected>".
            And I enter the Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>".
@@ -113,9 +113,9 @@ Feature: Transfer Receipt
            And I "<should_should_not_transit>" see the total transit time as "<totalTransitTime>".
            And  I "<should_should_not_caution>" see a "Caution" alert: "Total Transit Time does not meet thresholds. All products will be quarantined.".
            Examples:
-               | OrderNumber | shipToLocation | CustomerName | Product_Family      | TemperatureCategory | LabelStatus | QuarantinedProducts | LocationCodeFrom |LocationNameFrom | StartDateTime       | StartTimeZone | EndDateTime         | defaultLocationTimeZoneSelected | totalTransitTime | should_should_not_transit | should_should_not_caution | defaultLocationTimeZoneFrom |
-               | 45600006    | 123456789      | MDL Hub 1    | PLASMA_TRANSFUSABLE | ROOM_TEMPERATURE    | LABELED     | false               | 234567891        |MDL Hub 2        | 06/08/2025 14:00 AM | ET            | 06/08/2025 15:10 AM | CT                              | 2h 10m           | should                    | should not                | America/Chicago             |
-               | 45600007    | 123456789      | MDL Hub 1    | PLASMA_TRANSFUSABLE | ROOM_TEMPERATURE    | LABELED     | false               | 234567891        |MDL Hub 2        | 06/08/2025 14:00 AM | ET            | 06/10/2025 14:00 AM | CT                              | 49h 0m           | should                    | should                    | America/Chicago             |
+               | OrderNumber | shipToLocation | CustomerName | Product_Family      | TemperatureCategory| TemperatureCategoryLabel | LabelStatus | QuarantinedProducts | LocationCodeFrom |LocationNameFrom | StartDateTime       | StartTimeZone | EndDateTime         | defaultLocationTimeZoneSelected | totalTransitTime | should_should_not_transit | should_should_not_caution | defaultLocationTimeZoneFrom |
+               | 45600006    | 123456789      | MDL Hub 1    | PLASMA_TRANSFUSABLE | ROOM_TEMPERATURE   | ROOM TEMPERATURE         | LABELED     | false               | 234567891        |MDL Hub 2        | 06/08/2025 14:00 AM | ET            | 06/08/2025 15:10 AM | CT                              | 2h 10m           | should                    | should not                | America/Chicago             |
+               | 45600007    | 123456789      | MDL Hub 1    | PLASMA_TRANSFUSABLE | ROOM_TEMPERATURE   | ROOM TEMPERATURE         | LABELED     | false               | 234567891        |MDL Hub 2        | 06/08/2025 14:00 AM | ET            | 06/10/2025 14:00 AM | CT                              | 49h 0m           | should                    | should                    | America/Chicago             |
 
 
 
@@ -132,12 +132,12 @@ Feature: Transfer Receipt
            When I enter internal transfer order number "<OrderNumber>".
            Then I "should" see a "Caution" alert: "Transfer received at a different facility. Please add comments to record receipt at this location.".
            And  The transfer information continue option should be "disabled".
-           And  I should see the Temperature category information as "<TemperatureCategory>"
+           And  I should see the Temperature category information as "<TemperatureCategoryLabel>"
            When I enter the transfer receipt comments as "<comments>".
            Then The transfer information continue option should be "enabled".
            Examples:
-               | OrderNumber | shipToLocation | CustomerName      | Product_Family      | TemperatureCategory | LabelStatus | QuarantinedProducts | LocationCodeFrom |LocationNameFrom | comments        |
-               | 45600008    | DO1            | Distribution Only | PLASMA_TRANSFUSABLE | FROZEN              | LABELED     | false               | 123456789        |MDL Hub 1        | This is comment |
+               | OrderNumber | shipToLocation | CustomerName      | Product_Family      | TemperatureCategory |TemperatureCategoryLabel | LabelStatus | QuarantinedProducts | LocationCodeFrom |LocationNameFrom | comments        |
+               | 45600008    | DO1            | Distribution Only | PLASMA_TRANSFUSABLE | FROZEN              |ROOM TEMPERATURE         | LABELED     | false               | 123456789        |MDL Hub 1        | This is comment |
 
 
    Scenario: : Transfer Receipt Database Clean-up
