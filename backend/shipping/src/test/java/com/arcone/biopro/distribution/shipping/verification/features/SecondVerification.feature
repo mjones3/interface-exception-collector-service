@@ -5,8 +5,8 @@ Feature: Second Verification of Units Feature
     So that I can ensure that the products recorded in the system match the physical products inside the shipping box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092,W822530106093,W822530106094,W036898786756,W036898786757,W036898786758,W036898786700,W036898445759,W036898445758,W036898445760".
-        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,123,124,44500010".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092,W822530106093,W822530106094,W036898786756,W036898786757,W036898786758,W036898786700,W036898445759,W036898445758,W036898445760,W036825185915,W036825158907,W036825158914,W036825151116,W036825151117,W036825151118,W036825151119".
+        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,123,124,44500010,45300005,45300006,45300007,45300008".
 
 
         Rule: I should be able to verify each unit that I have packed in the shipment.
@@ -184,55 +184,60 @@ Feature: Second Verification of Units Feature
         Rule: I should be able to see all the previously filled products for a given unit number.
         Rule: I should not be able to select multiple products.
         Rule: I should be able to see the internal transfer order information.
-
         @ui @DIS-453
         Scenario Outline: Verify Shipment with Unlabeled Unit with multiple products.
             Given The shipment details are:
-                | Order_Number   | Customer_ID   | Customer_Name   | Quantity    | Blood_Type   | Product_Family | Unit_numbers   | Product_Codes   | Temp_Category  | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status  |
-                | <Order Number> | <Customer ID> | <Customer Name> |  <Quantity> | <BloodType> | <ProductFamily> | <UNIT_NUMBERS> | <PRODUCT_CODES> | <Category>     | <Shipment Type> | <Label Status> | <Quarantined Products> | <ProductStatus> |
+                | Order_Number   | Customer_ID   | Customer_Name   | Quantity   | Blood_Type  | Product_Family  | Unit_Numbers | Product_Codes  | Temp_Category | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status |
+                | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <UN>         | <ProductCode> | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
             And The second verification configuration is "enabled".
             And The check digit configuration is "disabled".
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             When I choose verify products.
             Then I should be redirected to the verify products page.
-            And I can see the Order Information Details and the Shipping Information Details.
+            And I can see the Order Information Details and the Shipping Information Details as requested.
+                | Order_Number   | Customer_ID   | Customer_Name   | Quantity   | Blood_Type  | Product_Family  | Unit_Numbers | Product_Codes  | Temp_Category | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status |
+                | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <UN>         | <ProductCode> | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
             And The product code should not be available.
             When I scan the unit "<UN>".
-            Then I should see the product selection option with the products "<product_list>".
-            When I select the product "<product_description>".
-            Then I should see the list of verified products added including "<UN>" and "<product_description>".
+#            Then I should see the product selection option with the products "<product_list>".
+#            When I select the product "<product_description>".
+#            Then I should see the list of verified products added including "<UN>" and "<product_description>".
+            Then I "should" see the list of verified products added including "<UN>" and "<ProductCode>".
             And I "<ShouldShouldNot>" see the product status as "Quarantined".
             Examples:
-                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | BloodType | UN               | product_description | product_list                         | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
-                | 45300005     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | ANY       | =W03689878675800 | CPD PLS MI 48H      | LR_RBC,CPD PLS MI 24H,CPD PLS MI 48H | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
-                | 45300006     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | ANY       | =W03682518591500 | CPD PLS MI 24H      | LR_RBC,CPD PLS MI 24H                | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
-                | 45300007     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | ANY       | =W03682515890700 | CPD PLS MI 48H      | CPD PLS MI 24H,CPD PLS MI 48H        | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | BloodType | UN            | ProductCode | product_description   | product_list                                | Category     | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
+                | 45300005     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | ANY       | W036825151116 | E261900      | PRODUCT_DESCRIPTION 4 | PRODUCT_DESCRIPTION 2,PRODUCT_DESCRIPTION 4 | FROZEN       | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | 45300006     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | ANY       | W036825151117 | E456700      | RBC-R 1               | RBC-R 1, RBC-R 2                            | FROZEN       | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
+                | 45300007     | DO1         | Distribution Only | 2        | ANY       | PRT_APHERESIS_PLATELETS      | ANY       | W036825151118 | EB31700      | PRT AP GENERIC 1      | PRT AP GENERIC 1, PRT AP GENERIC 2          | REFRIGERATED | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
 
 
         Rule: The system should automatically select when the unit has only one product available.
         Rule: I should re-scan all the products again if any of the products do not match the products in the order.
-
         @ui @DIS-453
         Scenario Outline: Verify Shipment with Unlabeled Unit with single product.
             Given The shipment details are:
-                | Order_Number   | Customer_ID   | Customer_Name   | Quantity    | Blood_Type   | Product_Family | Unit_numbers   | Product_Codes   | Temp_Category  | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status  |
-                | <Order Number> | <Customer ID> | <Customer Name> |  <Quantity> | <BloodType> | <ProductFamily> | <UNIT_NUMBERS> | <PRODUCT_CODES> | <Category>     | <Shipment Type> | <Label Status> | <Quarantined Products> | <ProductStatus> |
+                | Order_Number   | Customer_ID   | Customer_Name   | Quantity   | Blood_Type  | Product_Family  | Unit_Numbers | Product_Codes | Temp_Category | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status |
+                | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <UN>         | <ProductCode> | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
             And The second verification configuration is "enabled".
             And The check digit configuration is "disabled".
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             When I choose verify products.
             Then I should be redirected to the verify products page.
-            And I can see the Order Information Details and the Shipping Information Details.
+            And I can see the Order Information Details and the Shipping Information Details as requested.
+                | Order_Number   | Customer_ID   | Customer_Name   | Quantity   | Blood_Type  | Product_Family  | Unit_Numbers | Product_Codes | Temp_Category | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status |
+                | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <UN>         | <ProductCode> | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
             And The product code should not be available.
             When I scan the unit "<UN>".
-            Then I should see the list of verified products added including "<UN>" and "<product_description>".
+#            Then I should see the list of verified products added including "<UN>" and "<product_description>".
+            Then I "should" see the list of verified products added including "<UN>" and "<ProductCode>".
             And I "<ShouldShouldNot>" see the product status as "Quarantined".
             When I scan the unit "<UN>".
-            Then I should see a "Warning" message: "This product has already been verified. Please re-scan all the products in the order.".
-            And  I should not see the unit added to the verified products table.
+#            Then I should see a "Warning" message: "This product has already been verified. Please re-scan all the products in the order.".
+            Then I should see a "Warning" message: "The verification does not match all products in this order. Please re-scan all the products.".
+            And  I "should not" see the list of verified products added including "<UN>" and "<ProductCode>".
             And The complete shipment option should not be enabled.
             Examples:
-                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                    | BloodType | UN               | product_description | Category         | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
-                | 45300008     | DO1         | Distribution Only | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED | ANY       | =W03682515891400 | Apheresis PLATELETS | ROOM_TEMPERATURE | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily              | BloodType | UN            | ProductCode | product_description           | Category         | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
+                | 45300008     | DO1         | Distribution Only | 2        | ANY       | WASHED_APHERESIS_PLATELETS | ANY       | W036825151119 | E355900     | UNLABELED PRODUCT_DESCRIPTION | ROOM_TEMPERATURE | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
 
 

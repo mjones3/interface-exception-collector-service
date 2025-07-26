@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -64,6 +65,10 @@ public class SecondVerificationSteps {
     public void checkPageContent(){
         verifyProductsPage.viewPageContent();
     }
+    @Then("I can see the Order Information Details and the Shipping Information Details as requested.")
+    public void checkPageContentDetails(DataTable dataTable){
+        verifyProductsPage.viewPageContent(dataTable);
+    }
 
     @When("I scan the unit {string} with product code {string}.")
     public void scanUnitAndProduct(String unitNumber, String productCode) throws InterruptedException {
@@ -77,7 +82,7 @@ public class SecondVerificationSteps {
     }
 
     @Then("I should see the unit added to the verified products table.")
-    public void checkVerifiedProductIsPresent() {
+    public void checkVerifiedProductIsPresent() throws InterruptedException {
         Assert.assertTrue(verifyProductsPage.isProductVerified(context.getUnitNumber(), context.getProductCode()));
         context.setTotalVerified(context.getTotalVerified() + 1);
     }
@@ -278,7 +283,7 @@ public class SecondVerificationSteps {
     }
 
     @And("The verified units should remain in the verified products table.")
-    public void theVerifiedUnitsShouldRemainInTheVerifiedProductsTable() {
+    public void theVerifiedUnitsShouldRemainInTheVerifiedProductsTable() throws InterruptedException {
         Assert.assertTrue(verifyProductsPage.isProductVerified(context.getUnitNumber(), context.getProductCode()));
     }
 
@@ -295,5 +300,26 @@ public class SecondVerificationSteps {
     @And("The verify option should be enabled.")
     public void theVerifyOptionShouldBeEnabled() {
         shipmentDetailPage.checkVerifyProductsButtonIsVisible();
+    }
+
+    @And("The product code should not be available.")
+    public void theProductCodeShouldNotBeAvailable() {
+        verifyProductsPage.verifyProductCodeInputVisible(false);
+    }
+
+    @Then("I {string} see the list of verified products added including {string} and {string}.")
+    public void iShouldSeeTheListOfVerifiedProductsAddedIncludingAnd(String shouldOrNot, String unitNumber, String productCodeOrDescription) throws InterruptedException {
+        if (shouldOrNot.equalsIgnoreCase("should")) {
+            Assert.assertTrue(verifyProductsPage.isProductVerified(unitNumber, productCodeOrDescription));
+        } else if (shouldOrNot.equalsIgnoreCase("should not")) {
+            Assert.assertFalse(verifyProductsPage.isProductVerified(unitNumber, productCodeOrDescription));
+        } else {
+            Assert.fail("Invalid option for should / should not");
+        }
+    }
+
+    @When("I scan the unit {string}.")
+    public void iScanTheUnit(String un) throws InterruptedException {
+        verifyProductsPage.scanUnit(un);
     }
 }

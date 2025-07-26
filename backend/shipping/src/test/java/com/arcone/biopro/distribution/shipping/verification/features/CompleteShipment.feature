@@ -163,8 +163,8 @@ Feature: Complete Shipment Feature
         Scenario Outline: Complete shipment with labeled quarantine products
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities <Quantity>, Blood Types: "<BloodType>", Product Families "<ProductFamily>", Temperature Category as "<Category>", Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>" with the units "<Quarantined UN>" and product codes "<Quarantined Code>" "verified"
             And The second verification configuration is "enabled".
- #           When I request to complete a shipment.
- #           Then I should receive a "<Message Type>" message response "<Message>".
+            When I request to complete a shipment.
+            Then I should receive a "<Message Type>" message response "<Message>".
             Examples:
                 | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                    | Category         | Shipment Type     | Label Status | Quarantined Products | Quarantined UN              | Quarantined Code  | Message Type | Message            |
                 | 4450002      | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE              | FROZEN           | INTERNAL_TRANSFER | LABELED      | true                 | W036898445758,W036898445759 | E0701V00,E0701V00 | success      | Shipment completed |

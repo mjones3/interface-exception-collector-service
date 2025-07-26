@@ -103,7 +103,7 @@ public class FillProductsPage extends CommonPageFactory {
     }
 
     private String formatProductStatusLocator(String status) {
-        return String.format("//biopro-unit-number-card[@ng-reflect-ineligible-status='%s']", status.toUpperCase());
+        return String.format("//biopro-unit-number-card[@ng-reflect-ineligible-status = contains(text(), '%s')]", status.toUpperCase());
     }
 
     public void addUnit(String unit) throws InterruptedException {
@@ -282,12 +282,15 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.click(this.driver, By.id(removeButtonLocator));
     }
 
-    public void assertProductStatusIs(String productStatus,boolean visible) {
+    public void assertQuarantineProductStatusIs(String productStatus, boolean visible) {
         log.debug("Asserting product status is {}.", productStatus);
+        var productStatusLabel = productStatus.equalsIgnoreCase("quarantined")
+            ? "YES"
+            : "NO";
         if(visible){
-            sharedActions.waitForVisible(By.xpath(formatProductStatusLocator(productStatus)));
+            sharedActions.waitForVisible(By.xpath(formatProductStatusLocator(productStatusLabel)));
         }else {
-            sharedActions.waitForNotVisible(By.xpath(formatProductStatusLocator(productStatus)));
+            sharedActions.waitForNotVisible(By.xpath(formatProductStatusLocator(productStatusLabel)));
         }
     }
 

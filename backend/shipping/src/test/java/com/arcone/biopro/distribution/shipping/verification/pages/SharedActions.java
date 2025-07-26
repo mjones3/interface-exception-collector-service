@@ -108,7 +108,12 @@ public class SharedActions {
     public boolean isElementVisible(WebElement element) {
         return element.isDisplayed();
     }
-
+    /**
+     * Using a wait mechanism, checks if an element is visible on the page using the provided WebDriver and locator.
+     *
+     * @param locator By locator to identify the element
+     * @return true if element is visible, false if element is not found or not visible
+     */
     public boolean isElementVisible(By locator) {
         return wait.until(e -> {
             log.debug("Checking if element {} is visible.", locator);
@@ -120,6 +125,24 @@ public class SharedActions {
                 return false;
             }
         });
+    }
+
+    /**
+     * Without any wait mechanism, checks if an element is visible on the page using the provided WebDriver and locator.
+     *
+     * @param driver  WebDriver instance to find the element
+     * @param locator By locator to identify the element
+     * @return true if element is visible, false if element is not found or not visible
+     */
+    public boolean isElementVisible(WebDriver driver, By locator) {
+        log.debug("Checking if element {} is visible.", locator);
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (NoSuchElementException | StaleElementReferenceException ex) {
+            // Element not found, consider it as not visible
+            log.debug("Element {} not found after two tries, considering it as not visible.", locator);
+            return false;
+        }
     }
 
     public void sendKeys(WebElement element, String text) throws InterruptedException {
@@ -212,9 +235,9 @@ public class SharedActions {
         if (header.startsWith("Acknowledgment")) {
             verifyAckMessage(header, message);
         } else {
-            if(header.startsWith("Cancel Confirmation")){
+            if (header.startsWith("Cancel Confirmation")) {
                 bannerMessageLocator = "//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog";
-            }else{
+            } else {
                 bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
             }
 
@@ -414,7 +437,7 @@ public class SharedActions {
         click(By.xpath(closeButtonLocator));
     }
 
-    public void selectValuesFromDropdown(WebDriver driver , By dropdownId, By panelId, List<String> valuesToSelect) throws InterruptedException {
+    public void selectValuesFromDropdown(WebDriver driver, By dropdownId, By panelId, List<String> valuesToSelect) throws InterruptedException {
 
         WebElement dropdown = driver.findElement(dropdownId);
 
@@ -427,8 +450,7 @@ public class SharedActions {
         waitForVisible(dropdownPanel);
 
         List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
-        for (var option: options)
-        {
+        for (var option : options) {
             waitForVisible(option);
         }
         for (String value : valuesToSelect) {
@@ -464,6 +486,7 @@ public class SharedActions {
             if (dropdown.isDisplayed() && Boolean.parseBoolean(dropdown.getDomAttribute("aria-expanded"))) {
                 click(dropdown);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 }
