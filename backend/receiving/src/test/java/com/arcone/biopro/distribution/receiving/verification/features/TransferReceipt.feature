@@ -5,6 +5,12 @@ Feature: Transfer Receipt
         Given I have removed all imports using thermometer which code contains "-DST-456".
         And I have removed all created devices which ID contains "-DST-456".
         And I have removed all internal transfers which order number contains "45600001,45600002,45600003,45600004,45600005,45600006,45600007,45600008"
+        And The location default timezones are configured as:
+            |Location Code | Default Time Zone |
+            |123456789     | America/New_York  |
+            |DL1           | America/New_York  |
+            |DO1           | America/Chicago   |
+            |234567891     | America/New_York  |
 
    Rule: The system should show the appropriate fields based on the given internal transfer number.
    Rule: I should be able to input transfer details like transfer order number, transit date and time, temperature, thermometer ID and comments as necessary.
@@ -132,6 +138,18 @@ Feature: Transfer Receipt
            Examples:
                | OrderNumber | shipToLocation | CustomerName      | Product_Family      | TemperatureCategory | LabelStatus | QuarantinedProducts | LocationCodeFrom |LocationNameFrom | comments        |
                | 45600008    | DO1            | Distribution Only | PLASMA_TRANSFUSABLE | FROZEN              | LABELED     | false               | 123456789        |MDL Hub 1        | This is comment |
+
+
+   Scenario: : Transfer Receipt Database Clean-up
+       Given I have removed all imports using thermometer which code contains "-DST-456".
+       And I have removed all created devices which ID contains "-DST-456".
+       And I have removed all internal transfers which order number contains "45600001,45600002,45600003,45600004,45600005,45600006,45600007,45600008"
+       And The location default timezones are configured as:
+           |Location Code | Default Time Zone |
+           |123456789     | America/New_York  |
+           |DL1           | America/New_York  |
+           |DO1           | America/Chicago   |
+           |234567891     | America/New_York  |
 
 
              ## cover this through api

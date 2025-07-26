@@ -4,6 +4,12 @@ Feature: Import products
     Background: Clean-up
         Given I have removed all created devices which ID contains "-DST-410".
         And I have removed all created devices which ID contains "-DST-411".
+        And The location default timezones are configured as:
+            |Location Code | Default Time Zone |
+            |123456789     | America/New_York  |
+            |DL1           | America/New_York  |
+            |DO1           | America/Chicago   |
+            |234567891     | America/New_York  |
 
         Rule: I should be able to input shipping details like product category, transit date and time, temperature, thermometer ID and comments as necessary.
         Rule: The system should show the appropriate fields based on the selected product category.
@@ -140,3 +146,14 @@ Feature: Import products
                 | Imports Location Code | defaultLocationTimeZone | Temperature Category | StartDateTime       | StartTimeZone | EndDateTime         | defaultLocationTimeZoneSelected | totalTransitTime |  should_should_not_transit | should_should_not_caution |
                 | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | ET            | 06/08/2025 15:10 AM | ET                              | 1h 10m           |  should                    | should not                |
                 | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | ET            | 06/10/2025 14:00 AM | ET                              | 48h 0m           |  should                    | should                    |
+
+
+    Scenario: : Imports Database Clean-up
+        Given I have removed all created devices which ID contains "-DST-410".
+        And I have removed all created devices which ID contains "-DST-411".
+        And The location default timezones are configured as:
+            |Location Code | Default Time Zone |
+            |123456789     | America/New_York  |
+            |DL1           | America/New_York  |
+            |DO1           | America/Chicago   |
+            |234567891     | America/New_York  |

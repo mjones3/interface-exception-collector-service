@@ -85,4 +85,14 @@ public class DatabaseSteps {
         db.executeSql(removeInternalItemsSql).block();
         db.executeSql(removeInternalTransferSql).block();
     }
+
+    @And("The location default timezones are configured as:")
+    public void theLocationDefaultTimezonesAreConfiguredAs(DataTable dataTable) {
+        Assert.assertNotNull(dataTable);
+        var dataList = dataTable.asMaps();
+        for (var data : dataList) {
+            String sql = DatabaseQueries.UPDATE_LOCATION_TZ(data.get("Location Code"), data.get("Default Time Zone"));
+            db.executeSql(sql).block();
+        }
+    }
 }
