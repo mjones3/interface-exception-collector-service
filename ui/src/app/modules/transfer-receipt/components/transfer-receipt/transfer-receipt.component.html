@@ -1,0 +1,136 @@
+<div class="flex flex-auto flex-col">
+    <biopro-process-header
+        [subTitle]="processHeaderService.subTitle | async"
+        [title]="processHeaderService.title | async"
+        [buttons]="actionButtonsTpl"
+    />
+
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row gap-2">
+            <biopro-action-button
+                id="transferReceiptCancel"
+                btnId="transferReceiptCancelActionButton"
+                label="Cancel"
+                color="secondary"
+                icon="heroicons_outline:x-circle"
+                (clickEvent)="cancel()"
+            />
+            <biopro-action-button
+                id="transferReceiptContinue"
+                btnId="transferReceiptContinueActionButton"
+                label="Continue"
+                color="primary"
+                icon="heroicons_outline:arrow-right-circle"
+                [disabled]="!isFormValid()"
+            />
+        </div>
+    </ng-template>
+
+    <div class="flex flex-col md:flex-row p-4 items-start min-h-[calc(100vh-240px)]">
+        <fuse-card class="flex flex-col w-full h-full">
+            <div class="border-b text-lg font-bold p-4">Packing Information</div>
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 md:p-8">
+                <!-- Transfer Order Number -->
+                <mat-form-field class="md:col-span-3" [formGroup]="transferInformationForm">
+                    <mat-label>Transfer Order Number</mat-label>
+                        <input
+                            data-testid="transfer-order-nummber"
+                            formControlName="transferOrderNumber"
+                            matInput
+                            required
+                            (keydown.enter)="onEnterTransferOrder()"
+                            (keydown.tab)="onEnterTransferOrder()"
+                        />
+                    @if (transferInformationForm.controls.transferOrderNumber.hasError('required')) { <mat-error>Transfer Order Number is required</mat-error> }
+                </mat-form-field>
+
+                <!-- Temperature Category -->
+                <mat-form-field class="md:col-span-3" [formGroup]="transferInformationForm">
+                    <mat-label>Temperature Category</mat-label>
+                        <input
+                        data-testid="temperature-category"
+                        formControlName="temperatureCategory"
+                        matInput
+                        (keydown.enter)="this.triggerElementBlur($event)"
+                        />
+                    </mat-form-field>
+
+                    @if (temperatureQuarantineSignal() || transitTimeQuarantineSignal() ||isDifferentLocationSignal()) {
+                        <div class="grid gap-4 md:col-span-6 md:pb-4">
+                            @if(temperatureQuarantineSignal(); as temperatureQuarantineNotification){
+                            <div class="md:col-span-6">
+                                <biopro-global-message
+                                    [messageType]="NotificationTypeMap[temperatureQuarantineNotification.type].type"
+                                    [message]="temperatureQuarantineNotification.message"
+                                    [appearance]="'border'"
+                                />
+                            </div>
+                            }
+                            @if(transitTimeQuarantineSignal(); as transitTimeQuarantineNotification){
+                            <div class="md:col-span-6">
+                                <biopro-global-message
+                                    [messageType]="NotificationTypeMap[transitTimeQuarantineNotification.type].type"
+                                    [message]="transitTimeQuarantineNotification.message"
+                                    [appearance]="'border'"
+                                />
+                            </div>
+                            }
+                            @if(isDifferentLocationSignal()){
+                                <div class="md:col-span-6">
+                                    <biopro-global-message
+                                        [messageType]="'warning'"
+                                        [message]="'Transfer received at a different facility. Please add comments to record receipt at this location.'"
+                                        [appearance]="'border'"
+                                    />
+                                </div>
+                            }
+                        </div>
+                        }
+
+                        @if (transferInformationSignal()?.displayTransitInformation) {
+                            <div class="md:col-span-6">
+                                <biopro-transit-time-form
+                                    #transitTimeForm
+                                    [availableTimeZones]="availableTimeZonesSignal()"
+                                    [humanReadableTime]="transitTimeHumanReadableSignal()"
+                                    [temperatureCategory]="transferInformationSignal()?.productCategory"
+                                    (updateTransitTimeQuarantineSignal)="updateTransitTimeQuarantine($event)"
+                                    (updatetransitTimeHumanReadableSignal)="updateTransitTimeHumanReadable($event)"
+                                />
+                            </div>
+                        }
+
+                        @if(transferInformationSignal()?.displayTemperature){
+                            <div class="md:col-span-6">
+                                <biopro-temperature-form
+                                    #temperatureForm
+                                    [temperatureCategory]="transferInformationSignal()?.productCategory"
+                                    (updateTemperatureQuarantineSignal)="updateTemperatureQuarantine($event)"
+                                />
+                            </div>
+                        }
+
+                <!-- Comments -->
+                <mat-form-field class="md:col-span-6" [formGroup]="transferInformationForm">
+                    <mat-label>Comments</mat-label>
+                    <textarea
+                        data-testid="comments"
+                        formControlName="comments"
+                        [maxLength]="commentsMaxLength"
+                        matInput
+                        rows="3"
+                        autocomplete="off"
+                    ></textarea>
+                    <mat-hint align="end">
+                        {{ transferInformationForm.controls.comments.value?.length }} /
+                        {{ commentsMaxLength }}
+                    </mat-hint>
+                    @if (transferInformationForm.controls.comments.hasError('required'))
+                        {
+                            <mat-error>Comments is required</mat-error>
+                         }
+                </mat-form-field>
+            </div>
+        </fuse-card>
+    </div>
+</div>

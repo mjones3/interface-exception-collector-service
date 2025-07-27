@@ -12,6 +12,7 @@ public record ShipmentCompletedItemProductPayload(
     String unitNumber,
     String productFamily,
     String productCode,
+    String productDescription,
     String aboRh,
     ZonedDateTime collectionDate,
     LocalDateTime expirationDate,

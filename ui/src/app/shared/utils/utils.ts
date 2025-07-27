@@ -1,6 +1,7 @@
 import { HttpHeaders } from '@angular/common/http';
 import { HeaderValue } from '../types/header-value.enum';
 import { Headers } from '../types/headers.enum';
+import { DateTime } from 'luxon';
 
 /**
  * Get loader headers
@@ -116,4 +117,13 @@ export const interpolate = (template, variables, fallback = '') => {
 //Get the specified property or nested property of an object
 function getObjPath(path, obj, fallback = '') {
     return path.split('.').reduce((res, key) => res[key] || fallback, obj);
+}
+
+
+export const buildLuxonDateTimeWithParsedTimeField = (date: DateTime, hh24mm60TimeSeparatedByColon: string) => {
+    if (!date || !hh24mm60TimeSeparatedByColon) {
+        return null
+    }
+    const [hours, minutes] = hh24mm60TimeSeparatedByColon.split(':');
+    return DateTime.fromISO(date.toISODate()).set({ hour: +hours, minute: +minutes });
 }

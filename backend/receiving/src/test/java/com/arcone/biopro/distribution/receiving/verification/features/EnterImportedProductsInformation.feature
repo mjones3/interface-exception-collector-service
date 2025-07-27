@@ -4,6 +4,12 @@ Feature: Enter Imported Products Information
     Background: Clean-up
         Given I have removed all imports using thermometer which code contains "-DST-412".
         And I have removed all created devices which ID contains "-DST-412".
+        And The location default timezones are configured as:
+            |Location Code | Default Time Zone |
+            |123456789     | America/New_York  |
+            |DL1           | America/New_York  |
+            |DO1           | America/Chicago   |
+            |234567891     | America/New_York  |
 
     Rule: I should be required to enter unit number, ABO/Rh, product code, expiration date and license status for all the imported products.
         @api @DIS-412

@@ -1,0 +1,34 @@
+<div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+    <mat-form-field class="md:col-span-3" [formGroup]="formGroup()">
+      <mat-label>Thermometer ID</mat-label>
+      <input #thermometerId
+             data-testid="thermometer-id"
+             type="text"
+             formControlName="thermometerId"
+             matInput
+             required
+             (keydown.enter)="triggerElementBlur($event)"
+      />
+      @if (formGroup().controls.thermometerId.valid) { <mat-icon matIconSuffix>check</mat-icon> }
+      @if (formGroup().controls.thermometerId.hasError('required')) { <mat-error data-testid="required-validation-error">Thermometer ID is required</mat-error> }
+      @if (formGroup().controls.thermometerId.hasError('deviceIdValidation')) { <mat-error data-testid="device-id-validation-error">{{ formGroup().controls.thermometerId.getError('deviceIdValidation') }}</mat-error> }
+    </mat-form-field>
+
+    <mat-form-field class="md:col-span-3" [formGroup]="formGroup()">
+      <mat-label>Temperature</mat-label>
+      <input #temperature
+             data-testid="temperature"
+             type="number"
+             formControlName="temperature"
+             min="-273"
+             max="99"
+             matInput
+             required
+             (keydown.enter)="triggerElementBlur($event)"
+      />
+      <span matTextSuffix>&deg; C</span>
+      @if (formGroup().controls.temperature.hasError('required')) { <mat-error>Temperature is required</mat-error> }
+      @if (formGroup().controls.temperature.hasError('min')) { <mat-error>Temperature must be greater than -273 &deg; C</mat-error> }
+      @if (formGroup().controls.temperature.hasError('max')) { <mat-error>Temperature must be lesser than 99 &deg; C</mat-error> }
+    </mat-form-field>
+  </div>

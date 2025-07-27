@@ -31,6 +31,11 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     private final By commentsInput = By.xpath("//textarea[@data-testid='comments']");
     private final By continueButton = By.id("importsEnterShipmentInformationContinueActionButton");
     private final By totalTransitTimeValueLabel = By.xpath("//span[@data-testid='total-transit-time-value']");
+    private final By transferReceiptContinueButton = By.id("transferReceiptContinueActionButton");
+
+    private final By orderNumberIdInput = By.xpath("//input[@data-testid='transfer-order-nummber']");
+
+    private final By temperatureCategoryInput = By.xpath("//input[@data-testid='temperature-category']");
 
     @Autowired
     private SharedContext sharedContext;
@@ -63,7 +68,7 @@ public class EnterShippingInformationPage extends CommonPageFactory {
             homePage.goTo();
         }
 
-        sharedActions.navigateTo("/receiving/imports-enter-shipment-information");
+        sharedActions.navigateTo("/imports/imports-enter-shipment-information");
     }
 
     public void selectTemperatureCategory(String temperatureCategory) {
@@ -156,6 +161,7 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     }
 
     public void enterThermometerId(String thermometerId) throws InterruptedException {
+        sharedActions.clearAndSendKeys(thermometerIdInput, "");
         sharedActions.sendKeysAndEnter(driver, thermometerIdInput, thermometerId);
     }
 
@@ -201,5 +207,42 @@ public class EnterShippingInformationPage extends CommonPageFactory {
 
     public void waitForLoad() {
         sharedActions.waitForVisible(manageCartonHeader);
+    }
+
+
+    public void navigateToTransferReceiptShippingInformation() throws InterruptedException {
+        var location = sharedContext.getLocationCode();
+        if (location != null) {
+            homePage.goTo(location);
+        } else {
+            homePage.goTo();
+        }
+
+        sharedActions.navigateTo("/transfer-receipt");
+    }
+
+    public void enterOrderNumber(String orderNumber) throws InterruptedException {
+        sharedActions.sendKeysAndEnter(driver, orderNumberIdInput, orderNumber);
+    }
+
+    public void resetThermometerId(){
+        sharedActions.clear(thermometerIdInput);
+    }
+
+    public void verifyTemperatureCategory(String temperatureCategory) {
+        Assertions.assertEquals(temperatureCategory, sharedActions.getReadOnlyText(temperatureCategoryInput));
+    }
+
+    public void waitForTransferContinueButtonToBeEnabled() {
+        sharedActions.waitForEnabled(transferReceiptContinueButton);
+    }
+
+    public boolean isTransferContinueButtonEnabled() {
+        return sharedActions.isElementEnabled(driver, transferReceiptContinueButton);
+    }
+
+    public void verifyStartDefaultTzIs(String tz) {
+        log.debug("Default TZ is: {}", tz);
+        Assertions.assertEquals(tz, sharedActions.getText(startTransitTimeZoneInput));
     }
 }

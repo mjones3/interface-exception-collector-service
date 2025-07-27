@@ -1,0 +1,75 @@
+{
+  "eventId": "84ee994e-2035-483e-9d51-d227cc0ee189",
+  "occurredOn": "2025-07-14T17:29:52.910935Z",
+  "eventType": "1.0",
+  "eventVersion": "ShipmentCompleted",
+  "payload": {
+    "shipmentId": 164,
+    "orderNumber": 4560001,
+    "externalOrderId": "DST108",
+    "performedBy": "test-emplyee-id",
+    "locationCode": "123456789",
+    "locationName": "MDL Hub 1",
+    "deliveryType": "STAT",
+    "customerName": "Distribution Only",
+    "customerCode": "DO1",
+    "customerType": null,
+    "departmentCode": null,
+    "createDate": "2024-10-07T15:45:34.084Z",
+    "shipmentType": "INTERNAL_TRANSFER",
+    "productCategory": "FROZEN",
+    "labelStatus": "LABELED",
+    "quarantinedProducts": true,
+    "lineItems": [
+      {
+        "productFamily": "PLASMA_TRANSFUSABLE",
+        "quantity": 2,
+        "bloodType": "ANY",
+        "products": [
+          {
+            "unitNumber": "W036898445758",
+            "productFamily": "PLASMA_TRANSFUSABLE",
+            "productCode": "E0701V00",
+            "aboRh": "BP",
+            "productDescription": "APH PLASMA BAG_A",
+            "collectionDate": "2024-10-04T09:15:47.152Z",
+            "expirationDate": "2025-11-02T13:15:47.152",
+            "createDate": "2025-07-14T17:29:52.910898Z",
+            "attributes": [
+              {
+                "WEIGHT": "100"
+              },
+              {
+                "VOLUME": "100"
+              }
+            ]
+          },
+          {
+            "unitNumber": "W036898445759",
+            "productFamily": "PLASMA_TRANSFUSABLE",
+            "productCode": "E0701V00",
+            "aboRh": "BP",
+            "productDescription": "APH PLASMA BAG_B",
+            "collectionDate": "2024-10-04T09:15:47.152Z",
+            "expirationDate": "2025-11-02T13:15:47.152",
+            "createDate": "2025-07-14T17:29:52.91091Z",
+            "attributes": [
+              {
+                "WEIGHT": "100"
+              },
+              {
+                "VOLUME": "100"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "services": [
+      {
+        "code": "CODE",
+        "quantity":1
+      }
+    ]
+  }
+}

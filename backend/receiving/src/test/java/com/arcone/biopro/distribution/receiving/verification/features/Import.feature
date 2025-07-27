@@ -4,6 +4,12 @@ Feature: Import products
     Background: Clean-up
         Given I have removed all created devices which ID contains "-DST-410".
         And I have removed all created devices which ID contains "-DST-411".
+        And The location default timezones are configured as:
+            |Location Code | Default Time Zone |
+            |123456789     | America/New_York  |
+            |DL1           | America/New_York  |
+            |DO1           | America/Chicago   |
+            |234567891     | America/New_York  |
 
         Rule: I should be able to input shipping details like product category, transit date and time, temperature, thermometer ID and comments as necessary.
         Rule: The system should show the appropriate fields based on the selected product category.
@@ -50,7 +56,7 @@ Feature: Import products
 
         Rule: I should be notified when I enter a temperature that is out of the configured range.
         Rule: I should be able to enter the temperature in decimals.
-        @api @DIS-410
+        @api @DIS-410 @DIS-456
         Scenario Outline: Notification for out-of-range temperatures
             Given The following temperature thresholds are configured:
                 | Temperature Category | Min Temperature | Max Temperature |
@@ -101,7 +107,7 @@ Feature: Import products
                 | ROOM_TEMPERATURE    |  2025-06-08T05:22:53.108Z  | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York | 8h 6m            |
 
     Rule: I should be notified if the transit time is out of configured range.
-        @api @DIS-411
+        @api @DIS-411 @DIS-456
         Scenario Outline: Notification for out-of-range transit time
             Given The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
@@ -140,3 +146,14 @@ Feature: Import products
                 | Imports Location Code | defaultLocationTimeZone | Temperature Category | StartDateTime       | StartTimeZone | EndDateTime         | defaultLocationTimeZoneSelected | totalTransitTime |  should_should_not_transit | should_should_not_caution |
                 | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | ET            | 06/08/2025 15:10 AM | ET                              | 1h 10m           |  should                    | should not                |
                 | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | ET            | 06/10/2025 14:00 AM | ET                              | 48h 0m           |  should                    | should                    |
+
+
+    Scenario: : Imports Database Clean-up
+        Given I have removed all created devices which ID contains "-DST-410".
+        And I have removed all created devices which ID contains "-DST-411".
+        And The location default timezones are configured as:
+            |Location Code | Default Time Zone |
+            |123456789     | America/New_York  |
+            |DL1           | America/New_York  |
+            |DO1           | America/Chicago   |
+            |234567891     | America/New_York  |

@@ -35,6 +35,9 @@ public class ImportProductSteps {
     @Value("${default.employee.id}")
     private String employeeId;
 
+    @Autowired
+    private CommonSteps commonSteps;
+
     private Map apiResponse;
     private boolean isTemperatureValid;
     private boolean isTransitTimeValid;
@@ -46,20 +49,9 @@ public class ImportProductSteps {
         Assert.assertNotNull(apiResponse);
     }
 
-
     @Then("I should be able to enter information for the following attributes: {string}.")
     public void iShouldBeAbleToEnterInformationForTheFollowingAttributes(String shippingInformationAttributes) {
-        Assert.assertNotNull(apiResponse);
-        var data = (Map) apiResponse.get("data");
-        String[] shippingAttributes = testUtils.getCommaSeparatedList(shippingInformationAttributes);
-        for (int i = 0; i < shippingAttributes.length; i++) {
-
-            var attributeArray = shippingAttributes[i].split(":");
-            var attribute = attributeArray[0];
-            var attributeValue = attributeArray[1];
-            Assert.assertEquals(attributeValue, data.get(attribute).toString());
-        }
-
+        commonSteps.validateShippingInformationInformationAttributes(apiResponse,shippingInformationAttributes);
     }
 
     @Given("I am at the Enter Shipping Information Page.")
@@ -98,6 +90,7 @@ public class ImportProductSteps {
 
     @When("I enter thermometer ID {string}.")
     public void iEnterThermometerID(String thermometerId) throws InterruptedException {
+        enterShippingInformationPage.resetThermometerId();
         enterShippingInformationPage.enterThermometerId(thermometerId);
     }
 
