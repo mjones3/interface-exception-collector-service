@@ -62,7 +62,7 @@ class InventoryTest {
     @DisplayName("Should Add Quarantine Into The Inventory")
     void testAddQuarantine_ShouldAddQuarantine() {
         // Act
-        inventory.addQuarantine(1L, "Contamination", "Detected contamination");
+        inventory.addQuarantine(1L, "Contamination", "Detected contamination",false);
 
         // Assert
         assertNotNull(inventory.getQuarantines());
@@ -84,11 +84,11 @@ class InventoryTest {
     @DisplayName("Should Add Two Quarantines And Update One")
     void testUpdateQuarantine_ShouldUpdateFirstQuarantine() {
         // Act
-        inventory.addQuarantine(1L, "Contamination", "Detected contamination");
-        inventory.addQuarantine(2L, "Under Investigation", "Product is in investigation");
+        inventory.addQuarantine(1L, "Contamination", "Detected contamination",false);
+        inventory.addQuarantine(2L, "Under Investigation", "Product is in investigation",false);
 
 
-        inventory.updateQuarantine(1L, "OTHER", "Other Comment");
+        inventory.updateQuarantine(1L, "OTHER", "Other Comment",false);
 
         // Assert
         assertNotNull(inventory.getQuarantines());
@@ -104,7 +104,7 @@ class InventoryTest {
     @Test
     void testRemoveQuarantine_ShouldRemoveQuarantineAndRestoreStatus() {
         // Arrange
-        inventory.addQuarantine(1L, "Contamination", "Detected contamination");
+        inventory.addQuarantine(1L, "Contamination", "Detected contamination",false);
 
         // Act
         inventory.removeQuarantine(1L);
@@ -118,8 +118,8 @@ class InventoryTest {
     @DisplayName("Should Add Two Quarantines And Remove One")
     void testRemoveQuarantine_ShouldRemoveQuarantineAndKeepSameStatus() {
         // Arrange
-        inventory.addQuarantine(1L, "Contamination", "Detected contamination");
-        inventory.addQuarantine(2L, "Under Investigation", "Product is in investigation");
+        inventory.addQuarantine(1L, "Contamination", "Detected contamination",false);
+        inventory.addQuarantine(2L, "Under Investigation", "Product is in investigation",false);
 
         // Act
         inventory.removeQuarantine(1L);

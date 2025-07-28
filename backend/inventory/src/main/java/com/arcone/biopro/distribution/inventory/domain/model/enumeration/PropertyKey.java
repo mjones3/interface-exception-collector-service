@@ -4,5 +4,6 @@ public enum PropertyKey {
     IMPORTED,
     QUARANTINED,
     TIMEZONE_RELEVANT,
-    COMPLETED
+    COMPLETED,
+    STOP_MANUFACTURING
 }

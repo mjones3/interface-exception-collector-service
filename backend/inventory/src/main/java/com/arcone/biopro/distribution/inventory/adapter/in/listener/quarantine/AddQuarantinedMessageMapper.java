@@ -12,6 +12,7 @@ public interface AddQuarantinedMessageMapper extends MessageMapper<AddQuarantine
     @Mapping(target = "product.productCode", source = "productCode")
     @Mapping(target = "reason", source = "reason")
     @Mapping(target = "quarantineId", source = "id")
+    @Mapping(target = "stopsManufacturing", source = "stopsManufacturing")
     AddQuarantineInput toInput(ProductQuarantined productMessage);
 
 }
