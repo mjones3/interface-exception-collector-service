@@ -99,6 +99,8 @@ export class TransferReceiptComponent {
 
   cancel(): void {
     this.transferInformationForm.reset();
+    this.transferInformationSignal.set(null);
+    this.isDifferentLocationSignal.set(null);
     this.transitTimeFormComponent()?.reset();
     this.temperatureFormComponent()?.reset();
   }
@@ -132,7 +134,10 @@ export class TransferReceiptComponent {
         .pipe(
             first(),
             catchError((error: ApolloError) => handleApolloError(this.toastrService, error)),
-            tap(response => consumeUseCaseNotifications(this.toastrService, response.data?.validateTransferOrderNumber?.notifications)),
+            tap(response => {
+                consumeUseCaseNotifications(this.toastrService, response.data?.validateTransferOrderNumber?.notifications);
+                this.cancel();
+            }),
             map((response) => {
                 const { data } = response.data.validateTransferOrderNumber;
                 this.transferInformationSignal.set(data);
@@ -189,4 +194,5 @@ export class TransferReceiptComponent {
   updateTemperatureQuarantine(data: UseCaseNotificationDTO){
       this.temperatureQuarantineSignal.set(data);
   }
+
 }
