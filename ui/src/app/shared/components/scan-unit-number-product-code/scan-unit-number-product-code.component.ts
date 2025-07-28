@@ -3,6 +3,7 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    Input,
     OnDestroy,
     Output,
     ViewChild,
@@ -18,7 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { RsaValidators } from '@shared';
 import { UppercaseDirective } from 'app/shared/directive/uppercase/uppercase.directive';
 import { extractUnitNumber } from 'app/shared/utils/utils';
-import { Subscription, combineLatestWith, debounceTime, filter } from 'rxjs';
+import { Subscription, combineLatestWith, debounceTime, filter, distinctUntilChanged } from 'rxjs';
 
 @Component({
     selector: 'biopro-scan-unit-number-product-code',
@@ -33,6 +34,8 @@ import { Subscription, combineLatestWith, debounceTime, filter } from 'rxjs';
     templateUrl: './scan-unit-number-product-code.component.html',
 })
 export class ScanUnitNumberProductCodeComponent implements OnDestroy {
+
+    @Input() showProductCode = true;
     @ViewChild('inputUnitNumber') inputUnitNumber: ElementRef;
     @ViewChild('inputProductCode') inputProductCode: ElementRef;
     @Output() validate: EventEmitter<{
@@ -73,10 +76,11 @@ export class ScanUnitNumberProductCodeComponent implements OnDestroy {
         this.formValueChange = formGroup.statusChanges
             .pipe(
                 combineLatestWith(formGroup.valueChanges),
+                distinctUntilChanged((previous, current) => previous[0] === current[0]),
                 filter(
                     ([status, value]) =>
                         !!value.unitNumber?.trim() &&
-                        !!value.productCode?.trim() &&
+                        ( this.showProductCode ? !!value.productCode?.trim() : true) &&
                         status === 'VALID'
                 ),
                 debounceTime(300)
@@ -99,7 +103,7 @@ export class ScanUnitNumberProductCodeComponent implements OnDestroy {
     }
 
     enableProductCode(): void {
-        if (this.unitProductGroup.controls.unitNumber.valid) {
+        if (this.showProductCode && this.unitProductGroup.controls.unitNumber.valid) {
             this.unitProductGroup.controls.productCode.enable();
             requestAnimationFrame(() => {
                 this.focusProductCode();

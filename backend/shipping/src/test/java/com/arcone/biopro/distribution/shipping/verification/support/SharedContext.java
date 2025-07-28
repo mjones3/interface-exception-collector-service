@@ -59,6 +59,8 @@ public class SharedContext {
 
     private List<LinkedHashMap> apiMessageResultResponse;
 
+    private List<LinkedHashMap> verifiedProductsList;
+
     public void clear() {
         this.orderNumber = null;
         this.shipmentId = null;

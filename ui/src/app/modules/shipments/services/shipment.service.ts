@@ -28,9 +28,12 @@ import {
 import { ShipmentDetailResponseDTO, ShipmentResponseDTO, VerifyProductDTO } from '../models/shipment-info.dto';
 import {
     GET_UNLABELED_PRODUCTS,
-    GetUnlabeledProductsRequestDTO,
-    ProductResponseDTO
+    GetUnlabeledProductsRequestDTO
 } from '../graphql/query-defintions/get-unlabeled-products.graphql';
+import {
+    GET_UNLABELED_PACKED_ITEMS,
+    GetUnlabeledPackedItemsRequestDTO
+} from '../graphql/query-defintions/get-unlabeled-packed-items.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -193,6 +196,15 @@ export class ShipmentService {
                 this.servicePath,
                 GET_UNLABELED_PRODUCTS,
                 { getUnlabeledProductsRequest }
+            );
+    }
+
+    public getUnlabeledPackedItems(getUnlabeledPackedItemsRequest: GetUnlabeledPackedItemsRequestDTO): Observable<ApolloQueryResult<{ getUnlabeledPackedItems: RuleResponseDTO }>> {
+        return this.dynamicGraphqlPathService
+            .executeQuery(
+                this.servicePath,
+                GET_UNLABELED_PACKED_ITEMS,
+                { getUnlabeledPackedItemsRequest }
             );
     }
 

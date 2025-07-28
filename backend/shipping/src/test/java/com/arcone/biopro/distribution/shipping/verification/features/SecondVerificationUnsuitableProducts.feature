@@ -34,7 +34,7 @@ Feature: Second Verification Notification Tab
 
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                                         |
-            | 1120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for BROKEN in the system. Place in biohazard container. |
+            | 1120         | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for BROKEN in the system. Place in biohazard container. |
 
     Rule: I should restart the second verification process when I scan a unit that is not required to be removed.
     @DIS-207
