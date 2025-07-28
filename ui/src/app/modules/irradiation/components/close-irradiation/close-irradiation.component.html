@@ -5,7 +5,6 @@
         label="Cancel"
         color="secondary"
         icon="heroicons_outline:x-circle"
-        [disabled]="disableCancelButton"
         (clickEvent)="openCancelConfirmationDialog()"
     ></biopro-action-button>
     <biopro-action-button
@@ -33,6 +32,7 @@
                 class="w-1/2 flex flex-row gap-4 justify-start p-4"
             >
                 <biopro-input
+                    #irradiationIdInput
                     [inputWidth]="'w-90'"
                     id="irradiationId"
                     label="Irradiator ID"
