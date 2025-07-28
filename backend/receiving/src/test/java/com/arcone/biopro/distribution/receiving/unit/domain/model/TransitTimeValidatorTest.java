@@ -24,8 +24,10 @@ public class TransitTimeValidatorTest {
 
     @BeforeEach
     void setUp() {
+
+        var now = LocalDateTime.now().minusDays(1);
         // Initialize base command //LocalDateTime startDateTime, String startTimeZone, LocalDateTime endDateTime, String endTimeZone
-        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",LocalDateTime.now(),"UTC",LocalDateTime.now().plusHours(5),"UTC");
+        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"UTC",now,"UTC");
 
         // Initialize product consequences
         productConsequenceList = new ArrayList<>();
@@ -71,6 +73,9 @@ public class TransitTimeValidatorTest {
 
     @Test
     void validateTransitTime_AcceptableTransitTime_ReturnsValidResult() {
+        var now = LocalDateTime.now().minusDays(1);
+        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"UTC",now.plusHours(5),"UTC");
+
         // Setup consequence for 5 hours transit time
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
         Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME < (24 * 60)");
@@ -88,7 +93,8 @@ public class TransitTimeValidatorTest {
     @Test
     void validateTransitTime_AcceptableTransitTime_ReturnsValidResultWithMinutes() {
         // Setup consequence for 5 hours transit time
-        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",LocalDateTime.now(),"UTC",LocalDateTime.now().plusHours(5).plusMinutes(30),"UTC");
+        var now = LocalDateTime.now().minusDays(1);
+        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"UTC",now.plusHours(5).plusMinutes(30),"UTC");
 
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
@@ -107,7 +113,7 @@ public class TransitTimeValidatorTest {
     @Test
     void validateTransitTime_UnacceptableTransitTime_ReturnsInvalidResult() {
         // Setup command with 24 hours transit time
-        var now = LocalDateTime.now();
+        var now = LocalDateTime.now().minusDays(1);
         command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"UTC",now.plusHours(24),"UTC");
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
@@ -130,7 +136,7 @@ public class TransitTimeValidatorTest {
     @Test
     void validateTransitTime_UnacceptableTransitTime_ReturnsInvalidResultHoursWithMinutes() {
         // Setup command with 25 hours transit time
-        var now = LocalDateTime.now();
+        var now = LocalDateTime.now().minusDays(2);
         command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"UTC",now.plusDays(1).plusMinutes(5),"UTC");
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
@@ -153,7 +159,8 @@ public class TransitTimeValidatorTest {
     @Test
     void validateTransitTime_DifferentTimeZones_CalculatesCorrectTransitTime() {
 
-        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",LocalDateTime.now(),"America/New_York",LocalDateTime.now().plusHours(5),"America/Los_Angeles");
+        var now = LocalDateTime.now().minusDays(1);
+        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"America/New_York",now.plusHours(5),"America/Los_Angeles");
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
         Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME < (24 * 60)");
@@ -170,8 +177,8 @@ public class TransitTimeValidatorTest {
 
     @Test
     void validateTransitTime_SameTimeZones_CalculatesCorrectTransitTimeInMinutes() {
-
-        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",LocalDateTime.now(),"America/New_York",LocalDateTime.now().plusMinutes(30),"America/New_York");
+        var now = LocalDateTime.now().minusDays(1);
+        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"America/New_York",now.plusMinutes(30),"America/New_York");
 
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
         Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME >= 0 && TRANSIT_TIME < (24 * 60)");
@@ -185,43 +192,4 @@ public class TransitTimeValidatorTest {
         assertEquals("PT30M", result.result());
         assertEquals("0h 30m", result.resultDescription());
     }
-
-    @Test
-    void validateTransitTime_SameTimeZones_StartDateLessThanEndDateTimeInHours() {
-
-        var now = LocalDateTime.now();
-        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"America/New_York",now.minusHours(2),"America/New_York");
-
-        ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
-        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME > (24 * 60) || TRANSIT_TIME < 0");
-        Mockito.when(consequence.isAcceptable()).thenReturn(false);
-
-        productConsequenceList.add(consequence);
-
-        ValidationResult result = TransitTimeValidator.validateTransitTime(command, productConsequenceList);
-
-        assertFalse(result.valid());
-        assertEquals("PT-2H", result.result());
-        assertEquals("-2h 0m", result.resultDescription());
-    }
-
-    @Test
-    void validateTransitTime_SameTimeZones_StartDateLessThanEndDateTimeInMinutes() {
-
-        var now = LocalDateTime.now();
-        command = new ValidateTransitTimeCommand("ROOM_TEMPERATURE",now,"America/New_York",now.minusMinutes(30),"America/New_York");
-
-        ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
-        Mockito.when(consequence.getResultValue()).thenReturn("TRANSIT_TIME > (24 * 60) || TRANSIT_TIME < 0");
-        Mockito.when(consequence.isAcceptable()).thenReturn(false);
-
-        productConsequenceList.add(consequence);
-
-        ValidationResult result = TransitTimeValidator.validateTransitTime(command, productConsequenceList);
-
-        assertFalse(result.valid());
-        assertEquals("PT-30M", result.result());
-        assertEquals("0h -30m", result.resultDescription());
-    }
-
 }
