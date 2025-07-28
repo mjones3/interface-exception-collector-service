@@ -388,10 +388,13 @@ export class VerifyProductsComponent
                     }
 
                     // Show dialog asking the user to select the product
+                    const productsSortedByDescription: ProductResponseDTO[] = [ ...(products ?? []) ]
+                        .sort((a, b) => a.productDescription.localeCompare(b.productDescription));
                     return this.matDialog
                         .open<SelectProductPickerModalComponent, ProductResponseDTO[], ProductResponseDTO>(
                             SelectProductPickerModalComponent, {
-                                data: products
+                                data: productsSortedByDescription,
+                                disableClose: true,
                             })
                         .afterClosed()
                 }),
