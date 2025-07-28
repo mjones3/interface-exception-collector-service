@@ -5,11 +5,11 @@
 #Reviewed by: Archana Nallapeddi
 #Review Date: 07/25/2025
 
-@manual @disabled
+@manual @disabled @AOA-6
 Feature: Ship Apheresis Plasma
 
     Rule: I should be able to print the pick list with the order criteria and short-dated products information, if available
-    @DIS-27
+    @DIS-27 @DIS-512
     Scenario: Print pick list that includes the order criteria and short-dated products information.
     Given I am in the Order Details page
     When I select to print the pick list
@@ -17,7 +17,7 @@ Feature: Ship Apheresis Plasma
 
 
     Rule: I should be able to print the packing slip in the pdf format for each box when the shipment is completed.
-     @DIS-50
+     @DIS-50 @DIS-512
      Scenario: Print packing slip in pdf format after shipment completion.
      Given I am in the Shipment Details page
      And the shipment has been completed
@@ -26,7 +26,7 @@ Feature: Ship Apheresis Plasma
 
 
     Rule: I should be able to view and print the shipping label in pdf format when the shipment is completed.
-     @DIS-51
+     @DIS-51 @DIS-512
      Scenario: Print shipping label in pdf format after shipment completion.
      Given I am in the Shipment Details page
      And the shipment has been completed
