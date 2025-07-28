@@ -16,5 +16,5 @@ Feature: Quarantine update it to product ProductQuarantine Event - API
 
         Examples:
             | Id 1 | Id 2 | Unit Number   | Stop manufacturing true | Stop manufacturing false | Result stop manufacturing |
-            | 1    | 2    | W777725011001 | true                    | false                    | false                     |
-            | 1    | 2    | W777725011002 | false                   | true                     | true                      |
+            | 1    | 2    | W777725011006 | true                    | false                    | false                     |
+            | 1    | 2    | W777725011007 | false                   | true                     | true                      |
