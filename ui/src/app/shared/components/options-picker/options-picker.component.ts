@@ -60,6 +60,7 @@ export class OptionsPickerComponent<TData extends OptionPicker = OptionPicker>
     @Input() orientation: Orientation = Orientation.COLUMN;
     @Input() buttonTemplate: TemplateRef<{ option: TData }>;
     @Input({ transform: booleanAttribute }) fullSize = false;
+    @Input() itemSize: string = 'h-24 w-96';
 
     @Output() optionChange = new EventEmitter<TData | TData[]>();
 

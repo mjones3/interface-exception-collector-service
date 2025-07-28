@@ -22,7 +22,9 @@ public record InventoryResponseDTO(
     String storageLocation,
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
-    String status
+    String status,
+    Boolean isLabeled,
+    Boolean isLicensed
 
 ) implements Serializable {
 }

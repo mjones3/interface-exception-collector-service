@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -16,9 +17,12 @@ public class Inventory {
     private final String status;
     private final String productDescription;
     private final String productFamily;
+    private final LocalDateTime expirationDate;
     private final String statusReason;
     private final String unsuitableReason;
     private final Boolean expired;
+    private final Boolean isImported;
+    private final Boolean isBeingIrradiated;
     private final List<InventoryQuarantine> quarantines;
 
 

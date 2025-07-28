@@ -58,7 +58,7 @@ public class ShipmentCompletedListener {
 
     @EventListener
     public void handleShipmentCompletedEvent(ShipmentCompletedEvent event) {
-        log.info("Shipment Completed event trigger Event ID {}", event.getEventId());
+        log.debug("Shipment Completed event trigger Event ID {}", event.getEventId());
 
         var payload = event.getPayload();
 
@@ -75,6 +75,9 @@ public class ShipmentCompletedListener {
                 .departmentCode(payload.departmentCode())
                 .deliveryType(payload.deliveryType())
                 .createDate(payload.createDate())
+                .labelStatus(payload.labelStatus())
+                .quarantinedProducts(payload.quarantinedProducts())
+                .shipmentType(payload.shipmentType())
                 .lineItems( ofNullable(payload.lineItems())
                     .filter(items -> !items.isEmpty())
                     .orElseGet(Collections::emptyList)
@@ -105,5 +108,7 @@ public class ShipmentCompletedListener {
         producerTemplate.send(producerRecord)
             .log()
             .subscribe();
+
+        log.debug("Shipment Completed event Sent {}", message);
     }
 }

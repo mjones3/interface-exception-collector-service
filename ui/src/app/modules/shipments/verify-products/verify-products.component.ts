@@ -25,7 +25,7 @@ import { ProductIconsService } from '../../../shared/services/product-icon.servi
 import handleApolloError from '../../../shared/utils/apollo-error-handling';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
 import { CancelSecondVerificationRequest } from '../graphql/verify-products/query-definitions/verify-products.graphql';
-import { VerifyFilledProductDto } from '../models/shipment-info.dto';
+import { ShipmentItemPackedDTO, VerifyFilledProductDto } from '../models/shipment-info.dto';
 import { SecondVerificationCommon } from '../second-verification-common';
 import { ShipmentService } from '../services/shipment.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
@@ -318,4 +318,8 @@ export class VerifyProductsComponent
     }
 
     protected readonly ProductCategoryMap = ProductCategoryMap;
+
+    getProductStatus(product: ShipmentItemPackedDTO): string {
+        return product?.productStatus && product?.productStatus != 'AVAILABLE' ? product?.productStatus : product?.ineligibleStatus;
+    }
 }

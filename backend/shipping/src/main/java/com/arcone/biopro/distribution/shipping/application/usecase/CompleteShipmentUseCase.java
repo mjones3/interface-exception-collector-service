@@ -15,7 +15,10 @@ import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentReposit
 import com.arcone.biopro.distribution.shipping.domain.service.CompleteShipmentService;
 import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
 import com.arcone.biopro.distribution.shipping.domain.service.ShipmentService;
+import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryNotificationDTO;
+import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
+import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.FacilityServiceMock;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.FacilityDTO;
@@ -52,6 +55,7 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
     private static final String SHIPMENT_DETAILS_URL = "/shipment/%s/shipment-details";
     private static final String SHIPMENT_VERIFICATION_URL = "/shipment/%s/verify-products";
     private final InventoryRsocketClient inventoryRsocketClient;
+    private static final String INTERNAL_TRANSFER_TYPE = "INTERNAL_TRANSFER";
 
 
     @Override
@@ -169,9 +173,12 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                 .unitNumber(itemPacked.getUnitNumber()).build())
                             .flatMap(inventoryValidationResponseDTO -> {
                                 if(inventoryValidationResponseDTO!= null && inventoryValidationResponseDTO.inventoryNotificationsDTO() != null && !inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty() ){
-
                                     var notification = inventoryValidationResponseDTO.inventoryNotificationsDTO().getFirst();
 
+                                    if(INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType()) && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts()
+                                        && inventoryValidationResponseDTO.hasOnlyNotificationType("INVENTORY_IS_QUARANTINED")){
+                                        return  Mono.empty();
+                                    }
                                     itemPacked.setIneligibleStatus(IneligibleStatus.valueOf(notification.errorName()));
                                     itemPacked.setIneligibleMessage(notification.errorMessage());
                                     itemPacked.setIneligibleReason(notification.reason());
@@ -181,6 +188,32 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                     return shipmentItemPackedRepository.save(itemPacked)
                                         .then(Mono.just(inventoryValidationResponseDTO));
                                 }else{
+                                    if(INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType()) && shipment.getQuarantinedProducts() != null && shipment.getQuarantinedProducts()){
+                                        itemPacked.setIneligibleStatus(IneligibleStatus.INVENTORY_IS_NOT_QUARANTINED);
+                                        itemPacked.setIneligibleMessage(ShipmentServiceMessages.INVENTORY_NOT_QUARANTINED_ERROR);
+                                        itemPacked.setIneligibleReason(null);
+                                        itemPacked.setIneligibleAction(null);
+                                        itemPacked.setIneligibleDetails(null);
+
+                                        return shipmentItemPackedRepository.save(itemPacked)
+                                            .then(Mono.just(InventoryValidationResponseDTO
+                                                .builder()
+                                                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                                                        .builder()
+                                                            .errorMessage(ShipmentServiceMessages.INVENTORY_NOT_QUARANTINED_ERROR)
+                                                            .errorName(IneligibleStatus.INVENTORY_IS_NOT_QUARANTINED.name())
+                                                        .build()))
+                                                    .inventoryResponseDTO(InventoryResponseDTO
+                                                        .builder()
+                                                        .productFamily(itemPacked.getProductFamily())
+                                                        .unitNumber(itemPacked.getUnitNumber())
+                                                        .aboRh(itemPacked.getAboRh())
+                                                        .productCode(itemPacked.getProductCode())
+                                                        .productDescription(itemPacked.getProductDescription())
+                                                        .status(IneligibleStatus.INVENTORY_IS_NOT_QUARANTINED.name())
+                                                        .build())
+                                                .build()));
+                                    }
                                     return  Mono.empty();
                                 }
                             });

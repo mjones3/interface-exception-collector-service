@@ -4,23 +4,16 @@ import { MutationResult } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
 import { RuleResponseDTO } from '../../../shared/models/rule.model';
+import { COMPLETE_SHIPMENT, PACK_ITEM } from '../graphql/shipment/mutation-definitions/shipment.graphql';
+import { GET_SHIPMENT_BY_ID, LIST_SHIPMENTS } from '../graphql/shipment/query-definitions/shipment.graphql';
 import {
-    COMPLETE_SHIPMENT,
-    PACK_ITEM,
-} from '../graphql/shipment/mutation-definitions/shipment.graphql';
-import {
-    GET_SHIPMENT_BY_ID,
-    LIST_SHIPMENTS,
-} from '../graphql/shipment/query-definitions/shipment.graphql';
-import { VERIFY_CHECK_DIGIT } from '../graphql/unit-number-with-check-digit/query-definitions/unit-number-with-check-digit.graphql';
-import {
-    UNPACK_ITEM,
-    UnpackItemRequest,
-} from '../graphql/unpack-product.graphql';
+    VERIFY_CHECK_DIGIT
+} from '../graphql/unit-number-with-check-digit/query-definitions/unit-number-with-check-digit.graphql';
+import { UNPACK_ITEM, UnpackItemRequest } from '../graphql/unpack-product.graphql';
 import {
     CANCEL_SECOND_VERIFICATION,
-    CONFIRM_CANCEL_SECOND_VERIFICATION,
     CancelSecondVerificationRequest,
+    CONFIRM_CANCEL_SECOND_VERIFICATION,
     ConfirmCancelSecondVerificationRequest,
     GET_NOTIFICATION_DETAILS_BY_SHIPMENT_ID,
     GET_SHIPMENT_VERIFICATION_DETAILS_BY_ID,
@@ -30,13 +23,14 @@ import {
     ShipmentDTO,
     VERIFY_ITEM,
     VerifyItemRequest,
-    VerifyProductResponseDTO,
+    VerifyProductResponseDTO
 } from '../graphql/verify-products/query-definitions/verify-products.graphql';
+import { ShipmentDetailResponseDTO, ShipmentResponseDTO, VerifyProductDTO } from '../models/shipment-info.dto';
 import {
-    ShipmentDetailResponseDTO,
-    ShipmentResponseDTO,
-    VerifyProductDTO,
-} from '../models/shipment-info.dto';
+    GET_UNLABELED_PRODUCTS,
+    GetUnlabeledProductsRequestDTO,
+    ProductResponseDTO
+} from '../graphql/query-defintions/get-unlabeled-products.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -192,4 +186,14 @@ export class ShipmentService {
             confirmCancelSecondVerificationRequest
         );
     }
+
+    public getUnlabeledProducts(getUnlabeledProductsRequest: GetUnlabeledProductsRequestDTO): Observable<ApolloQueryResult<{ getUnlabeledProducts: RuleResponseDTO }>> {
+        return this.dynamicGraphqlPathService
+            .executeQuery(
+                this.servicePath,
+                GET_UNLABELED_PRODUCTS,
+                { getUnlabeledProductsRequest }
+            );
+    }
+
 }

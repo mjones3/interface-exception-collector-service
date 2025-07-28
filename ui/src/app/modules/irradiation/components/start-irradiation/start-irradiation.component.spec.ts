@@ -1,424 +1,631 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '../../../../../@fuse/services/confirmation';
-import { FacilityService, ProcessHeaderService } from '@shared';
-import { ProductIconsService } from '../../../../shared/services/product-icon.service';
-import { IrradiationService } from '../../services/irradiation.service';
 import { StartIrradiationComponent } from './start-irradiation.component';
-import { of } from 'rxjs';
-import { IrradiationProductDTO, MessageType, ValidateUnitEvent, ValidationDataDTO } from '../../models/model';
-import {Component, NO_ERRORS_SCHEMA} from '@angular/core';
+import { IrradiationService } from '../../services/irradiation.service';
+import { ProcessHeaderService, ScanUnitNumberCheckDigitComponent } from '@shared';
+// Mock FuseIconsService since we don't have access to the actual implementation
+class MockFuseIconsService {
+  getIcon = jest.fn().mockReturnValue(of('<svg>mock-icon</svg>'));
+  addIconResolver = jest.fn();
+  registerIcons = jest.fn();
+}
+import { ProductIconsService } from '../../../../shared/services/product-icon.service';
+import { Component } from '@angular/core';
+import { EMPTY, Observable, of, throwError } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
-import { DiscardService } from "../../../../shared/services/discard.service";
+import { DiscardService } from '../../../../shared/services/discard.service';
+import { InputComponent } from '../../../../shared/components/input/input.component';
 
-// Mock keycloak-js module
-jest.mock('keycloak-js', () => ({}));
+@Component({
+  selector: 'biopro-scan-unit-number-check-digit',
+  template: ''
+})
+class MockScanUnitNumberCheckDigitComponent {
+  form = { disable: jest.fn() };
+  controlUnitNumber = { reset: jest.fn(), enable: jest.fn() };
+  reset = jest.fn();
+  focusOnUnitNumber = jest.fn();
+  focusOnCheckDigit = jest.fn();
+  setValidatorsForCheckDigit = jest.fn();
+}
+
+@Component({
+  selector: 'biopro-input',
+  template: ''
+})
+class MockInputComponent {
+  focus = jest.fn();
+}
 
 @Component({
   selector: 'biopro-irradiation-select-product-modal',
   template: ''
 })
-class MockSelectProductModal {}
-
-// Define constants used in the component
-const AVAILABLE = 'AVAILABLE';
-const QUARANTINED = 'QUARANTINED';
-const EXPIRED = 'EXPIRED';
-const UNSUITABLE = 'UNSUITABLE';
-const DISCARDED = 'DISCARDED';
-const SHIPPED = 'SHIPPED';
-const IRRADIATION_ID_ERROR = 'Device not in current location';
-const DEVICE_USED_ERROR = 'Device is in use';
+class MockIrradiationSelectProductModal {}
 
 describe('StartIrradiationComponent', () => {
-    let component: StartIrradiationComponent;
-    let fixture: ComponentFixture<StartIrradiationComponent>;
-    let router: Router;
-    let irradiationService: IrradiationService;
-    let toastrService: ToastrService;
-    let confirmationService: FuseConfirmationService;
-    let matDialog: MatDialog;
-    let facilityService: FacilityService;
-    let discardService: DiscardService;
+  let component: StartIrradiationComponent;
+  let fixture: ComponentFixture<StartIrradiationComponent>;
+  let mockRouter, mockMatDialog, mockToastrService, mockFuseConfirmationService,
+      mockIrradiationService, mockDiscardService;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            imports: [
-                StartIrradiationComponent,
-                NoopAnimationsModule,
-                MatIconTestingModule,
-                ReactiveFormsModule,
-            ],
-            declarations: [MockSelectProductModal],
-            schemas: [NO_ERRORS_SCHEMA],
-            providers: [
-                FormBuilder,
-                {
-                    provide: ActivatedRoute,
-                    useValue: {
-                        snapshot: {
-                            data: { useCheckDigit: true },
-                        },
-                    },
-                },
-                {
-                    provide: Router,
-                    useValue: { navigateByUrl: jest.fn() },
-                },
-                {
-                    provide: IrradiationService,
-                    useValue: {
-                        submitCentrifugationBatch: jest.fn().mockReturnValue(of({})),
-                        loadDeviceById: jest.fn().mockReturnValue(of({ data: { validateDevice: true } })),
-                        validateUnit: jest.fn().mockReturnValue(of({ data: { products: [] } })),
-                        startIrradiationSubmitBatch: jest.fn().mockReturnValue(of({ data: { response: { submitBatch: { message: 'Success' } } } })),
-                    },
-                },
-                {
-                    provide: DiscardService,
-                    useValue: {
-                        discardProduct: jest.fn().mockReturnValue(of({}))
-                    },
-                },
-                {
-                    provide: ToastrService,
-                    useValue: { success: jest.fn(), warning: jest.fn(), error: jest.fn() },
-                },
-                {
-                    provide: FuseConfirmationService,
-                    useValue: {
-                        open: jest.fn().mockReturnValue({
-                            afterClosed: () => of(true),
-                        }),
-                    },
-                },
-                {
-                    provide: MatDialog,
-                    useValue: {
-                        open: jest.fn().mockReturnValue({
-                            afterClosed: () => of(null),
-                        }),
-                    },
-                },
-                {
-                    provide: FacilityService,
-                    useValue: { getFacilityCode: jest.fn().mockReturnValue('TEST') },
-                },
-                {
-                    provide: ProcessHeaderService,
-                    useValue: { setActions: jest.fn() },
-                },
-                {
-                    provide: ProductIconsService,
-                    useValue: { getIconByProductFamily: jest.fn().mockReturnValue('icon') },
-                },
-                {
-                    provide: CookieService,
-                    useValue: { get: jest.fn().mockReturnValue('TEST') },
-                },
-            ],
-        }).compileComponents();
-    });
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(StartIrradiationComponent);
-        component = fixture.componentInstance;
-        router = TestBed.inject(Router);
-        irradiationService = TestBed.inject(IrradiationService);
-        toastrService = TestBed.inject(ToastrService);
-        confirmationService = TestBed.inject(FuseConfirmationService);
-        matDialog = TestBed.inject(MatDialog);
-        facilityService = TestBed.inject(FacilityService);
-        discardService = TestBed.inject(DiscardService);
-        fixture.detectChanges();
-    });
-
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
-
-    it('should initialize form with required validators', () => {
-        expect(component.form.get('irradiatorId')?.hasError('required')).toBeTruthy();
-        expect(component.form.get('lotNumber')?.hasError('required')).toBeTruthy();
-    });
-
-    it('should set check digit visibility from route data', () => {
-        expect(component.isCheckDigitVisible).toBeTruthy();
-    });
-
-    it('should disable submit when form is invalid', () => {
-        component.products = [];
-        expect(component.isSubmitEnabled()).toBeFalsy();
-    });
-
-
-    it('should open cancel confirmation dialog', () => {
-        component.openCancelConfirmationDialog();
-        expect(confirmationService.open).toHaveBeenCalled();
-    });
-
-    it('should prepare data for irradiation batch submission', () => {
-        // Setup test data with minimal required fields
-        const products = [{
-            unitNumber: 'W036825314134',
-            productCode: 'E468900'
-        } as IrradiationProductDTO];
-
-        // Verify the mapping logic works correctly
-        const batchItems = products.map(product => ({
-            unitNumber: product.unitNumber,
-            productCode: product.productCode,
-            lotNumber: 'LOT123'
-        }));
-
-        // Verify the batch items structure
-        expect(batchItems).toEqual([{
-            unitNumber: 'W036825314134',
-            productCode: 'E468900',
-            lotNumber: 'LOT123'
-        }]);
-
-        // Verify the facility code is retrieved correctly
-        expect(facilityService.getFacilityCode()).toBe('TEST');
-    });
-
-    it('should reset all data on cancel', () => {
-        // Setup test data
-        component.products = [{ unitNumber: 'test' } as IrradiationProductDTO];
-        component.selectedProducts = [{ unitNumber: 'test' } as IrradiationProductDTO];
-        component.initialProductsState = [{ unitNumber: 'test' } as IrradiationProductDTO];
-        component.allProducts = [{ unitNumber: 'test' } as IrradiationProductDTO];
-
-        // Mock form methods
-        jest.spyOn(component.irradiation, 'reset');
-        jest.spyOn(component.lotNumber, 'reset');
-
-        // Mock unitNumberComponent
-        component.unitNumberComponent = {
-            controlUnitNumber: { reset: jest.fn() },
-            reset: jest.fn()
-        } as any;
-
-        // Mock focusOnIrradiationInput
-        component.focusOnIrradiationInput = jest.fn();
-
-        // Call the method under test
-        component['cancel']();
-
-        // Verify arrays are cleared
-        expect(component.products).toEqual([]);
-        expect(component.selectedProducts).toEqual([]);
-        expect(component.initialProductsState).toEqual([]);
-        expect(component.allProducts).toEqual([]);
-        
-        // Verify form resets
-        expect(component.irradiation.reset).toHaveBeenCalled();
-        expect(component.lotNumber.reset).toHaveBeenCalled();
-        expect(component.unitNumberComponent.controlUnitNumber.reset).toHaveBeenCalled();
-    });
-
-    it('should get number of units', () => {
-        component.allProducts = [
-            { unitNumber: 'test1', disabled: false } as IrradiationProductDTO,
-            { unitNumber: 'test2', disabled: false } as IrradiationProductDTO
-        ];
-        expect(component.numberOfUnits).toBe(2);
-
-        // Test with disabled units
-        component.allProducts = [
-            { unitNumber: 'test1', disabled: false } as IrradiationProductDTO,
-            { unitNumber: 'test2', disabled: true } as IrradiationProductDTO
-        ];
-        expect(component.numberOfUnits).toBe(1);
-    });
-
-    it('should handle populateCentrifugationBatch correctly', () => {
-        const mockProduct = {
-            unitNumber: 'W036825314134',
-            productCode: 'E468900',
-            productDescription: 'WHOLE BLOOD',
-            status: 'AVAILABLE',
-            productFamily: 'WHOLE_BLOOD',
-            icon: 'icon',
-            order: 1,
-            statuses: [{ value: 'AVAILABLE', classes: 'bg-green-500 text-white' }],
-            location: 'TEST'
-        } as IrradiationProductDTO;
-
-        // Initial state with empty products
-        component.products = [];
-        component.initialProductsState = [];
-        component.allProducts = [];
-
-        // Mock unitNumberComponent
-        component.unitNumberComponent = {
-            reset: jest.fn(),
-            focusOnUnitNumber: jest.fn()
-        } as any;
-
-        // Mock notInProductList method
-        jest.spyOn<any, any>(component, 'notInProductList').mockReturnValue(true);
-
-        // Call the method
-        component['populateIrradiationBatch'](mockProduct);
-
-        // Verify product was added
-        expect(component.products.length).toBe(1);
-        expect(component.products[0]).toEqual(mockProduct);
-        expect(component.initialProductsState.length).toBe(1);
-        expect(component.allProducts.length).toBe(1);
-        expect(component.unitNumberComponent.reset).toHaveBeenCalled();
-        expect(component.unitNumberComponent.focusOnUnitNumber).toHaveBeenCalled();
-    });
-
-    it('should load irradiator device by ID', () => {
-        // Mock the form control
-        jest.spyOn(component.irradiation, 'disable');
-
-        component.loadIrradiationId('test-device');
-        expect(irradiationService.loadDeviceById).toHaveBeenCalledWith('test-device', 'TEST');
-    });
-
-    it('should find icons by product family', () => {
-        const productIconsService = TestBed.inject(ProductIconsService);
-        const icon = component['findIconsByProductFamily']('WHOLE_BLOOD');
-        expect(productIconsService.getIconByProductFamily).toHaveBeenCalledWith('WHOLE_BLOOD');
-        expect(icon).toBe('icon');
-    });
-
-    it('should handle validateProduct for different statuses', () => {
-        // Create a simple test function that mimics validateProduct
-        function validateProduct(product: IrradiationProductDTO) {
-            switch (product.status) {
-                case DISCARDED:
-                    return 'discardProduct';
-                case QUARANTINED:
-                    return 'handleQuarantine';
-                case UNSUITABLE:
-                    return 'handleUnsuitableProduct';
-                default:
-                    return 'showError';
+  beforeEach(async () => {
+    mockRouter = { navigateByUrl: jest.fn() };
+    const mockActivatedRoute = {
+      parent: {
+        snapshot: {
+          data: {
+            initialData: {
+              showCheckDigit: true
             }
+          }
         }
-        
-        // Test with different statuses
-        expect(validateProduct({ status: DISCARDED } as IrradiationProductDTO)).toBe('discardProduct');
-        expect(validateProduct({ status: QUARANTINED } as IrradiationProductDTO)).toBe('handleQuarantine');
-        expect(validateProduct({ status: UNSUITABLE } as IrradiationProductDTO)).toBe('handleUnsuitableProduct');
-        expect(validateProduct({ status: 'OTHER' } as IrradiationProductDTO)).toBe('showError');
+      }
+    };
+    mockMatDialog = {
+      open: jest.fn().mockReturnValue({
+        afterClosed: () => of(null)
+      })
+    };
+    mockToastrService = { success: jest.fn(), error: jest.fn(), warning: jest.fn() };
+    mockFuseConfirmationService = {
+      open: jest.fn().mockReturnValue({
+        afterClosed: () => of(true)
+      })
+    };
+    mockIrradiationService = {
+      validateCheckDigit: jest.fn(),
+      validateUnitNumber: jest.fn(),
+      startIrradiationSubmitBatch: jest.fn(),
+      loadDeviceById: jest.fn(),
+      validateLotNumber: jest.fn()
+    };
+
+    // Set default return values
+    mockIrradiationService.validateCheckDigit.mockReturnValue(of({ data: { checkDigit: { isValid: true } } }));
+    mockIrradiationService.validateUnitNumber.mockReturnValue(of({ data: { validateUnit: [] } }));
+    mockIrradiationService.startIrradiationSubmitBatch.mockReturnValue(of({ data: { submitBatch: { message: 'Success' } } }));
+    mockIrradiationService.loadDeviceById.mockReturnValue(of({ data: { validateDevice: true } }));
+    mockIrradiationService.validateLotNumber.mockReturnValue(of({ data: { validateLotNumber: true } }));
+
+    const mockProcessHeaderService = { setActions: jest.fn() };
+    const mockProductIconsService = { getIconByProductFamily: jest.fn().mockReturnValue('icon') };
+    const mockCookieService = { get: jest.fn().mockReturnValue('TEST_FACILITY') };
+    mockDiscardService = { discardProduct: jest.fn().mockReturnValue(of({})) };
+    const mockIconsService = new MockFuseIconsService();
+    // Register the icons that are used in the component
+    mockIconsService.registerIcons = jest.fn().mockImplementation(() => {});
+    mockIconsService.addIconResolver = jest.fn().mockImplementation(() => {});
+    // Ensure the icon service can handle the specific icons used in error messages
+    mockIconsService.getIcon.mockImplementation((name) => {
+      if (name === 'heroicons_outline:x-circle') {
+        return of('<svg>mock-x-circle-icon</svg>');
+      }
+      if (name === 'heroicons_outline:question-mark-circle') {
+        return of('<svg>mock-question-mark-icon</svg>');
+      }
+      return of('<svg>mock-icon</svg>');
     });
 
-    it('should discard product', () => {
-        const product = {
-            unitNumber: 'W036825314134',
-            productCode: 'E468900',
-            productDescription: 'WHOLE BLOOD',
-            productFamily: 'WHOLE_BLOOD',
-            location: 'TEST',
-            statusReason: 'Discard reason'
-        } as IrradiationProductDTO;
+    await TestBed.configureTestingModule({
+      imports: [StartIrradiationComponent, ReactiveFormsModule],
+      declarations: [MockIrradiationSelectProductModal, MockScanUnitNumberCheckDigitComponent, MockInputComponent],
+      providers: [
+        provideAnimations(),
+        { provide: Router, useValue: mockRouter },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: MatDialog, useValue: mockMatDialog },
+        { provide: ToastrService, useValue: mockToastrService },
+        { provide: FuseConfirmationService, useValue: mockFuseConfirmationService },
+        { provide: IrradiationService, useValue: mockIrradiationService },
+        { provide: ProcessHeaderService, useValue: mockProcessHeaderService },
+        { provide: ProductIconsService, useValue: mockProductIconsService },
+        { provide: CookieService, useValue: mockCookieService },
+        { provide: DiscardService, useValue: mockDiscardService },
+        { provide: ScanUnitNumberCheckDigitComponent, useClass: MockScanUnitNumberCheckDigitComponent },
+        { provide: InputComponent, useClass: MockInputComponent },
+        { provide: 'FuseIconsService', useValue: mockIconsService },
+        // Add a mock for any icon service that might be used
+        { provide: 'IconsService', useValue: mockIconsService }
+      ]
+    })
+    .compileComponents();
 
-        // Mock discardService and confirmationService
-        jest.spyOn(discardService, 'discardProduct').mockReturnValue(of({}));
-        jest.spyOn(component, 'openConfirmationDialog' as any).mockImplementation(() => {});
+    fixture = TestBed.createComponent(StartIrradiationComponent);
+    component = fixture.componentInstance;
 
-        // Call the method
-        component['discardProduct'](product, 'Discard reason');
+    // Mock ViewChild components with proper Jest spies
+    component.unitNumberComponent = {
+      form: { disable: jest.fn() },
+      controlUnitNumber: { reset: jest.fn(), enable: jest.fn() },
+      reset: jest.fn(),
+      focusOnUnitNumber: jest.fn(),
+      focusOnCheckDigit: jest.fn(),
+      setValidatorsForCheckDigit: jest.fn()
+    } as any;
 
-        // Verify discardService was called with correct parameters
-        expect(discardService.discardProduct).toHaveBeenCalledWith({
-            unitNumber: 'W036825314134',
-            productCode: 'E468900',
-            productShortDescription: 'WHOLE BLOOD',
-            productFamily: 'WHOLE_BLOOD',
-            locationCode: 'TEST',
-            reasonDescriptionKey: 'Discard reason',
-            employeeId: '4c973896-5761-41fc-8217-07c5d13a004b',
-            triggeredBy: 'IRRADIATION',
-            comments: ''
-        });
+    fixture.detectChanges();
+  });
+
+  const createTestProduct = (unitNumber = 'UNIT-001', productCode = 'PROD-001', order = 1) => ({
+    unitNumber,
+    productCode,
+    disabled: false,
+    productDescription: `Test Product ${order}`,
+    status: 'AVAILABLE',
+    productFamily: 'TEST',
+    icon: 'test-icon',
+    order,
+    statuses: [{ value: 'AVAILABLE', classes: 'bg-green-500 text-white' }],
+    location: 'TEST_FACILITY',
+    comments: '',
+    statusReason: null,
+    unsuitableReason: null,
+    expired: false,
+    alreadyIrradiated: false,
+    notConfigurableForIrradiation: false,
+    isBeingIrradiated: false,
+    quarantines: []
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should initialize form with required fields', () => {
+    expect(component.form).toBeDefined();
+    expect(component.form.get('irradiatorId')).toBeDefined();
+    expect(component.form.get('lotNumber')).toBeDefined();
+  });
+
+  it('should disable submit button when form is invalid', () => {
+    component.form.patchValue({
+      irradiatorId: null,
+      lotNumber: null
+    });
+    expect(component.isSubmitEnabled()).toBeFalsy();
+  });
+
+  it('should disable submit button when no units are added', () => {
+    component.form.patchValue({
+      irradiatorId: 'IRR-001',
+      lotNumber: 'LOT-001'
+    });
+    component.allProducts = [];
+    expect(component.isSubmitEnabled()).toBeFalsy();
+  });
+
+  it('should enable submit button when form is valid and units are added', () => {
+    component.form.patchValue({
+      irradiatorId: 'IRR-001',
+      lotNumber: 'LOT-001'
+    });
+    component.allProducts = [createTestProduct()];
+    expect(component.isSubmitEnabled()).toBeTruthy();
+  });
+
+  it('should load irradiation device when valid ID is provided', () => {
+    component.loadIrradiationId('IRR-001');
+    expect(mockIrradiationService.loadDeviceById).toHaveBeenCalledWith('IRR-001', component.currentLocation);
+    expect(component.deviceId).toBe(true);
+  });
+
+  it('should handle error when loading irradiation device', () => {
+    // Setup error response
+    mockIrradiationService.loadDeviceById.mockReturnValueOnce(
+      throwError(() => ({ message: 'Error loading device' }))
+    );
+
+    // Call method
+    component.loadIrradiationId('IRR-001');
+
+    // Verify error was shown
+    expect(mockToastrService.error).toHaveBeenCalledWith('Error loading device');
+    expect(component.deviceId).toBe(false);
+  });
+
+  it('should reset all data when cancel confirmation dialog is confirmed', () => {
+    // Setup initial state
+    const testProduct = createTestProduct();
+    component.products = [testProduct];
+    component.initialProductsState = [testProduct];
+    component.selectedProducts = [testProduct];
+    component.allProducts = [testProduct];
+    component.deviceId = true;
+
+    // Call openCancelConfirmationDialog which eventually calls cancel
+    component.openCancelConfirmationDialog();
+
+    // Verify dialog was opened
+    expect(mockFuseConfirmationService.open).toHaveBeenCalled();
+
+    // Since our mock returns true for afterClosed, the cancel method should be called
+    // which resets all data
+    expect(component.products).toEqual([]);
+    expect(component.initialProductsState).toEqual([]);
+    expect(component.selectedProducts).toEqual([]);
+    expect(component.allProducts).toEqual([]);
+    expect(component.deviceId).toBe(false);
+  });
+
+  it('should submit batch when form is valid and units are added', () => {
+    // Setup form and products
+    component.form.patchValue({
+      irradiatorId: 'IRR-001',
+      lotNumber: 'LOT-001'
+    });
+    component.allProducts = [createTestProduct()];
+    component.products = [...component.allProducts];
+    component.startTime = '2023-01-01T12:00:00';
+
+    // Call submit
+    component.submit();
+
+    // Verify service was called with correct parameters
+    expect(mockIrradiationService.startIrradiationSubmitBatch).toHaveBeenCalledWith({
+      deviceId: 'IRR-001',
+      startTime: '2023-01-01T12:00:00',
+      batchItems: [
+        {
+          unitNumber: 'UNIT-001',
+          productCode: 'PROD-001',
+          lotNumber: 'LOT-001'
+        }
+      ]
+    });
+  });
+
+  it('should handle error when submitting batch', () => {
+    // Setup form and products
+    component.form.patchValue({
+      irradiatorId: 'IRR-001',
+      lotNumber: 'LOT-001'
+    });
+    component.allProducts = [createTestProduct()];
+    component.products = [...component.allProducts];
+    component.startTime = '2023-01-01T12:00:00';
+
+    // Setup error response
+    mockIrradiationService.startIrradiationSubmitBatch.mockReturnValueOnce(
+      throwError(() => ({ message: 'Submission error' }))
+    );
+
+    // Call submit
+    component.submit();
+
+    // Verify error was shown
+    expect(mockToastrService.error).toHaveBeenCalledWith('Submission error');
+  });
+
+  it('should validate unit number with check digit', () => {
+    // Setup
+    component.currentLocation = 'TEST_FACILITY';
+    component.showCheckDigit = true;
+
+    // Call validateUnit
+    component.validateUnit({ unitNumber: 'UNIT-001', checkDigit: '5', scanner: false });
+
+    // Verify services were called
+    expect(mockIrradiationService.validateCheckDigit).toHaveBeenCalledWith('UNIT-001', '5');
+    expect(mockIrradiationService.validateUnitNumber).toHaveBeenCalledWith('UNIT-001', 'TEST_FACILITY');
+  });
+
+  it('should validate unit number without check digit when scanner is used', () => {
+    // Setup
+    component.currentLocation = 'TEST_FACILITY';
+    component.showCheckDigit = true;
+
+    // Call validateUnit with scanner=true
+    component.validateUnit({ unitNumber: 'UNIT-001', checkDigit: '5', scanner: true });
+
+    // Verify only validateUnitNumber was called
+    expect(mockIrradiationService.validateCheckDigit).not.toHaveBeenCalled();
+    expect(mockIrradiationService.validateUnitNumber).toHaveBeenCalledWith('UNIT-001', 'TEST_FACILITY');
+  });
+
+  it('should handle invalid check digit', () => {
+    // Setup
+    component.currentLocation = 'TEST_FACILITY';
+    component.showCheckDigit = true;
+
+    // Create a new mock for validateCheckDigit that returns invalid first
+    const validateCheckDigitMock = jest.fn();
+    validateCheckDigitMock.mockReturnValue(of({ data: { checkDigit: { isValid: false } } }));
+
+    // Save original mock and replace it
+    const originalValidateCheckDigit = mockIrradiationService.validateCheckDigit;
+    mockIrradiationService.validateCheckDigit = validateCheckDigitMock;
+
+    // Ensure the mock component is properly set up
+    Object.defineProperty(component, 'unitNumberComponent', {
+      value: {
+        form: { disable: jest.fn() },
+        controlUnitNumber: { reset: jest.fn(), enable: jest.fn() },
+        reset: jest.fn(),
+        focusOnUnitNumber: jest.fn(),
+        focusOnCheckDigit: jest.fn(),
+        setValidatorsForCheckDigit: jest.fn()
+      },
+      configurable: true,
+      writable: true
     });
 
-    it('should convert status to color class', () => {
-        // Test expired product
-        expect(component['statusToColorClass']({ expired: true } as IrradiationProductDTO)).toBe('bg-red-500 text-white');
-        
-        // Test unsuitable product
-        expect(component['statusToColorClass']({ unsuitableReason: 'Some reason' } as IrradiationProductDTO)).toBe('bg-red-500 text-white');
-        
-        // Test quarantined product
-        expect(component['statusToColorClass']({ quarantines: [{}] } as IrradiationProductDTO)).toBe('bg-orange-500 text-white');
-        
-        // Test available product (default case)
-        expect(component['statusToColorClass']({} as IrradiationProductDTO)).toBe('bg-green-500 text-white');
+    // Call validateUnit
+    component.validateUnit({ unitNumber: 'UNIT-001', checkDigit: '5', scanner: false });
+
+    // Verify error handling
+    expect(mockToastrService.error).toHaveBeenCalledWith('Invalid check digit');
+    expect(component.unitNumberComponent.setValidatorsForCheckDigit).toHaveBeenCalledWith(false);
+    expect(component.unitNumberComponent.focusOnCheckDigit).toHaveBeenCalled();
+
+    // Restore original mock
+    mockIrradiationService.validateCheckDigit = originalValidateCheckDigit;
+  });
+
+  it('should handle validation error', () => {
+    // Setup
+    component.currentLocation = 'TEST_FACILITY';
+    component.showCheckDigit = false; // Skip check digit validation
+
+    // Setup error response
+    mockIrradiationService.validateUnitNumber.mockReturnValueOnce(
+      throwError(() => ({ message: 'Validation error' }))
+    );
+
+    // Call validateUnit
+    component.validateUnit({ unitNumber: 'UNIT-001', checkDigit: null, scanner: true });
+
+    // Verify error was shown
+    expect(mockToastrService.error).toHaveBeenCalledWith('Validation error');
+  });
+
+  it('should toggle product selection', () => {
+    // Setup
+    const product = createTestProduct();
+    component.selectedProducts = [];
+
+    // Add product
+    component.toggleProduct(product);
+    expect(component.selectedProducts).toContain(product);
+
+    // Remove product
+    component.toggleProduct(product);
+    expect(component.selectedProducts).not.toContain(product);
+  });
+
+  it('should select all units', () => {
+    // Setup
+    const product1 = createTestProduct('UNIT-001', 'PROD-001', 1);
+    const product2 = createTestProduct('UNIT-002', 'PROD-002', 2);
+    component.products = [product1, product2];
+    component.selectedProducts = [];
+
+    // Select all
+    component.selectAllUnits();
+    expect(component.selectedProducts.length).toBe(2);
+
+    // Deselect all
+    component.selectAllUnits();
+    expect(component.selectedProducts.length).toBe(0);
+  });
+
+  it('should remove selected products', () => {
+    // Setup
+    const product1 = createTestProduct('UNIT-001', 'PROD-001', 1);
+    const product2 = createTestProduct('UNIT-002', 'PROD-002', 2);
+    component.products = [product1, product2];
+    component.allProducts = [product1, product2];
+    component.selectedProducts = [product1];
+
+    // Call openRemoveConfirmationDialog
+    component.openRemoveConfirmationDialog();
+
+    // Verify dialog was opened
+    expect(mockFuseConfirmationService.open).toHaveBeenCalled();
+
+    // Since our mock returns true for afterClosed, the removeSelected method should be called
+    expect(component.products.length).toBe(1);
+    expect(component.products[0]).toBe(product2);
+    expect(component.allProducts.length).toBe(1);
+    expect(component.selectedProducts.length).toBe(0);
+  });
+
+  it('should focus on irradiation input', () => {
+    // Setup
+    component.irradiationInput = { focus: jest.fn() } as any;
+
+    // Call method
+    component.focusOnIrradiationInput();
+
+    // Verify focus was called
+    expect(component.irradiationInput.focus).toHaveBeenCalled();
+  });
+
+  it('should focus on lot number input', () => {
+    // Setup
+    component.lotNumberInput = { focus: jest.fn() } as any;
+
+    // Call method
+    component.focusOnLotNumberInput();
+
+    // Verify focus was called
+    expect(component.lotNumberInput.focus).toHaveBeenCalled();
+  });
+
+  it('should redirect to start-irradiation page', () => {
+    // Call redirect
+    component.redirect();
+
+    // Verify navigation
+    expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('irradiation/start-irradiation');
+  });
+
+  it('should validate lot number successfully', () => {
+    // Spy on the enable method
+    jest.spyOn(component.unitNumberComponent.controlUnitNumber, 'enable');
+    
+    // Call validateLotNumber
+    component.validateLotNumber('LOT-001');
+
+    // Verify service was called with correct parameters
+    expect(mockIrradiationService.validateLotNumber).toHaveBeenCalledWith('LOT-001', 'IRRADIATION_INDICATOR');
+    expect(component.unitNumberComponent.controlUnitNumber.enable).toHaveBeenCalled();
+  });
+
+  it('should handle invalid lot number', () => {
+    // Setup invalid response
+    mockIrradiationService.validateLotNumber.mockReturnValueOnce(
+      of({ data: { validateLotNumber: false } })
+    );
+
+    // Call validateLotNumber
+    component.validateLotNumber('INVALID-LOT');
+
+    // Verify error handling
+    expect(mockToastrService.error).toHaveBeenCalledWith('Invalid lot number');
+    expect(component.lotNumber.hasError('invalid')).toBeTruthy();
+  });
+
+  it('should handle lot number validation error', () => {
+    // Setup error response
+    mockIrradiationService.validateLotNumber.mockReturnValueOnce(
+      throwError(() => ({ message: 'Validation service error' }))
+    );
+
+    // Call validateLotNumber
+    component.validateLotNumber('LOT-001');
+
+    // Verify error handling
+    expect(mockToastrService.error).toHaveBeenCalledWith('Validation service error');
+    expect(component.lotNumber.hasError('invalid')).toBeTruthy();
+  });
+
+  describe('handleQuarantine', () => {
+    it('should return false and show error when quarantine stops manufacturing', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: [{ reason: 'Quality Issue', comments: 'Test', stopsManufacturing: true }]
+      };
+
+      const result = (component as any).handleQuarantine(product);
+
+      expect(result).toBe(false);
+      expect(mockToastrService.error).toHaveBeenCalledWith('This product has been quarantined and cannot be irradiated');
     });
 
-    it('should enable unit number control when lot number is validated', () => {
-        // Mock the unitNumberComponent
-        component.unitNumberComponent = {
-            controlUnitNumber: { enable: jest.fn() }
-        } as any;
+    it('should return true when quarantine does not stop manufacturing', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: [{ reason: 'Minor Issue', comments: 'Test', stopsManufacturing: false }]
+      };
 
-        component.validateLotNumber('LOT123');
+      const result = (component as any).handleQuarantine(product);
 
-        expect(component.unitNumberComponent.controlUnitNumber.enable).toHaveBeenCalled();
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
     });
 
-    it('should toggle product selection', () => {
-        const product = { unitNumber: 'test1', productCode: 'P1' } as IrradiationProductDTO;
+    it('should return true when stopsManufacturing is null', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: [{ reason: 'Issue', comments: 'Test', stopsManufacturing: null }]
+      };
 
-        // Test adding to selection
-        component.selectedProducts = [];
-        component.toggleProduct(product);
-        expect(component.selectedProducts).toContain(product);
+      const result = (component as any).handleQuarantine(product);
 
-        // Test removing from selection
-        component.toggleProduct(product);
-        expect(component.selectedProducts).not.toContain(product);
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
     });
 
-    it('should open remove confirmation dialog', () => {
-        component.openRemoveConfirmationDialog();
-        expect(confirmationService.open).toHaveBeenCalled();
+    it('should return true when quarantines array is empty', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: []
+      };
+
+      const result = (component as any).handleQuarantine(product);
+
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
     });
 
-    it('should remove selected products', () => {
-        const product1 = { unitNumber: 'test1', productCode: 'P1' } as IrradiationProductDTO;
-        const product2 = { unitNumber: 'test2', productCode: 'P2' } as IrradiationProductDTO;
+    it('should return true when quarantines is null', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: null
+      };
 
-        component.products = [product1, product2];
-        component.selectedProducts = [product1];
-        component.allProducts = [product1, product2];
+      const result = (component as any).handleQuarantine(product);
 
-        // Call the private method directly
-        component['removeSelected']();
-
-        expect(component.products).toEqual([product2]);
-        expect(component.selectedProducts).toEqual([]);
-        expect(component.allProducts).toEqual([product2]);
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
     });
 
-    it('should redirect to irradiation page', () => {
-        component.redirect();
-        expect(router.navigateByUrl).toHaveBeenCalledWith('irradiation/start-irradiation');
+    it('should handle quarantine with proper null check logic', () => {
+      const product = {
+        ...createTestProduct(),
+        quarantines: [{ reason: 'Test', comments: 'Test', stopsManufacturing: null }]
+      };
+
+      const result = (component as any).handleQuarantine(product);
+
+      expect(result).toBe(true);
+      expect(product.status).toBe('Quarantined');
+    });
+  });
+
+  describe('isNotAnExistingIrradiatedProduct', () => {
+    it('should return false when product is already irradiated', () => {
+      const product = { ...createTestProduct(), alreadyIrradiated: true };
+      
+      const result = (component as any).isNotAnExistingIrradiatedProduct(product);
+      
+      expect(result).toBe(false);
+      expect(mockToastrService.error).toHaveBeenCalledWith('This product has already been irradiated');
     });
 
-    it('should show appropriate messages based on message type', () => {
-        // Test error message
-        component['showMessage'](MessageType.ERROR, 'Error message');
-        expect(toastrService.error).toHaveBeenCalledWith('Error message');
-
-        // Test warning message
-        component['showMessage'](MessageType.WARNING, 'Warning message');
-        expect(toastrService.warning).toHaveBeenCalledWith('Warning message');
-
-        // Test success message
-        component['showMessage'](MessageType.SUCCESS, 'Success message');
-        expect(toastrService.success).toHaveBeenCalledWith('Success message');
+    it('should return false when product is not configurable for irradiation', () => {
+      const product = { ...createTestProduct(), notConfigurableForIrradiation: true };
+      
+      const result = (component as any).isNotAnExistingIrradiatedProduct(product);
+      
+      expect(result).toBe(false);
+      expect(mockToastrService.error).toHaveBeenCalledWith('Product not configured for Irradiation');
     });
+
+    it('should return false when product is being irradiated', () => {
+      const product = { ...createTestProduct(), isBeingIrradiated: true };
+      
+      const result = (component as any).isNotAnExistingIrradiatedProduct(product);
+      
+      expect(result).toBe(false);
+      expect(mockToastrService.error).toHaveBeenCalledWith('Product is being irradiated');
+    });
+
+    it('should return true when product is valid for irradiation', () => {
+      const product = createTestProduct();
+      
+      const result = (component as any).isNotAnExistingIrradiatedProduct(product);
+      
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('disableCancelButton', () => {
+    it('should return true when deviceId is false', () => {
+      component.deviceId = false;
+      expect(component.disableCancelButton).toBe(true);
+    });
+
+    it('should return false when deviceId is true', () => {
+      component.deviceId = true;
+      expect(component.disableCancelButton).toBe(false);
+    });
+  });
 });

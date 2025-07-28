@@ -35,7 +35,7 @@ public class LogMonitor extends AppenderBase<ILoggingEvent> {
 
     public void await(String message) throws InterruptedException {
         expectedMessage = ".*" + message + ".*";
-        latch.await(60, TimeUnit.SECONDS);
+        latch.await(2, TimeUnit.SECONDS);
         log.info("Lock acquired: " + latch.getCount() + " to message " + message);
 
     }

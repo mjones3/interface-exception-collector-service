@@ -24,6 +24,8 @@ interface BatchEntityRepository extends ReactiveCrudRepository<BatchEntity, Long
 
 interface BatchItemEntityRepository extends ReactiveCrudRepository<BatchItemEntity, Long> {
     Flux<BatchItemEntity> findByBatchId(Long batchId);
+    Mono<Boolean> existsByUnitNumber(String unitNumber);
+    Mono<BatchItemEntity> findByBatchIdAndUnitNumberAndProductCode(Long batchId, String unitNumber, String productCode);
 }
 
 @Repository
@@ -31,18 +33,27 @@ public class BatchRepositoryImpl implements BatchRepository {
     private final BatchEntityRepository batchRepository;
     private final BatchItemEntityRepository batchItemRepository;
     private final BatchEntityMapper mapper;
+    private final DatabaseClient databaseClient;
 
     public BatchRepositoryImpl(BatchEntityRepository batchRepository,
                               BatchItemEntityRepository batchItemRepository,
-                              BatchEntityMapper mapper) {
+                              BatchEntityMapper mapper,
+                              DatabaseClient databaseClient) {
         this.batchRepository = batchRepository;
         this.batchItemRepository = batchItemRepository;
         this.mapper = mapper;
+        this.databaseClient = databaseClient;
     }
 
     @Override
     public Mono<Batch> findActiveBatchByDeviceId(DeviceId deviceId) {
         return batchRepository.findByDeviceIdAndEndTimeIsNull(deviceId.getValue())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Flux<BatchItem> findBatchItemsByBatchId(Long batchId) {
+        return batchItemRepository.findByBatchId(batchId)
                 .map(mapper::toDomain);
     }
 
@@ -68,6 +79,93 @@ public class BatchRepositoryImpl implements BatchRepository {
                     return batchItemRepository.saveAll(itemEntities)
                             .then(Mono.just(mapper.toDomain(savedBatch)));
                 });
+    }
+
+    @Override
+    public Mono<Boolean> isUnitAlreadyIrradiated(String unitNumber, String productCode) {
+        String sql = """
+            SELECT COUNT(*) > 0
+            FROM bld_batch_item bi
+            JOIN bld_batch b ON bi.batch_id = b.id
+            WHERE bi.unit_number = :unitNumber AND b.end_time IS NOT NULL AND bi.new_product_code = :productCode
+            """;
+
+        return databaseClient.sql(sql)
+                .bind("unitNumber", unitNumber)
+                .bind("productCode", productCode)
+                .map(row -> row.get(0, Boolean.class))
+                .one();
+    }
+
+    @Override
+    public Mono<Boolean> isUnitBeingIrradiated(String unitNumber, String productCode) {
+        String sql = """
+            SELECT COUNT(*) > 0
+            FROM bld_batch_item bi
+            JOIN bld_batch b ON bi.batch_id = b.id
+            WHERE bi.unit_number = :unitNumber AND b.end_time IS NULL AND bi.product_code = :productCode
+            """;
+
+        return databaseClient.sql(sql)
+                .bind("unitNumber", unitNumber)
+                .bind("productCode", productCode)
+                .map(row -> row.get(0, Boolean.class))
+                .one();
+    }
+
+    @Override
+    public Mono<Batch> findById(BatchId batchId) {
+        return batchRepository.findById(batchId.getValue())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Mono<Batch> completeBatch(BatchId batchId, LocalDateTime endTime) {
+        return batchRepository.findById(batchId.getValue())
+                .flatMap(entity -> {
+                    entity.setEndTime(endTime);
+                    entity.setModificationDate(ZonedDateTime.now());
+                    return batchRepository.save(entity);
+                })
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Mono<Void> updateBatchItemNewProductCode(BatchId batchId, String unitNumber, String productCode, String newProductCode) {
+        String sql = """
+            UPDATE bld_batch_item
+            SET new_product_code = :newProductCode, modification_date = NOW()
+            WHERE batch_id = :batchId AND unit_number = :unitNumber AND product_code = :productCode
+            """;
+
+        return databaseClient.sql(sql)
+                .bind("newProductCode", newProductCode)
+                .bind("batchId", batchId.getValue())
+                .bind("unitNumber", unitNumber)
+                .bind("productCode", productCode)
+                .fetch()
+                .rowsUpdated()
+                .then();
+    }
+
+    @Override
+    public Mono<BatchItem> findBatchItem(BatchId batchId, String unitNumber, String productCode) {
+        return batchItemRepository.findByBatchIdAndUnitNumberAndProductCode(
+                batchId.getValue(), unitNumber, productCode)
+                .map(this::mapToBatchItemWithDefaults);
+    }
+
+    private BatchItem mapToBatchItemWithDefaults(BatchItemEntity entity) {
+        return BatchItem.builder()
+                .unitNumber(new com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.UnitNumber(entity.getUnitNumber()))
+                .productCode(entity.getProductCode())
+                .lotNumber(entity.getLotNumber())
+                .newProductCode(entity.getNewProductCode())
+                .expirationDate(entity.getExpirationDate())
+                .productFamily(entity.getProductFamily())
+                .productDescription(null)
+                .irradiated(false)
+                .build();
     }
 
 }

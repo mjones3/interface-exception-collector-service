@@ -1,4 +1,4 @@
-@api
+@api @LAB-574 @AOA-61 @hzd9
 Feature: Device Created Event
     Rule: As an irradiation service I want to listen to device created event that are irradiator types so that I can create the device
         Scenario Outline: Create the device after receiving a Device Created event.
@@ -23,5 +23,5 @@ Feature: Device Created Event
             Then the device should not be created and a message should be logged
 
             Examples:
-                | Id            | Location  | Device Category | Status |
+                | Id             | Location  | Device Category | Status |
                 | AUTO-DEVICE003 | 123456789 | PRINTER         | ACTIVE |

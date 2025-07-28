@@ -16,7 +16,7 @@ public class ConfirmationModalPage extends CommonPageFactory {
     private final By confirmationModalLocator = By.xpath("//mat-dialog-container[contains(@class, 'mat-mdc-dialog-container')]");
     private final By confirmationTitleLocator = By.xpath("//mat-dialog-container//fuse-confirmation-dialog//div[contains(@class, 'text-xl')]");
     private final By confirmationMessageLocator = By.xpath("//mat-dialog-container//fuse-confirmation-dialog//div[contains(@class, 'text-secondary')]");
-    private final By confirmButtonLocator = By.id("confirmDialogBtn");
+    private final By confirmButtonLocator = By.id("confirmation-dialog-confirm-btn");
 
     @Override
     public boolean isLoaded() {
@@ -88,7 +88,6 @@ public class ConfirmationModalPage extends CommonPageFactory {
         try {
             var confirmationModal = driver.waitForElement(confirmationModalLocator, 5);
             confirmationModal.waitForVisible();
-            confirmationModal.waitForClickable();
         } catch (Exception e) {
             log.info("Error while waiting for confirmation modal");
             throw e;

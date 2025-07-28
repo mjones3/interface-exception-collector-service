@@ -9,12 +9,13 @@
                 [options]="data.options"
                 [buttonTemplate]="productButtonTpl"
                 (optionChange)="selectOption($event)"
+                itemSize="h-24 w-64"
             ></biopro-options-picker>
         </div>
     </mat-dialog-content>
 
     <!-- Actions -->
-    <mat-dialog-actions align="end" class="space-x-6">
+    <mat-dialog-actions align="end" class="space-x-6 p-4">
         <biopro-action-button
             id="cancelBtn"
             btnId="cancelActionBtn"

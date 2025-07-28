@@ -21,6 +21,9 @@ public record ShipmentCompletedPayload(
     String customerType,
     String departmentCode,
     ZonedDateTime createDate,
+    String shipmentType,
+    String labelStatus,
+    Boolean quarantinedProducts,
     List<ShipmentCompletedItemPayload> lineItems,
     List<ShipmentCompletedServicePayload> services
 ) implements Serializable {

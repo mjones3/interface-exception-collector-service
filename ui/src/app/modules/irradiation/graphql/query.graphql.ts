@@ -27,6 +27,9 @@ const VALIDATE_UNIT = gql`
             statusReason
             unsuitableReason
             expired
+            alreadyIrradiated
+            notConfigurableForIrradiation
+            isBeingIrradiated
             quarantines {
                 reason
                 comments
@@ -36,8 +39,43 @@ const VALIDATE_UNIT = gql`
     }
 `;
 
+const CHECK_DIGIT = gql`
+    query  checkDigit($unitNumber: String!, $checkDigit: String!) {
+        checkDigit(unitNumber: $unitNumber, checkDigit: $checkDigit) {
+            isValid
+        }
+    }
+`;
+
+const VALIDATE_LOT_NUMBER = gql`
+    query validateLotNumber($lotNumber: String!, $type: String!) {
+        validateLotNumber(lotNumber: $lotNumber, type: $type)
+    }
+`;
+
+const VALIDATE_DEVICE_ON_CLOSE_BATCH = gql`
+    query validateDeviceOnCloseBatch($deviceId: String!, $location: String!) {
+        validateDeviceOnCloseBatch(deviceId: $deviceId, location: $location) {
+            unitNumber
+            productCode
+            productFamily
+            productDescription
+            status
+            quarantines {
+                reason
+                comments
+                stopsManufacturing
+            }
+
+        }
+    }
+`;
+
 export {
     GET_IRRADIATION_DEVICE_BY_ID,
     GET_CONFIGURATIONS,
-    VALIDATE_UNIT
+    VALIDATE_UNIT,
+    CHECK_DIGIT,
+    VALIDATE_LOT_NUMBER,
+    VALIDATE_DEVICE_ON_CLOSE_BATCH
 };

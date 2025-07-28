@@ -22,8 +22,15 @@ public class RSocketConfiguration {
     @Value("${spring.rsocket.inventory.port:7002}")
     private int inventoryPort;
 
+    @Value("${spring.rsocket.supply.host:supply-service}")
+    private String supplyHost;
+
+    @Value("${spring.rsocket.supply.port:7002}")
+    private int supplyPort;
+
     @Bean
     RSocketServerCustomizer resumeServerCustomizer() {
+        log.info("RSocketServerCustomizer for host {} and port {}", inventoryHost, inventoryPort);
         return rSocketServer ->
             rSocketServer.resume(new Resume()
                 .streamTimeout(Duration.ofSeconds(5))
@@ -45,5 +52,17 @@ public class RSocketConfiguration {
                     .doBeforeRetry(s -> log.warn("Disconnected from inventory service. Trying to reconnect...")))
             )
             .tcp(inventoryHost, inventoryPort);
+    }
+
+    @Bean
+    public RSocketRequester supplyRSocketRequester(RSocketStrategies strategies) {
+        log.info("Creating RSocketRequester for supply service at host {} and port {}", supplyHost, supplyPort);
+        return RSocketRequester.builder()
+            .rsocketStrategies(strategies)
+            .rsocketConnector(connector -> connector
+                .reconnect(Retry.fixedDelay(Long.MAX_VALUE, Duration.ofSeconds(5))
+                    .doBeforeRetry(s -> log.warn("Disconnected from supply service. Trying to reconnect...")))
+            )
+            .tcp(supplyHost, supplyPort);
     }
 }

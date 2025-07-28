@@ -64,6 +64,10 @@ public class FillProductsPage extends CommonPageFactory {
         return String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]", unitNumber, productCode);
     }
 
+    private By availableProductButton(String product) {
+        return By.xpath(String.format("//biopro-options-picker//button//*[contains(text(), '%s')]", product));
+    }
+
     @Override
     public boolean isLoaded() {
         return sharedActions.isElementVisible(By.xpath(fillProductsHeaderLocator));
@@ -102,6 +106,11 @@ public class FillProductsPage extends CommonPageFactory {
         return String.format("//biopro-unit-number-card[@ng-reflect-ineligible-status='%s']", status.toUpperCase());
     }
 
+    public void addUnit(String unit) throws InterruptedException {
+        log.info("Adding unit {}.", unit);
+        sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unit);
+        sharedActions.waitLoadingAnimation();
+    }
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         log.info("Adding unit {} with product code {}.", unit, productCode);
         sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unit);
@@ -280,5 +289,20 @@ public class FillProductsPage extends CommonPageFactory {
         }else {
             sharedActions.waitForNotVisible(By.xpath(formatProductStatusLocator(productStatus)));
         }
+    }
+
+    public void checkAvailableProductButton(String product) {
+        log.debug("Checking available product button for product {}.", product);
+        sharedActions.waitForVisible(availableProductButton(product));
+    }
+
+    public void checkNotAvailableProductButton(String product) {
+        log.debug("Checking available product button for product {}.", product);
+        sharedActions.waitForNotVisible(availableProductButton(product));
+    }
+
+    public void selectAvailableProduct(String product) {
+        log.debug("Selecting available product {}.", product);
+        sharedActions.click(availableProductButton(product));
     }
 }

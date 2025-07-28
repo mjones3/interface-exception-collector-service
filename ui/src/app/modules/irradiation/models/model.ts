@@ -1,24 +1,15 @@
 export const USE_CHECK_DIGIT = 'USE_CHECK_DIGIT';
 
 export interface IrradiationResolveData {
-    useCheckDigit: boolean;
+    showCheckDigit: boolean;
 }
-
-export interface CheckDigitRequestDTO {
-    unitNumber: string;
-    checkDigit: string;
-}
-
 export interface CheckDigitResponseDTO {
-    checkDigit: {
-        isValid: boolean;
-    };
+    isValid: boolean;
 }
 
 export interface RecordVisualInpectionResult {
-    successful: boolean;
+    irradiated: boolean;
     comment: string;
-    reasons: ReasonDTO[];
 }
 
 export interface ReasonDTO {
@@ -37,21 +28,6 @@ export interface VisualInspectionRequestDTO {
 export interface ValidationDataDTO {
     unitNumber: string;
     productCode: string;
-    productDescription: string;
-    productFamily?: string;
-    icon?: string;
-    consequence?: ConsequenceDTO;
-}
-
-export interface ConsequenceDTO {
-    consequenceReasons: string[];
-    consequenceType: ConsequenceType;
-}
-
-export enum ConsequenceType {
-    NONE = 'NONE',
-    DISCARD = 'DISCARD',
-    QUARANTINE = 'QUARANTINE',
 }
 
 export const MessageType = {
@@ -79,6 +55,9 @@ export interface IrradiationProductDTO {
     statuses?: { value: string; classes: string }[];
     disabled?: boolean;
     expired: boolean;
+    alreadyIrradiated: boolean,
+    notConfigurableForIrradiation: boolean,
+    isBeingIrradiated: boolean,
     quarantines: IrradiationProductQuarantineDTO[];
 }
 
@@ -86,14 +65,6 @@ export interface IrradiationProductQuarantineDTO {
     reason: string;
     comments: string;
     stopsManufacturing: boolean;
-}
-
-export interface CentrifugationResolveData {
-    useCheckDigit: boolean;
-}
-
-export interface ReadConfigurationGraphQL {
-    readConfiguration: ReadConfigurationDTO[];
 }
 
 export interface ReadConfigurationDTO {
@@ -105,27 +76,6 @@ export interface ValidateUnitEvent {
     unitNumber: string;
     checkDigit: string;
     scanner: boolean;
-}
-
-export interface DeviceDTO {
-    validateDevice: boolean;
-}
-
-export interface IrradiationDeviceResponseDTO {
-    type: string;
-    bloodCenterId: string;
-    location: string;
-    name: string;
-    maxProducts: number;
-}
-
-export interface DeviceResponseDTO {
-    enterDeviceId: IrradiationDeviceResponseDTO;
-}
-
-export interface UnitNumberRequestDTO {
-    unitNumber: string;
-    location: string;
 }
 
 export interface StartIrradiationBatchItemDTO {
@@ -146,25 +96,4 @@ export interface StartIrradiationSubmitBatchResponseDTO {
 
 export interface SubmitBatchDTO {
     message: string;
-}
-
-export interface ProductDataDTO {
-    unitNumber: string;
-    productCode: string;
-    productName: string;
-    status: string;
-    productFamily?: string;
-    icon?: string;
-}
-
-export interface ValidateUnitNumberResponseDTO {
-    products?: ProductDataDTO[];
-}
-
-export interface UnitNumberResponseDTO {
-    enterUnitNumberForCentrifugation: ValidateUnitNumberResponseDTO;
-}
-
-export interface QuarantineDTO {
-    stopsManufacturing: boolean;
 }

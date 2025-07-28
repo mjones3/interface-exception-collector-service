@@ -5,7 +5,6 @@
         label="Cancel"
         color="secondary"
         icon="heroicons_outline:x-circle"
-        [disabled]="disableCancelButton"
         (clickEvent)="openCancelConfirmationDialog()"
     ></biopro-action-button>
     <biopro-action-button
@@ -33,6 +32,7 @@
                 class="w-1/2 flex flex-row gap-4 justify-start p-4"
             >
                 <biopro-input
+                    #irradiationIdInput
                     [inputWidth]="'w-90'"
                     id="irradiationId"
                     label="Irradiator ID"
@@ -49,14 +49,14 @@
                     <biopro-scan-unit-number-check-digit
                         #unitnumber
                         (validate)="validateUnit($event)"
-                        [showCheckDigit]="true"
+                        [showCheckDigit]="showCheckDigit"
                     >
                     </biopro-scan-unit-number-check-digit>
                 </div>
             </fuse-card>
             <fuse-card class="w-1/3 p-1 pl-4 flex flex-row items-center justify-start ml-auto">
                 <strong>Time Removed From Storage:&nbsp;</strong>
-                <span>01/01/2025 23:59</span>
+                <span>{{ currentDateTime }}</span>
             </fuse-card>
         </div>
 
@@ -90,20 +90,13 @@
                         [disabled]="numberOfUnits === 0"
                         (clickEvent)="selectAllUnits()"
                     ></biopro-action-button>
-                    <biopro-action-button
-                        id="removeBtn"
-                        btnId="removeActionBtn"
-                        label="Remove"
-                        color="secondary"
-                        [disabled]="numberOfSelectedUnits === 0"
-                        (clickEvent)="openRemoveConfirmationDialog()"
-                    ></biopro-action-button>
+
                     <biopro-action-button
                         id="visualInspectionBtn"
                         btnId="visualInspecActionBtn"
                         label="Record Inspection"
                         icon="biopro:visual-inspection"
-                        [disabled]="numberOfUnits === 0"
+                        [disabled]="numberOfSelectedUnits === 0"
                         (clickEvent)="openRecordVisualInspectionModal()"
                     ></biopro-action-button>
                 </div>

@@ -38,7 +38,10 @@
                 <div class="mt-3">
                     <biopro-enter-unit-number-product-code
                         #productSelection
+                        [shipmentId]="shipmentId"
+                        [shipmentItemId]="shipmentItemId"
                         [showCheckDigit]="showCheckDigit"
+                        [showProductCode]="shipmentInfo?.labelStatus !== 'UNLABELED' ?? true"
                         [showVisualInspection]="showVisualInspection"
                         (unitNumberProductCodeSelected)="
                             unitNumberProductCodeSelected($event)
@@ -105,8 +108,7 @@
                             [id]="'unit-' + $index"
                             class="max-h-24"
                             [unitNumber]="option.unitNumber"
-                            [productName]="option.productCode"
-                            [productDescription]="option.productDescription"
+                            [productName]="getProductName(shipmentInfo, option)"
                             [visualInspection]="option.visualInspection"
                             [ineligibleStatus]="getProductStatus(option)"
                             [iconName]="getIcon()"
