@@ -77,7 +77,7 @@ export class TransferReceiptComponent {
   temperatureFormComponent = viewChild<TemperatureFormComponent>('temperatureForm');
 
   transferInformationForm = this.formBuilder.group({
-    transferOrderNumber: ['', [ Validators.required ]],
+    transferOrderNumber: ['', [ Validators.required,Validators.pattern(/^[0-9]+$/)]],
     temperatureCategory: [{value: '', disabled: true}],
     comments: ['']
   });
@@ -104,21 +104,22 @@ export class TransferReceiptComponent {
   }
 
   onEnterTransferOrder(): void {
-    const orderNumber = +this.transferInformationForm.controls.transferOrderNumber.value;
-    this.transferInformationForm.reset();
-    this.transitTimeFormComponent()?.reset();
-    this.temperatureFormComponent()?.reset();
-    this.triggerQueryTransferOrderNumber(orderNumber)
-        .subscribe(transferInformationDTO => {
-            this.updateFormValidators(transferInformationDTO);
-            this.isDifferentLocationSignal.set(transferInformationDTO.receivedDifferentLocation)
-            this.transferInformationForm.controls.temperatureCategory.setValue(ProductCategoryMap[transferInformationDTO.productCategory].toUpperCase());
-            this.transferInformationForm.controls.transferOrderNumber.setValue(transferInformationDTO.orderNumber);
-            this.cdr.detectChanges();
-            this.transitTimeFormComponent()?.setEndZone(transferInformationDTO.defaultTimeZone);
-            this.transitTimeFormComponent()?.setStartZone(transferInformationDTO.defaultStartTimeZone);
-            this.transferInformationForm.updateValueAndValidity();
-        });
+    if(this.transferInformationForm.controls.transferOrderNumber.valid){
+        const orderNumber = +this.transferInformationForm.controls.transferOrderNumber.value;
+        this.transitTimeFormComponent()?.reset();
+        this.temperatureFormComponent()?.reset();
+        this.triggerQueryTransferOrderNumber(orderNumber)
+            .subscribe(transferInformationDTO => {
+                this.updateFormValidators(transferInformationDTO);
+                this.isDifferentLocationSignal.set(transferInformationDTO.receivedDifferentLocation)
+                this.transferInformationForm.controls.temperatureCategory.setValue(ProductCategoryMap[transferInformationDTO.productCategory].toUpperCase());
+                this.transferInformationForm.controls.transferOrderNumber.setValue(transferInformationDTO.orderNumber);
+                this.cdr.detectChanges();
+                this.transitTimeFormComponent()?.setEndZone(transferInformationDTO.defaultTimeZone);
+                this.transitTimeFormComponent()?.setStartZone(transferInformationDTO.defaultStartTimeZone);
+                this.transferInformationForm.updateValueAndValidity();
+            });
+    }
   }
 
   triggerQueryTransferOrderNumber(orderNumber: number): Observable<TransferInformationDTO> {
@@ -174,7 +175,7 @@ export class TransferReceiptComponent {
     const internalTransferFormValid = this.transferInformationForm.valid;
     const transitTimeValid = !this.transferInformationSignal()?.displayTransitInformation || this.transitTimeFormComponent()?.formGroup().valid;
     const temperatureValid = !this.transferInformationSignal()?.displayTemperature || this.temperatureFormComponent()?.formGroup().valid;
-    return internalTransferFormValid && transitTimeValid && temperatureValid;
+    return internalTransferFormValid && transitTimeValid && temperatureValid && this.transferInformationSignal()?.orderNumber != null;
   }
 
   updateTransitTimeQuarantine(data: UseCaseNotificationDTO){

@@ -129,7 +129,10 @@ public class ImportProductSteps {
 
     @When("I request to validate the total transit time of Stat date time as {string}, Start Time Zone as {string}, End date time as {string} and End Time Zone as {string}  for the Temperature Category {string}.")
     public void validateTransitTime(String startDateTime, String startTimeZone, String endDateTime, String endTimeZone, String temperatureCategory) {
-        isTransitTimeValid = importProductsController.isTotalTransitTimeValid(temperatureCategory, startDateTime, startTimeZone, endDateTime, endTimeZone);
+        var startDateTimeFormat = startDateTime.startsWith("<") ? testUtils.parseDateTimeKeyword(startDateTime) : startDateTime;
+        var endDateTimeFormat =  endDateTime.startsWith("<") ? testUtils.parseDateTimeKeyword(endDateTime) : endDateTime;
+
+        isTransitTimeValid = importProductsController.isTotalTransitTimeValid(temperatureCategory, startDateTimeFormat, startTimeZone, endDateTimeFormat, endTimeZone);
     }
 
     @Then("The system {string} accept the transit time.")

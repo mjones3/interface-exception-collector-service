@@ -140,6 +140,21 @@ Feature: Transfer Receipt
                | 45600008    | DO1            | Distribution Only | PLASMA_TRANSFUSABLE | FROZEN              | FROZEN                  | LABELED     | false               | 123456789        |MDL Hub 1        | This is comment |
 
 
+     Rule: The transit end date cannot be in the future.
+     @api @DIS-456
+     Scenario Outline: Validate transit end date is not in the future
+         Given The following transit time thresholds are configured:
+             | Temperature Category | Min Transit Time | Max Transit Time |
+             | ROOM_TEMPERATURE     |    0             |  (23.99 * 60)    |
+         When I request to validate the total transit time of Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>" and End Time Zone as "<EndTimeZone>"  for the Temperature Category "<Temperature Category>".
+         Then I should receive a "<message_type>" message response "<message>".
+         Examples:
+             | Temperature Category | StartDateTime  | StartTimeZone    | EndDateTime | EndTimeZone       | message_type | message                                             |
+             | ROOM_TEMPERATURE     | <today>        | America/New_York | <tomorrow>  | America/New_York  | SYSTEM       | Not able to validate transit time. Contact Support. |
+             | ROOM_TEMPERATURE     | <tomorrow>     | America/New_York | <today>     | America/New_York  | SYSTEM       | Not able to validate transit time. Contact Support. |
+
+
+
    Scenario: : Transfer Receipt Database Clean-up
        Given I have removed all imports using thermometer which code contains "-DST-456".
        And I have removed all created devices which ID contains "-DST-456".
@@ -152,21 +167,4 @@ Feature: Transfer Receipt
            |234567891     | America/New_York  |
 
 
-             ## cover this through api
-#      Rule: The transit end date cannot be in the future.
-#      @ui @DIS-456
-#      Scenario Outline: Validate transit end date is not in the future
-#          Given A Internal Transfer shipment is completed with the following details:
-#              | Order_Number  | Customer_ID  | Customer_Name  | Product_Family   | Temperature_Category  | Label_Status  | Quarantined_Products  |
-#              | <OrderNumber> | <CustomerId> | <CustomerName> | <Product_Family> | <TemperatureCategory> | <LabelStatus> | <QuarantinedProducts> |
-#          And I have a thermometer configured as location "<Location_Code_From>", Device ID as "<Device ID>", Category as "<Device Category>" and Device Type as "<Device Type>".
-#          And The user location is "<Location_Code_From>".
-#          And I am at the Transfer Receipt Page.
-#          And The current date is "<Current Date>".
-#          When I enter internal transfer order number "<OrderNumber>".
-#          And I enter transit start date as "<Transit Start Date>".
-#          And I enter transit end date as "<Transit End Date>".
-#          Then I should receive a "ERROR" message response "Transit end date cannot be in the future".
-#          Examples:
-#              | OrderNumber | CustomerId | CustomerName      | Product_Family      | TemperatureCategory | LabelStatus | QuarantinedProducts | Location_Code_From | thermometer ID | Device ID     | Device Type | Device Category | Temperature | Current Date | Transit Start Date | Transit End Date |
-#              | 45600004    | DO1        | Distribution Only | PLASMA_TRANSFUSABLE | REFRIGERATED        | UNLABELED   | false               | 123456789          | THERM-DST-409  | THERM-DST-409 | THERMOMETER | TEMPERATURE     | 4.0         | 2023-06-14   | 2023-06-13         | 2025-06-15       |
+
