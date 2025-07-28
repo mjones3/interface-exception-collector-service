@@ -22,7 +22,6 @@ class IrradiationInventoryMapperTest {
     @Test
     @DisplayName("Should map Inventory to IrradiationInventoryOutput successfully")
     void toDomain_Success() {
-        // Given
         UnitNumber unitNumber = new UnitNumber("W777725001001");
         Location location = new Location("123456789");
         List<InventoryQuarantine> quarantines = List.of(
@@ -45,11 +44,7 @@ class IrradiationInventoryMapperTest {
             .isBeingIrradiated(false)
             .quarantines(quarantines)
             .build();
-
-        // When
         IrradiationInventoryOutput result = mapper.toDomain(inventory);
-
-        // Then
         assertNotNull(result);
         assertEquals("W777725001001", result.unitNumber());
         assertEquals("E033600", result.productCode());
@@ -63,12 +58,8 @@ class IrradiationInventoryMapperTest {
         assertEquals(false, result.isImported());
         assertNull(result.isBeingIrradiated());
         assertEquals(2, result.quarantines().size());
-
-        // Verify ignored fields are set to default values
         assertFalse(result.alreadyIrradiated());
         assertFalse(result.notConfigurableForIrradiation());
-
-        // Verify missing fields have default values
         assertNull(result.shortDescription());
         assertFalse(result.isLabeled());
     }
@@ -76,7 +67,6 @@ class IrradiationInventoryMapperTest {
     @Test
     @DisplayName("Should handle null values in Inventory mapping")
     void toDomain_WithNullValues() {
-        // Given
         UnitNumber unitNumber = new UnitNumber("W777725001002");
         Location location = new Location("987654321");
 
@@ -95,11 +85,7 @@ class IrradiationInventoryMapperTest {
             .isBeingIrradiated(null)
             .quarantines(null)
             .build();
-
-        // When
         IrradiationInventoryOutput result = mapper.toDomain(inventory);
-
-        // Then
         assertNotNull(result);
         assertEquals("W777725001002", result.unitNumber());
         assertEquals("E068600", result.productCode());
@@ -113,12 +99,8 @@ class IrradiationInventoryMapperTest {
         assertNull(result.isImported());
         assertNull(result.isBeingIrradiated());
         assertNull(result.quarantines());
-
-        // Verify ignored fields are set to default values
         assertFalse(result.alreadyIrradiated());
         assertFalse(result.notConfigurableForIrradiation());
-
-        // Verify missing fields have default values
         assertNull(result.shortDescription());
         assertFalse(result.isLabeled());
     }
@@ -126,17 +108,12 @@ class IrradiationInventoryMapperTest {
     @Test
     @DisplayName("Should map InventoryQuarantine correctly")
     void toDomain_InventoryQuarantine_Success() {
-        // Given
         InventoryQuarantine quarantine = new InventoryQuarantine(
             "POSITIVE_REACTIVE_TEST_RESULTS",
             "Product failed safety tests",
             true
         );
-
-        // When
         InventoryQuarantine result = mapper.toDomain(quarantine);
-
-        // Then
         assertNotNull(result);
         assertEquals("POSITIVE_REACTIVE_TEST_RESULTS", result.reason());
         assertEquals("Product failed safety tests", result.comments());
@@ -146,17 +123,12 @@ class IrradiationInventoryMapperTest {
     @Test
     @DisplayName("Should map list of InventoryQuarantine correctly")
     void toDomain_InventoryQuarantineList_Success() {
-        // Given
         List<InventoryQuarantine> quarantines = List.of(
             new InventoryQuarantine("EXPIRED", "Product expired", false),
             new InventoryQuarantine("DAMAGED", "Physical damage", true),
             new InventoryQuarantine("CONTAMINATED", "Contamination detected", true)
         );
-
-        // When
         List<InventoryQuarantine> result = mapper.toDomain(quarantines);
-
-        // Then
         assertNotNull(result);
         assertEquals(3, result.size());
 
@@ -176,13 +148,8 @@ class IrradiationInventoryMapperTest {
     @Test
     @DisplayName("Should handle empty list of InventoryQuarantine")
     void toDomain_EmptyInventoryQuarantineList() {
-        // Given
         List<InventoryQuarantine> emptyQuarantines = List.of();
-
-        // When
         List<InventoryQuarantine> result = mapper.toDomain(emptyQuarantines);
-
-        // Then
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
@@ -190,7 +157,6 @@ class IrradiationInventoryMapperTest {
     @Test
     @DisplayName("Should map Inventory with empty quarantines list")
     void toDomain_WithEmptyQuarantines() {
-        // Given
         UnitNumber unitNumber = new UnitNumber("W777725001003");
         Location location = new Location("555666777");
 
@@ -209,11 +175,7 @@ class IrradiationInventoryMapperTest {
             .isBeingIrradiated(false)
             .quarantines(List.of())
             .build();
-
-        // When
         IrradiationInventoryOutput result = mapper.toDomain(inventory);
-
-        // Then
         assertNotNull(result);
         assertEquals("W777725001003", result.unitNumber());
         assertEquals("E003300", result.productCode());
@@ -232,20 +194,14 @@ class IrradiationInventoryMapperTest {
     @Test
     @DisplayName("Should handle null InventoryQuarantine in toDomain method")
     void toDomain_NullInventoryQuarantine() {
-        // Given
         InventoryQuarantine nullQuarantine = null;
-
-        // When
         InventoryQuarantine result = mapper.toDomain(nullQuarantine);
-
-        // Then
         assertNull(result);
     }
 
     @Test
     @DisplayName("Should map Inventory with all boolean flags set to true")
     void toDomain_WithAllBooleanFlagsTrue() {
-        // Given
         UnitNumber unitNumber = new UnitNumber("W777725001004");
         Location location = new Location("111222333");
 
@@ -266,11 +222,7 @@ class IrradiationInventoryMapperTest {
                 new InventoryQuarantine("EXPIRED", "Past expiration date", true)
             ))
             .build();
-
-        // When
         IrradiationInventoryOutput result = mapper.toDomain(inventory);
-
-        // Then
         assertNotNull(result);
         assertEquals("W777725001004", result.unitNumber());
         assertEquals("E0869V00", result.productCode());
