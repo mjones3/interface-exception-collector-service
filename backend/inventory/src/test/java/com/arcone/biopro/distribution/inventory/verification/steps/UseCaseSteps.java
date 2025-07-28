@@ -104,15 +104,15 @@ public class UseCaseSteps {
         addQuarantinedUseCase.execute(new AddQuarantineInput(product, Long.parseLong(quarantineReasonId), quarantineReasonMap.get(quarantineReason), null, false)).block();
     }
 
-    @When("I received an Apply Quarantine event for unit {string} and product {string} with reason {string}, id {string} and stopManufacturing mark as {string}")
-    public void iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId, String stopManufacturing) {
+    @When("I received an Apply Quarantine event for unit {string} and product {string} with reason {string}, id {string} and stopsManufacturing mark as {string}")
+    public void iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId, String stopsManufacturing) {
 
         Product product = Product.builder()
             .unitNumber(unitNumber)
             .productCode(productCode)
             .build();
-        boolean stopManufacturingInput = Boolean.parseBoolean(stopManufacturing);
-        addQuarantinedUseCase.execute(new AddQuarantineInput(product, Long.parseLong(quarantineReasonId), quarantineReasonMap.get(quarantineReason), null, stopManufacturingInput)).block();
+        boolean stopsManufacturingInput = Boolean.parseBoolean(stopsManufacturing);
+        addQuarantinedUseCase.execute(new AddQuarantineInput(product, Long.parseLong(quarantineReasonId), quarantineReasonMap.get(quarantineReason), null, stopsManufacturingInput)).block();
     }
 
     @When("I received a Remove Quarantine event for unit {string} and product {string} with reason {string} and id {string}")
@@ -125,14 +125,14 @@ public class UseCaseSteps {
         removeQuarantinedUseCase.execute(new RemoveQuarantineInput(product, Long.parseLong(quarantineReasonId))).block();
     }
 
-    @When("I received a Update Quarantine event for unit {string} and product {string} with reason {string}, id {string} and stopManufacturing {string}")
-    public void iReceivedAUpdateQuarantineEventForUnitAndProductWithReason(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId, String stopManufacturing) {
+    @When("I received a Update Quarantine event for unit {string} and product {string} with reason {string}, id {string} and stopsManufacturing {string}")
+    public void iReceivedAUpdateQuarantineEventForUnitAndProductWithReason(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId, String stopsManufacturing) {
         Product product = Product.builder()
             .unitNumber(unitNumber)
             .productCode(productCode)
             .build();
 
-        updateQuarantinedUseCase.execute(new UpdateQuarantineInput(product, Long.parseLong(quarantineReasonId),quarantineReason,"", Boolean.parseBoolean(stopManufacturing))).block();
+        updateQuarantinedUseCase.execute(new UpdateQuarantineInput(product, Long.parseLong(quarantineReasonId),quarantineReason,"", Boolean.parseBoolean(stopsManufacturing))).block();
     }
 
     @When("I received a Product Recovered event")
