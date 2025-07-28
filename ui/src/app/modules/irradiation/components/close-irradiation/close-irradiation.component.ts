@@ -81,6 +81,10 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
+
+    @ViewChild('irradiationIdInput')
+    irradiationInput: InputComponent;
+
     form: FormGroup;
     currentLocation: string;
 
@@ -112,6 +116,13 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         setTimeout(() => this.unitNumberComponent.form.disable());
+        this.focusOnIrradiationInput();
+    }
+
+    focusOnIrradiationInput(): void {
+        if (this.irradiationInput) {
+            this.irradiationInput.focus();
+        }
     }
 
     get irradiation() {
@@ -156,12 +167,15 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.initialProductsState = [];
         this.selectedProducts = [];
         this.allProducts = [];
-        this.unitNumberComponent.reset();
-        this.redirect();
+        this.unitNumberComponent.controlUnitNumber.reset();
+        this.irradiation.reset();
+        this.irradiation.enable();
+        this.currentDateTime = '';
+        setTimeout(() => this.focusOnIrradiationInput(), 1);
     }
 
     isSubmitEnabled(): boolean {
-        if (this.form.valid && this.numberOfUnits > 0) {
+        if ((this.form.valid || this.irradiation.disabled) && this.numberOfUnits > 0) {
             const enabledProducts = this.products.filter(p => !p.disabled);
             return enabledProducts.every(product =>
                 product.statuses.some(status =>
@@ -170,10 +184,6 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             );
         }
         return false
-    }
-
-    get disableCancelButton() {
-        return !this.deviceId;
     }
 
     submit() {
@@ -419,6 +429,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                         status: this.getFinalStatus(product),
                         statuses: this.getStatuses(this.getFinalStatus(product)),
                     })) as IrradiationProductDTO[];
+                    this.irradiation.disable();
                     this.populateIrradiationBatch(irradiationProducts);
                     this.unitNumberComponent.controlUnitNumber.enable();
                     setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
