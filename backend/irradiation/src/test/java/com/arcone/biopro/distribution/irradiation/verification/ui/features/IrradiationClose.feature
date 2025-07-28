@@ -114,3 +114,34 @@ Feature: Close Irradiation Batch
             Examples:
                 | Unit Number 1 | Product Code 1 | Description 1 | Product Code 2 | Description 2     | Irradiator Id | Unit Number 2 |
                 | W777725004005 | E033600        | AS1 LR RBC    | E068600        | APH AS3 LR RBC C2 | AUTO-IRRAD022 | W777725004006 |
+
+    Rule: As a distribution specialist, I cannot close an irradiation batch if all products in the batch have not been completed
+        @LAB-621 @LAB-622
+        Scenario Outline: I cannot close an irradiation batch when products are not fully completed.
+            Given An irradiation batch has been started with the following units for irradiator "<Irradiator Id>"
+                | Unit Number     | Product Code     | Lot Number |
+                | <Unit Number 1> | <Product Code 2> | Lot 4567   |
+                | <Unit Number 2> | <Product Code 1> | Lot 45678  |
+            And I login to Distribution module
+            And I select the location "MDL Hub 1"
+
+            When I navigate to "Close Irradiation" in "Irradiation"
+            And On the "Close Irradiation" page, I scan the irradiator id "<Irradiator Id>"
+            And On the "Close Irradiation" page, I verify that the unit number "<Unit Number 1>" with product "<Description 2>" was added to the batch
+            And On the "Close Irradiation" page, I verify that the unit number "<Unit Number 2>" with product "<Description 1>" was added to the batch
+
+            When On the "Close Irradiation" page, I scan the unit number "=<Unit Number 1>00"
+            And On the "Close Irradiation" page, I scan the unit number "=<Unit Number 2>00"
+
+            When On the "Close Irradiation" page, I select the card for unit "<Unit Number 1>" and product "<Description 2>" in the batch
+            And On the Close Irradiation page, I click on Record Inspection
+            And On the Record Inspection window, I verify that Record Inspection window is displayed
+            And On the Record Inspection window, I select Irradiated status
+            And On the Record Inspection window, I click on Submit
+            And On the "Close Irradiation" page, I select the card for unit "<Unit Number 1>" and product "<Description 2>" in the batch
+
+            Then I verify that I am "Unable" to "Submit"
+
+            Examples:
+                | Unit Number 1 | Product Code 1 | Description 1 | Product Code 2 | Description 2     | Irradiator Id | Unit Number 2 |
+                | W777725004007 | E033600        | AS1 LR RBC    | E068600        | APH AS3 LR RBC C2 | AUTO-IRRAD023 | W777725004008 |
