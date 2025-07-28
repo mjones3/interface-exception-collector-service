@@ -105,13 +105,13 @@ public class UseCaseSteps {
     }
 
     @When("I received an Apply Quarantine event for unit {string} and product {string} with reason {string}, id {string} and stopManufacturing mark as {string}")
-    public void iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId, String stopManofacturing) {
+    public void iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId, String stopManufacturing) {
 
         Product product = Product.builder()
             .unitNumber(unitNumber)
             .productCode(productCode)
             .build();
-        boolean stopManufacturingInput = Boolean.parseBoolean(stopManofacturing);
+        boolean stopManufacturingInput = Boolean.parseBoolean(stopManufacturing);
         addQuarantinedUseCase.execute(new AddQuarantineInput(product, Long.parseLong(quarantineReasonId), quarantineReasonMap.get(quarantineReason), null, stopManufacturingInput)).block();
     }
 

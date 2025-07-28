@@ -11,7 +11,7 @@ Feature: Quarantine add it to product ProductQuarantine Event - API
 
         Examples:
             | Id | Unit Number   | Stop manufacturing | Result stop manufacturing |
-            | 1  | W777725011001 | true               | true                      |
+            | 1  | W777725011003 | true               | true                      |
 
     Scenario Outline: Add Quarantine to product with different reasons with stopManofacturing false.
         Given I have a unit number "<Unit Number>" with product "E1624V00" that is "AVAILABLE"
@@ -21,7 +21,7 @@ Feature: Quarantine add it to product ProductQuarantine Event - API
 
         Examples:
             | Id | Unit Number   | Stop manufacturing | Result stop manufacturing |
-            | 1  | W777725011002 | false              | false                     |
+            | 1  | W777725011004 | false              | false                     |
 
     Scenario Outline: Add Quarantine to product with different reasons with stopManofacturing false.
         Given I have a unit number "<Unit Number>" with product "E1624V00" that is "AVAILABLE"
@@ -35,6 +35,6 @@ Feature: Quarantine add it to product ProductQuarantine Event - API
 
         Examples:
             | Quarantine 1 Id | Unit Number   | Stop manufacturing Quarantine 1 | Result stop manufacturing 1 | Quarantine 2 Id | Stop manufacturing Quarantine 2 | Result stop manufacturing 2 |
-            | 1               | W777725011003 | false                           | false                       | 2               | true                            | true                        |
+            | 1               | W777725011005 | false                           | false                       | 2               | true                            | true                        |
 
 
