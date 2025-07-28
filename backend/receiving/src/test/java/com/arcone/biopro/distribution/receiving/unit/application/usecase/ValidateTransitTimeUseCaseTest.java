@@ -46,12 +46,12 @@ class ValidateTransitTimeUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
         validCommandInput = new ValidateTransitTimeCommandInput(
             "FROZEN",
-            now,
+            yesterday,
             "UTC",
-            now.plusHours(2),
+            yesterday.plusHours(2),
             "UTC"
         );
 
