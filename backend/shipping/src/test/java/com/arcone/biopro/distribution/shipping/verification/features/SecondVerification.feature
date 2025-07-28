@@ -227,16 +227,14 @@ Feature: Second Verification of Units Feature
                 | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <UN>         | <ProductCode> | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
             And The product code should not be available.
             When I scan the unit "<UN>".
-#            Then I should see the list of verified products added including "<UN>" and "<product_description>".
-            Then I "should" see the list of verified products added including "<UN>" and "<ProductCode>".
+            Then I "should" see the list of verified products added including "<UN>" and "<product_description>".
             And I "<ShouldShouldNot>" see the product status as "Quarantined".
             When I scan the unit "<UN>".
-#            Then I should see a "Warning" message: "This product has already been verified. Please re-scan all the products in the order.".
             Then I should see a "Warning" message: "The verification does not match all products in this order. Please re-scan all the products.".
             And  I "should not" see the list of verified products added including "<UN>" and "<ProductCode>".
             And The complete shipment option should not be enabled.
             Examples:
-                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily              | BloodType | UN            | ProductCode | product_description           | Category         | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
-                | 45300008     | DO1         | Distribution Only | 2        | ANY       | WASHED_APHERESIS_PLATELETS | ANY       | W036825151119 | E355900     | UNLABELED PRODUCT_DESCRIPTION | ROOM_TEMPERATURE | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily              | BloodType | UN            | ProductCode | product_description | Category         | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
+                | 45300008     | DO1         | Distribution Only | 2        | ANY       | WASHED_APHERESIS_PLATELETS | ANY       | W036825151119 | E355900     | APH FFP C-0         | ROOM_TEMPERATURE | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
 
 

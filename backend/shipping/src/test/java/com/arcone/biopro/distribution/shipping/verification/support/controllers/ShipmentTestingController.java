@@ -381,10 +381,10 @@ public class ShipmentTestingController {
     }
 
     public Long createPackedShipment(String orderNumber, List<String> unitNumbers, List<String> productCodes, String itemStatus, String productFamily, String bloodType, Integer totalRequested) {
-        return createPackedShipment(orderNumber,"B2346","Advanced Medical Center","FROZEN","CUSTOMER","LABELED",false,unitNumbers,productCodes,itemStatus,productFamily,bloodType,totalRequested);
+        return createPackedShipment(orderNumber, "B2346", "Advanced Medical Center", "FROZEN", "CUSTOMER", "LABELED", false, unitNumbers, productCodes, itemStatus, productFamily, bloodType, totalRequested);
     }
 
-    public Long createPackedShipment(String orderNumber,String customerCode , String customerName , String temperatureCategory , String shipmentType , String labelStatus , boolean quarantinedProducts, List<String> unitNumbers, List<String> productCodes, String itemStatus, String productFamily, String bloodType, Integer totalRequested) {
+    public Long createPackedShipment(String orderNumber, String customerCode, String customerName, String temperatureCategory, String shipmentType, String labelStatus, boolean quarantinedProducts, List<String> unitNumbers, List<String> productCodes, String itemStatus, String productFamily, String bloodType, Integer totalRequested) {
 
         var insertShipment = "INSERT INTO bld_shipment " +
             "(order_number, customer_code, customer_name, customer_phone_number, location_code, delivery_type, priority, shipment_method, product_category, status, state, postal_code, country" +
@@ -393,7 +393,7 @@ public class ShipmentTestingController {
             " VALUES(%s,'%s', '%s', '234-567-8901', '123456789', 'STAT', 'STAT', 'FEDEX', '%s', 'OPEN', 'CA', '90210', 'US', 'US', 'Beverly Hills', 'LA', '456 Elm Street', 'Suite 200', NULL, '2024-10-07', '2024-10-07 12:45:34.084', '2024-10-07 12:45:34.084', NULL, '', 'Cardiology', 'mock-employee-id', NULL, NULL, '%s','%s','%s',%s);";
 
         var externalId = "DIS_EXT_" + RandomStringUtils.randomAlphanumeric(10);
-        databaseService.executeSql(String.format(insertShipment, orderNumber,customerCode,customerName,temperatureCategory,externalId,labelStatus,shipmentType,quarantinedProducts)).block();
+        databaseService.executeSql(String.format(insertShipment, orderNumber, customerCode, customerName, temperatureCategory, externalId, labelStatus, shipmentType, quarantinedProducts)).block();
 
         var createdShipment = databaseService.fetchData(String.format("select id from bld_shipment where order_number = %s ", orderNumber)).first().block();
         if (createdShipment != null) {
@@ -413,8 +413,8 @@ public class ShipmentTestingController {
                 var productStatus = quarantinedProducts ? "QUARANTINED" : null;
                 for (int i = 0; i < unitNumbers.size(); i++) {
                     if (itemStatus.equalsIgnoreCase("packed")) {
-                        var productDescription = String.format("%s-%s","APH FFP C",i);
-                        createPackedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i),productDescription,productStatus);
+                        var productDescription = String.format("%s-%s", "APH FFP C", i);
+                        createPackedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i), productDescription, productStatus);
                     } else if (itemStatus.equalsIgnoreCase("verified")) {
                         createVerifiedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
                     } else if (itemStatus.equalsIgnoreCase("unsuitable-verified")) {
@@ -427,12 +427,12 @@ public class ShipmentTestingController {
         return null;
     }
 
-    private void createPackedItem(String shipmentItemId, String unitNumber, String productCode , String productDescription , String productStatus) {
+    private void createPackedItem(String shipmentItemId, String unitNumber, String productCode, String productDescription, String productStatus) {
         var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
             "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id , product_status) " +
             " VALUES(%s, '%s', '%s', '%s', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','PENDING',null , null,'%s');";
 
-        databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber, productCode,productDescription,productStatus)).block();
+        databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber, productCode, productDescription, productStatus)).block();
     }
 
     private void createUnsuitableVerifiedItem(String shipmentItemId, String unitNumber, String productCode) {
@@ -498,7 +498,7 @@ public class ShipmentTestingController {
         var response = apiHelper.graphQlRequest(payload, "getUnlabeledProducts");
         if (response.get("results") != null) {
             var results = (LinkedHashMap) response.get("results");
-            if(results.get("results") != null) {
+            if (results.get("results") != null) {
                 var itemZero = (List<LinkedHashMap>) results.get("results");
                 return (List<LinkedHashMap>) itemZero.get(0);
             }
@@ -508,7 +508,7 @@ public class ShipmentTestingController {
         }
     }
 
-    public String getProductFamilyDescription(String productFamilyKey){
+    public String getProductFamilyDescription(String productFamilyKey) {
         Map<String, String> productFamilyDescription = Map.of(
             "WHOLE_BLOOD", "Whole Blood",
             "WHOLE_BLOOD_LEUKOREDUCED", "Whole Blood Leukoreduced",
@@ -524,6 +524,14 @@ public class ShipmentTestingController {
         return productFamilyDescription.get(productFamilyKey);
     }
 
+public void verifyItem(Long shipmentId, String un, String productCode, String employeeId) {
+        var verifyItemResponse = apiHelper.graphQlRequest(GraphQLMutationMapper.verifyItemMutation(shipmentId, un, productCode, employeeId), "verifyItem");
+        if (verifyItemResponse.get("results") != null) {
+            var verifiedList = ((ArrayList<LinkedHashMap>) ((LinkedHashMap) verifyItemResponse.get("results")).get("results"));
+            var verifiedItems = ((ArrayList<LinkedHashMap>) verifiedList.get(0).get("verifiedItems"));
+            sharedContext.setVerifiedProductsList(verifiedItems);
+        }
+    }
 }
 
 

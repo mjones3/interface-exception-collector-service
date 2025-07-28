@@ -71,34 +71,34 @@ Feature: Fill Unlabeled Products for Internal Transfer order
         @api @DIS-453
         Scenario Outline: Product Selection Verify Unlabeled Products.
             Given The shipment details are:
-                | Order_Number   | Customer_ID   | Customer_Name   | Quantity    | Blood_Type   | Product_Family | Unit_numbers   | Product_Codes   | Temp_Category  | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status  |
-                | <Order Number> | <Customer ID> | <Customer Name> |  <Quantity> | <BloodType> | <ProductFamily> | <UNIT_NUMBERS> | <PRODUCT_CODES> | <Category>     | <Shipment Type> | <Label Status> | <Quarantined Products> | <ProductStatus> |
+                | Order_Number   | Customer_ID   | Customer_Name   | Quantity   | Blood_Type  | Product_Family  | Unit_Numbers  | Product_Codes | Temp_Category | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status |
+                | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | W036825181111 | GENERIC       | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
             And The second verification configuration is "enabled".
-            When I request all packed unlabeled products for the unit number "<UN>".
+            When I request all unlabeled products for the unit number "<UN>" in the line item 1.
             Then I should receive the product list with the products "<product_list>" available for the unit number "<UN>".
             Examples:
-                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                | Category | Shipment Type     | Label Status | Quarantined Products | UN            | product_list  |
-                | 45300001    | DO1         | Distribution Only | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | W036825185915 | LR_RBC,LR_RBB |
-                | 45300002    | DO1         | Distribution Only | 5        | ANY       | PLASMA_TRANSFUSABLE          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | W036825158907 | BAG-A,BAG-B   |
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | Category | Shipment Type     | Label Status | Quarantined Products | UN            | ProductCode | product_list  |
+                | 45300001     | DO1         | Distribution Only | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | W036825185915 | GENERIC     | LR_RBC,LR_RBB |
+                | 45300002     | DO1         | Distribution Only | 5        | ANY       | PLASMA_TRANSFUSABLE          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | W036825158907 | GENERIC     | BAG-A,BAG-B   |
 
 
         Rule: I should not see the products that I have already verified.
-        @api @DIS-453
-        Scenario Outline: Product Selection Verify Unlabeled Products Filtering out verified products.
-            Given The shipment details are:
-                | Order_Number   | Customer_ID   | Customer_Name   | Quantity    | Blood_Type   | Product_Family | Unit_numbers   | Product_Codes   | Temp_Category  | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status  |
-                | <Order Number> | <Customer ID> | <Customer Name> |  <Quantity> | <BloodType> | <ProductFamily> | <UNIT_NUMBERS> | <PRODUCT_CODES> | <Category>     | <Shipment Type> | <Label Status> | <Quarantined Products> | <ProductStatus> |
-            And The second verification configuration is "enabled".
-            When I request all packed unlabeled products for the unit number "<UN>".
-            Then I should receive the product list with the products "<product_list_1>" available for the unit number "<UN>".
-            When I verify a product with the unit number "<UN>", product code "<Code_1>".
-            Then The product unit number "<UN>" and product code "<Code_1>" should be verified in the shipment.
-            When I request all packed unlabeled products for the unit number "<UN>".
-            Then I should receive the product list with the products "<product_list_2>" available for the unit number "<UN>".
-            Examples:
-                | Order Number | Customer ID | Customer Name             | Quantity | BloodType | ProductFamily                    | UN            | Code_1 | Category | Shipment Type     | Label Status | Quarantined Products | product_list_1 | product_list_2 |
-                | 45300003     |DL1          | Distribution and Labeling | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W036825185915 | LR_RBC | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | LR_RBC,LR_RBB  | LR_RBB         |
-                | 45300004     |DO1          | Distribution Only         | 5        | ANY       | PLASMA_TRANSFUSABLE              | W036825158907 | BAG-A  | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | BAG-A,BAG-B    | BAG-B          |
+            @api @DIS-453
+            Scenario Outline: Product Selection Verify Unlabeled Products Filtering out verified products.
+                Given The shipment details are:
+                    | Order_Number   | Customer_ID   | Customer_Name   | Quantity   | Blood_Type  | Product_Family  | Unit_Numbers  | Product_Codes | Temp_Category | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status |
+                    | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <UN> | <Code_1>       | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
+                And The second verification configuration is "enabled".
+                When I request all unlabeled products for the unit number "<UN>" in the line item 1.
+                Then I should receive the product list with the products "<product_list_1>" available for the unit number "<UN>".
+                When I verify a product with the unit number "<UN>", product code "<Code_1>".
+                Then The product unit number "<UN>" and product code "<Code_1>" should be verified in the shipment.
+                When I request all unlabeled products for the unit number "<UN>" in the line item 1.
+                Then I should receive the product list with the products "<product_list_2>" available for the unit number "<UN>".
+                Examples:
+                    | Order Number | Customer ID | Customer Name             | Quantity | BloodType | ProductFamily                | UN            | Code_1 | Category | Shipment Type     | Label Status | Quarantined Products | product_list_1 | product_list_2 |
+                    | 45300003     | DL1         | Distribution and Labeling | 10       | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | W036825185915 | LR_RBC | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | LR_RBB         | LR_RBB         |
+                    | 45300004     | DO1         | Distribution Only         | 5        | ANY       | PLASMA_TRANSFUSABLE          | W036825158907 | BAG-A  | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | BAG-B          | BAG-B          |
 
 
 

@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.shipping.verification.pages.distribution.S
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.VerifyProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
+import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
 import io.cucumber.datatable.DataTable;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,12 +46,18 @@ public class SecondVerificationSteps {
     @Value("${ui.shipment-details.url}")
     private String shipmentDetailsUrl;
 
+    @Value("${default.employee.id}")
+    private String defaultEmployeeId;
+
     @Autowired
     private HomePage homePage;
     @Autowired
     private SharedActions sharedActions;
     @Autowired
     private ShipmentDetailPage shipmentDetailPage;
+
+    private Map verifyItemResponse;
+    private LinkedHashMap verifiedProductsList;
 
     @Then("I should be redirected to the verify products page.")
     public void shouldBeRedirectedToVerifyProductsPage() {
@@ -62,11 +70,12 @@ public class SecondVerificationSteps {
     }
 
     @Then("I can see the Order Information Details and the Shipping Information Details.")
-    public void checkPageContent(){
+    public void checkPageContent() {
         verifyProductsPage.viewPageContent();
     }
+
     @Then("I can see the Order Information Details and the Shipping Information Details as requested.")
-    public void checkPageContentDetails(DataTable dataTable){
+    public void checkPageContentDetails(DataTable dataTable) {
         verifyProductsPage.viewPageContent(dataTable);
     }
 
@@ -90,7 +99,7 @@ public class SecondVerificationSteps {
     @And("I should see the log of verified products being updated.")
     public void verifyLogInProgress() {
         String progress = verifyProductsPage.getProductsProgressLog();
-        var progressText = String.format("%s/%s",context.getTotalVerified(),context.getTotalPacked());
+        var progressText = String.format("%s/%s", context.getTotalVerified(), context.getTotalPacked());
         Assert.assertEquals(progress, progressText);
     }
 
@@ -199,8 +208,8 @@ public class SecondVerificationSteps {
     @And("I should see the log of removed products being updated.")
     public void checkRemovedCount() {
         String progress = verifyProductsPage.getProductsProgressLog();
-        var progressText = String.format("%s/%s",context.getToBeRemoved(),context.getTotalRemoved());
-        Assert.assertEquals(progress.replace(" ",""), progressText.replace(" ",""));
+        var progressText = String.format("%s/%s", context.getToBeRemoved(), context.getTotalRemoved());
+        Assert.assertEquals(progress.replace(" ", ""), progressText.replace(" ", ""));
     }
 
     @And("The fill more products option should be {string}.")
@@ -218,8 +227,8 @@ public class SecondVerificationSteps {
     @And("I should see the verified products section empty.")
     public void iShouldSeeTheVerifiedProductsSectionEmpty() {
         String progress = verifyProductsPage.getProductsProgressLog();
-        var progressText = String.format("%s/%s",0,context.getTotalPacked());
-        Assert.assertEquals(progress.replace(" ",""), progressText);
+        var progressText = String.format("%s/%s", 0, context.getTotalPacked());
+        Assert.assertEquals(progress.replace(" ", ""), progressText);
     }
 
     @When("I confirm the notification dialog")
@@ -251,7 +260,8 @@ public class SecondVerificationSteps {
     @And("I should receive a redirect address to {string}.")
     public void iShouldReceiveARedirectAddressTo(String page) {
         var url = switch (page) {
-            case "Shipment Details Page" -> shipmentDetailsUrl.replace("{shipmentId}", context.getShipmentId().toString());
+            case "Shipment Details Page" ->
+                shipmentDetailsUrl.replace("{shipmentId}", context.getShipmentId().toString());
             default -> throw new IllegalArgumentException("Page not mapped");
         };
 
@@ -321,5 +331,22 @@ public class SecondVerificationSteps {
     @When("I scan the unit {string}.")
     public void iScanTheUnit(String un) throws InterruptedException {
         verifyProductsPage.scanUnit(un);
+    }
+
+    @When("I verify a product with the unit number {string}, product code {string}.")
+    public void iVerifyAProductWithTheUnitNumberProductCode(String un, String productCode) {
+        shipmentTestingController.verifyItem(context.getShipmentId(), un, productCode, defaultEmployeeId);
+    }
+
+    @Then("The product unit number {string} and product code {string} should be verified in the shipment.")
+    public void theProductUnitNumberAndProductCodeShouldBeVerifiedInTheShipment(String un, String productCodes) {
+        var productCodeList = TestUtils.getCommaSeparatedList(productCodes);
+        var match = false;
+        for (String productCode : productCodeList) {
+            match = context.getVerifiedProductsList().stream().anyMatch(
+                verifiedProduct -> verifiedProduct.get("productCode").equals(productCode)
+            && verifiedProduct.get("unitNumber").equals(un));
+        }
+        Assert.assertTrue(match);
     }
 }
