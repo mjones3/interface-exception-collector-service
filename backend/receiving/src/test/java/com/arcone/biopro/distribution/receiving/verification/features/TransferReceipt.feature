@@ -149,9 +149,9 @@ Feature: Transfer Receipt
          When I request to validate the total transit time of Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>" and End Time Zone as "<EndTimeZone>"  for the Temperature Category "<Temperature Category>".
          Then I should receive a "<message_type>" message response "<message>".
          Examples:
-             | Temperature Category | StartDateTime  | StartTimeZone    | EndDateTime | EndTimeZone       | message_type | message                                             |
-             | ROOM_TEMPERATURE     | <today>        | America/New_York | <tomorrow>  | America/New_York  | SYSTEM       | Not able to validate transit time. Contact Support. |
-             | ROOM_TEMPERATURE     | <tomorrow>     | America/New_York | <today>     | America/New_York  | SYSTEM       | Not able to validate transit time. Contact Support. |
+             | Temperature Category | StartDateTime  | StartTimeZone    | EndDateTime | EndTimeZone       | message_type | message                                       |
+             | ROOM_TEMPERATURE     | <today>        | America/New_York | <tomorrow>  | America/New_York  | WARN         | End date date cannot be in the future         |
+             | ROOM_TEMPERATURE     | <tomorrow>     | America/New_York | <today>     | America/New_York  | WARN         | Start date date cannot be after end date date |
 
 
 
