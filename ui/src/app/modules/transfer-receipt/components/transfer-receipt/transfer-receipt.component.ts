@@ -101,6 +101,8 @@ export class TransferReceiptComponent {
     this.transferInformationForm.reset();
     this.transferInformationSignal.set(null);
     this.isDifferentLocationSignal.set(null);
+    this.transferInformationForm.controls.comments.clearValidators();
+    this.transferInformationForm.controls.comments.updateValueAndValidity();
     this.transitTimeFormComponent()?.reset();
     this.temperatureFormComponent()?.reset();
   }

@@ -42,7 +42,7 @@
                             (keydown.tab)="onEnterTransferOrder()"
                         />
                     @if (transferInformationForm.controls.transferOrderNumber.hasError('required')) { <mat-error>Transfer Order Number is required</mat-error> }
-                    @if (transferInformationForm.controls.transferOrderNumber.hasError('pattern')) { <mat-error>Transfer Order Number allow only numbers</mat-error> }
+                    @if (transferInformationForm.controls.transferOrderNumber.hasError('pattern')) { <mat-error>Transfer Order Number allows only numbers</mat-error> }
                 </mat-form-field>
 
                 <!-- Temperature Category -->
