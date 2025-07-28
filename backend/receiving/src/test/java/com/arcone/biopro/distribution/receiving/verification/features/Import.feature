@@ -117,8 +117,8 @@ Feature: Import products
             Examples:
                 | Temperature Category | StartDateTime            | StartTimeZone    | EndDateTime              | EndTimeZone       | message_type | message                                                                        |
                 | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-03T05:22:53.108Z | America/New_York  | CAUTION      | Total Transit Time does not meet thresholds. All products will be quarantined. |
-                | FROZEN               | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York  | SYSTEM       | Not able to validate transit time. Contact Support.                            |
-                | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | INVALID_TIME_ZONE | SYSTEM       | Not able to validate transit time. Contact Support.                            |
+                | FROZEN               | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York  | WARN         | ProductConsequenceList is required                                             |
+                | ROOM_TEMPERATURE     | 2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | INVALID_TIME_ZONE | WARN         | Invalid end time zone                                                          |
 
 
         Rule: I should be able to see the total transit time of the imported products.
