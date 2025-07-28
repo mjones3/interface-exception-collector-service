@@ -18,7 +18,8 @@ public enum UseCaseMessageType {
     VALIDATE_BARCODE_SYSTEM_ERROR(6,  UseCaseNotificationType.SYSTEM, "Not able to validate barcode. Contact Support."),
     IMPORT_ITEM_CREATE_SUCCESS(7,  UseCaseNotificationType.SUCCESS, "Product added successfully."),
     IMPORT_COMPLETED_SUCCESS(8,  UseCaseNotificationType.SUCCESS, "Import completed successfully."),
-    IMPORT_CANCELED_SUCCESS(9,  UseCaseNotificationType.SUCCESS, "Import canceled successfully.");
+    IMPORT_CANCELED_SUCCESS(9,  UseCaseNotificationType.SUCCESS, "Import canceled successfully."),
+    INTERNAL_TRANSFER_NOT_FOUND_ERROR(10, UseCaseNotificationType.WARN, "Internal Transfer does not exist.");
 
     Integer code;
     UseCaseNotificationType type;

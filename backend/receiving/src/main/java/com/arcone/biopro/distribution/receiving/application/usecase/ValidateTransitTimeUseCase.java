@@ -60,16 +60,30 @@ public class ValidateTransitTimeUseCase implements ValidateTransitTimeService {
                 }
             }).onErrorResume(error -> {
                 log.error("Not able to validate transit time: {}",error.getMessage());
-                return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
-                    .builder()
-                    .useCaseMessage(
-                        UseCaseMessage
-                            .builder()
-                            .message(UseCaseMessageType.VALIDATE_TRANSIT_TIME_SYSTEM_ERROR.getMessage())
-                            .code(UseCaseMessageType.VALIDATE_TRANSIT_TIME_SYSTEM_ERROR.getCode())
-                            .type(UseCaseMessageType.VALIDATE_TRANSIT_TIME_SYSTEM_ERROR.getType())
-                            .build())
-                    .build()), null, null));
+                if(error instanceof IllegalArgumentException){
+                    return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
+                        .builder()
+                        .useCaseMessage(
+                            UseCaseMessage
+                                .builder()
+                                .message(error.getMessage())
+                                .code(11)
+                                .type(UseCaseNotificationType.WARN)
+                                .build())
+                        .build()), null, null));
+                }else{
+                    return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
+                        .builder()
+                        .useCaseMessage(
+                            UseCaseMessage
+                                .builder()
+                                .message(UseCaseMessageType.VALIDATE_TRANSIT_TIME_SYSTEM_ERROR.getMessage())
+                                .code(UseCaseMessageType.VALIDATE_TRANSIT_TIME_SYSTEM_ERROR.getCode())
+                                .type(UseCaseMessageType.VALIDATE_TRANSIT_TIME_SYSTEM_ERROR.getType())
+                                .build())
+                        .build()), null, null));
+                }
+
             });
     }
 }

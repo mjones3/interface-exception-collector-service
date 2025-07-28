@@ -18,19 +18,21 @@ class ValidateTransitTimeCommandTest {
 
     @Test
     void constructor_ValidParameters_CreatesInstance() {
+
+        var now = LocalDateTime.now();
         ValidateTransitTimeCommand command = new ValidateTransitTimeCommand(
             validTemperatureCategory,
-            now,
+            now.minusHours(1),
             validTimeZone,
-            now.plusHours(2),
+            now,
             validTimeZone
         );
 
         assertNotNull(command);
         assertEquals(validTemperatureCategory, command.getTemperatureCategory());
-        assertEquals(now, command.getStartDateTime());
+        assertEquals(now.minusHours(1), command.getStartDateTime());
         assertEquals(validTimeZone, command.getStartTimeZone());
-        assertEquals(now.plusHours(2), command.getEndDateTime());
+        assertEquals(now, command.getEndDateTime());
         assertEquals(validTimeZone, command.getEndTimeZone());
         assertEquals(ZoneId.of(validTimeZone), command.getStartZoneId());
         assertEquals(ZoneId.of(validTimeZone), command.getEndZoneId());
@@ -178,17 +180,60 @@ class ValidateTransitTimeCommandTest {
 
     @Test
     void constructor_DifferentValidTimeZones_CreatesInstance() {
+        var now = LocalDateTime.now();
         ValidateTransitTimeCommand command = new ValidateTransitTimeCommand(
             validTemperatureCategory,
-            now,
+            now.minusHours(1),
             "America/New_York",
-            now.plusHours(2),
+            now,
             "America/Los_Angeles"
         );
 
         assertNotNull(command);
         assertEquals(ZoneId.of("America/New_York"), command.getStartZoneId());
         assertEquals(ZoneId.of("America/Los_Angeles"), command.getEndZoneId());
+    }
+
+    @Test
+    void constructor_EndDateFuture_ThrowsException() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+            new ValidateTransitTimeCommand(
+                validTemperatureCategory,
+                now,
+                validTimeZone,
+                now.plusHours(2),
+                "America/New_York"
+            )
+        );
+        assertEquals("End date date cannot be in the future", exception.getMessage());
+    }
+
+    @Test
+    void constructor_StartDateGreatherThanEndDate_ThrowsException() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+            new ValidateTransitTimeCommand(
+                validTemperatureCategory,
+                now.plusHours(1),
+                validTimeZone,
+                now,
+                "America/New_York"
+            )
+        );
+        assertEquals("Start date date cannot be after end date date", exception.getMessage());
+    }
+
+    @Test
+    void constructor_EndDateLessThanStartDate_ThrowsException() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+            new ValidateTransitTimeCommand(
+                validTemperatureCategory,
+                now.minusDays(1),
+                validTimeZone,
+                now.minusDays(2),
+                "America/New_York"
+            )
+        );
+        assertEquals("Start date date cannot be after end date date", exception.getMessage());
     }
 }
 

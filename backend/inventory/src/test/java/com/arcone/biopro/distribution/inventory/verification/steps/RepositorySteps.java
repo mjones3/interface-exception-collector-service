@@ -47,7 +47,7 @@ public class RepositorySteps {
 
     private final InventoryUtil inventoryUtil;
 
-    private final String STOPS_MANUFACTURING = "STOPS_MANUFACTURING";
+    private final String STOP_MANUFACTURING = "STOP_MANUFACTURING";
 
     public InventoryEntity getInventory(String unitNumber, String productCode) {
         return inventoryEntityRepository.findByUnitNumberAndProductCode(unitNumber, productCode).block();
@@ -94,7 +94,7 @@ public class RepositorySteps {
         assertNotNull(inventory);
         List<PropertyEntity> propertyEntities = propertyEntityRepository.findByInventoryId(inventory.getId()).collectList().block();
         assertNotNull(propertyEntities);
-        boolean results = propertyEntities.stream().anyMatch(q -> q.getKey().equals(STOPS_MANUFACTURING));
+        boolean results = propertyEntities.stream().anyMatch(q -> q.getKey().equals(STOP_MANUFACTURING));
         assertEquals(Boolean.valueOf(expectedResultStopManufacturing), results);
     }
 

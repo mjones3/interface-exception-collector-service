@@ -75,4 +75,24 @@ public class DatabaseSteps {
         assert result != null;
         Assert.assertEquals(result.get("total").toString(),"0");
     }
+
+    @And("I have removed all internal transfers which order number contains {string}")
+    public void iHaveRemovedAllInternalTransfersWhichOrderNumberContains(String order_numbers) {
+
+        String removeInternalItemsSql = DatabaseQueries.DELETE_INTERNAL_TRANSFER_ITEM_BY_ORDER_NUMBER_IN(order_numbers);
+        String removeInternalTransferSql = DatabaseQueries.DELETE_INTERNAL_TRANSFER_BY_ORDER_NUMBER_IN(order_numbers);
+
+        db.executeSql(removeInternalItemsSql).block();
+        db.executeSql(removeInternalTransferSql).block();
+    }
+
+    @And("The location default timezones are configured as:")
+    public void theLocationDefaultTimezonesAreConfiguredAs(DataTable dataTable) {
+        Assert.assertNotNull(dataTable);
+        var dataList = dataTable.asMaps();
+        for (var data : dataList) {
+            String sql = DatabaseQueries.UPDATE_LOCATION_TZ(data.get("Location Code"), data.get("Default Time Zone"));
+            db.executeSql(sql).block();
+        }
+    }
 }
