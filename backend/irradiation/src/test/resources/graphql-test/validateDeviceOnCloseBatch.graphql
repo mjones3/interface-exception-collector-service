@@ -5,6 +5,7 @@ query validateDeviceOnCloseBatch($deviceId: String!, $location: String!) {
         productFamily
         productDescription
         status
+        isImported
         quarantines {
             reason
             comments

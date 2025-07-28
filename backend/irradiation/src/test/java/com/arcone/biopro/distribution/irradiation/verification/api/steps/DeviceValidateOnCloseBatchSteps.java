@@ -80,17 +80,19 @@ public class DeviceValidateOnCloseBatchSteps {
     @Then("I should see all products in the batch")
     public void iShouldSeeAllProductsInTheBatch() {
         List<BatchProductDTO> products = irradiationContext.getBatchProducts();
-        
+
         // If GraphQL query succeeded, validate the products
         if (products != null) {
             log.info("Verified batch products are present: {} products found", products.size());
             // Verify that each product has a productFamily
             for (BatchProductDTO product : products) {
                 assertNotNull(product.unitNumber(), "Unit number should not be null");
+                assertNotNull(product.isImported(), "isImported should not be null");
                 log.info("Product {} has code {} and family {}",
                     product.unitNumber(),
                     product.productCode(),
-                    product.productFamily());
+                    product.productFamily(),
+                    product.isImported());
             }
         } else {
             // If GraphQL query failed due to inventory service issues, that's expected

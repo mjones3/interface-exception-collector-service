@@ -12,6 +12,7 @@ public record BatchProductDTO(
     String productFamily,
     String productDescription,
     String status,
+    Boolean isImported,
     List<InventoryQuarantineOutput> quarantines
 ) {
 }

@@ -21,6 +21,7 @@ public class Inventory {
     private final String statusReason;
     private final String unsuitableReason;
     private final Boolean expired;
+    private final Boolean isImported;
     private final Boolean isBeingIrradiated;
     private final List<InventoryQuarantine> quarantines;
 
