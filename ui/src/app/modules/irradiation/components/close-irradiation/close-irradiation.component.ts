@@ -386,49 +386,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             );
     }
 
-    openRemoveConfirmationDialog(): void {
-        const dialogRef = this.confirmationService.open({
-            title: 'Confirmation',
-            message:
-                'All changes will be removed without finishing the irradiation process. Are you sure you want to continue?',
-            dismissible: false,
-            icon: {
-                name: 'heroicons_outline:question-mark-circle',
-                show: true,
-                color: 'primary',
-            },
-            actions: {
-                confirm: {
-                    label: 'Confirm',
-                    show: true,
-                },
-                cancel: {
-                    label: 'Cancel',
-                    show: true,
-                },
-            },
-        });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
-                this.removeSelected();
-                this.selectedProducts = [];
-            }
-        });
-    }
-
-    private removeSelected() {
-        while (this.selectedProducts.length > 0) {
-            const index = this.products.indexOf(this.selectedProducts[0]);
-            this.products.splice(index, 1);
-            this.selectedProducts.splice(0, 1);
-        }
-
-        this.allProducts = [];
-        this.allProducts = [...this.products];
-
-        this.selectedProducts = [];
-    }
 
     toggleProduct(product: IrradiationProductDTO) {
         if (this.selectedProducts.includes(product)) {
