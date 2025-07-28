@@ -58,7 +58,7 @@ public class ProductInformationPage extends CommonPageFactory {
     public void goTo(String importId) throws InterruptedException {
         homePage.goTo();
 
-        String url = "/receiving/{importId}/product-information";
+        String url = "/imports/{importId}/product-information";
         sharedActions.navigateTo(url.replace("{importId}", importId));
     }
 

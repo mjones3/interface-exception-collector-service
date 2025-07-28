@@ -10,6 +10,7 @@ import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
@@ -76,6 +77,32 @@ public class TestUtils {
             return LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
         } else if(keyword.equals("<tomorrow_formatted>")){
             return LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        } else {
+            log.info("Keyword {} not recognized", keyword);
+            return keyword;
+        }
+    }
+
+    public String parseDateTimeKeyword(String keyword) {
+        if (keyword.equals("<tomorrow>")) {
+            String tomorrow = LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+            log.info("Tomorrow's date is {}", tomorrow);
+            return tomorrow;
+        } else if (keyword.equals("<today>")) {
+            String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+            log.info("Today's date is {}", today);
+            return today;
+        }else if(keyword.equals("<yesterday>")) {
+            String yesterday = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+            log.info("Yesterday's date is {}", yesterday);
+            return yesterday;
+        } else if(keyword.equals("<null>")) {
+            log.info("Shipment date in unset");
+            return null;
+        } else if(keyword.equals("<today_formatted>")){
+            return LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        } else if(keyword.equals("<tomorrow_formatted>")){
+            return LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
         } else {
             log.info("Keyword {} not recognized", keyword);
             return keyword;

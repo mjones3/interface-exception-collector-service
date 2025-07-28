@@ -24,7 +24,7 @@ import java.util.Map;
 public class CancelImportUseCase implements CancelImportService {
 
     private final ImportRepository importRepository;
-    private static final String IMPORT_SHIPPING_INFORMATION_URL = "receiving/imports-enter-shipment-information";
+    private static final String IMPORT_SHIPPING_INFORMATION_URL = "imports/imports-enter-shipment-information";
 
     @Override
     @Transactional

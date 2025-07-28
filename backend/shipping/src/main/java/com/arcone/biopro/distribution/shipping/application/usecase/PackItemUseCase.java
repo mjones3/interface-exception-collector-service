@@ -38,8 +38,10 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -126,21 +128,28 @@ public class PackItemUseCase implements PackItemService {
                     if (inventoryValidationResponseDTO.inventoryResponseDTO() != null && (inventoryValidationResponseDTO.inventoryNotificationsDTO() == null || inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty())) {
                         return Mono.just(inventoryValidationResponseDTO);
                     } else {
+                        var internalTransferAllowedNotifications = this.getInternalTransferAllowedNotifications(shipment);
+                        if (!internalTransferAllowedNotifications.isEmpty()) {
+                            if (inventoryValidationResponseDTO.hasOnlyNotificationTypes(internalTransferAllowedNotifications)) {
+                                var inventoryResponseDto = inventoryValidationResponseDTO.hasOnlyNotificationType(QUARANTINED_NOTIFICATION_TYPE) ? transformQuarantinedInventoryResponseDTO(inventoryValidationResponseDTO) : transformUnlabeledInventoryResponseDTO(inventoryValidationResponseDTO);
+                                return Mono.just(inventoryResponseDto);
+                            }
 
-                          var ineligiblesToSkip = new ArrayList<String>();
-                          if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType()) && isTrue(shipment.getQuarantinedProducts())){
-                              ineligiblesToSkip.add(QUARANTINED_NOTIFICATION_TYPE);
-                          }
-
-                          if (INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())
-                              && UNLABELED_STATUS.equals(shipment.getLabelStatus())){
-                              ineligiblesToSkip.add(UNLABELED_NOTIFICATION_TYPE);
-                          }
-
-                          if (!ineligiblesToSkip.isEmpty() && inventoryValidationResponseDTO.hasOnlyNotificationTypes(ineligiblesToSkip)) {
-                              var inventoryResponseDto = inventoryValidationResponseDTO.hasOnlyNotificationType(QUARANTINED_NOTIFICATION_TYPE) ? transformQuarantinedInventoryResponseDTO(inventoryValidationResponseDTO): transformUnlabeledInventoryResponseDTO(inventoryValidationResponseDTO);
-                              return Mono.just(inventoryResponseDto);
-                          }
+                            log.debug("Criteria for shipment {} is/are {} and this product has notifications {}", shipment.getId(), internalTransferAllowedNotifications, inventoryValidationResponseDTO.inventoryNotificationsDTO());
+                            return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED,
+                                inventoryValidationResponseDTO.inventoryResponseDTO(),
+                                inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
+                                    .map(inventoryNotificationDTO ->
+                                        NotificationDTO.builder()
+                                            .notificationType(NotificationType.WARN.name())
+                                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                                            .message(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR)
+                                            .name("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR")
+                                            .build()
+                                    )
+                                .toList()
+                            ));
+                        }
 
                         return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
                             , inventoryValidationResponseDTO.inventoryResponseDTO()
@@ -162,6 +171,20 @@ public class PackItemUseCase implements PackItemService {
             }
         );
 
+    }
+
+    private Set<String> getInternalTransferAllowedNotifications(final Shipment shipment) {
+        if (!INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())) {
+            return Collections.emptySet();
+        }
+        var allowedNotifications = new HashSet<String>();
+        if (isTrue(shipment.getQuarantinedProducts())){
+            allowedNotifications.add(QUARANTINED_NOTIFICATION_TYPE);
+        }
+        if (UNLABELED_STATUS.equals(shipment.getLabelStatus())){
+            allowedNotifications.add(UNLABELED_NOTIFICATION_TYPE);
+        }
+        return allowedNotifications;
     }
 
     private Mono<ShipmentItemPacked> validateProductCriteria(PackItemRequest request, InventoryValidationResponseDTO inventoryValidationResponseDTO, Boolean visualInspectionFlag, Boolean secondVerificationFlag) {

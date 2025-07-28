@@ -41,6 +41,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -866,7 +867,7 @@ class PackItemUseCaseTest {
 
         Mockito.when(validationResponseDTO.hasNotificationType(Mockito.eq("INVENTORY_IS_QUARANTINED"))).thenReturn(true);
 
-        Mockito.when(validationResponseDTO.hasOnlyNotificationTypes(Mockito.eq(List.of("INVENTORY_IS_QUARANTINED")))).thenReturn(true);
+        Mockito.when(validationResponseDTO.hasOnlyNotificationTypes(Mockito.eq(Set.of("INVENTORY_IS_QUARANTINED")))).thenReturn(true);
 
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
@@ -1031,8 +1032,8 @@ class PackItemUseCaseTest {
                 var firstNotification = detail.notifications().getFirst();
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
-                assertEquals("INFO", firstNotification.notificationType());
-                assertEquals(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR, firstNotification.message());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR, firstNotification.message());
             })
             .verifyComplete();
     }
@@ -1220,7 +1221,6 @@ class PackItemUseCaseTest {
             .errorName("INVENTORY_IS_UNLABELED")
             .action("ACTION")
             .errorCode(6)
-
             .build()));
 
         Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
@@ -1228,7 +1228,7 @@ class PackItemUseCaseTest {
 
         Mockito.when(validationResponseDTO.hasNotificationType(Mockito.eq("INVENTORY_IS_UNLABELED"))).thenReturn(true);
 
-        Mockito.when(validationResponseDTO.hasOnlyNotificationTypes(Mockito.eq(List.of("INVENTORY_IS_UNLABELED")))).thenReturn(true);
+        Mockito.when(validationResponseDTO.hasOnlyNotificationTypes(Mockito.eq(Set.of("INVENTORY_IS_UNLABELED")))).thenReturn(true);
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("PLASMA_TRANSFUSABLE")

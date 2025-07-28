@@ -7,3 +7,4 @@ export * from './process-header.service';
 export * from './process.service';
 export * from './sort.service';
 export * from './toastr-impl.service';
+export * from './transit-time.service';

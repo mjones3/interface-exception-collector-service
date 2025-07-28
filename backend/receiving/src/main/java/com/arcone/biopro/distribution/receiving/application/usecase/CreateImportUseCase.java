@@ -34,7 +34,7 @@ public class CreateImportUseCase implements ImportService {
     private final InputCommandMapper inputCommandMapper;
     private final ProductConsequenceRepository productConsequenceRepository;
     private final DeviceRepository deviceRepository;
-    private static final String IMPORT_PRODUCT_INFORMATION_URL = "receiving/%s/product-information";
+    private static final String IMPORT_PRODUCT_INFORMATION_URL = "imports/%s/product-information";
 
 
     @Override

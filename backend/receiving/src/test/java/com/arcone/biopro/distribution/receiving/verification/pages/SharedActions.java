@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 import static org.openqa.selenium.support.ui.ExpectedConditions.numberOfWindowsToBe;
 
 
@@ -297,6 +299,14 @@ public class SharedActions {
         });
     }
 
+    public String getReadOnlyText(By locator) {
+        waitForVisible(locator);
+        return wait.until(e -> {
+            log.debug("Getting text from element {}.", locator);
+            return Objects.requireNonNull(e.findElement(locator).getAttribute("value"));
+        });
+    }
+
     public String getInputValue(By locator) {
         waitForVisible(locator);
         waitForEnabled(locator);
@@ -331,6 +341,16 @@ public class SharedActions {
             log.debug("Clearing and sending keys {} to element {}.", keys, element);
             e.findElement(element).clear();
             e.findElement(element).sendKeys(keys);
+            return true;
+        });
+    }
+
+    public void clear(By element) {
+        waitForVisible(element);
+        waitForEnabled(element);
+        wait.until(e -> {
+            log.debug("Clearing to element {}.", element);
+            e.findElement(element).clear();
             return true;
         });
     }

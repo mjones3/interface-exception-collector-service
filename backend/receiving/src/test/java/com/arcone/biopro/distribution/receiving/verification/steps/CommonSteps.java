@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.receiving.verification.steps;
 
 import com.arcone.biopro.distribution.receiving.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.receiving.verification.support.SharedContext;
+import com.arcone.biopro.distribution.receiving.verification.support.TestUtils;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,8 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -21,6 +24,9 @@ public class CommonSteps {
 
     @Autowired
     SharedContext context;
+
+    @Autowired
+    private TestUtils testUtils;
 
     @Then("I should see a {string} message: {string}.")
     public void iShouldSeeAMessage(String header, String message) throws InterruptedException {
@@ -76,4 +82,20 @@ public class CommonSteps {
             Assert.fail("Invalid value for should/ShouldNot");
         }
     }
+
+
+    public void validateShippingInformationInformationAttributes(Map apiResponse,String shippingInformationAttributes) {
+        Assert.assertNotNull(apiResponse);
+        var data = (Map) apiResponse.get("data");
+        String[] shippingAttributes = testUtils.getCommaSeparatedList(shippingInformationAttributes);
+        for (int i = 0; i < shippingAttributes.length; i++) {
+
+            var attributeArray = shippingAttributes[i].split(":");
+            var attribute = attributeArray[0];
+            var attributeValue = attributeArray[1];
+            Assert.assertEquals(attributeValue, data.get(attribute).toString());
+        }
+
+    }
+
 }
