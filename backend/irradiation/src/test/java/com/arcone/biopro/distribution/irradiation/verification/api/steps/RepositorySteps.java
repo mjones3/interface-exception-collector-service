@@ -176,25 +176,25 @@ public class RepositorySteps {
         assertTrue(batchSubmissionError.contains(expectedError), "Error message should contain: " + expectedError);
     }
 
-    @And("the product {string} in the unit {string} was already irradiated in a completed batch for device {string}")
-    public void theProductInTheUnitWasAlreadyIrradiatedInACompletedBatchForDevice(String productCode, String unitNumber, String deviceId) {
+    @And("the product {string} in the unit {string} was already irradiated into {string} in a completed batch for device {string}")
+    public void theProductInTheUnitWasAlreadyIrradiatedInACompletedBatchForDevice(String productCode, String unitNumber, String newProductCode, String deviceId) {
         deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
         var batch = batchRepository.save(BatchEntity.builder().deviceId(deviceId).startTime(LocalDateTime.now()).endTime(LocalDateTime.now()).build()).block();
-        batchItemRepository.save(BatchItemEntity.builder().batchId(batch.getId()).lotNumber("123").unitNumber(unitNumber).productCode(productCode).build()).block();
+        batchItemRepository.save(BatchItemEntity.builder().batchId(batch.getId()).lotNumber("123").unitNumber(unitNumber).productCode(productCode).newProductCode(newProductCode).build()).block();
     }
 
     @And("the product {string} in the unit {string} was already irradiated in a opened batch for device {string}")
     public void theProductInTheUnitWasAlreadyIrradiatedInAOpenedBatchForDevice(String productCode, String unitNumber, String deviceId) {
         // Create device first
         deviceRepository.save(DeviceEntity.builder().deviceId(deviceId).status("ACTIVE").location("123456789").build()).block();
-        
+
         // Create open batch (endTime = null)
         var batch = batchRepository.save(BatchEntity.builder()
             .deviceId(deviceId)
             .startTime(LocalDateTime.now())
             .endTime(null)
             .build()).block();
-        
+
         // Create batch item
         batchItemRepository.save(BatchItemEntity.builder()
             .batchId(batch.getId())
