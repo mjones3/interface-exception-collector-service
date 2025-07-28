@@ -134,18 +134,10 @@
                                             [id]="'unit-' + $index"
                                             [disableActive]="false"
                                             class="max-h-24"
-                                            [unitNumber]="
-                                                verifiedItem.unitNumber
-                                            "
-                                            [productName]="
-                                                verifiedItem.productCode
-                                            "
-                                            [visualInspection]="
-                                                verifiedItem.visualInspection
-                                            "
-                                            [iconName]="
-                                                getItemIcon(verifiedItem)
-                                            "
+                                            [unitNumber]="verifiedItem.unitNumber"
+                                            [productName]="getProductName(shipmentSignal(), verifiedItem)"
+                                            [visualInspection]="verifiedItem.visualInspection"
+                                            [iconName]="getItemIcon(verifiedItem)"
                                             [showVisualInspection]="false"
                                             [ineligibleStatus]="getProductStatus(verifiedItem)
                                             "

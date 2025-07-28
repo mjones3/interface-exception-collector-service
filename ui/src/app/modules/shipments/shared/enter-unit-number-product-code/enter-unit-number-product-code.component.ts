@@ -336,12 +336,14 @@ export class EnterUnitNumberProductCodeComponent implements OnInit, OnDestroy {
                     }
 
                     // Show dialog asking the user to select the product
+                    const data: ProductResponseDTO[] = [ ...(products ?? []) ]
+                        .sort((a, b) => a.productDescription.localeCompare(b.productDescription));
                     return this.matDialog
                         .open<SelectProductPickerModalComponent, ProductResponseDTO[], ProductResponseDTO>(
                             SelectProductPickerModalComponent, {
-                                data: products,
+                                data,
                                 disableClose: true,
-                            })
+                        })
                         .afterClosed()
                 }),
             )

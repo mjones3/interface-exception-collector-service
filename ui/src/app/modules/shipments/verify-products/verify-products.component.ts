@@ -25,7 +25,7 @@ import {
     CancelSecondVerificationRequest,
     VerifyProductResponseDTO
 } from '../graphql/verify-products/query-definitions/verify-products.graphql';
-import { ShipmentItemPackedDTO, VerifyFilledProductDto } from '../models/shipment-info.dto';
+import { ShipmentDetailResponseDTO, ShipmentItemPackedDTO, VerifyFilledProductDto } from '../models/shipment-info.dto';
 import { SecondVerificationCommon } from '../second-verification-common';
 import { ShipmentService } from '../services/shipment.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
@@ -61,6 +61,8 @@ export class VerifyProductsComponent
     extends SecondVerificationCommon
     implements OnInit
 {
+    static readonly SHIPMENT_LABEL_STATUS_UNLABELED = 'UNLABELED';
+
     protected verifyProductsNotificationsRouteComputed = computed(
         () =>
             `/shipment/${this.route.snapshot.params?.id}/verify-products/notifications`
@@ -401,6 +403,12 @@ export class VerifyProductsComponent
                 }
                 this.scanUnitNumberProductCode.resetUnitProductGroup();
             });
+    }
+
+    getProductName(shipment: ShipmentDetailResponseDTO, product: ShipmentItemPackedDTO): string {
+        return shipment?.labelStatus === VerifyProductsComponent.SHIPMENT_LABEL_STATUS_UNLABELED
+            ? product?.productDescription
+            : product?.productCode;
     }
 
 }
