@@ -188,7 +188,7 @@ Feature: Second Verification of Units Feature
         Scenario Outline: Verify Shipment with Unlabeled Unit with multiple products.
             Given The shipment details are:
                 | Order_Number   | Customer_ID   | Customer_Name   | Quantity   | Blood_Type  | Product_Family  | Unit_Numbers | Product_Codes  | Temp_Category | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status |
-                | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <Units>         | <ProductCodes> | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
+                | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <Units>      | <ProductCodes> | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
             And The second verification configuration is "enabled".
             And The check digit configuration is "disabled".
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
@@ -196,18 +196,18 @@ Feature: Second Verification of Units Feature
             Then I should be redirected to the verify products page.
             And I can see the Order Information Details and the Shipping Information Details as requested.
                 | Order_Number   | Customer_ID   | Customer_Name   | Quantity   | Blood_Type  | Product_Family  | Unit_Numbers | Product_Codes  | Temp_Category | Shipment_Type   | Label_Status   | Quarantined_Products   | Product_Status |
-                | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <Units>         | <ProductCodes> | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
+                | <Order Number> | <Customer ID> | <Customer Name> | <Quantity> | <BloodType> | <ProductFamily> | <Units>      | <ProductCodes> | <Category>    | <Shipment Type> | <Label Status> | <Quarantined Products> | PACKED         |
             And The product code should not be available.
             When I scan the unit "<UN>".
             Then I should see the product selection option with the products "<product_list>".
             When I select the product "<product_description>".
-            Then I "should" see the list of verified products added including "<UN>" and "<ProductCode>".
+            Then I "should" see the list of verified products added including "<UN>" and "<product_description>".
             And I "<ShouldShouldNot>" see the product status as "Quarantined".
             Examples:
-                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | BloodType | UN            | ProductCode | Units                       | ProductCodes        | product_description | product_list            | Category     | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
-                | 45300005     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | ANY       | W036825151116 | E261900     | W036825151116,W036825151116 | E261900A,E261900B   | APH FFP C-0         | APH FFP C-0,APH FFP C-1 | FROZEN       | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
-                | 45300006     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | ANY       | W036825151117 | E456700     | W036825151117,W036825151117 | E456700A,E456700B   | APH FFP C-0         | APH FFP C-0,APH FFP C-1 | FROZEN       | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
-                | 45300007     | DO1         | Distribution Only | 2        | ANY       | PRT_APHERESIS_PLATELETS      | ANY       | W036825151118 | EB31700     | W036825151118,W036825151118 | EB31700A,EB31700B   | APH FFP C-0         | APH FFP C-0,APH FFP C-1 | REFRIGERATED | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | BloodType | UN            | ProductCode | Units                       | ProductCodes      | product_description | product_list            | Category     | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
+                | 45300005     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | ANY       | W036825151116 | E261900     | W036825151116,W036825151116 | E261900A,E261900B | APH FFP C-0         | APH FFP C-0,APH FFP C-1 | FROZEN       | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
+                | 45300006     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | ANY       | W036825151117 | E456700     | W036825151117,W036825151117 | E456700A,E456700B | APH FFP C-0         | APH FFP C-0,APH FFP C-1 | FROZEN       | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
+                | 45300007     | DO1         | Distribution Only | 2        | ANY       | PRT_APHERESIS_PLATELETS      | ANY       | W036825151118 | EB31700     | W036825151118,W036825151118 | EB31700A,EB31700B | APH FFP C-0         | APH FFP C-0,APH FFP C-1 | REFRIGERATED | INTERNAL_TRANSFER | UNLABELED    | true                 | should          |
 
 
         Rule: The system should automatically select when the unit has only one product available.

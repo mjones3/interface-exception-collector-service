@@ -155,10 +155,9 @@ public class VerifyProductsPage extends CommonPageFactory {
     }
 
     public boolean isProductVerified(String unitNumber, String productCode) throws InterruptedException {
-            Thread.sleep(500);
-            return sharedActions.isElementVisible(driver, By.xpath(formatUnitCardInfoLocator(unitNumber)))
-                    && sharedActions.isElementVisible(driver, By.xpath(formatUnitCardInfoLocator(productCode)));
-
+        Thread.sleep(500);
+        return sharedActions.isElementVisible(driver, By.xpath(formatUnitCardInfoLocator(unitNumber)))
+            && sharedActions.isElementVisible(driver, By.xpath(formatUnitCardInfoLocator(productCode)));
     }
 
     public boolean isProductNotVerified(String unitNumber, String productCode) {

@@ -6,6 +6,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -20,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class CommonSteps {
 
     @Autowired
+    private WebDriver driver;
+
+    @Autowired
     private SharedActions sharedActions;
 
     @Autowired
@@ -29,14 +33,14 @@ public class CommonSteps {
     public void iShouldSeeAMessageAndClose(String header, String message) throws InterruptedException {
         log.info("I should see a message: {}", message);
         sharedActions.verifyMessage(header, message);
-        sharedActions.closeAcknowledgment();
+        sharedActions.closeToaster(driver);
     }
 
     @Then("I should see a {string} message: {string}.")
     public void iShouldSeeAMessage(String header, String message) throws InterruptedException {
         log.info("I should see a message: {}", message);
         sharedActions.verifyMessage(header, message);
-        sharedActions.closeAcknowledgment();
+        sharedActions.closeToaster(driver);
     }
 
     @When("I confirm the acknowledgment message.")
@@ -46,7 +50,7 @@ public class CommonSteps {
 
     @When("I close the acknowledgment message.")
     public void iCloseTheAcknowledgmentMessage() {
-        sharedActions.closeAcknowledgment();
+        sharedActions.closeToaster(driver);
     }
 
     @Then("I should receive a {string} message response {string}.")
