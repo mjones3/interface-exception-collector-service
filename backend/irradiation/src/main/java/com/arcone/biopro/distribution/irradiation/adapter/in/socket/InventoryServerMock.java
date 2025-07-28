@@ -72,9 +72,15 @@ public class InventoryServerMock {
                 createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "23456789").build()
             );
         }
-        if (unitNumber.startsWith("W777725001011") || unitNumber.startsWith("W777725002009") || unitNumber.startsWith("W777725002012")) {
+        if (unitNumber.startsWith("W777725002009") || unitNumber.startsWith("W777725002012")) {
             return Flux.just(
-                createInventory(unitNumber, "E003300", "CP2D WB"),
+                createInventory(unitNumber, "E003200", "CP2D WB"),
+                createInventory(unitNumber, "E033600", "AS1 LR RBC")
+            );
+        }
+        if (unitNumber.startsWith("W777725001011")) {
+            return Flux.just(
+                createInventory(unitNumber, "E003200", "CP2D WB"),
                 createInventory(unitNumber, "E033600", "AS1 LR RBC")
             );
         }
@@ -276,6 +282,21 @@ public class InventoryServerMock {
     Mono<InventoryOutput> getInventoryByUnitNumberAndProductCode(GetInventoryByUnitNumberAndProductCodeRequest request) {
         log.info("Mock server received request for getInventoryByUnitNumberAndProductCode with unitNumber: {} and productCode: {}",
             request.unitNumber(), request.productCode());
+        if ( (request.unitNumber().startsWith("W777725004001") || request.unitNumber().startsWith("W777725004002") ||
+            request.unitNumber().startsWith("W777725004003") || request.unitNumber().startsWith("W777725004004") ||
+            request.unitNumber().startsWith("W777725004006") || request.unitNumber().startsWith("W777725004008"))   && request.productCode().startsWith("E033600") ) {
+            return Mono.just(
+                createInventory(request.unitNumber(), "E033600", "AVAILABLE", "123456789", "AS1 LR RBC")
+            );
+        }
+
+        if ( (request.unitNumber().startsWith("W777725004001") || request.unitNumber().startsWith("W777725004003") ||
+            request.unitNumber().startsWith("W777725004005") || request.unitNumber().startsWith("W777725004007")) && request.productCode().startsWith("E068600")) {
+            return Mono.just(
+                createInventory(request.unitNumber(), "E068600", "AVAILABLE", "123456789", "APH AS3 LR RBC C2")
+            );
+        }
+
         return Mono.just(
             InventoryOutput.builder()
                 .unitNumber(request.unitNumber())

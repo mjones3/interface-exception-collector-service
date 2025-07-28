@@ -12,6 +12,7 @@ import { ProcessHeaderService, FacilityService } from '@shared';
 import { ProductIconsService } from '../../../../shared/services/product-icon.service';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { of, throwError } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'biopro-record-visual-inspection-modal',
@@ -50,6 +51,7 @@ describe('CloseIrradiationComponent', () => {
     };
     const mockProcessHeaderService = { setActions: jest.fn() };
     const mockProductIconsService = { getIconByProductFamily: jest.fn().mockReturnValue('icon') };
+    const mockCookieService = { get: jest.fn().mockReturnValue('TEST_FACILITY') };
 
     await TestBed.configureTestingModule({
       imports: [CloseIrradiationComponent, ReactiveFormsModule],
@@ -64,7 +66,8 @@ describe('CloseIrradiationComponent', () => {
         { provide: IrradiationService, useValue: irradiationService },
         { provide: ProcessHeaderService, useValue: mockProcessHeaderService },
         { provide: FacilityService, useValue: { getFacilityCode: jest.fn() } },
-        { provide: ProductIconsService, useValue: mockProductIconsService }
+        { provide: ProductIconsService, useValue: mockProductIconsService },
+        { provide: CookieService, useValue: mockCookieService }
       ]
     })
     .compileComponents();
@@ -79,11 +82,20 @@ describe('CloseIrradiationComponent', () => {
       focusOnCheckDigit: jest.fn(),
       setValidatorsForCheckDigit: jest.fn(),
       form: { disable: jest.fn() },
-      controlUnitNumber: { enable: jest.fn() }
+      controlUnitNumber: { enable: jest.fn(), reset: jest.fn() }
     } as any;
+    
+    // Mock the irradiationInput
+    component.irradiationInput = {
+      focus: jest.fn()
+    } as any;
+    
+    // Mock form controls - remove the spy to let the real form work
+    // jest.spyOn(component.form, 'get').mockReturnValue(mockFormControl as any);
     
     // Mock methods to avoid errors
     jest.spyOn(component, 'ngAfterViewInit').mockImplementation(() => {});
+    jest.spyOn(component, 'focusOnIrradiationInput').mockImplementation(() => {});
     jest.spyOn(component as any, 'showMessage').mockImplementation(() => {});
     jest.spyOn(component as any, 'validateUnitNumber').mockImplementation(() => {});
     
@@ -236,6 +248,90 @@ describe('CloseIrradiationComponent', () => {
       component.loadIrradiationId('IRR001');
       
       expect(component['showMessage']).toHaveBeenCalledWith('ERROR', 'Service error');
+    });
+  });
+
+  describe('cancel functionality', () => {
+    let mockRouter: any;
+    let mockFuseConfirmationService: any;
+
+    beforeEach(() => {
+      mockRouter = TestBed.inject(Router);
+      mockFuseConfirmationService = TestBed.inject(FuseConfirmationService);
+      jest.spyOn(component as any, 'resetAllData').mockImplementation(() => {});
+    });
+
+    it('should open confirmation dialog when cancel button is clicked', () => {
+      component.openCancelConfirmationDialog();
+      
+      expect(mockFuseConfirmationService.open).toHaveBeenCalledWith({
+        title: 'Confirmation',
+        message: 'Products added will be removed from the list without finishing the Irradiation process. Are you sure you want to continue?',
+        dismissible: false,
+        icon: {
+          name: 'heroicons_outline:question-mark-circle',
+          show: true,
+          color: 'primary',
+        },
+        actions: {
+          confirm: {
+            show: true,
+          },
+          cancel: {
+            show: true,
+          },
+        },
+      });
+    });
+
+    it('should call resetAllData when confirmation dialog is confirmed', () => {
+      mockFuseConfirmationService.open.mockReturnValue({
+        afterClosed: () => of(true)
+      });
+      
+      component.openCancelConfirmationDialog();
+      
+      expect(component['resetAllData']).toHaveBeenCalled();
+    });
+
+    it('should not call resetAllData when confirmation dialog is cancelled', () => {
+      mockFuseConfirmationService.open.mockReturnValue({
+        afterClosed: () => of(false)
+      });
+      
+      component.openCancelConfirmationDialog();
+      
+      expect(component['resetAllData']).not.toHaveBeenCalled();
+    });
+
+    it('should reset all component state when resetAllData is called', () => {
+      // Setup initial state
+      component.deviceId = true;
+      component.products = [{ unitNumber: 'UNIT001' }] as any;
+      component.initialProductsState = [{ unitNumber: 'UNIT001' }] as any;
+      component.selectedProducts = [{ unitNumber: 'UNIT001' }] as any;
+      component.allProducts = [{ unitNumber: 'UNIT001' }] as any;
+      component.currentDateTime = '01/01/2024 10:00';
+      
+      // Remove the mock to test actual implementation
+      (component as any).resetAllData.mockRestore();
+      const focusSpy = jest.spyOn(component, 'focusOnIrradiationInput').mockImplementation(() => {});
+      const controlResetSpy = jest.spyOn(component.unitNumberComponent.controlUnitNumber, 'reset');
+      const irradiationResetSpy = jest.spyOn(component.irradiation, 'reset');
+      const irradiationEnableSpy = jest.spyOn(component.irradiation, 'enable');
+      
+      component['resetAllData']();
+      
+      expect(component.deviceId).toBe(false);
+      expect(component.products).toEqual([]);
+      expect(component.initialProductsState).toEqual([]);
+      expect(component.selectedProducts).toEqual([]);
+      expect(component.allProducts).toEqual([]);
+      expect(component.currentDateTime).toBe('');
+      expect(controlResetSpy).toHaveBeenCalled();
+      expect(irradiationResetSpy).toHaveBeenCalled();
+      expect(irradiationEnableSpy).toHaveBeenCalled();
+      expect(focusSpy).toHaveBeenCalled();
     });
   });
 });

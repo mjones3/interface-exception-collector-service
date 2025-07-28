@@ -1,5 +1,4 @@
 # Feature Unit Number reference: W777725002xxx
-@skipOnPipeline
 @ui @LAB-576 @AOA-61 @hzd9
 Feature: Start Irradiation Batch
 
@@ -163,9 +162,10 @@ Feature: Start Irradiation Batch
         @LAB-615
         Scenario Outline: I should be notified if the product was already irradiated
             Given I have the following inventory products:
-                | Unit Number   | Product Code   | Status    | Location  |
-                | <Unit Number> | <Product Code> | AVAILABLE | 123456789 |
-            And the product "<Product Code>" in the unit "<Unit Number>" was already irradiated in a completed batch for device "<Blood Center Id>"
+                | Unit Number   | Product Code       | Status    | Location  |
+                | <Unit Number> | <Product Code>     | MODIFIED  | 123456789 |
+                | <Unit Number> | <New Product Code> | AVAILABLE | 123456789 |
+            And the product "<Product Code>" in the unit "<Unit Number>" was already irradiated into "<New Product Code>" in a completed batch for device "<Blood Center Id>"
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
@@ -173,13 +173,13 @@ Feature: Start Irradiation Batch
             And I scan the lot number "<Lot Number>"
 
             When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
-            And I select the product "<Product Code>"
+            And I select the product "<New Product Code>"
             Then I see the "Warning" message "This product has already been irradiated"
             And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
-                | Unit Number   | Product Code | Description | Blood Center Id | Lot Number |
-                | W777725002009 | E003300      | CP2D WB     | AUTO-IRRAD008   | Lot1234    |
+                | Unit Number   | Product Code | Description | Blood Center Id | Lot Number | New Product Code |
+                | W777725002009 | E003300      | CP2D WB     | AUTO-IRRAD008   | Lot1234    | E003200          |
 
         @LAB-615
         Scenario Outline: I should be notified if the product is not configured for irradiation
@@ -216,7 +216,8 @@ Feature: Start Irradiation Batch
             And I scan the lot number "<Lot Number>"
 
             When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
-            Then I see the "Warning" message "No products eligible for irradiation"
+            And I select the product "<Product Code>"
+            Then I see the "Warning" message "Product is being irradiated"
             And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
@@ -230,7 +231,7 @@ Feature: Start Irradiation Batch
                 | Unit Number   | Product Code     | Status    | Location  |
                 | <Unit Number> | <Product Code 1> | AVAILABLE | 123456789 |
                 | <Unit Number> | <Product Code 2> | AVAILABLE | 123456789 |
-            And the product "<Product Code 1>" in the unit "<Unit Number>" was already irradiated in a completed batch for device "<Blood Center Id>"
+            And the product "<Product Code 1>" in the unit "<Unit Number>" was already irradiated into "<New Product Code>" in a completed batch for device "<Blood Center Id>"
             And I login to Distribution module
             And I select the location "MDL Hub 1"
             And I navigate to "Start Irradiation" in "Irradiation"
@@ -238,10 +239,10 @@ Feature: Start Irradiation Batch
             And I scan the lot number "<Lot Number>"
 
             When On the "Start Irradiation" page, I scan the unit number "=<Unit Number>00"
-            And I select the product "<Product Code 1>"
+            And I select the product "<New Product Code>"
             Then I see the "Warning" message "This product has already been irradiated"
             And On the "Start Irradiation" page, I verify that the unit number "<Unit Number>" with product "<Description>" was not added to the batch
 
             Examples:
-                | Unit Number   | Product Code 1 | Description | Blood Center Id | Lot Number | Product Code 2 |
-                | W777725002012 | E003300        | CP2D WB     | AUTO-IRRAD012   | Lot1234    | E003300        |
+                | Unit Number   | Product Code 1 | Description | Blood Center Id | Lot Number | Product Code 2 | New Product Code |
+                | W777725002012 | E003300        | CP2D WB     | AUTO-IRRAD012   | Lot1234    | E003300        | E003200          |

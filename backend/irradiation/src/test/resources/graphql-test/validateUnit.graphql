@@ -9,7 +9,9 @@ query validateUnit($unitNumber: String!, $location: String!) {
         statusReason
         unsuitableReason
         expired
+        isImported
         alreadyIrradiated
+        isBeingIrradiated
         notConfigurableForIrradiation
         quarantines {
               reason

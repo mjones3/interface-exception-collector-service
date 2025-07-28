@@ -16,7 +16,7 @@ import {
     VALIDATE_UNIT,
     VALIDATE_DEVICE_ON_CLOSE_BATCH
 } from "../graphql/query.graphql";
-import {START_IRRADIATION_SUBMIT_BATCH} from "../graphql/mutation.graphql";
+import {START_IRRADIATION_SUBMIT_BATCH, COMPLETE_BATCH} from "../graphql/mutation.graphql";
 
 @Injectable({
   providedIn: 'root'
@@ -106,6 +106,14 @@ export class IrradiationService {
             this.servicePath,
             VALIDATE_DEVICE_ON_CLOSE_BATCH,
             { deviceId, location }
+        );
+    }
+
+    public completeBatch(input: any): Observable<MutationResult<any>> {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            COMPLETE_BATCH,
+            { input }
         );
     }
 

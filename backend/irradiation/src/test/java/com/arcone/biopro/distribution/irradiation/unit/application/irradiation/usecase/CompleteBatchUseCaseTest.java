@@ -4,8 +4,11 @@ import com.arcone.biopro.distribution.irradiation.application.irradiation.comman
 import com.arcone.biopro.distribution.irradiation.application.irradiation.dto.BatchItemCompletionDTO;
 import com.arcone.biopro.distribution.irradiation.application.irradiation.usecase.CompleteBatchUseCase;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.aggregate.IrradiationAggregate;
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Batch;
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.BatchRepository;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.service.BatchCompletionService;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchId;
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.DeviceId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,19 +31,23 @@ class CompleteBatchUseCaseTest {
     @Mock
     private BatchCompletionService batchCompletionService;
     @Mock
+    private BatchRepository batchRepository;
+    @Mock
     private IrradiationAggregate mockAggregate;
+    @Mock
+    private Batch mockBatch;
 
     private CompleteBatchUseCase useCase;
 
     @BeforeEach
     void setUp() {
-        useCase = new CompleteBatchUseCase(batchCompletionService);
+        useCase = new CompleteBatchUseCase(batchCompletionService, batchRepository);
     }
 
     @Test
     void shouldCompleteBatchWithIrradiatedAndNonIrradiatedItems() {
         // Given
-        String batchId = "123";
+        String deviceId = "AUTO-DEVICE123";
         LocalDateTime endTime = LocalDateTime.now();
 
         var irradiatedItem = BatchItemCompletionDTO.builder()
@@ -56,12 +63,15 @@ class CompleteBatchUseCaseTest {
                 .build();
 
         var command = CompleteBatchCommand.builder()
-                .batchId(batchId)
+                .deviceId(deviceId)
                 .endTime(endTime)
                 .batchItems(List.of(irradiatedItem, nonIrradiatedItem))
                 .build();
 
         // Setup mocks
+        when(mockBatch.getId()).thenReturn(BatchId.of(123L));
+        when(batchRepository.findActiveBatchByDeviceId(DeviceId.of(deviceId)))
+                .thenReturn(Mono.just(mockBatch));
         when(batchCompletionService.prepareBatchCompletion(eq(BatchId.of(123L)), any(), eq(endTime)))
                 .thenReturn(Mono.just(mockAggregate));
         when(batchCompletionService.completeBatch(mockAggregate))
@@ -77,6 +87,7 @@ class CompleteBatchUseCaseTest {
                 .verifyComplete();
 
         // Verify service calls
+        verify(batchRepository).findActiveBatchByDeviceId(DeviceId.of(deviceId));
         verify(batchCompletionService).prepareBatchCompletion(eq(BatchId.of(123L)), any(), eq(endTime));
         verify(batchCompletionService).completeBatch(mockAggregate);
     }
@@ -84,6 +95,7 @@ class CompleteBatchUseCaseTest {
     @Test
     void shouldHandleOnlyIrradiatedItems() {
         // Given
+        String deviceId = "AUTO-DEVICE123";
         var irradiatedItem = BatchItemCompletionDTO.builder()
                 .unitNumber("W123456789001")
                 .productCode("E003300")
@@ -91,12 +103,15 @@ class CompleteBatchUseCaseTest {
                 .build();
 
         var command = CompleteBatchCommand.builder()
-                .batchId("123")
+                .deviceId(deviceId)
                 .endTime(LocalDateTime.now())
                 .batchItems(List.of(irradiatedItem))
                 .build();
 
         // Setup mocks
+        when(mockBatch.getId()).thenReturn(BatchId.of(123L));
+        when(batchRepository.findActiveBatchByDeviceId(DeviceId.of(deviceId)))
+                .thenReturn(Mono.just(mockBatch));
         when(batchCompletionService.prepareBatchCompletion(any(), any(), any()))
                 .thenReturn(Mono.just(mockAggregate));
         when(batchCompletionService.completeBatch(mockAggregate))
@@ -107,6 +122,7 @@ class CompleteBatchUseCaseTest {
                 .assertNext(result -> assertThat(result.success()).isTrue())
                 .verifyComplete();
 
+        verify(batchRepository).findActiveBatchByDeviceId(DeviceId.of(deviceId));
         verify(batchCompletionService).prepareBatchCompletion(any(), any(), any());
         verify(batchCompletionService).completeBatch(mockAggregate);
     }
@@ -114,6 +130,7 @@ class CompleteBatchUseCaseTest {
     @Test
     void shouldHandleOnlyNonIrradiatedItems() {
         // Given
+        String deviceId = "AUTO-DEVICE123";
         var nonIrradiatedItem = BatchItemCompletionDTO.builder()
                 .unitNumber("W123456789002")
                 .productCode("E003301")
@@ -121,12 +138,15 @@ class CompleteBatchUseCaseTest {
                 .build();
 
         var command = CompleteBatchCommand.builder()
-                .batchId("123")
+                .deviceId(deviceId)
                 .endTime(LocalDateTime.now())
                 .batchItems(List.of(nonIrradiatedItem))
                 .build();
 
         // Setup mocks
+        when(mockBatch.getId()).thenReturn(BatchId.of(123L));
+        when(batchRepository.findActiveBatchByDeviceId(DeviceId.of(deviceId)))
+                .thenReturn(Mono.just(mockBatch));
         when(batchCompletionService.prepareBatchCompletion(any(), any(), any()))
                 .thenReturn(Mono.just(mockAggregate));
         when(batchCompletionService.completeBatch(mockAggregate))
@@ -137,6 +157,7 @@ class CompleteBatchUseCaseTest {
                 .assertNext(result -> assertThat(result.success()).isTrue())
                 .verifyComplete();
 
+        verify(batchRepository).findActiveBatchByDeviceId(DeviceId.of(deviceId));
         verify(batchCompletionService).prepareBatchCompletion(any(), any(), any());
         verify(batchCompletionService).completeBatch(mockAggregate);
     }
@@ -144,13 +165,17 @@ class CompleteBatchUseCaseTest {
     @Test
     void shouldHandleEmptyBatchItems() {
         // Given
+        String deviceId = "AUTO-DEVICE123";
         var command = CompleteBatchCommand.builder()
-                .batchId("123")
+                .deviceId(deviceId)
                 .endTime(LocalDateTime.now())
                 .batchItems(Collections.emptyList())
                 .build();
 
         // Setup mocks
+        when(mockBatch.getId()).thenReturn(BatchId.of(123L));
+        when(batchRepository.findActiveBatchByDeviceId(DeviceId.of(deviceId)))
+                .thenReturn(Mono.just(mockBatch));
         when(batchCompletionService.prepareBatchCompletion(any(), any(), any()))
                 .thenReturn(Mono.just(mockAggregate));
         when(batchCompletionService.completeBatch(mockAggregate))
@@ -161,30 +186,38 @@ class CompleteBatchUseCaseTest {
                 .expectNextCount(1)
                 .verifyComplete();
 
+        verify(batchRepository).findActiveBatchByDeviceId(DeviceId.of(deviceId));
         verify(batchCompletionService).prepareBatchCompletion(any(), any(), any());
         verify(batchCompletionService).completeBatch(mockAggregate);
     }
 
     @Test
-    void shouldHandleInvalidBatchIdFormat() {
+    void shouldHandleNoActiveBatchFound() {
         // Given
+        String deviceId = "NONEXISTENT-DEVICE";
         var command = CompleteBatchCommand.builder()
-                .batchId("invalid")
+                .deviceId(deviceId)
                 .endTime(LocalDateTime.now())
                 .batchItems(Collections.emptyList())
                 .build();
 
+        // Setup mocks
+        when(batchRepository.findActiveBatchByDeviceId(DeviceId.of(deviceId)))
+                .thenReturn(Mono.empty());
+
         // When & Then
         StepVerifier.create(useCase.execute(command))
-                .expectError(RuntimeException.class)
+                .expectErrorMessage("No active batch found for device: " + deviceId)
                 .verify();
 
+        verify(batchRepository).findActiveBatchByDeviceId(DeviceId.of(deviceId));
         verifyNoInteractions(batchCompletionService);
     }
 
     @Test
     void shouldVerifyBatchItemCompletionMapping() {
         // Given
+        String deviceId = "AUTO-DEVICE123";
         var item1 = BatchItemCompletionDTO.builder()
                 .unitNumber("W123456789001")
                 .productCode("E003300")
@@ -198,12 +231,15 @@ class CompleteBatchUseCaseTest {
                 .build();
 
         var command = CompleteBatchCommand.builder()
-                .batchId("123")
+                .deviceId(deviceId)
                 .endTime(LocalDateTime.now())
                 .batchItems(List.of(item1, item2))
                 .build();
 
         // Setup mocks
+        when(mockBatch.getId()).thenReturn(BatchId.of(123L));
+        when(batchRepository.findActiveBatchByDeviceId(DeviceId.of(deviceId)))
+                .thenReturn(Mono.just(mockBatch));
         when(batchCompletionService.prepareBatchCompletion(any(), any(), any()))
                 .thenReturn(Mono.just(mockAggregate));
         when(batchCompletionService.completeBatch(mockAggregate))
@@ -215,6 +251,7 @@ class CompleteBatchUseCaseTest {
                 .verifyComplete();
 
         // Then - verify the mapping of BatchItemCompletion objects
+        verify(batchRepository).findActiveBatchByDeviceId(DeviceId.of(deviceId));
         verify(batchCompletionService).prepareBatchCompletion(
                 eq(BatchId.of(123L)),
                 argThat(completions -> {

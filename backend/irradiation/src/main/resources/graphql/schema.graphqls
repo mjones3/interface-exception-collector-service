@@ -23,7 +23,9 @@ type Inventory {
     unsuitableReason: String
     expired: Boolean
     alreadyIrradiated: Boolean
+    isBeingIrradiated: Boolean
     notConfigurableForIrradiation: Boolean
+    isImported: Boolean
     quarantines: [InventoryQuarantine]
 }
 
@@ -51,7 +53,7 @@ input BatchItemInput {
 }
 
 input CompleteBatchInput {
-    batchId: String!
+    deviceId: String!
     endTime: String!
     batchItems: [BatchItemCompletionInput!]!
 }
@@ -78,5 +80,6 @@ type BatchProduct {
     productFamily: String
     productDescription: String
     status: String
+    isImported: Boolean
     quarantines: [InventoryQuarantine]
 }

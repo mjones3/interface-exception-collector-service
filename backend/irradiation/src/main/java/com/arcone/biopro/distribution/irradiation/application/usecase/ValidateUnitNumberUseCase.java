@@ -29,10 +29,10 @@ public class ValidateUnitNumberUseCase {
     private final ProductDeterminationRepository productDeterminationRepository;
 
     public Flux<IrradiationInventoryOutput> execute(String unitNumber, String location) {
-        return getValidInventories(unitNumber, location)
-            .flatMapMany(this::filterBeingIrradiatedUnits)
+        return this.getValidInventories(unitNumber, location)
             .switchIfEmpty(Mono.error(new NoEligibleProductForIrradiationException()))
-            .flatMap(this::enrichWithIrradiationFlags);
+            .flatMapMany(inventories -> Flux.fromIterable(inventories)
+                .flatMap(this::enrichWithIrradiationFlags));
     }
 
     private Mono<List<Inventory>> getValidInventories(String unitNumber, String location) {
@@ -51,20 +51,6 @@ public class ValidateUnitNumberUseCase {
             });
     }
 
-    private Flux<Inventory> filterBeingIrradiatedUnits(List<Inventory> inventories) {
-        return Flux.fromIterable(inventories)
-            .flatMap(inventory ->
-                batchRepository.isUnitBeingIrradiated(inventory.getUnitNumber().value(), inventory.getProductCode())
-                    .doOnNext(beingIrradiated -> {
-                        if (beingIrradiated) {
-                            log.debug("Unit {} {} is already being irradiated, filtering out", inventory.getUnitNumber().value(), inventory.getProductCode());
-                        }
-                    })
-                    .filter(beingIrradiated -> !beingIrradiated)
-                    .map(ignored -> inventory)
-            );
-    }
-
     private Mono<IrradiationInventoryOutput> enrichWithIrradiationFlags(Inventory inventory) {
         String unitNumberValue = inventory.getUnitNumber().value();
 
@@ -72,13 +58,15 @@ public class ValidateUnitNumberUseCase {
         Mono<Boolean> notConfigurable = productDeterminationRepository
             .existsBySourceProductCode(new ProductCode(inventory.getProductCode()))
             .map(exists -> !exists);
+        Mono<Boolean> isBeingIrradiated = batchRepository.isUnitBeingIrradiated(inventory.getUnitNumber().value(), inventory.getProductCode());
 
-        return Mono.zip(alreadyIrradiated, notConfigurable)
-            .map(tuple -> buildEnrichedDto(inventory, tuple.getT1(), tuple.getT2()));
+
+        return Mono.zip(alreadyIrradiated, notConfigurable, isBeingIrradiated)
+            .map(tuple -> buildEnrichedDto(inventory, tuple.getT1(), tuple.getT2(), tuple.getT3()));
     }
 
     private IrradiationInventoryOutput buildEnrichedDto(Inventory inventory,
-                                                       boolean alreadyIrradiated, boolean notConfigurable) {
+                                                       boolean alreadyIrradiated, boolean notConfigurable, boolean isBeingIrradiated) {
         var dto = mapper.toDomain(inventory);
         return IrradiationInventoryOutput.builder()
             .unitNumber(dto.unitNumber())
@@ -92,9 +80,11 @@ public class ValidateUnitNumberUseCase {
             .statusReason(dto.statusReason())
             .unsuitableReason(dto.unsuitableReason())
             .expired(dto.expired())
+            .isImported(dto.isImported())
             .quarantines(dto.quarantines())
             .alreadyIrradiated(alreadyIrradiated)
             .notConfigurableForIrradiation(notConfigurable)
+            .isBeingIrradiated(isBeingIrradiated)
             .build();
     }
 }

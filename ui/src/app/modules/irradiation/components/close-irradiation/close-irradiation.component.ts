@@ -21,8 +21,7 @@ import {UnitNumberCardComponent} from "../../../../shared/components/unit-number
 import {ProductIconsService} from "../../../../shared/services/product-icon.service";
 import {
     IrradiationProductDTO, IrradiationResolveData,
-    MessageType, RecordVisualInpectionResult, ValidateUnitEvent,
-    ValidationDataDTO
+    MessageType, RecordVisualInpectionResult, ValidateUnitEvent
 } from "../../models/model";
 import {ActivatedRoute, Router} from "@angular/router";
 import {IrradiationService} from "../../services/irradiation.service";
@@ -82,6 +81,10 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
+
+    @ViewChild('irradiationIdInput')
+    irradiationInput: InputComponent;
+
     form: FormGroup;
     currentLocation: string;
 
@@ -113,6 +116,13 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         setTimeout(() => this.unitNumberComponent.form.disable());
+        this.focusOnIrradiationInput();
+    }
+
+    focusOnIrradiationInput(): void {
+        if (this.irradiationInput) {
+            this.irradiationInput.focus();
+        }
     }
 
     get irradiation() {
@@ -157,12 +167,15 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.initialProductsState = [];
         this.selectedProducts = [];
         this.allProducts = [];
-        this.unitNumberComponent.reset();
-        this.redirect();
+        this.unitNumberComponent.controlUnitNumber.reset();
+        this.irradiation.reset();
+        this.irradiation.enable();
+        this.currentDateTime = '';
+        setTimeout(() => this.focusOnIrradiationInput(), 1);
     }
 
     isSubmitEnabled(): boolean {
-        if (this.form.valid && this.numberOfUnits > 0) {
+        if ((this.form.valid || this.irradiation.disabled) && this.numberOfUnits > 0) {
             const enabledProducts = this.products.filter(p => !p.disabled);
             return enabledProducts.every(product =>
                 product.statuses.some(status =>
@@ -173,15 +186,38 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         return false
     }
 
-    get disableCancelButton() {
-        return !this.deviceId;
-    }
-
     submit() {
-        //TODO: add here the submit endpoint
-        this.currentDateTime = ''
-        this.showMessage(MessageType.SUCCESS, 'Batch successfully closed. Label irradiated products.');
-        this.redirect();
+        const enabledProducts = this.products.filter(p => !p.disabled);
+        const input = {
+            deviceId: this.form.get('irradiatorId')?.value,
+            endTime: new Date().toISOString().slice(0, 19),
+            batchItems: enabledProducts.map(product => ({
+                unitNumber: product.unitNumber,
+                productCode: product.productCode,
+                isIrradiated: product.statuses.some(status => status.value === IRRADIATED)
+            }))
+        };
+
+        this.irradiationService.completeBatch(input).subscribe({
+            next: (result) => {
+                const response = result.data?.completeBatch;
+                if (response?.success) {
+                    this.showMessage(MessageType.SUCCESS, 'Batch successfully closed. Label irradiated products.');
+                    const notIrradiatedCount = enabledProducts.filter(p => !p.statuses.some(s => s.value === IRRADIATED)).length;
+                    if (notIrradiatedCount > 0) {
+                        const productText = notIrradiatedCount === 1 ? 'product' : 'products';
+                        const hasText = notIrradiatedCount === 1 ? 'has' : 'have';
+                        this.showMessage(MessageType.ERROR, `${notIrradiatedCount} ${productText} not irradiated ${hasText} been quarantined`);
+                    }
+                } else {
+                    this.showMessage(MessageType.ERROR, response?.message || 'Failed to close batch');
+                }
+                this.redirect();
+            },
+            error: (error) => {
+                this.showMessage(MessageType.ERROR, error.message || 'Failed to close batch');
+            }
+        });
     }
 
 
@@ -306,14 +342,6 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.allProducts.push({...newProduct});
     }
 
-    private notInProductList(product: ValidationDataDTO) {
-        return !this.products.find(
-            (p) =>
-                p.productCode === product.productCode &&
-                p.unitNumber === product.unitNumber
-        );
-    }
-
     get numberOfUnits() {
         return this.products
             .filter(p => !p.disabled)
@@ -368,49 +396,7 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
             );
     }
 
-    openRemoveConfirmationDialog(): void {
-        const dialogRef = this.confirmationService.open({
-            title: 'Confirmation',
-            message:
-                'All changes will be removed without finishing the irradiation process. Are you sure you want to continue?',
-            dismissible: false,
-            icon: {
-                name: 'heroicons_outline:question-mark-circle',
-                show: true,
-                color: 'primary',
-            },
-            actions: {
-                confirm: {
-                    label: 'Confirm',
-                    show: true,
-                },
-                cancel: {
-                    label: 'Cancel',
-                    show: true,
-                },
-            },
-        });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
-                this.removeSelected();
-                this.selectedProducts = [];
-            }
-        });
-    }
-
-    private removeSelected() {
-        while (this.selectedProducts.length > 0) {
-            const index = this.products.indexOf(this.selectedProducts[0]);
-            this.products.splice(index, 1);
-            this.selectedProducts.splice(0, 1);
-        }
-
-        this.allProducts = [];
-        this.allProducts = [...this.products];
-
-        this.selectedProducts = [];
-    }
 
     toggleProduct(product: IrradiationProductDTO) {
         if (this.selectedProducts.includes(product)) {
@@ -442,8 +428,8 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
                         icon: this.findIconsByProductFamily(product.productFamily),
                         status: this.getFinalStatus(product),
                         statuses: this.getStatuses(this.getFinalStatus(product)),
-                        disabled: true
                     })) as IrradiationProductDTO[];
+                    this.irradiation.disable();
                     this.populateIrradiationBatch(irradiationProducts);
                     this.unitNumberComponent.controlUnitNumber.enable();
                     setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
