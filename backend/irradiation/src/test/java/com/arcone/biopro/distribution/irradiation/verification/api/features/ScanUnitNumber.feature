@@ -105,13 +105,13 @@ Feature: Scan Unit Number for Irradiation
         Given I have the following inventory products:
             | Unit Number   | Product Code | Status    | Location  |
             | W777725001011 | E033600      | AVAILABLE | 123456789 |
-            | W777725001011 | E003300      | AVAILABLE | 123456789 |
+            | W777725001011 | E003200      | AVAILABLE | 123456789 |
         And I'm in the irradiation service at the location "123456789"
-        And the product "E003300" in the unit "W777725001011" was already irradiated in a completed batch for device "AUTO-DEVICE1011"
+        And the product "E003300" in the unit "W777725001011" was already irradiated into "E003200" in a completed batch for device "AUTO-DEVICE1011"
         When I scan the unit number "W777725001011" in irradiation
         Then I see the product "E033600" from unit number "W777725001011" is in the list of products for selection
-        And I see the product "E003300" from unit number "W777725001011" is in the list of products for selection
-        And I verify that product "E003300" in the unit "W777725001011" is flagged as already irradiated
+        And I see the product "E003200" from unit number "W777725001011" is in the list of products for selection
+        And I verify that product "E003200" in the unit "W777725001011" is flagged as already irradiated
         And I verify that product "E033600" in the unit "W777725001011" is flagged as not irradiated
 
     @LAB-615

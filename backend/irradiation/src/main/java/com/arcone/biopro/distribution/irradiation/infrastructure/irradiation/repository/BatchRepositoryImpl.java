@@ -87,7 +87,7 @@ public class BatchRepositoryImpl implements BatchRepository {
             SELECT COUNT(*) > 0
             FROM bld_batch_item bi
             JOIN bld_batch b ON bi.batch_id = b.id
-            WHERE bi.unit_number = :unitNumber AND b.end_time IS NOT NULL AND bi.product_code = :productCode
+            WHERE bi.unit_number = :unitNumber AND b.end_time IS NOT NULL AND bi.new_product_code = :productCode
             """;
 
         return databaseClient.sql(sql)
@@ -133,7 +133,7 @@ public class BatchRepositoryImpl implements BatchRepository {
     @Override
     public Mono<Void> updateBatchItemNewProductCode(BatchId batchId, String unitNumber, String productCode, String newProductCode) {
         String sql = """
-            UPDATE bld_batch_item 
+            UPDATE bld_batch_item
             SET new_product_code = :newProductCode, modification_date = NOW()
             WHERE batch_id = :batchId AND unit_number = :unitNumber AND product_code = :productCode
             """;
