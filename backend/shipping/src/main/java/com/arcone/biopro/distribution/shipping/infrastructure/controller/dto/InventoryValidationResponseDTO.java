@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shipping.infrastructure.controller.dto;
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public record InventoryValidationResponseDTO(
             .distinct().anyMatch(notificationName -> notificationName.equals(type));
     }
 
-    public boolean hasOnlyNotificationTypes(final List<String> types) {
+    public boolean hasOnlyNotificationTypes(final Collection<String> types) {
         if (inventoryNotificationsDTO == null) {
             throw new IllegalArgumentException("inventoryNotificationsDTO is null");
         }
