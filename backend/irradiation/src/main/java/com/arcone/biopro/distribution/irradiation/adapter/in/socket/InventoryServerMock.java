@@ -72,9 +72,15 @@ public class InventoryServerMock {
                 createInventoryBuilder(unitNumber, "E003300", "CP2D WB","AVAILABLE", "23456789").build()
             );
         }
-        if (unitNumber.startsWith("W777725001011") || unitNumber.startsWith("W777725002009") || unitNumber.startsWith("W777725002012")) {
+        if (unitNumber.startsWith("W777725002009") || unitNumber.startsWith("W777725002012")) {
             return Flux.just(
-                createInventory(unitNumber, "E003300", "CP2D WB"),
+                createInventory(unitNumber, "E003200", "CP2D WB"),
+                createInventory(unitNumber, "E033600", "AS1 LR RBC")
+            );
+        }
+        if (unitNumber.startsWith("W777725001011")) {
+            return Flux.just(
+                createInventory(unitNumber, "E003200", "CP2D WB"),
                 createInventory(unitNumber, "E033600", "AS1 LR RBC")
             );
         }
