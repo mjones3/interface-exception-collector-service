@@ -47,6 +47,8 @@ public class RepositorySteps {
 
     private final InventoryUtil inventoryUtil;
 
+    private final String STOP_MANUFACTURING = "STOP_MANUFACTURING";
+
     public InventoryEntity getInventory(String unitNumber, String productCode) {
         return inventoryEntityRepository.findByUnitNumberAndProductCode(unitNumber, productCode).block();
     }
@@ -84,6 +86,16 @@ public class RepositorySteps {
         if (EVENT_QUARANTINE_UPDATED.equals(scenarioContext.getEvent())) {
             assertEquals("UNDER_INVESTIGATION", inventory.getQuarantines().getFirst().reason());
         }
+    }
+
+    @Then("Result of flagged as Stop manufacturing in inventory is {string}")
+    public void theInventoryIsFlagAsStopManofacturing(String expectedResultStopManufacturing) {
+        InventoryEntity inventory = getInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.AVAILABLE);
+        assertNotNull(inventory);
+        List<PropertyEntity> propertyEntities = propertyEntityRepository.findByInventoryId(inventory.getId()).collectList().block();
+        assertNotNull(propertyEntities);
+        boolean results = propertyEntities.stream().anyMatch(q -> q.getKey().equals(STOP_MANUFACTURING));
+        assertEquals(Boolean.valueOf(expectedResultStopManufacturing), results);
     }
 
     @And("For unit number {string} and product code {string} the device stored is {string} and the storage location is {string}")
@@ -127,7 +139,7 @@ public class RepositorySteps {
             histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
         }
 
-        quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
+        quarantines = List.of(new Quarantine(1L, "OTHER", "a comment", false));
 
         var inventory = inventoryUtil.newInventoryEntity(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.DISCARDED);
         inventory.setQuarantines(quarantines);
@@ -242,7 +254,7 @@ public class RepositorySteps {
                     inventoryEntity.setQuarantines(new ArrayList<>());
                 } else {
                     String comments = inventory.get("Comments");
-                    List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, comments)).toList();
+                    List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, comments, false)).toList();
                     inventoryEntity.setQuarantines(quarantines);
                 }
             }
