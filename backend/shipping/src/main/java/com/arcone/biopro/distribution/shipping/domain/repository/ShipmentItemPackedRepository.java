@@ -38,6 +38,9 @@ public interface ShipmentItemPackedRepository extends ReactiveCrudRepository<Shi
     @Query("select * from bld_shipment_item_packed where ineligible_status is null and shipment_item_id in (select id from bld_shipment_item bsi where shipment_id  = :shipmentId)")
     Flux<ShipmentItemPacked> listAllEligibleByShipmentId(@Param("shipmentId") Long shipmentId);
 
+    @Query("select * from bld_shipment_item_packed where second_verification = 'PENDING' and verification_date is null and shipment_item_id in (select id from bld_shipment_item bsi where shipment_id  = :shipmentId) and unit_number = :unitNumber")
+    Flux<ShipmentItemPacked> listAllPendingVerificationByShipmentIdAndUnitNumber(@Param("shipmentId") Long shipmentId , @Param("unitNumber") String unitNumber);
+
 }
 
 

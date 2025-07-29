@@ -581,7 +581,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {string}, Blood Types: {string}, Product Families {string}, Temperature Category as {string}, Shipment Type defined as {string}, Label Status as {string} and Quarantined Products as {string}.")
-    public void theShipmentDetailsAreOrderNumberCustomerIDCustomerNameProductDetailsQuantitiesBloodTypesProductFamiliesShipmentTypeDefinedAsLabelStatusAsAndQuarantinedProductsAs(String orderNumber, String customerId, String customerName
+    public void createShipmentUnlabeledProducts(String orderNumber, String customerId, String customerName
         , String quantities, String bloodTypes, String productFamilies, String temperatureCategory, String shipmentType, String labelStatus, String quarantinedProducts) {
         this.shipmentDetailType = shipmentTestingController.buildShipmentRequestDetailsResponseType(Long.parseLong(orderNumber), "123456789", customerId, customerName
             , "", "36544 SW 27th St", null, null, null, productFamilies, bloodTypes, quantities, shipmentType, labelStatus, Boolean.parseBoolean(quarantinedProducts), temperatureCategory);
@@ -592,9 +592,9 @@ public class ShipmentFulfillmentSteps {
     public void iSeeTheProductStatusAs(String shouldShouldNot, String productStatus) {
 
         if ("should".equals(shouldShouldNot)) {
-            fillProductsPage.assertProductStatusIs(productStatus, true);
+            fillProductsPage.assertQuarantineProductStatusIs(productStatus, true);
         } else if ("should not".equals(shouldShouldNot)) {
-            fillProductsPage.assertProductStatusIs(productStatus, false);
+            fillProductsPage.assertQuarantineProductStatusIs(productStatus, false);
         } else {
             Assert.fail("Invalid option for should/should not");
         }

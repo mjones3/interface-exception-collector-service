@@ -132,4 +132,25 @@ public class GraphQLQueryMapper {
             """, importId);
 
     }
+
+    public static String validateInternalTransferInformation(String orderNumber, String employeeId , String locationCode  ) {
+        return (String.format("""
+            query {
+                validateTransferOrderNumber(validateTransferOrderNumberRequest: {
+                    orderNumber:%s
+                    employeeId:"%s"
+                    locationCode:"%s"
+                }) {
+                   data
+                           notifications{
+                               message
+                               type
+                               code
+
+                           }
+                           _links
+                }
+            }
+            """, orderNumber,employeeId,locationCode));
+    }
 }

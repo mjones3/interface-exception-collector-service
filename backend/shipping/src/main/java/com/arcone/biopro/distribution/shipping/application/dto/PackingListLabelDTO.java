@@ -19,6 +19,8 @@ public record PackingListLabelDTO(
     ShipFromDTO shipFrom,
     ShipToDTO shipTo,
     String distributionComments,
+    String shipmentType,
+    String labelStatus,
     List<ShipmentItemPackedDTO> packedItems
 
 

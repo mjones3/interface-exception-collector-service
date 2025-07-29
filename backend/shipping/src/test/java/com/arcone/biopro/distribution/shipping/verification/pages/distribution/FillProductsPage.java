@@ -282,7 +282,7 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.click(this.driver, By.id(removeButtonLocator));
     }
 
-    public void assertProductStatusIs(String productStatus,boolean visible) {
+    public void assertQuarantineProductStatusIs(String productStatus, boolean visible) {
         log.debug("Asserting product status is {}.", productStatus);
         if(visible){
             sharedActions.waitForVisible(By.xpath(formatProductStatusLocator(productStatus)));

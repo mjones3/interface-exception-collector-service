@@ -60,5 +60,17 @@ public class ValidateTransitTimeCommand implements Validatable {
         } catch (Exception e){
             throw new IllegalArgumentException("Invalid end time zone");
         }
+
+        if(startDateTime.isAfter(endDateTime)){
+            throw new IllegalArgumentException("Start date date cannot be after end date date");
+        }
+
+        if(endDateTime.isBefore(startDateTime)){
+            throw new IllegalArgumentException("End date date cannot be before start date");
+        }
+
+        if(endDateTime.isAfter(LocalDateTime.now(endZoneId))){
+            throw new IllegalArgumentException("End date date cannot be in the future");
+        }
     }
 }

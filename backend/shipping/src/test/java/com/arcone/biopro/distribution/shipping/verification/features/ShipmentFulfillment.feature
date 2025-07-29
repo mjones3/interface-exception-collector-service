@@ -1,9 +1,9 @@
-@AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19
+@AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240 @AOA-19 @AOA-197 @AOA-294
 Feature: Shipment fulfillment request
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,W036825158907,W036898786758,W812530107009,W036825185915,W812530107010,W812530444001,W812530444002,W036825158914,W036825158916,W036825158912,W036898786802,W036898445901,W036898445902".
-        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008,44400010,44400011,44400012,44400013,44400014,44400015,45200001,45200002,45200003,45200004,45200004,45200005,45200006,45200007".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,W036825158907,W036898786758,W812530107009,W036825185915,W812530107010,W812530444001,W812530444002,W036825158914,W036825158916,W036825158912,W036898786802,W812530107012,W812530107013,W812530107014,W036898445901,W036898445902,W036825151111,W036825151112,W013682515113,W036825151114,W036830479001,W036830479002,W036830479003,W036825151113".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001,650001,570001,4440001,4440002,4440006,4440007,4440008,44400010,44400011,44400012,44400013,44400014,44400015,45200001,45200002,45200003,45200004,45200005,45200006,45200007,45200009,446001,446002,446003,446004,479001,479002,479003".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -113,7 +113,11 @@ Feature: Shipment fulfillment request
        Rule: I should be able to fill orders with Whole Blood and Derived Products.
        Rule: I should be able to fill orders with Apheresis Platelets (PRT and BacT) Products.
        Rule: I should be able to fill orders with Frozen RBCs Products.
-       @api @DIS-254 @DIS-336 @DIS-337
+       Rule: I should be able to fill orders with cryo and cryo-reduced plasma Products.
+       Rule: I should be able to fill orders with washed apheresis platelets products.
+       Rule: I should be able to fill orders with washed PRT apheresis platelets products.
+       Rule: I should be able to fill orders with washed red blood cells products.
+       @api @DIS-254 @DIS-336 @DIS-337 @DIS-446 @DIS-479
        Scenario Outline: Ship Whole Blood and Derived Products.
            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>" , Temperature Category "<Category>".
            And The visual inspection configuration is "enabled".
@@ -121,17 +125,26 @@ Feature: Shipment fulfillment request
            When I fill a product with the unit number "<UN>", product code "<Code>".
            Then The product unit number "<UN>" and product code "<Code>" should be packed in the shipment.
            Examples:
-               | Order Number   | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                    | UN            | Code     | Category         |
-               | 1391           | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE              | W822530106093 | E7648V00 | FROZEN           |
-               | 1392           | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W822530106094 | E0685V00 | FROZEN           |
-               | 1393           | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED         | W812530106095 | E0033V00 | FROZEN           |
-               | 1394           | 1           | Testing Customer | 5        | AP        | WHOLE_BLOOD                      | W812530107002 | E0023V00 | FROZEN           |
-               | 1395           | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS                  | W812530106098 | E0167V00 | FROZEN           |
-               | 336001         | 1           | Testing Customer | 10       | A         | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107006 | EA007V00 | ROOM_TEMPERATURE |
-               | 336002         | 1           | Testing Customer | 5        | AB        | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107007 | EA139V00 | ROOM_TEMPERATURE |
-               | 336003         | 1           | Testing Customer | 5        | AP        | PRT_APHERESIS_PLATELETS          | W812530107009 | E8340V00 | ROOM_TEMPERATURE |
-               | 336004         | 1           | Testing Customer | 5        | BP        | PRT_APHERESIS_PLATELETS          | W812530107010 | EB317V00 | REFRIGERATED     |
-               | 337001         | 1           | Testing Customer | 5        | BP        | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530107011 | E5085V00 | FROZEN           |
+               | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                    | UN            | Code     | Category         |
+               | 1391         | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE              | W822530106093 | E7648V00 | FROZEN           |
+               | 1392         | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     | W822530106094 | E0685V00 | FROZEN           |
+               | 1393         | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED         | W812530106095 | E0033V00 | FROZEN           |
+               | 1394         | 1           | Testing Customer | 5        | AP        | WHOLE_BLOOD                      | W812530107002 | E0023V00 | FROZEN           |
+               | 1395         | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS                  | W812530106098 | E0167V00 | FROZEN           |
+               | 336001       | 1           | Testing Customer | 10       | A         | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107006 | EA007V00 | ROOM_TEMPERATURE |
+               | 336002       | 1           | Testing Customer | 5        | AB        | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107007 | EA139V00 | ROOM_TEMPERATURE |
+               | 336003       | 1           | Testing Customer | 5        | AP        | PRT_APHERESIS_PLATELETS          | W812530107009 | E8340V00 | ROOM_TEMPERATURE |
+               | 336004       | 1           | Testing Customer | 5        | BP        | PRT_APHERESIS_PLATELETS          | W812530107010 | EB317V00 | REFRIGERATED     |
+               | 337001       | 1           | Testing Customer | 5        | BP        | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530107011 | E5085V00 | FROZEN           |
+               | 446001       | 1           | Testing Customer | 5        | B         | PLASMA_MFG_NONINJECTABLE         | W036825151112 | E5879V00 | REFRIGERATED     |
+               | 446002       | 1           | Testing Customer | 5        | B         | PLASMA_MFG_INJECTABLE            | W013682515113 | E0701V00 | FROZEN           |
+               | 446003       | 1           | Testing Customer | 5        | B         | CRYOPRECIPITATE                  | W036825151111 | E5165V00 | FROZEN           |
+               | 446004       | 1           | Testing Customer | 5        | AP        | PLASMA_TRANSFUSABLE              | W036825151115 | E2617V00 | FROZEN           |
+               | 479001       | 1           | Testing Customer | 5        | AB        | WASHED_APHERESIS_PLATELETS       | W036830479001 | E3559V00 | ROOM_TEMPERATURE |
+               | 479002       | 1           | Testing Customer | 5        | O         | WASHED_PRT_APHERESIS_PLATELETS   | W036830479002 | E8697V00 | ROOM_TEMPERATURE |
+               | 479003       | 1           | Testing Customer | 5        | AP        | WASHED_RED_BLOOD_CELLS           | W036830479003 | E4566V00 | REFRIGERATED     |
+
+
 
 
    @api @DIS-261
@@ -221,11 +234,12 @@ Feature: Shipment fulfillment request
             And I should see the inspection status as "Satisfactory", if applicable.
             And I "<ShouldShouldNot>" see the product status as "Quarantined".
             Examples:
-                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | Family                       | Type | UN               | product_description  | product_list                                              | negative_product_list | Inspection Config | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
-                | 45200001     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689878675800 | CPD PLS MI 48H       | LR_RBC,CPD PLS MI 24H,CPD PLS MI 48H,PRODUCT_DESCRIPTION1 | PRODUCT_DESCRIPTION2  | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should not      |
-                | 45200002     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ANY  | =W03682518591500 | CPD PLS MI 24H       | LR_RBC,CPD PLS MI 24H                                     |                       | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
-                | 45200003     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03682515890700 | CPD PLS MI 48H       | CPD PLS MI 24H,CPD PLS MI 48H                             |                       | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should not      |
-                | 45200007     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689844590100 | APH PLASMA 24H EXP 3 | APH PLASMA 24H EXP 2,APH PLASMA 24H EXP 3                 | APH PLASMA 24H EXP 1  | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
+                | Order Number | Customer ID | Customer Name     | Quantity | BloodType | ProductFamily                | Family                       | Type | UN               | product_description             | product_list                                                    | negative_product_list | Inspection Config | Category | Shipment Type     | Label Status | Quarantined Products | ShouldShouldNot |
+                | 45200001     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689878675800 | CPD PLS MI 48H                  | LR_RBC,CPD PLS MI 24H,CPD PLS MI 48H,PRODUCT_DESCRIPTION1       | PRODUCT_DESCRIPTION2  | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should not      |
+                | 45200002     | DO1         | Distribution Only | 2        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ANY  | =W03682518591500 | CPD PLS MI 24H                  | LR_RBC,CPD PLS MI 24H                                           |                       | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
+                | 45200003     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03682515890700 | CPD PLS MI 48H                  | CPD PLS MI 24H,CPD PLS MI 48H                                   |                       | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | true                 | should not      |
+                | 45200007     | DO1         | Distribution Only | 2        | ANY       | PLASMA_TRANSFUSABLE          | PLASMA TRANSFUSABLE          | ANY  | =W03689844590100 | APH PLASMA 24H EXP 3            | APH PLASMA 24H EXP 2,APH PLASMA 24H EXP 3                       | APH PLASMA 24H EXP 1  | disabled          | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
+                | 45200009     | DO1         | Distribution Only | 2        | ANY       | CRYOPRECIPITATE              | CRYOPRECIPITATE              | ANY  | =W03682515111300 | UNLABELED_PRODUCT_DESCRIPTION_1 | UNLABELED_PRODUCT_DESCRIPTION_1,UNLABELED_PRODUCT_DESCRIPTION_2 | CRYO_LABELED          | enabled           | FROZEN   | INTERNAL_TRANSFER | UNLABELED    | false                | should not      |
 
 
     Rule: I should be able to see all eligible products for a given unit number.

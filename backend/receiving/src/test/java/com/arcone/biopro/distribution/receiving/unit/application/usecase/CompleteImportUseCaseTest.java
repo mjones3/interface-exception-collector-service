@@ -78,7 +78,7 @@ class CompleteImportUseCaseTest {
                     notification.useCaseMessage().code());
                 assertEquals(UseCaseMessageType.IMPORT_COMPLETED_SUCCESS.getType(),
                     notification.useCaseMessage().type());
-                assertEquals("receiving/imports-enter-shipment-information",
+                assertEquals("imports/imports-enter-shipment-information",
                     output._links().get("next"));
 
             })

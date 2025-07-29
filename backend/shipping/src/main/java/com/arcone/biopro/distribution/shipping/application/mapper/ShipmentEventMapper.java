@@ -30,6 +30,7 @@ public class ShipmentEventMapper {
             .performedBy(dto.completedByEmployeeId())
             .locationCode(dto.locationCode())
             .locationName(facilityName)
+            .productCategory(dto.productCategory())
             .customerCode(dto.shippingCustomerCode())
             .customerName(dto.shippingCustomerName())
             .deliveryType(dto.deliveryType())
@@ -72,6 +73,7 @@ public class ShipmentEventMapper {
                 .collectionDate(itemPackedDTO.collectionDate())
                 .expirationDate(itemPackedDTO.expirationDate())
                 .createDate(ZonedDateTime.now())
+                .productDescription(itemPackedDTO.productDescription())
                 .build()).toList();
 
     }

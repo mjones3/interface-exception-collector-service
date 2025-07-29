@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <g id="Images_Blood_Bag" data-name="Images/Blood Bag" transform="translate(-188 -416.499)">
+    <rect id="Background" width="48" height="48" rx="5" transform="translate(188 416.499)" fill="rgba(31,41,55,0.1)"/>
+    <g id="Transparent_Bag" data-name="Transparent Bag" transform="translate(201.962 422.038)">
+      <rect id="Rectangle_427" data-name="Rectangle 427" width="0.773" height="8.247" transform="translate(9.611 30.77)" fill="#fefefe"/>
+      <path id="Path_304" data-name="Path 304" d="M929.689,404.679h15.722a2.017,2.017,0,0,1,2.011,2.012v22.672a2.018,2.018,0,0,1-2.011,2.012H940.3l-.017,2.754-2.021,0-.01,1.709-1.368,0,.014-1.7-1.917,0-.029-2.767h-3.1v1.182l-1.7-.022.019-1.161h-.474a2.017,2.017,0,0,1-2.011-2.012V406.691a2.017,2.017,0,0,1,2.011-2.012Zm6.184.958h3.616a1.533,1.533,0,0,1,1.528,1.528v.813a1.532,1.532,0,0,1-1.528,1.528h-3.616a1.532,1.532,0,0,1-1.528-1.528v-.813A1.532,1.532,0,0,1,935.873,405.637Z" transform="translate(-927.678 -404.679)" fill="#fefefe" fill-rule="evenodd"/>
+      <path id="Path_304_-_Outline" data-name="Path 304 - Outline" d="M929.689,404.345h15.722a2.348,2.348,0,0,1,2.345,2.345v22.672a2.348,2.348,0,0,1-2.345,2.345h-4.784l-.017,2.754-2.021,0-.01,1.71-2.035,0,.014-1.7-1.911,0-.029-2.767h-2.44V432.9l-2.374-.03.019-1.156h-.135a2.348,2.348,0,0,1-2.345-2.345V406.691a2.348,2.348,0,0,1,2.344-2.345ZM939.948,433.8l.017-2.755h5.446a1.68,1.68,0,0,0,1.678-1.678V406.691a1.68,1.68,0,0,0-1.678-1.678H929.689a1.68,1.68,0,0,0-1.678,1.678v22.672a1.68,1.68,0,0,0,1.678,1.678h.813l-.019,1.165,1.029.013v-1.178h3.768l.029,2.766,1.923,0-.014,1.7h.7l.01-1.708ZM935.873,405.3h3.616a1.864,1.864,0,0,1,1.861,1.862v.813a1.864,1.864,0,0,1-1.861,1.862h-3.616a1.864,1.864,0,0,1-1.861-1.862v-.813A1.864,1.864,0,0,1,935.873,405.3Zm3.616,3.869a1.2,1.2,0,0,0,1.194-1.195v-.813a1.2,1.2,0,0,0-1.194-1.195h-3.616a1.2,1.2,0,0,0-1.194,1.195v.813a1.2,1.2,0,0,0,1.194,1.195Z" transform="translate(-927.678 -404.679)" fill="#fefefe"/>
+    </g>
+    <path id="Blood_Yellow-400" data-name="Blood/Yellow-400" d="M947.63,419.025l-.031,17.586a2.212,2.212,0,0,1-2.2,2.031h-4.941l-.015,2.632h-1.806l-.011,1.767h-.587l.008-1.752h-1.97l.009-2.766-3.974.013v1.231l-.86-.009.019-1.228-.861-.005c-1.1-.007-1.375-.509-1.373-1.615l.031-17.9,18.565.019Z" transform="translate(-726.435 9.765)" fill="#e4f2fd" fill-rule="evenodd"/>
+    <path id="Blood_Yellow-400-2" data-name="Blood/Yellow-400" d="M947.6,434.734v1.877a2.212,2.212,0,0,1-2.2,2.031h-4.941l-.015,2.632h-1.806l-.011,1.767h-.587l.008-1.752h-1.97l.009-2.766-3.974.013v1.231l-.86-.009.019-1.228-.861-.005c-1.1-.007-1.375-.509-1.373-1.615v-2.177h8.83" transform="translate(-726.435 9.765)" fill="#facc15" fill-rule="evenodd"/>
+    <g id="Label" transform="translate(204.89 433.573)">
+      <rect id="Label-2" data-name="Label" width="14.221" height="11.01" rx="3.508" fill="#fefefe"/>
+      <g id="Text" transform="translate(1.662 2.276)">
+        <path id="Line_144" data-name="Line 144" d="M6.106.558,0,.5,0-.5l6.111.058Z" transform="translate(0 1.51)" fill="#96989a"/>
+        <path id="Line_145" data-name="Line 145" d="M4.978.529,0,.5,0-.5l4.981.029Z" transform="translate(0.077 2.93)" fill="#96989a"/>
+        <path id="Line_146" data-name="Line 146" d="M0,.75V-.75H2.839V.75Z" transform="translate(0.039 5.555)" fill="#96989a"/>
+        <path id="Line_147" data-name="Line 147" d="M2.636.751H0V-.75H2.636Z" transform="translate(3.89 5.57)" fill="#96989a"/>
+        <path id="Line_148" data-name="Line 148" d="M4.979.529,0,.5,0-.5l4.982.029Z" transform="translate(0.02)" fill="#96989a"/>
+        <path id="Line_149" data-name="Line 149" d="M2.619.529-.006.5l.011-1L2.63-.471Z" transform="translate(8.222 2.876)" fill="#96989a"/>
+        <path id="Line_150" data-name="Line 150" d="M2.619.529-.005.5l.011-1L2.63-.471Z" transform="translate(8.216 4.12)" fill="#96989a"/>
+      </g>
+    </g>
+  </g>
+</svg>
