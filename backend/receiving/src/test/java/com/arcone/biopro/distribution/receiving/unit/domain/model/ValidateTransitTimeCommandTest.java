@@ -180,7 +180,7 @@ class ValidateTransitTimeCommandTest {
 
     @Test
     void constructor_DifferentValidTimeZones_CreatesInstance() {
-        var now = LocalDateTime.now();
+        var now = LocalDateTime.now(ZoneId.of("America/Los_Angeles"));
         ValidateTransitTimeCommand command = new ValidateTransitTimeCommand(
             validTemperatureCategory,
             now.minusHours(1),

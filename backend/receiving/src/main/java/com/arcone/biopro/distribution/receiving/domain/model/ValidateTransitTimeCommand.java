@@ -69,7 +69,7 @@ public class ValidateTransitTimeCommand implements Validatable {
             throw new IllegalArgumentException("End date date cannot be before start date");
         }
 
-        if(endDateTime.isAfter(LocalDateTime.now())){
+        if(endDateTime.isAfter(LocalDateTime.now(endZoneId))){
             throw new IllegalArgumentException("End date date cannot be in the future");
         }
     }
