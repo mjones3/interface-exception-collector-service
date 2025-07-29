@@ -16,6 +16,8 @@ export const GENERATE_PACKING_LIST_LABEL = gql<
             enteredBy
             quantity
             distributionComments
+            shipmentType
+            labelStatus
             shipFrom {
                 bloodCenterCode
                 bloodCenterName
