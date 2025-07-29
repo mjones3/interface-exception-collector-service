@@ -35,6 +35,8 @@ public class KafkaConfiguration {
     public static final String DEVICE_CREATED_CONSUMER = "device-created";
     public static final String DEVICE_UPDATED_CONSUMER = "device-updated";
     public static final String IMPORT_COMPLETED_PRODUCER = "import-completed-producer";
+    public static final String SHIPMENT_COMPLETED_CONSUMER = "shipment-completed";
+
 
 
     @Bean
@@ -60,6 +62,15 @@ public class KafkaConfiguration {
         @Value("${topics.device.device-updated.partitions:1}") Integer partitions,
         @Value("${topics.device.device-updated.replicas:1}") Integer replicas,
         @Value("${topics.device.device-updated.topic-name:DeviceUpdated}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    NewTopic shipmentCompletedTopic(
+        @Value("${topics.shipment.shipment-completed.partitions:1}") Integer partitions,
+        @Value("${topics.shipment.shipment-completed.replicas:1}") Integer replicas,
+        @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String topicName
     ) {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
@@ -95,6 +106,12 @@ public class KafkaConfiguration {
         return buildReceiverOptions(kafkaProperties, topicName);
     }
 
+    @Bean
+    ReceiverOptions<String, String> shipmentCompletedReceiverOptions(KafkaProperties kafkaProperties
+        , @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String shipmentCompletedTopicName) {
+        return buildReceiverOptions(kafkaProperties, shipmentCompletedTopicName);
+    }
+
     @Bean(DEVICE_CREATED_CONSUMER)
     ReactiveKafkaConsumerTemplate<String, String> deviceCreatedConsumerTemplate(
         ReceiverOptions<String, String> deviceCreatedReceiverOptions
@@ -107,6 +124,13 @@ public class KafkaConfiguration {
         ReceiverOptions<String, String> deviceUpdatedReceiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(deviceUpdatedReceiverOptions);
+    }
+
+    @Bean(SHIPMENT_COMPLETED_CONSUMER)
+    ReactiveKafkaConsumerTemplate<String, String> shipmentCompletedConsumerTemplate(
+        ReceiverOptions<String, String> shipmentCompletedReceiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(shipmentCompletedReceiverOptions);
     }
 
     @Bean(name = DLQ_PRODUCER )

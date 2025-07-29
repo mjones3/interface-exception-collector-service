@@ -46,6 +46,22 @@ public class OrderTestingController {
     public Map<String, Integer> priorities = new LinkedHashMap<>();
     public Map<String, String> colors = new HashMap<>();
 
+    private static final Map<String, String> PRODUCT_FAMILY_DESCRIPTIONS = Map.ofEntries(
+        Map.entry("WHOLE_BLOOD", "Whole Blood"),
+        Map.entry("WHOLE_BLOOD_LEUKOREDUCED", "Whole Blood Leukoreduced"),
+        Map.entry("RED_BLOOD_CELLS", "Red Blood Cells"),
+        Map.entry("RED_BLOOD_CELLS_LEUKOREDUCED", "Red Blood Cells Leukoreduced"),
+        Map.entry("APHERESIS_PLATELETS_LEUKOREDUCED", "Apheresis Platelets Leukoreduced"),
+        Map.entry("PRT_APHERESIS_PLATELETS", "PRT Apheresis Platelets"),
+        Map.entry("CRYOPRECIPITATE", "Cryoprecipitate"),
+        Map.entry("PLASMA_TRANSFUSABLE", "Plasma Transfusable"),
+        Map.entry("PLASMA_MFG_NONINJECTABLE", "Plasma Mfg Noninjectable"),
+        Map.entry("PLASMA_MFG_INJECTABLE", "Plasma Mfg Injectable"),
+        Map.entry("WASHED_APHERESIS_PLATELETS", "Washed Apheresis Platelets"),
+        Map.entry("WASHED_PRT_APHERESIS_PLATELETS", "Washed Prt Apheresis Platelets"),
+        Map.entry("WASHED_RED_BLOOD_CELLS", "Washed Red Blood Cells")
+    );
+
     // Constructor
     public OrderTestingController() {
         this.priorities.put("STAT", 1);
@@ -151,7 +167,7 @@ public class OrderTestingController {
     }
 
     public Map generatePickList(Integer orderId, boolean skipServiceUnavailable) {
-        return apiHelper.graphQlRequest(GraphQLMutationMapper.generatePickListMutation(orderId,skipServiceUnavailable), "generatePickList");
+        return apiHelper.graphQlRequest(GraphQLMutationMapper.generatePickListMutation(orderId, skipServiceUnavailable), "generatePickList");
     }
 
     @Getter
@@ -254,6 +270,10 @@ public class OrderTestingController {
         var response = apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderShipmentByOrderId(orderId), "findOrderShipmentByOrderId");
         log.debug("Order Shipment details: {}", response);
         return response;
+    }
+
+    public String getProductFamilyDescription(String productFamilyKey) {
+        return PRODUCT_FAMILY_DESCRIPTIONS.get(productFamilyKey);
     }
 
 }

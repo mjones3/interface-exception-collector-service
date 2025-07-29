@@ -62,7 +62,7 @@ class CancelImportUseCaseTest {
                 assertThat(notification.useCaseMessage().type())
                     .isEqualTo(UseCaseMessageType.IMPORT_CANCELED_SUCCESS.getType());
                 assertThat(output._links())
-                    .containsEntry("next", "receiving/imports-enter-shipment-information");
+                    .containsEntry("next", "imports/imports-enter-shipment-information");
             })
             .verifyComplete();
 

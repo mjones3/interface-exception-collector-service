@@ -46,12 +46,12 @@ class ValidateTransitTimeUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
         validCommandInput = new ValidateTransitTimeCommandInput(
             "FROZEN",
-            now,
+            yesterday,
             "UTC",
-            now.plusHours(2),
+            yesterday.plusHours(2),
             "UTC"
         );
 
@@ -138,7 +138,7 @@ class ValidateTransitTimeUseCaseTest {
     }
 
     @Test
-    void validateTransitTime_InvalidCommand_ReturnsSystemError() {
+    void validateTransitTime_InvalidCommand_ReturnsWarnError() {
         // Arrange
         ValidateTransitTimeCommandInput invalidInput = new ValidateTransitTimeCommandInput(
             null, null, null, null, null
@@ -149,13 +149,13 @@ class ValidateTransitTimeUseCaseTest {
             .expectNextMatches(output ->
                 output.notifications().size() == 1 &&
                     output.notifications().get(0).useCaseMessage().type() ==
-                        UseCaseMessageType.VALIDATE_TRANSIT_TIME_SYSTEM_ERROR.getType() &&
+                        UseCaseNotificationType.WARN &&
                     output.data() == null)
             .verifyComplete();
     }
 
     @Test
-    void validateTransitTime_EmptyProductConsequences_ReturnsSystemError() {
+    void validateTransitTime_EmptyProductConsequences_WarnError() {
         // Arrange
         when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(
             any(), any()))
@@ -166,7 +166,7 @@ class ValidateTransitTimeUseCaseTest {
             .expectNextMatches(output ->
                 output.notifications().size() == 1 &&
                     output.notifications().get(0).useCaseMessage().type() ==
-                        UseCaseMessageType.VALIDATE_TRANSIT_TIME_SYSTEM_ERROR.getType() &&
+                        UseCaseNotificationType.WARN &&
                     output.data() == null)
             .verifyComplete();
     }

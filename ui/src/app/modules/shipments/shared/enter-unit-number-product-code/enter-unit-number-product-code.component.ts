@@ -339,7 +339,8 @@ export class EnterUnitNumberProductCodeComponent implements OnInit, OnDestroy {
                     return this.matDialog
                         .open<SelectProductPickerModalComponent, ProductResponseDTO[], ProductResponseDTO>(
                             SelectProductPickerModalComponent, {
-                                data: products
+                                data: products,
+                                disableClose: true,
                             })
                         .afterClosed()
                 }),

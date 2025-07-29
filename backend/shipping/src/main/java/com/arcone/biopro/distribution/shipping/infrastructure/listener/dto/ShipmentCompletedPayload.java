@@ -20,6 +20,7 @@ public record ShipmentCompletedPayload(
     String customerCode,
     String customerType,
     String departmentCode,
+    String productCategory,
     ZonedDateTime createDate,
     String shipmentType,
     String labelStatus,

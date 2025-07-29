@@ -16,4 +16,6 @@ export * from './pageable.model';
 export * from './process-product-version.model';
 export * from './process-product.model';
 export * from './table.model';
+export * from './use-case-response.dto';
+export * from './validation-result-dto.model';
 export * from './widget.model';

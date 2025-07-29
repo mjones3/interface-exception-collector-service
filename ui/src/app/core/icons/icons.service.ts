@@ -128,6 +128,15 @@ export class IconsService {
             )
         );
 
+
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'cryo',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-cryo.svg'
+            )
+        );
+
         // Adding icons
         [...RSA_ICONS, ...DRIP_ICONS, ...HEROIC_ICONS].forEach((icon) => {
             matIconRegistry.addSvgIconLiteralInNamespace(

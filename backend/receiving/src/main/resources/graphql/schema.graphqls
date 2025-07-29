@@ -10,6 +10,8 @@ type Query {
     validateTransitTime(validateTransitTimeRequest:ValidateTransitTimeRequestDTO!): UseCaseResponseDTO!
     validateBarcode(validateBarcodeRequest:ValidateBarcodeRequestDTO!): UseCaseResponseDTO!
     findImportById(importId:ID!): UseCaseResponseDTO!
+    validateTransferOrderNumber(validateTransferOrderNumberRequest:ValidateTransferOrderNumberRequestDTO!): UseCaseResponseDTO!
+
 }
 
 type Mutation {
@@ -96,6 +98,12 @@ input CompleteImportRequestDTO {
 input CancelImportRequestDTO {
     importId:ID!
     cancelEmployeeId:String!
+}
+
+input ValidateTransferOrderNumberRequestDTO {
+    orderNumber:ID!
+    employeeId:String!
+    locationCode:String!
 }
 
 type UseCaseNotificationDTO {

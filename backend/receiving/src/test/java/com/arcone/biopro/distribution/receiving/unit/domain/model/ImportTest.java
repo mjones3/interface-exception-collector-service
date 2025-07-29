@@ -9,7 +9,6 @@ import com.arcone.biopro.distribution.receiving.domain.model.Product;
 import com.arcone.biopro.distribution.receiving.domain.model.ProductConsequence;
 import com.arcone.biopro.distribution.receiving.domain.model.TemperatureValidator;
 import com.arcone.biopro.distribution.receiving.domain.model.TransitTimeValidator;
-import com.arcone.biopro.distribution.receiving.domain.model.vo.ImportItemConsequence;
 import com.arcone.biopro.distribution.receiving.domain.model.vo.ValidationResult;
 import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
 import com.arcone.biopro.distribution.receiving.domain.service.ConfigurationService;
@@ -27,11 +26,8 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,14 +55,14 @@ class ImportTest {
 
     private MockedStatic<ImportItem> importItemMockedStatic;
 
-    private LocalDateTime now;
+    private LocalDateTime yesterday;
     private ZonedDateTime zonedNow;
 
     private ConfigurationService configurationService;
 
     @BeforeEach
     void setUp() {
-        now = LocalDateTime.now();
+        yesterday = LocalDateTime.now().minusDays(1);
         zonedNow = ZonedDateTime.now();
         mockedStaticTransitValidator = Mockito.mockStatic(TransitTimeValidator.class);
         temperatureValidatorMockedStatic = Mockito.mockStatic(TemperatureValidator.class);
@@ -145,9 +141,9 @@ class ImportTest {
         Import result = Import.fromRepository(
             1L,
             "FROZEN",
-            now,
+            yesterday,
             "UTC",
-            now.plusHours(2),
+            yesterday.plusHours(2),
             "UTC",
             "2",
             "ACCEPTABLE",
@@ -231,7 +227,7 @@ class ImportTest {
         when(command.getTemperatureCategory()).thenReturn("FROZEN");
         when(command.getLocationCode()).thenReturn("LOC123");
         when(command.getEmployeeId()).thenReturn("EMP123");
-        when(command.getTransitStartDateTime()).thenReturn(now);
+        when(command.getTransitStartDateTime()).thenReturn(yesterday);
         when(command.getTransitStartTimeZone()).thenReturn("UTC");
         when(command.getTransitEndDateTime()).thenReturn(null);
 
@@ -343,9 +339,9 @@ class ImportTest {
             () -> Import.fromRepository(
                 1L,
                 "FROZEN",
-                now,
+                yesterday,
                 "UTC",
-                now.plusHours(2),
+                yesterday.plusHours(2),
                 "UTC",
                 "2",
                 "ACCEPTABLE",
@@ -371,9 +367,9 @@ class ImportTest {
             () -> Import.fromRepository(
                 1L,
                 "FROZEN",
-                now,
+                yesterday,
                 "UTC",
-                now.plusHours(2),
+                yesterday.plusHours(2),
                 "UTC",
                 "2",
                 "ACCEPTABLE",
@@ -399,9 +395,9 @@ class ImportTest {
             () -> Import.fromRepository(
                 1L,
                 "FROZEN",
-                now,
+                yesterday,
                 null,
-                now.plusHours(2),
+                yesterday.plusHours(2),
                 "UTC",
                 "2",
                 "ACCEPTABLE",
@@ -427,7 +423,7 @@ class ImportTest {
             () -> Import.fromRepository(
                 1L,
                 "FROZEN",
-                now,
+                yesterday,
                 "ET",
                 null,
                 "UTC",
@@ -455,7 +451,7 @@ class ImportTest {
             () -> Import.fromRepository(
                 1L,
                 "FROZEN",
-                now,
+                yesterday,
                 "ET",
                 LocalDateTime.now(),
                 "UTC",
@@ -477,9 +473,9 @@ class ImportTest {
 
     private void setupValidCreateImportCommand() {
         when(createImportCommand.getTemperatureCategory()).thenReturn("FROZEN");
-        when(createImportCommand.getTransitStartDateTime()).thenReturn(now);
+        when(createImportCommand.getTransitStartDateTime()).thenReturn(yesterday);
         when(createImportCommand.getTransitStartTimeZone()).thenReturn("UTC");
-        when(createImportCommand.getTransitEndDateTime()).thenReturn(now.plusHours(2));
+        when(createImportCommand.getTransitEndDateTime()).thenReturn(yesterday.plusHours(2));
         when(createImportCommand.getTransitEndTimeZone()).thenReturn("UTC");
         when(createImportCommand.getThermometerCode()).thenReturn("THERM123");
         when(createImportCommand.getTemperature()).thenReturn(BigDecimal.valueOf(20.5));
@@ -500,9 +496,9 @@ class ImportTest {
         Import importObj = Import.fromRepository(
             1L,
             "FROZEN",
-            now,
+            yesterday,
             "UTC",
-            now.plusHours(2),
+            yesterday.plusHours(2),
             "UTC",
             "2",
             "ACCEPTABLE",
@@ -553,7 +549,7 @@ class ImportTest {
 
         when(configurationService.findByFinNumber(anyString())).thenReturn(Mono.empty());
 
-        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+        Import importObj = Import.fromRepository(1L,"FROZEN", yesterday,"UTC", yesterday.plusHours(2),"UTC",
             "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
             "ACCEPTABLE",
             "LOC123",
@@ -599,7 +595,7 @@ class ImportTest {
 
 
 
-        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+        Import importObj = Import.fromRepository(1L,"FROZEN", yesterday,"UTC", yesterday.plusHours(2),"UTC",
             "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
             "ACCEPTABLE",
             "LOC123",
@@ -668,9 +664,9 @@ class ImportTest {
         Import importObj = Import.fromRepository(
             1L,
             "FROZEN",
-            now,
+            yesterday,
             "UTC",
-            now.plusHours(2),
+            yesterday.plusHours(2),
             "UTC",
             "2",
             "UNACCEPTABLE",
@@ -724,7 +720,7 @@ class ImportTest {
     @Test
     void shouldNotCreateImportItem_WhenCommandIsNull() {
 
-        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+        Import importObj = Import.fromRepository(1L,"FROZEN", yesterday,"UTC", yesterday.plusHours(2),"UTC",
             "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
             "ACCEPTABLE",
             "LOC123",
@@ -745,7 +741,7 @@ class ImportTest {
     @Test
     void shouldNotCreateImportItem_WhenConfigServiceIsNull() {
 
-        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+        Import importObj = Import.fromRepository(1L,"FROZEN", yesterday,"UTC", yesterday.plusHours(2),"UTC",
             "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
             "ACCEPTABLE",
             "LOC123",
@@ -768,7 +764,7 @@ class ImportTest {
 
         var item = Mockito.mock(ImportItem.class);
 
-        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+        Import importObj = Import.fromRepository(1L,"FROZEN", yesterday,"UTC", yesterday.plusHours(2),"UTC",
             "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
             "ACCEPTABLE",
             "LOC123",
@@ -791,7 +787,7 @@ class ImportTest {
 
         var item = Mockito.mock(ImportItem.class);
 
-        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+        Import importObj = Import.fromRepository(1L,"FROZEN", yesterday,"UTC", yesterday.plusHours(2),"UTC",
             "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
             "ACCEPTABLE",
             "LOC123",
@@ -812,7 +808,7 @@ class ImportTest {
     @Test
     void shouldNotComplete_WhenItemsIsEmpty() {
 
-        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+        Import importObj = Import.fromRepository(1L,"FROZEN", yesterday,"UTC", yesterday.plusHours(2),"UTC",
             "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
             "ACCEPTABLE",
             "LOC123",
@@ -835,7 +831,7 @@ class ImportTest {
 
         var item = Mockito.mock(ImportItem.class);
 
-        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+        Import importObj = Import.fromRepository(1L,"FROZEN", yesterday,"UTC", yesterday.plusHours(2),"UTC",
             "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
             "ACCEPTABLE",
             "LOC123",

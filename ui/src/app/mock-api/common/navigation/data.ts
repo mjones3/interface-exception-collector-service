@@ -114,7 +114,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         id: 14,
         title: 'Imports',
         type: 'basic',
-        link: 'receiving/imports-enter-shipment-information',
+        link: 'imports/imports-enter-shipment-information',
         icon: 'download',
         disabled: false,
     },
@@ -139,4 +139,12 @@ export const defaultNavigation: FuseNavigationItem[] = [
             }
         ]
     },
+    {
+        id: 16,
+        title: 'Transfers Receipt',
+        type: 'basic',
+        link: 'transfer-receipt',
+        icon: 'compare_arrows',
+        disabled: false,
+    }
 ];
