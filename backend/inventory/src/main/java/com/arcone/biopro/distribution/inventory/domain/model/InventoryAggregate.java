@@ -188,7 +188,7 @@ public class InventoryAggregate {
     public InventoryAggregate addQuarantine(Long quarantineId, String reason, String comments, Boolean isStopsManufacturing) {
         inventory.addQuarantine(quarantineId, reason, comments, isStopsManufacturing);
         if (isStopsManufacturing){
-            addProperty(PropertyKey.STOP_MANUFACTURING, "Y");
+            addProperty(PropertyKey.STOPS_MANUFACTURING, "Y");
         }
         addQuarantineFlag();
         return this;
@@ -202,7 +202,7 @@ public class InventoryAggregate {
     public InventoryAggregate updateQuarantine(Long quarantineId, String reason, String comments, boolean isStopsManufacturing) {
         inventory.updateQuarantine(quarantineId, reason, comments, isStopsManufacturing);
         if (isStopsManufacturing){
-            addProperty(PropertyKey.STOP_MANUFACTURING, "Y");
+            addProperty(PropertyKey.STOPS_MANUFACTURING, "Y");
         } else {
             validateAndDeleteStopManofactiring();
         }
@@ -212,9 +212,9 @@ public class InventoryAggregate {
     private void validateAndDeleteStopManofactiring() {
         boolean isStopManofactiringPresent = this.getInventory().getQuarantines()
             .stream()
-            .anyMatch(Quarantine::stopManufacturing);
+            .anyMatch(Quarantine::stopsManufacturing);
         if (!isStopManofactiringPresent){
-            removeProperty(PropertyKey.STOP_MANUFACTURING);
+            removeProperty(PropertyKey.STOPS_MANUFACTURING);
         }
     }
 
