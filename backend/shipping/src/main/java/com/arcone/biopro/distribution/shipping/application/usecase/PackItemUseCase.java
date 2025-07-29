@@ -85,7 +85,7 @@ public class PackItemUseCase implements PackItemService {
                     .build())))
             .onErrorResume(error -> {
                 log.error("Failed on pack item {} , {} ", packItemRequest, error.getMessage());
-                return buildPackErrorResponse(error);
+                return buildPackErrorResponse(packItemRequest, error);
             });
     }
 
@@ -128,27 +128,10 @@ public class PackItemUseCase implements PackItemService {
                     if (inventoryValidationResponseDTO.inventoryResponseDTO() != null && (inventoryValidationResponseDTO.inventoryNotificationsDTO() == null || inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty())) {
                         return Mono.just(inventoryValidationResponseDTO);
                     } else {
-                        var internalTransferAllowedNotifications = this.getInternalTransferAllowedNotifications(shipment);
-                        if (!internalTransferAllowedNotifications.isEmpty()) {
-                            if (inventoryValidationResponseDTO.hasOnlyNotificationTypes(internalTransferAllowedNotifications)) {
-                                var inventoryResponseDto = inventoryValidationResponseDTO.hasOnlyNotificationType(QUARANTINED_NOTIFICATION_TYPE) ? transformQuarantinedInventoryResponseDTO(inventoryValidationResponseDTO) : transformUnlabeledInventoryResponseDTO(inventoryValidationResponseDTO);
-                                return Mono.just(inventoryResponseDto);
-                            }
-
-                            log.debug("Criteria for shipment {} is/are {} and this product has notifications {}", shipment.getId(), internalTransferAllowedNotifications, inventoryValidationResponseDTO.inventoryNotificationsDTO());
-                            return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED,
-                                inventoryValidationResponseDTO.inventoryResponseDTO(),
-                                inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
-                                    .map(inventoryNotificationDTO ->
-                                        NotificationDTO.builder()
-                                            .notificationType(NotificationType.WARN.name())
-                                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                                            .message(ShipmentServiceMessages.ORDER_CRITERIA_DOES_NOT_MATCH_ERROR)
-                                            .name("ORDER_CRITERIA_DOES_NOT_MATCH_ERROR")
-                                            .build()
-                                    )
-                                .toList()
-                            ));
+                        var internalTransferAllowedNotifications = this.getAllowedErrorNotifications(shipment);
+                        if (!internalTransferAllowedNotifications.isEmpty() && inventoryValidationResponseDTO.hasOnlyNotificationTypes(internalTransferAllowedNotifications)) {
+                            var inventoryResponseDto = inventoryValidationResponseDTO.hasOnlyNotificationType(QUARANTINED_NOTIFICATION_TYPE) ? transformQuarantinedInventoryResponseDTO(inventoryValidationResponseDTO) : transformUnlabeledInventoryResponseDTO(inventoryValidationResponseDTO);
+                            return Mono.just(inventoryResponseDto);
                         }
 
                         return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
@@ -173,7 +156,7 @@ public class PackItemUseCase implements PackItemService {
 
     }
 
-    private Set<String> getInternalTransferAllowedNotifications(final Shipment shipment) {
+    private Set<String> getAllowedErrorNotifications(final Shipment shipment) {
         if (!INTERNAL_TRANSFER_TYPE.equals(shipment.getShipmentType())) {
             return Collections.emptySet();
         }
@@ -301,7 +284,7 @@ public class PackItemUseCase implements PackItemService {
             });
     }
 
-    private Mono<RuleResponseDTO> buildPackErrorResponse(Throwable error) {
+    private Mono<RuleResponseDTO> buildPackErrorResponse(PackItemRequest packItemRequest, Throwable error) {
         if (error instanceof InventoryServiceNotAvailableException) {
             return Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.BAD_REQUEST)
@@ -316,14 +299,22 @@ public class PackItemUseCase implements PackItemService {
                 .build());
         }
         if (error instanceof ProductValidationException exception) {
-
             return configService.findVisualInspectionFailedDiscardReasons()
                 .flatMap(reasonDomainMapper::flatMapToDto)
                 .collectList()
-                .map(reasons -> {
+                .zipWith(this.shipmentRepository.findShipmentByItemId(packItemRequest.shipmentItemId()))
+                .map(tuple -> {
+                    var reasons = tuple.getT1();
+                    var shipment = tuple.getT2();
+
+                    var allowedErrorNotifications = this.getAllowedErrorNotifications(shipment);
+                    var notifications = exception.getNotifications().stream()
+                        .filter(n -> !allowedErrorNotifications.contains(n.name()))
+                        .toList();
+
                     Map<String, List<?>> results = new HashMap<>();
-                    if (((ProductValidationException) error).getInventoryResponseDTO() != null) {
-                        results.put("inventory", List.of(((ProductValidationException) error).getInventoryResponseDTO()));
+                    if (exception.getInventoryResponseDTO() != null) {
+                        results.put("inventory", List.of(exception.getInventoryResponseDTO()));
                     } else {
                         results.put("inventory", List.of(Collections.emptyList()));
                     }
@@ -331,7 +322,7 @@ public class PackItemUseCase implements PackItemService {
                     return RuleResponseDTO.builder()
                         .ruleCode(HttpStatus.BAD_REQUEST)
                         .results(results)
-                        .notifications(exception.getNotifications())
+                        .notifications(notifications)
                         .build();
                 });
         } else {
