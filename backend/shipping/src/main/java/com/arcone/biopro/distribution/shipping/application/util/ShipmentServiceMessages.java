@@ -45,7 +45,7 @@ public class ShipmentServiceMessages {
     public static final String INVENTORY_UNLABELED_ERROR = "This product is not labeled and cannot be shipped";
     public static final String SHIPMENT_UNLABELED_ERROR = "Shipment can only contain unlabeled products";
     public static final String INVENTORY_NOT_QUARANTINED_ERROR = "This product is not quarantined and cannot be used for quarantined shipments.";
-
+    public static final String INVENTORY_NOT_QUARANTINED_AND_UNLABELED_ERROR = "This unit does not match the order product criteria and cannot be used for quarantined and unlabeled shipments.";
 
 
     //    Success messages

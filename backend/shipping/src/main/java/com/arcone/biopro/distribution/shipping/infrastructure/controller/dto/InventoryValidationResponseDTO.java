@@ -60,4 +60,21 @@ public record InventoryValidationResponseDTO(
         return typesSet.equals(notificationTypesSet);
     }
 
+    public boolean hasAnyNotificationTypes(final Collection<String> types) {
+        if (inventoryNotificationsDTO == null) {
+            throw new IllegalArgumentException("inventoryNotificationsDTO is null");
+        }
+
+        if (types == null) {
+            throw new IllegalArgumentException("types is null");
+        }
+
+        var typesSet = new TreeSet<>(types);
+        var notificationTypesSet = inventoryNotificationsDTO.stream()
+            .map(InventoryNotificationDTO::errorName)
+            .collect(Collectors.toCollection(TreeSet::new));
+
+        return typesSet.stream().anyMatch(notificationTypesSet::contains);
+    }
+
 }
