@@ -68,6 +68,8 @@ type PackingListLabelDTO {
     shipFrom: ShipFromDTO
     shipTo: ShipToDTO
     distributionComments: String
+    shipmentType:String
+    labelStatus:String
     packedItems:[ShipmentItemPackedDTO]
 }
 

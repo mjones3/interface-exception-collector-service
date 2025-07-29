@@ -315,9 +315,7 @@
                                     class="font-bold"
                                     >Billed To:&nbsp;</span
                                 >
-                                <span data-testid="billed-to-value">{{
-                                    packingList?.shipTo?.customerName
-                                }}</span>
+                                <span data-testid="billed-to-value">@if (packingList?.shipmentType != 'INTERNAL_TRANSFER'){ {{packingList?.shipTo?.customerName}}}</span>
                             </td>
                         </tr>
                         <tr>

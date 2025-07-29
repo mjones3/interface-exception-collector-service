@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentRequestDetailsResponseType;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -204,5 +206,47 @@ public class PrintPackingListSteps {
     @Then("I should not be able to print the Shipping Label.")
     public void iShouldNotBeAbleToPrintTheShippingLabel() {
         shipmentDetailPage.ensureViewShippingLabelButtonIsNotVisible();
+    }
+
+    @And("I {string} see the Billed to information.")
+    public void iSeeTheBilledToInformation(String shouldShouldNot) {
+        if(shouldShouldNot.equalsIgnoreCase("should")) {
+            Assert.assertNotNull(this.shipmentDetails.getBillingCustomerName());
+        }else if (shouldShouldNot.equalsIgnoreCase("should not")) {
+            Assert.assertNull(this.shipmentDetails.getBillingCustomerName());
+        }else {
+            Assert.fail("Invalid Option.");
+        }
+    }
+
+    @Given("The Internal Transfer shipment details are:")
+    public void theInternalTransferShipmentDetailsAre(DataTable dataTable) {
+
+        var internalTransferData = dataTable.asMaps();
+        var dataMap = internalTransferData.getFirst();
+
+        var units = Arrays.stream(dataMap.get("Unit_Numbers").split(",")).toList();
+        var productCodeList = Arrays.stream(dataMap.get("Product_Codes").split(",")).toList();
+
+        context.setUnitNumber(units.getFirst());
+        context.setProductCode(productCodeList.getFirst());
+        context.setOrderNumber(Long.valueOf(dataMap.get("Order_Number")));
+
+        context.setShipmentId(shipmentTestingController.createPackedShipment(dataMap.get("Order_Number"),dataMap.get("Customer_ID"),dataMap.get("Customer_Name")
+            ,dataMap.get("Temp_Category"),dataMap.get("Shipment_Type"),dataMap.get("Label_Status")
+            ,Boolean.parseBoolean(dataMap.get("Quarantined_Products"))
+            ,units
+            ,productCodeList
+            ,dataMap.get("Product_Status")
+            ,dataMap.get("Product_Family")
+            ,dataMap.get("Blood_Type")
+            ,Integer.parseInt(dataMap.get("Quantity"))));
+
+        Assert.assertNotNull(context.getShipmentId());
+        context.setTotalPacked(units.size());
+
+        this.shipmentDetails = shipmentController.parseShipmentRequestDetail(shipmentController.getShipmentRequestDetails(context.getShipmentId()));
+        Assert.assertNotNull(this.shipmentDetails);
+
     }
 }

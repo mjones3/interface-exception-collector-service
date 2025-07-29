@@ -56,6 +56,8 @@ public class ShipmentLabelServiceUseCase implements ShipmentLabelService {
                         .dateTimePacked(shipment.getCompleteDate())
                         .enteredBy(shipment.getCreatedByEmployeeId())
                         .packedBy(shipment.getCompletedByEmployeeId())
+                        .labelStatus(shipment.getLabelStatus())
+                        .shipmentType(shipment.getShipmentType())
                         .distributionComments(shipment.getComments())
                         .shipFrom(ShipFromDTO.builder()
                             .bloodCenterCode(facilityDTO.externalId())

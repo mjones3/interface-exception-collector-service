@@ -369,7 +369,10 @@ describe('VerifyProductsComponent', () => {
 
             expect(matDialog.open).toHaveBeenCalledWith(
                 SelectProductPickerModalComponent,
-                { data: mockProducts }
+                {
+                    data: mockProducts,
+                    disableClose: true,
+                }
             );
             expect(verifyItemSpy).toHaveBeenCalledWith({
                 ...mockItem,

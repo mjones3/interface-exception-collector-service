@@ -221,10 +221,29 @@ public class ShipmentTestingController {
 
             }).toList());
         }
+
+        /*shippingCustomerCode=DL1, locationCode=123456789, deliveryType=FEDEX, productCategory=FROZEN, shippingDate=2024-10-07, shippingCustomerName=Distribution and Labeling
+            , customerPhoneNumber=234-567-8901, customerAddressState=CA, customerAddressPostalCode=90210, customerAddressCountry=US, customerAddressCountryCode=US
+            , customerAddressCity=Beverly Hills, customerAddressDistrict=LA, customerAddressAddressLine1=456 Elm Street, customerAddressAddressLine2=Suite 200, completeDate=null
+            , completedByEmployeeId=null, items=[{id=6, shipmentId=6, productFamily=PLASMA_TRANSFUSABLE, bloodType=AP, quantity=1, comments=For neonatal use, shortDateProducts=[]
+            , packedItems=[{id=6, shipmentItemId=6, inventoryId=null, unitNumber=W036898786811, productCode=E4701V00, aboRh=BP, productDescription=APH FFP C-0
+                , productFamily=PLASMA_TRANSFUSABLE, expirationDate=2025-11-02T13:15:47.152
+            , collectionDate=2024-10-04T06:15:47.152-03:00, packedByEmployeeId=5db1da0b-6392-45ff-86d0-17265ea33226, visualInspection=SATISFACTORY}]}]} */
         return ShipmentRequestDetailsResponseType.builder()
             .id(Long.valueOf((String) result.get("id")))
             .orderNumber(Long.valueOf((Integer) result.get("orderNumber")))
             .priority((String) result.get("priority"))
+            .status((String) result.get("status"))
+            .deliveryType((String) result.get("deliveryType"))
+            .productCategory((String) result.get("productCategory"))
+            .shippingCustomerCode((String) result.get("shippingCustomerCode"))
+            .shippingCustomerName((String) result.get("shippingCustomerName"))
+            .customerAddressAddressLine1((String) result.get("customerAddressAddressLine1"))
+            .customerAddressAddressLine2((String) result.get("customerAddressAddressLine2"))
+            .customerAddressPostalCode((String) result.get("customerAddressPostalCode"))
+            .customerAddressCity((String) result.get("customerAddressCity"))
+            .customerAddressCountry((String) result.get("customerAddressCountry"))
+            .customerAddressState((String) result.get("customerAddressState"))
             .items(lineItems)
             .build();
     }
