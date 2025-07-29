@@ -6,6 +6,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -108,18 +109,39 @@ public class SharedActions {
     public boolean isElementVisible(WebElement element) {
         return element.isDisplayed();
     }
-
+    /**
+     * Using a wait mechanism, checks if an element is visible on the page using the provided WebDriver and locator.
+     *
+     * @param locator By locator to identify the element
+     * @return true if element is visible, false if element is not found or not visible
+     */
     public boolean isElementVisible(By locator) {
-        return wait.until(e -> {
-            log.debug("Checking if element {} is visible.", locator);
-            try {
-                return e.findElement(locator).isDisplayed();
-            } catch (NoSuchElementException | StaleElementReferenceException ex) {
-                // Element not found, consider it as not visible
-                log.debug("Element {} not found after two tries, considering it as not visible.", locator);
-                return false;
-            }
-        });
+        log.debug("Checking if element {} is visible.", locator);
+        try {
+            return wait.until(e -> e.findElement(locator).isDisplayed());
+        } catch (NoSuchElementException | StaleElementReferenceException | TimeoutException ex) {
+            // Element not found, consider it as not visible
+            log.debug("Element {} not found after two tries, considering it as not visible.", locator);
+        }
+        return false;
+    }
+
+    /**
+     * Without any wait mechanism, checks if an element is visible on the page using the provided WebDriver and locator.
+     *
+     * @param driver  WebDriver instance to find the element
+     * @param locator By locator to identify the element
+     * @return true if element is visible, false if element is not found or not visible
+     */
+    public boolean isElementVisible(WebDriver driver, By locator) {
+        log.debug("Checking if element {} is visible.", locator);
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (NoSuchElementException | StaleElementReferenceException ex) {
+            // Element not found, consider it as not visible
+            log.debug("Element {} not found after two tries, considering it as not visible.", locator);
+            return false;
+        }
     }
 
     public void sendKeys(WebElement element, String text) throws InterruptedException {
@@ -208,13 +230,13 @@ public class SharedActions {
     public void verifyMessage(String header, String message) throws InterruptedException {
         log.info("Verifying message: {}", message);
         var bannerMessageLocator = "";
-        Thread.sleep(500); // Avoid first empty container get read
+        Thread.sleep(1000); // Avoid first empty container get read
         if (header.startsWith("Acknowledgment")) {
             verifyAckMessage(header, message);
         } else {
-            if(header.startsWith("Cancel Confirmation")){
+            if (header.startsWith("Cancel Confirmation")) {
                 bannerMessageLocator = "//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog";
-            }else{
+            } else {
                 bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
             }
 
@@ -408,13 +430,27 @@ public class SharedActions {
         return driver.findElement(externalId);
     }
 
-    public void closeAcknowledgment() {
-        String closeButtonLocator = "//rsa-toaster//button";
-        waitForVisible(By.xpath(closeButtonLocator));
-        click(By.xpath(closeButtonLocator));
+    public void closeToaster(WebDriver driver) {
+        this.closeToaster(driver, false);
     }
 
-    public void selectValuesFromDropdown(WebDriver driver , By dropdownId, By panelId, List<String> valuesToSelect) throws InterruptedException {
+    public void closeToaster(WebDriver driver, boolean required) {
+        String closeButtonLocator = "//rsa-toaster//button";
+        try {
+            if (this.isElementVisible(driver, By.xpath(closeButtonLocator))) {
+                click(By.xpath(closeButtonLocator));
+                return;
+            }
+        } catch (Exception e) {
+            log.warn("Toaster not found", e);
+        }
+
+        if (required) {
+            Assert.fail("Toaster not found");
+        }
+    }
+
+    public void selectValuesFromDropdown(WebDriver driver, By dropdownId, By panelId, List<String> valuesToSelect) throws InterruptedException {
 
         WebElement dropdown = driver.findElement(dropdownId);
 
@@ -427,8 +463,7 @@ public class SharedActions {
         waitForVisible(dropdownPanel);
 
         List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
-        for (var option: options)
-        {
+        for (var option : options) {
             waitForVisible(option);
         }
         for (String value : valuesToSelect) {
@@ -464,6 +499,7 @@ public class SharedActions {
             if (dropdown.isDisplayed() && Boolean.parseBoolean(dropdown.getDomAttribute("aria-expanded"))) {
                 click(dropdown);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 }

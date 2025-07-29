@@ -13,5 +13,7 @@ export interface PackingListLabelDTO {
     shipFrom: ShipFromDTO;
     shipTo: ShipToDTO;
     distributionComments: string;
+    shipmentType?:string;
+    labelStatus?:string;
     packedItems: ShipmentItemPackedDTO[];
 }

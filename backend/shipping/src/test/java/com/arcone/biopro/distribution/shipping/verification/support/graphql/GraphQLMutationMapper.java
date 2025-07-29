@@ -248,6 +248,32 @@ public class GraphQLMutationMapper {
                 """
             , externalTransferId, employeeId));
     }
+
+    public static String verifyItemMutation(Long shipmentId, String unitNumber, String productCode, String employeeId) {
+        return (String.format(
+            """
+                mutation VerifyItem {
+                    verifyItem(
+                        verifyItemRequest: { shipmentId: %s, unitNumber: "%s", productCode: "%s", employeeId: "%s" }
+                    ) {
+                        ruleCode
+                        _links
+                        results
+                        notifications {
+                            name
+                            statusCode
+                            notificationType
+                            code
+                            action
+                            reason
+                            message
+                            details
+                        }
+                    }
+                }
+                """
+        , shipmentId, unitNumber, productCode, employeeId));
+    }
 }
 
 

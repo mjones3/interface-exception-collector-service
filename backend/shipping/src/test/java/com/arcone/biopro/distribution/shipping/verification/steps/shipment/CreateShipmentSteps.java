@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -64,7 +65,7 @@ public class CreateShipmentSteps {
     }
 
     @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {int}, Blood Types: {string}, Product Families {string}, Temperature Category as {string}, Shipment Type defined as {string}, Label Status as {string} and Quarantined Products as {string} with the units {string} and product codes {string} {string}")
-    public void theShipmentDetailsAreOrdeNumberCustomerIDCustomerNameProductDetailsQuantitiesBloodTypesProductFamiliesTemperatureCategoryAsShipmentTypeDefinedAsLabelStatusAsAndQuarantinedProductsAsWithTheUnitsAndProductCodes(
+    public void createShipmentWithDetails(
         String orderNumber, String customerId, String customerName
         , int totalRequested, String bloodTypes, String productFamilies,
         String temperatureCategory, String shipmentType,
@@ -93,7 +94,26 @@ public class CreateShipmentSteps {
         if (shipmentItemStatus.equalsIgnoreCase("verified")){
             context.setTotalVerified(units.size());
         }
+    }
 
-
+    @Given("The shipment details are:")
+    public void createShipmentWithDetailsTable(DataTable dataTable){
+        var header = dataTable.row(0);
+        var exampleRow = dataTable.row(1);
+        createShipmentWithDetails(
+            exampleRow.get(header.indexOf("Order_Number")),
+            exampleRow.get(header.indexOf("Customer_ID")),
+            exampleRow.get(header.indexOf("Customer_Name")),
+            Integer.parseInt(exampleRow.get(header.indexOf("Quantity"))),
+            exampleRow.get(header.indexOf("Blood_Type")),
+            exampleRow.get(header.indexOf("Product_Family")),
+            exampleRow.get(header.indexOf("Temp_Category")),
+            exampleRow.get(header.indexOf("Shipment_Type")),
+            exampleRow.get(header.indexOf("Label_Status")),
+            exampleRow.get(header.indexOf("Quarantined_Products")),
+            exampleRow.get(header.indexOf("Unit_Numbers")),
+            exampleRow.get(header.indexOf("Product_Codes")),
+            exampleRow.get(header.indexOf("Product_Status"))
+        );
     }
 }

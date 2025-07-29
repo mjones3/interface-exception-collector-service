@@ -2,7 +2,9 @@ package com.arcone.biopro.distribution.shipping.verification.pages.distribution;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
+import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
+import io.cucumber.datatable.DataTable;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,19 +45,16 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String cancelSecondVerificationBtn = "cancelActionBtn";
     private static final String cancelSecondVerificationCancellationBtn = "confirmation-dialog-cancel-btn";
     private static final String confirmCancelSecondVerificationBtn = "confirmation-dialog-confirm-btn";
+    @Autowired
+    private SharedContext sharedContext;
 
     private String validationErrorLocator(String message) {
         return String.format("//mat-error[contains(text(),'%s')]", message);
     }
 
-    private String formatUnitLocator(String unit) {
-        unit = TestUtils.removeUnitNumberScanDigits(unit);
-        return String.format("//biopro-unit-number-card[@ng-reflect-unit-number='%s']", unit);
-    }
-
-    private String formatProductCodeLocator(String productCode) {
-        productCode = TestUtils.removeProductCodeScanDigits(productCode);
-        return String.format("//biopro-unit-number-card[@ng-reflect-product-name='%s']", productCode);
+    private String formatUnitCardInfoLocator(String productUnOrCode) {
+        productUnOrCode = TestUtils.removeProductCodeScanDigits(productUnOrCode);
+        return String.format("//biopro-unit-number-card//*[contains(text(), '%s')]", productUnOrCode);
     }
 
     private String formatDialogLocator(String message) {
@@ -70,16 +69,26 @@ public class VerifyProductsPage extends CommonPageFactory {
         return String.format("//*[contains(text(),'%s (')]", status);
     }
 
-    private String getNotifiedProductCardLocator (String unit, String productCode, String status) {
+    private String getNotifiedProductCardLocator(String unit, String productCode, String status) {
         return String.format("//app-notification//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]/../../../..//*[contains(text(),'%s')]", unit, productCode, status);
     }
 
     private String formatBannerMessageLocator(String message) {
         return String.format("//biopro-global-message//fuse-alert//div[contains(text(),'%s')]", message);
     }
-    private String getNotifiedProductCardLocator2 (String unit, String productCode, String status) {
+
+    private String getNotifiedProductCardLocator2(String unit, String productCode, String status) {
         return String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]/../../../..//*[contains(text(),'%s')]", unit, productCode, status);
     }
+
+    private By orderInfoDescriptionsValue(String value) {
+        return By.xpath(String.format("//*[@id='orderInfoDescriptions']//*[contains(text(),'%s')]", value));
+    }
+    private By shippingInfoDescriptionsValue(String value) {
+        return By.xpath(String.format("//*[@id='shippingInfoDescriptions']//*[contains(text(),'%s')]", value));
+    }
+
+
     public void goToPage(String shipmentId) {
         sharedActions.navigateTo(verifyProductsUrl.replace("{shipmentId}", shipmentId));
     }
@@ -110,29 +119,52 @@ public class VerifyProductsPage extends CommonPageFactory {
             By.xpath(externalId));
     }
 
+    public void viewPageContent(DataTable dataTable) {
+        var header = dataTable.row(0);
+        var values = dataTable.row(1);
+
+        // Order Information Card
+        var quarantineLabelValue = values.get(header.indexOf("Quarantined_Products")).equalsIgnoreCase("true")
+            ? "YES" : "NO";
+
+        sharedActions.waitForElementsVisible(
+            orderInfoDescriptionsValue(values.get(header.indexOf("Order_Number"))),
+            orderInfoDescriptionsValue(values.get(header.indexOf("Temp_Category")).replace("_", " ")),
+            orderInfoDescriptionsValue(values.get(header.indexOf("Label_Status"))),
+            orderInfoDescriptionsValue(quarantineLabelValue)
+        );
+
+        // Shipping Information Card
+        sharedActions.waitForElementsVisible(
+            shippingInfoDescriptionsValue(sharedContext.getShipmentId().toString()),
+            shippingInfoDescriptionsValue(values.get(header.indexOf("Shipment_Type")).replace("_"," ")),
+            shippingInfoDescriptionsValue(values.get(header.indexOf("Customer_ID"))),
+            shippingInfoDescriptionsValue(values.get(header.indexOf("Customer_Name")).toUpperCase())
+        );
+    }
+
     public void scanUnitAndProduct(String unitNumber, String productCode) throws InterruptedException {
         unitNumber = String.format("=%s00", unitNumber);
         productCode = String.format("=<%s", productCode);
         sharedActions.sendKeys(this.driver, By.xpath(scanUnitNumber), unitNumber);
         sharedActions.sendKeys(this.driver, By.xpath(scanProductCode), productCode);
     }
+    public void scanUnit(String unitNumber) throws InterruptedException {
+        unitNumber = String.format("=%s00", unitNumber);
+        sharedActions.sendKeys(this.driver, By.xpath(scanUnitNumber), unitNumber);
+    }
 
-    public boolean isProductVerified(String unitNumber, String productCode) {
-        try {
-            sharedActions.waitForElementsVisible(By.xpath(formatUnitLocator(unitNumber)),
-                By.xpath(formatProductCodeLocator(productCode)));
-            return true;
-        } catch (Exception e) {
-            log.debug("Product not found in verified products table");
-            return false;
-        }
+    public boolean isProductVerified(String unitNumber, String productCode) throws InterruptedException {
+        Thread.sleep(500);
+        return sharedActions.isElementVisible(driver, By.xpath(formatUnitCardInfoLocator(unitNumber)))
+            && sharedActions.isElementVisible(driver, By.xpath(formatUnitCardInfoLocator(productCode)));
     }
 
     public boolean isProductNotVerified(String unitNumber, String productCode) {
         try {
 
-            sharedActions.waitForNotVisible(By.xpath(formatUnitLocator(unitNumber)));
-            sharedActions.waitForNotVisible(By.xpath(formatProductCodeLocator(productCode)));
+            sharedActions.waitForNotVisible(By.xpath(formatUnitCardInfoLocator(unitNumber)));
+            sharedActions.waitForNotVisible(By.xpath(formatUnitCardInfoLocator(productCode)));
             return true;
         } catch (Exception e) {
             log.debug("Product not found in verified products table");
@@ -165,9 +197,9 @@ public class VerifyProductsPage extends CommonPageFactory {
     }
 
     public void focusOnField(String field) {
-        if (field.equalsIgnoreCase("Unit Number")){
+        if (field.equalsIgnoreCase("Unit Number")) {
             sharedActions.focusOutElement(By.xpath(scanUnitNumber));
-        } else if (field.equalsIgnoreCase("Product Code")){
+        } else if (field.equalsIgnoreCase("Product Code")) {
             sharedActions.focusOutElement(By.xpath(scanProductCode));
         }
     }
@@ -201,8 +233,7 @@ public class VerifyProductsPage extends CommonPageFactory {
             return sharedActions.isElementEnabled(this.driver, By.xpath(scanUnitNumber));
         } else if (field.equalsIgnoreCase("Product Code")) {
             return sharedActions.isElementEnabled(this.driver, By.xpath(scanProductCode));
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Field not found: " + field);
         }
     }
@@ -240,7 +271,7 @@ public class VerifyProductsPage extends CommonPageFactory {
 
             sharedActions.click(this.driver, By.xpath(tab));
             sharedActions.waitForVisible(By.xpath(getNotifiedProductCardLocator(unit, productCode, status)));
-            }
+        }
         return true;
     }
 
@@ -289,5 +320,13 @@ public class VerifyProductsPage extends CommonPageFactory {
 
     public void confirmCancelSecondVerification() {
         sharedActions.click(By.id(confirmCancelSecondVerificationBtn));
+    }
+
+    public void verifyProductCodeInputVisible(boolean visible) {
+        if (visible){
+            sharedActions.waitForVisible(By.xpath(scanProductCode));
+        } else {
+            sharedActions.waitForNotVisible(By.xpath(scanProductCode));
+        }
     }
 }
