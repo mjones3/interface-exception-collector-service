@@ -104,7 +104,8 @@ Feature: Carton Packing Slip Printing
                 | USE_TRANSPORTATION_NUMBER | N                          | displayTransportationReferenceNumber | Transportation Reference Number | should not        | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
                 | USE_LICENSE_NUMBER        | N                          | displayLicenceNumber                 | License number                  | should not        | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
 
-        Scenario: Reset default configurations
+            @ui @api
+            Scenario: Reset default configurations
             Given I have reset the shipment product criteria to have the following values:
                 | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |
                 | 1                                     | MINIMUM_VOLUME          | 165   | Product Volume does not match criteria    | WARN         |

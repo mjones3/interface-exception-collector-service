@@ -98,7 +98,8 @@ Feature: Close Shipment
         When I request the last created shipment data again.
         And The shipment status should be "IN_PROGRESS"
 
-    Scenario: Reset default configurations
+        @ui @api
+        Scenario: Reset default configurations
         Given I have reset the shipment product criteria to have the following values:
             | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |
             | 1                                     | MINIMUM_VOLUME          | 165   | Product Volume does not match criteria    | WARN         |

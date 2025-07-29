@@ -132,7 +132,7 @@ Feature: Verify Recovered Plasma Products
                 | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_volume | unit_number   | product_code | product_volume |
                 | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789     | 300               | W036898786801 | E2534V00     | 259            |
 
-
+        @ui @api
         Scenario: Reset default configurations
             Given I have reset the shipment product criteria to have the following values:
                 | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |

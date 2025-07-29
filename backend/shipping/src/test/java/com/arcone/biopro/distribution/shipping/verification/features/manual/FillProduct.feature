@@ -1,11 +1,12 @@
+@disabled @manual @ui @AOA-152
+Feature: Manual Test of Fill Products.
+
 #Manual Test of Fill Products - Fill Products - Product Code field enabled
 #Date of testing:01/08/2025
 #Manually tested and documented by: German Berros, Ruby Dizon
 #Supported by:Ram Bishunkhe, Marcos Delgado
 #Result:PASSED – Working as expected
 
-@disabled @AOA-152
-Feature: Manual Test of Fill Products.
 
     @DIS-231
         Scenario: Verify Unit Number field is auto-enabled and the Product Code and Visual Inspection fields disabled after successful product submission.

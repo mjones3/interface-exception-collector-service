@@ -1,11 +1,10 @@
+@manual @disabled @ui @AOA-39 @RSA20-310
+Feature: Order Search- Apheresis Plasma and Apheresis Red Cells
+
 #    Distribution UI Improvements- Orders
 #    Date of Testing: 12/18/2024
 #    Documented by: Kristine Belanger
 #    Reviewed by: Date:
-
-
-@disabled @ui @AOA-39 @RSA20-310
-Feature: Order Search- Apheresis Plasma and Apheresis Red Cells
 
     Scenario: Create date field displays as required when user starts entering information in any field except Order number
         Given I am in the Distribution service of BioPro.

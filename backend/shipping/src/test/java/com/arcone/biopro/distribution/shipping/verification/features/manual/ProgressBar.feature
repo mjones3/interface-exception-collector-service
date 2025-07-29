@@ -1,11 +1,12 @@
-#Manual Test of Progress Bar Enhancement 
+@manual @disabled @ui @AOA-152
+Feature: Manual Test of Progress Bar Enhancement.
+
+#Manual Test of Progress Bar Enhancement
 #Date of testing: 05/12/2025
 #Manually tested and documented by: Ruby Dizon
 #Supported by: Ram Bishunkhe
 #Result: PASSED – Working as expected
 
-@disabled @AOA-152
-Feature: Manual Test of Progress Bar Enhancement.
 
 
     @DIS-201 @DIS-21
