@@ -111,7 +111,8 @@ Feature: Repack Carton
                 | <comment_greater_than_250> | WARN         | Reason comments cannot exceed : 250 | REPACK        | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-355                         | 123456789_DIS355 | 2                       | W036898355905,W036898355757 | E6022V00,E6022V00 | RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT | <tomorrow>    |
 
 
-        Scenario: Reset default configurations
+            @ui @api
+            Scenario: Reset default configurations
             Given I have reset the shipment product criteria to have the following values:
                 | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |
                 | 1                                     | MINIMUM_VOLUME          | 165   | Product Volume does not match criteria    | WARN         |
