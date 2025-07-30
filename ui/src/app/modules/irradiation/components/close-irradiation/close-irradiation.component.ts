@@ -167,10 +167,10 @@ export class CloseIrradiationComponent implements OnInit, AfterViewInit {
         this.initialProductsState = [];
         this.selectedProducts = [];
         this.allProducts = [];
+        this.currentDateTime = '';
         this.unitNumberComponent.controlUnitNumber.reset();
         this.irradiation.reset();
         this.irradiation.enable();
-        this.currentDateTime = '';
         setTimeout(() => this.focusOnIrradiationInput(), 1);
     }
 
