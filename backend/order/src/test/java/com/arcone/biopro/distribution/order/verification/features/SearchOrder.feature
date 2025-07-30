@@ -92,7 +92,7 @@ Feature: Search Orders
                 | ORDERDIS481006 | 123456789_DIS481 | STAT     | OPEN   | WHOLE_BLOOD,WHOLE_BLOOD                                           | ANY,ANY   | 10,7     | INTERNAL_TRANSFER | FEDEX           | REFRIGERATED     | 2024-08-20   | DO1                    | Distribution Only          | <null>                | <null>                     | Confirm when ready | Needed asap, Another comment | true                 | UNLABELED    | locationCode, createDateFrom, createDateTo, shipmentType, customers | '123456789_DIS481', <yesterday>, <today>, 'INTERNAL_TRANSFER','DO1' |
 
 
-
+            @api @ui
             Scenario: Cleanup database
             Given I cleaned up from the database the orders with external ID starting with "EXTSEARCH1,ORDERDIS".
             And I cleaned up from the database the orders with external ID starting with "29402".

@@ -168,7 +168,7 @@ Feature: Add Products to Carton
                 | Customer Code | Product Type               | Carton Tare Weight   | Shipment Date | Transportation Reference Number | Location Code    | unit_number1  | product_code1 | unit_number2  | product_code2 |
                 | 409           | RP_FROZEN_WITHIN_72_HOURS  | 1000                 | <tomorrow>    | DIS-370                         | 123456789_DIS370 | W036898370805 | E5622V00      | W036898370804 | E5880V00      |
 
-
+        @ui @api
         Scenario: Reset default configurations
                 Given I have reset the shipment product criteria to have the following values:
                     | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |

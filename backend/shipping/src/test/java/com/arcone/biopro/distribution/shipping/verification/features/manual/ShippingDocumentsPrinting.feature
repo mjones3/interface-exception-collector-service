@@ -1,3 +1,6 @@
+@manual @disabled @ui @AOA-6
+Feature: Ship Apheresis Plasma
+
 #Manual Test of Pick List Printing
 #Date of testing: 07/23/2025
 #Manually tested and documented by: Ruby Dizon, German Berros
@@ -5,8 +8,6 @@
 #Reviewed by: Archana Nallapeddi
 #Review Date: 07/25/2025
 
-@manual @disabled @AOA-6
-Feature: Ship Apheresis Plasma
 
     Rule: I should be able to print the pick list with the order criteria and short-dated products information, if available
     @DIS-27 @DIS-512

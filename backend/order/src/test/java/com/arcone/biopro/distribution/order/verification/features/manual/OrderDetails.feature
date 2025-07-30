@@ -1,4 +1,4 @@
-@disabled
+@disabled @manual @ui
 Feature: Order Details
 
 #    Date of testing: 01/22/2025
