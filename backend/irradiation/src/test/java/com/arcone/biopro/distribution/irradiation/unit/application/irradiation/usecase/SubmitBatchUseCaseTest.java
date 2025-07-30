@@ -64,6 +64,7 @@ class SubmitBatchUseCaseTest {
                 .status("AVAILABLE")
                 .productFamily("PLASMA")
                 .expirationDate(LocalDateTime.now().plusDays(30))
+                .isImported(true)
                 .build();
 
         Inventory inventory2 = Inventory.builder()
@@ -73,6 +74,7 @@ class SubmitBatchUseCaseTest {
                 .status("AVAILABLE")
                 .productFamily("RBC")
                 .expirationDate(LocalDateTime.now().plusDays(45))
+                .isImported(false)
                 .build();
 
         Batch batch = new Batch(BatchId.of(100L), DeviceId.of(1L), LocalDateTime.now(), null);
@@ -113,13 +115,11 @@ class SubmitBatchUseCaseTest {
                 .status("AVAILABLE")
                 .productFamily("PLASMA")
                 .expirationDate(LocalDateTime.now().plusDays(30))
+                .isImported(false)
                 .build();
 
         when(inventoryClient.getInventoryByUnitNumber(new UnitNumber("W777725001001")))
                 .thenReturn(Flux.just(inventory));
-        when(batchRepository.submitBatch(any(DeviceId.class), any(), any()))
-                .thenReturn(Mono.error(new RuntimeException("Database error")));
-
         // When & Then
         StepVerifier.create(submitBatchUseCase.execute(command))
                 .expectError(BatchSubmissionException.class)
