@@ -50,6 +50,10 @@ input BatchItemInput {
     unitNumber: String!
     productCode: String!
     lotNumber: String!
+    bloodCenterName: String
+    address: String
+    registrationNumber: String
+    licenseNumber: String
 }
 
 input CompleteBatchInput {

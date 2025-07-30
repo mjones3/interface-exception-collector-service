@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.repository;
 
+import com.arcone.biopro.distribution.irradiation.application.irradiation.command.SubmitBatchCommand;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Batch;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.BatchRepository;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchId;
@@ -8,6 +9,7 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchEntity;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchEntityMapper;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchItemEntity;
+import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.ImportedBloodCenterEntity;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
@@ -34,15 +36,17 @@ public class BatchRepositoryImpl implements BatchRepository {
     private final BatchItemEntityRepository batchItemRepository;
     private final BatchEntityMapper mapper;
     private final DatabaseClient databaseClient;
+    private final ImportedBloodCenterEntityRepository importedBloodCenterEntityRepository;
 
     public BatchRepositoryImpl(BatchEntityRepository batchRepository,
-                              BatchItemEntityRepository batchItemRepository,
-                              BatchEntityMapper mapper,
-                              DatabaseClient databaseClient) {
+                               BatchItemEntityRepository batchItemRepository,
+                               BatchEntityMapper mapper,
+                               DatabaseClient databaseClient, ImportedBloodCenterEntityRepository importedBloodCenterEntityRepository) {
         this.batchRepository = batchRepository;
         this.batchItemRepository = batchItemRepository;
         this.mapper = mapper;
         this.databaseClient = databaseClient;
+        this.importedBloodCenterEntityRepository = importedBloodCenterEntityRepository;
     }
 
     @Override
@@ -58,10 +62,10 @@ public class BatchRepositoryImpl implements BatchRepository {
     }
 
     @Override
-    public Mono<Batch> submitBatch(DeviceId deviceId, LocalDateTime startTime, List<BatchItem> batchItems) {
+    public Mono<Batch> submitBatch(DeviceId deviceId, SubmitBatchCommand command, List<BatchItem> batchItems) {
         BatchEntity batchEntity = BatchEntity.builder()
                 .deviceId(deviceId.getValue())
-                .startTime(startTime)
+                .startTime(command.startTime())
                 .createDate(ZonedDateTime.now())
                 .modificationDate(ZonedDateTime.now())
                 .build();
@@ -77,7 +81,30 @@ public class BatchRepositoryImpl implements BatchRepository {
                             .toList();
 
                     return batchItemRepository.saveAll(itemEntities)
-                            .then(Mono.just(mapper.toDomain(savedBatch)));
+                        .collectList()
+                        .flatMap(savedItems -> Flux.fromIterable(savedItems)
+                            .filter(savedItem -> batchItems.stream()
+                                .anyMatch(item -> item.unitNumber().value().equals(savedItem.getUnitNumber())
+                                    && item.productCode().equals(savedItem.getProductCode())
+                                    && item.isImported()))
+                            .flatMap(savedItem -> command.batchItems().stream()
+                                .filter(batchItemDTO -> batchItemDTO.unitNumber().equals(savedItem.getUnitNumber()) &&
+                                    batchItemDTO.productCode().equals(savedItem.getProductCode()))
+                                .findFirst()
+                                .map(batchItemDTO -> {
+                                    ImportedBloodCenterEntity entity = ImportedBloodCenterEntity.builder()
+                                        .productId(savedItem.getId())
+                                        .name(batchItemDTO.bloodCenterName())
+                                        .address(batchItemDTO.address())
+                                        .registrationNumber(batchItemDTO.registrationNumber())
+                                        .licenseNumber(batchItemDTO.licenseNumber())
+                                        .createDate(ZonedDateTime.now())
+                                        .modificationDate(ZonedDateTime.now())
+                                        .build();
+                                    return importedBloodCenterEntityRepository.save(entity);
+                                })
+                                .orElse(Mono.empty()))
+                            .then(Mono.just(mapper.toDomain(savedBatch))));
                 });
     }
 

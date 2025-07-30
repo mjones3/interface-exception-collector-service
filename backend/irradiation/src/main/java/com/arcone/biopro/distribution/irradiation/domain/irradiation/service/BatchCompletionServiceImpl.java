@@ -109,7 +109,7 @@ public class BatchCompletionServiceImpl implements BatchCompletionService {
                     updatedItem.productFamily(),
                     formattedExpirationDate,
                     "23:59",
-                    aggregate.getDevice().getLocation().value()
+                    aggregate.getDevice().getLocation().value(), null, null
                 );
 
                 eventPublisher.publish(new ProductModifiedEvent(productModified));

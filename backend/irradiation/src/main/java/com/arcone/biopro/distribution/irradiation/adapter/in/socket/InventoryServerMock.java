@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.irradiation.adapter.in.socket;
 
 import com.arcone.biopro.distribution.irradiation.adapter.in.socket.dto.GetInventoryByUnitNumberAndProductCodeRequest;
+import com.arcone.biopro.distribution.irradiation.domain.model.Property;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.client.InventoryOutput;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.client.InventoryQuarantineOutput;
 import lombok.AccessLevel;
@@ -28,6 +29,75 @@ public class InventoryServerMock {
 
     @MessageMapping("getInventoryByUnitNumber")
     public Flux<InventoryOutput> getInventoryByUnitNumber(String unitNumber) {
+        if ("W777725001001".equals(unitNumber)) {
+            // Imported item - has blood center info
+            return Flux.just(
+                InventoryOutput.builder()
+                    .unitNumber(unitNumber)
+                    .productCode("E0869V00")
+                    .location("123456789")
+                    .inventoryStatus("AVAILABLE")
+                    .productDescription("Imported Blood Sample")
+                    .productFamily("WHOLE_BLOOD")
+                    .expirationDate(LocalDateTime.now().plusDays(30))
+                    .shortDescription("Imported Sample")
+                    .isLabeled(true)
+                    .statusReason("In Stock")
+                    .unsuitableReason(null)
+                    .expired(false)
+                    .quarantines(List.of())
+                    .properties(List.of(
+                        Property.builder().key("IMPORTED").value("Y").build()
+                    ))
+                    .build()
+            );
+        }
+
+        if ("W777725001002".equals(unitNumber)) {
+            // Non-imported item - no blood center info
+            return Flux.just(
+                InventoryOutput.builder()
+                    .unitNumber(unitNumber)
+                    .productCode("E0869V00")
+                    .location("123456789")
+                    .inventoryStatus("AVAILABLE")
+                    .productDescription("Local Blood Sample")
+                    .productFamily("WHOLE_BLOOD")
+                    .expirationDate(LocalDateTime.now().plusDays(30))
+                    .shortDescription("Local Sample")
+                    .isLabeled(true)
+                    .statusReason("In Stock")
+                    .unsuitableReason(null)
+                    .expired(false)
+                    .quarantines(List.of())
+                    .properties(List.of()) // No IMPORTED property
+                    .build()
+            );
+        }
+
+        if ("W777725001003".equals(unitNumber)) {
+            // Imported item - has blood center info without license number
+            return Flux.just(
+                InventoryOutput.builder()
+                    .unitNumber(unitNumber)
+                    .productCode("E0869V00")
+                    .location("123456789")
+                    .inventoryStatus("AVAILABLE")
+                    .productDescription("Imported Blood Sample")
+                    .productFamily("WHOLE_BLOOD")
+                    .expirationDate(LocalDateTime.now().plusDays(30))
+                    .shortDescription("Imported Sample")
+                    .isLabeled(true)
+                    .statusReason("In Stock")
+                    .unsuitableReason(null)
+                    .expired(false)
+                    .quarantines(List.of())
+                    .properties(List.of(
+                        Property.builder().key("IMPORTED").value("Y").build()
+                    ))
+                    .build()
+            );
+        }
         if (unitNumber.startsWith("W777725001002") || unitNumber.startsWith("W777725002003")) {
             var quarantine = InventoryQuarantineOutput.builder()
                 .stopsManufacturing(true)

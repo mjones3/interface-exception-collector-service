@@ -16,6 +16,8 @@ public record BatchItem(
     LocalDateTime expirationDate,
     String productFamily,
     String productDescription,
-    boolean irradiated
+    boolean irradiated,
+    boolean isImported,
+    String location
 ) {
 }
