@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ContextConfiguration
-@ExtendWith(SpringExtension.class)
 public class SubmitAndCloseBatchSteps {
 
     @Autowired
