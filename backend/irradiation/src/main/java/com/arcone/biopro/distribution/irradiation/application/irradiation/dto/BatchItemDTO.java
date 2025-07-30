@@ -9,6 +9,10 @@ import lombok.Builder;
 public record BatchItemDTO(
     String unitNumber,
     String productCode,
-    String lotNumber
+    String lotNumber,
+    String bloodCenterName,
+    String address,
+    String registrationNumber,
+    String licenseNumber
 ) {
 }
