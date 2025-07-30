@@ -29,7 +29,7 @@ public class InventoryServerMock {
 
     @MessageMapping("getInventoryByUnitNumber")
     public Flux<InventoryOutput> getInventoryByUnitNumber(String unitNumber) {
-        if ("W777725001001".equals(unitNumber)) {
+        if ("W777725004001".equals(unitNumber)) {
             // Imported item - has blood center info
             return Flux.just(
                 InventoryOutput.builder()
@@ -53,7 +53,7 @@ public class InventoryServerMock {
             );
         }
 
-        if ("W777725001002".equals(unitNumber)) {
+        if ("W777725004002".equals(unitNumber)) {
             // Non-imported item - no blood center info
             return Flux.just(
                 InventoryOutput.builder()
@@ -75,7 +75,7 @@ public class InventoryServerMock {
             );
         }
 
-        if ("W777725001003".equals(unitNumber)) {
+        if ("W777725004003".equals(unitNumber)) {
             // Imported item - has blood center info without license number
             return Flux.just(
                 InventoryOutput.builder()
