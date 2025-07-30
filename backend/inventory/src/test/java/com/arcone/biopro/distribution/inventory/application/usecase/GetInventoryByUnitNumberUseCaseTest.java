@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,10 @@ public class GetInventoryByUnitNumberUseCaseTest {
     @Test
     public void testExecuteWithValidUnitNumber() {
         String unitNumber = "W036000000012";
-        InventoryAggregate aggregate = InventoryAggregate.builder().inventory(Inventory.builder().unitNumber(new UnitNumber(unitNumber)).build()).build();
+        InventoryAggregate aggregate = InventoryAggregate.builder().inventory(Inventory.builder()
+            .unitNumber(new UnitNumber(unitNumber))
+            .inventoryStatus(InventoryStatus.AVAILABLE)
+            .build()).build();
 
         when(inventoryRepository.findByUnitNumber(unitNumber)).thenReturn(Flux.just(aggregate));
 
