@@ -1,8 +1,8 @@
-@AOA-152
+@AOA-152 @AOA-19
 Feature: Complete Order
 
     Background:
-        Given I cleaned up from the database the orders with external ID starting with "EXTDIS111".
+        Given I cleaned up from the database the orders with external ID starting with "EXTDIS111, EXTDIS510".
 
         Rule: I should be able to complete an order manually with partial order fulfillment
         Rule: I should be able to receive a success message when an order is completed.
@@ -55,6 +55,7 @@ Feature: Complete Order
         @ui @DIS-111 @DIS-175
         Scenario Outline: Complete an order with partial fulfillment
             Given I have an order with external ID "EXTDIS11104" partially fulfilled with a shipment "<Shipment Status>".
+            And I have the back order configuration set to "true".
             When I navigate to the order details page.
             And I choose to complete the order.
             Then I should be prompted to confirm to complete the order.
@@ -93,7 +94,101 @@ Feature: Complete Order
                 | COMPLETED       | true              | should     | 3                | 7                  |
                 | COMPLETED       | false             | should not | 2                | 8                  |
 
-            @ui @api
-            Scenario: Database cleanup
-                Given I cleaned up from the database the orders with external ID starting with "EXTDIS111".
+
+        Rule: I should be able to complete an internal transfer order manually with partial order fulfillment.
+        Rule: I should be able to receive a success message when an internal transfer order is completed.
+        @api @DIS-510
+        Scenario Outline: Complete an Internal Transfer order with partial fulfillment
+            Given I have an "IN_PROGRESS" "INTERNAL_TRANSFER" order with external ID "EXTDIS510001" partially fulfilled with a shipment "<Shipment Status>".
+            When I request to complete the order.
+            Then The order status should be "<Order Status>".
+            And I should receive a "<Message Type>" message response "<Message>".
+
+            Examples:
+                | Shipment Status | Order Status | Message Type | Message                      |
+                | COMPLETED       | COMPLETED    | success      | Order completed successfully |
+
+
+        Rule: The system must not create an internal transfer backorder if the user doesn’t confirm the action to create a backorder.
+        Rule: The system must create an internal transfer backorder if the user confirms the creation of a backorder.
+        Rule: The system must include the details of the unfulfilled products from the original order.
+        Rule: The status of the backorder must be assigned as “Open”.
+        Rule: The backorder must contain the same external ID as the original order.
+        Rule: The backorder must be visible in the system.
+        @api @DIS-510
+        Scenario Outline: Complete an Internal Transfer order with back order configuration <Back Order Config>
+            Given I have an "IN_PROGRESS" "INTERNAL_TRANSFER" order with external ID "EXTDIS510002" partially fulfilled with a shipment "<Shipment Status>".
+            And I have Shipped "<Shipped Quantity>" products of each item line.
+            And I have the back order configuration set to "<Back Order Config>".
+            When I request the order details.
+            Then I "<Option>" have an option to create a back order.
+            When I request to complete the order.
+            Then The order status should be "COMPLETED".
+            And I "<Option>" have <Remaining Quantity> remaining products as part of the back order created.
+            And I "<Option>" have the back order created with the same desired shipping date as the original order.
+            And I "<Option>" have the back order created with the same externalId as the original order.
+
+            Examples:
+                | Shipment Status | Back Order Config | Option     | Shipped Quantity | Remaining Quantity |
+                | COMPLETED       | true              | should     | 3                | 7                  |
+                | COMPLETED       | false             | should not | 2                | 8                  |
+
+        Rule: I should not be able to complete an internal transfer order with an open order (without starting the fulfillment process).
+        Rule: I should not be able to complete an internal transfer order if the order has already been closed (completed).
+        @api @DIS-510
+        Scenario Outline: Try to complete an open/completed Internal Transfer order
+            Given I have an "INTERNAL_TRANSFER" order with external ID "EXTDIS510003" and status "<Order Status>".
+            When I request to complete the order.
+            Then I should receive a "<Message Type>" message response "<Message>".
+            And The order status should be "<Order Status>".
+
+            Examples:
+                | Order Status | Message Type | Message                                          |
+                | OPEN         | error        | Order is not in-progress and cannot be completed |
+                | COMPLETED    | error        | Order is already completed                       |
+
+
+        Rule: I should not be able to complete an internal transfer order with pending shipments.
+        @api @DIS-510
+        Scenario Outline: Try to complete an Internal Transfer order with an open shipment
+            Given I have an "IN_PROGRESS" "INTERNAL_TRANSFER" order with external ID "EXTDIS510004" partially fulfilled with a shipment "<Shipment Status>".
+            When I request to complete the order.
+            Then The order status should be "<Order Status>".
+            And I should receive a "<Message Type>" message response "<Message>".
+
+            Examples:
+                | Shipment Status | Order Status | Message Type | Message                    |
+                | OPEN            | IN_PROGRESS  | error        | Order has an open shipment |
+
+
+        Rule: I should be prompted to confirm before closing an internal transfer order.
+        Rule: I should have an option to enter the reason for completing a partially filled internal transfer order.
+        Rule: I should be prompted to confirm if an internal transfer order is partially shipped for creating backorders for the pending products in that order.
+        Rule: The system must not create an internal transfer backorder if the user doesn’t confirm the action to create a backorder.
+        Rule: The system must create an internal transfer backorder if the user confirms the creation of a backorder.
+        Rule: I should be able to complete an internal transfer order manually with partial order fulfillment.
+        Rule: I should be able to receive a success message when an internal transfer order is completed.
+        Rule: The system must include the details of the unfulfilled products from the original order.
+        @ui @DIS-510
+        Scenario Outline: Complete an Internal Transfer order with partial fulfillment
+            Given I have an "IN_PROGRESS" "INTERNAL_TRANSFER" order with external ID "EXTDIS510005" partially fulfilled with a shipment "<Shipment Status>".
+            And I have Shipped "<Shipped Quantity>" products of each item line.
+            And I have the back order configuration set to "true".
+            When I navigate to the order details page.
+            And I choose to complete the order.
+            Then I should be prompted to confirm to complete the order.
+            And I define the backorder creation option as "<Create Backorder>".
+            When I confirm to complete the order with the reason "<Reason>".
+            Then I should see a "<Message Type>" message: "<Message>".
+            And A back order "<Create?>" be created with the same external ID and status "OPEN".
+            And I "<Create?>" have <Remaining Quantity> remaining products as part of the back order created.
+
+            Examples:
+                | Shipment Status |  | Message Type | Message                      | Reason   | Create Backorder | Create?    | Shipped Quantity | Remaining Quantity |
+                | COMPLETED       |  | success      | Order completed successfully | Comments | true             | should     | 8                | 2                  |
+                | COMPLETED       |  | success      | Order completed successfully | Comments | false            | should not | 3                | 7                  |
+
+        @ui @api
+        Scenario: Database cleanup
+            Given I cleaned up from the database the orders with external ID starting with "EXTDIS111, EXTDIS510".
 
