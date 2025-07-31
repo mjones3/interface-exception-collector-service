@@ -6,6 +6,8 @@ import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.BatchR
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.DeviceRepository;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.service.BatchCompletionService;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.service.BatchCompletionServiceImpl;
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.service.OutOfStorageValidationService;
+import com.arcone.biopro.distribution.irradiation.domain.irradiation.service.OutOfStorageValidationServiceImpl;
 import com.arcone.biopro.distribution.irradiation.domain.repository.ConfigurationService;
 import com.arcone.biopro.distribution.irradiation.domain.service.ProductDeterminationService;
 import org.springframework.context.annotation.Bean;
@@ -29,5 +31,11 @@ public class BatchCompletionServiceConfiguration {
             eventPublisher,
             configurationService
         );
+    }
+
+    @Bean
+    public OutOfStorageValidationService outOfStorageValidationService(BatchRepository batchRepository,
+                                                                       ConfigurationService configurationService) {
+        return new OutOfStorageValidationServiceImpl(batchRepository, configurationService);
     }
 }

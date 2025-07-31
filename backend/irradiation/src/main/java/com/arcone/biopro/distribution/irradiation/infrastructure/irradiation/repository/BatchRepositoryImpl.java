@@ -182,6 +182,55 @@ public class BatchRepositoryImpl implements BatchRepository {
                 .map(this::mapToBatchItemWithDefaults);
     }
 
+    @Override
+    public Mono<Void> markBatchItemAsTimingRuleValidated(String unitNumber, String productCode) {
+        String sql = """
+            UPDATE bld_batch_item
+            SET is_timing_rule_validated = true, modification_date = NOW()
+            WHERE unit_number = :unitNumber AND product_code = :productCode
+            AND batch_id = (
+                SELECT bi.batch_id FROM bld_batch_item bi
+                JOIN bld_batch b ON bi.batch_id = b.id
+                WHERE bi.unit_number = :unitNumber AND bi.product_code = :productCode
+                ORDER BY b.start_time DESC LIMIT 1
+            )
+            """;
+
+        return databaseClient.sql(sql)
+            .bind("unitNumber", unitNumber)
+            .bind("productCode", productCode)
+            .fetch()
+            .rowsUpdated()
+            .then();
+    }
+
+    @Override
+    public Mono<Batch> findLatestBatchWithItemByUnitProductAndDevice(String unitNumber, String productCode, String deviceUse) {
+        String sql = """
+            SELECT b.*
+            FROM bld_batch_item bi
+            JOIN bld_batch b ON bi.batch_id = b.id
+            WHERE bi.unit_number = :unitNumber AND bi.product_code = :productCode AND b.device_id = :deviceUse
+            ORDER BY b.start_time DESC
+            LIMIT 1
+            """;
+
+        return databaseClient.sql(sql)
+            .bind("unitNumber", unitNumber)
+            .bind("productCode", productCode)
+            .bind("deviceUse", deviceUse)
+            .map(row -> BatchEntity.builder()
+                .id(row.get("id", Long.class))
+                .deviceId(row.get("device_id", String.class))
+                .startTime(row.get("start_time", LocalDateTime.class))
+                .endTime(row.get("end_time", LocalDateTime.class))
+                .createDate(row.get("create_date", ZonedDateTime.class))
+                .modificationDate(row.get("modification_date", ZonedDateTime.class))
+                .build())
+            .one()
+            .map(mapper::toDomain);
+    }
+
     private BatchItem mapToBatchItemWithDefaults(BatchItemEntity entity) {
         return BatchItem.builder()
                 .unitNumber(new com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.UnitNumber(entity.getUnitNumber()))
@@ -192,6 +241,7 @@ public class BatchRepositoryImpl implements BatchRepository {
                 .productFamily(entity.getProductFamily())
                 .productDescription(null)
                 .irradiated(false)
+                .isTimingRuleValidated(entity.getIsTimingRuleValidated())
                 .build();
     }
 
