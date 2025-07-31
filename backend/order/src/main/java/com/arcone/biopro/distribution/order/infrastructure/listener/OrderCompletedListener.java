@@ -74,7 +74,7 @@ public class OrderCompletedListener {
             .shippingMethod(order.getShippingMethod().getShippingMethod())
             .comments(order.getComments())
             .createEmployeeCode(order.getCreateEmployeeId())
-            .billingCustomerCode(order.getBillingCustomer().getCode())
+            .billingCustomerCode(order.getBillingCustomer() == null ? null : order.getBillingCustomer().getCode())
             .shippingCustomerCode(order.getShippingCustomer().getCode())
             .completeDate(order.getCompleteDate())
             .completeEmployeeId(order.getCompleteEmployeeId())

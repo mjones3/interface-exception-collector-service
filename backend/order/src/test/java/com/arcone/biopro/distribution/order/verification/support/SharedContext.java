@@ -37,6 +37,7 @@ public class SharedContext {
     private String externalId;
     private Integer orderId;
     private String orderStatus;
+    private String shipmentType;
     private Map orderDetails;
     private PageDTO<JsonNode> ordersPage;
 
