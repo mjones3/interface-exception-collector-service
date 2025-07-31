@@ -34,7 +34,7 @@ public class InventoryServerMock {
             return Flux.just(
                 InventoryOutput.builder()
                     .unitNumber(unitNumber)
-                    .productCode("E0869V00")
+                    .productCode("E003300")
                     .location("123456789")
                     .inventoryStatus("AVAILABLE")
                     .productDescription("Imported Blood Sample")
@@ -58,7 +58,7 @@ public class InventoryServerMock {
             return Flux.just(
                 InventoryOutput.builder()
                     .unitNumber(unitNumber)
-                    .productCode("E0869V00")
+                    .productCode("E003300")
                     .location("123456789")
                     .inventoryStatus("AVAILABLE")
                     .productDescription("Local Blood Sample")
@@ -80,7 +80,7 @@ public class InventoryServerMock {
             return Flux.just(
                 InventoryOutput.builder()
                     .unitNumber(unitNumber)
-                    .productCode("E0869V00")
+                    .productCode("E003300")
                     .location("123456789")
                     .inventoryStatus("AVAILABLE")
                     .productDescription("Imported Blood Sample")

@@ -1,0 +1,50 @@
+<div mat-dialog-content class="import-details-content">
+  <h2 mat-dialog-title class="dialog-title">Import Details</h2>
+  
+  <form [formGroup]="importForm" class="import-form">
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Blood Center Name</mat-label>
+      <input matInput formControlName="bloodCenterName" required>
+      <mat-error *ngIf="importForm.get('bloodCenterName')?.hasError('required')">
+        Blood Center Name is required
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Address</mat-label>
+      <input matInput formControlName="address" required>
+      <mat-error *ngIf="importForm.get('address')?.hasError('required')">
+        Address is required
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Registration Number</mat-label>
+      <input matInput formControlName="registrationNumber" required>
+      <mat-error *ngIf="importForm.get('registrationNumber')?.hasError('required')">
+        Registration Number is required
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>License Number (Optional)</mat-label>
+      <input matInput formControlName="licenseNumber">
+    </mat-form-field>
+  </form>
+</div>
+
+<div mat-dialog-actions class="dialog-actions">
+  <biopro-action-button
+    btnId="cancel-btn" 
+    label="Cancel" 
+    variant="secondary"
+    (click)="cancel()">
+  </biopro-action-button>
+  <biopro-action-button
+    btnId="submit-btn" 
+    label="Submit" 
+    variant="primary"
+    [disabled]="importForm.invalid"
+    (click)="submit()">
+  </biopro-action-button>
+</div>
