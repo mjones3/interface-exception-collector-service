@@ -9,7 +9,7 @@ Feature: Manual Test of Progress Bar Enhancement.
 
 
 
-    @DIS-201 @DIS-21
+    @DIS-201 @DIS-21 @DIS-48
      Scenario: Verify Progress Bar Enhancement.
         Given I am filling an order,
         When I scan a valid unit number and a valid product code,
