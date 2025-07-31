@@ -1,4 +1,4 @@
-@api @LAB-614 @AOA-61
+@api @LAB-614 @AOA-61 @hzd9
 Feature: Lot Number Validation
     As a distribution specialist
     I want to validate lot numbers through the supply service
