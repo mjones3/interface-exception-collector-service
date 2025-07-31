@@ -58,6 +58,9 @@ public class BatchItemEntity implements Serializable, Persistable<Long> {
     @Column("delete_date")
     private LocalDateTime deleteDate;
 
+    @Column("is_timing_rule_validated")
+    private Boolean isTimingRuleValidated;
+
     @Override
     public boolean isNew() {
         return id == null;

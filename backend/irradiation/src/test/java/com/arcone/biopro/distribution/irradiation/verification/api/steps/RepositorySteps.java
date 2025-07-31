@@ -258,4 +258,49 @@ public class RepositorySteps {
         assertEquals(expectedNewCode, batchItem.getNewProductCode(),
             "New product code should be updated for unit: " + unitNumber);
     }
+
+    public void updateBatchStartTimeForUnit(String unitNumber, LocalDateTime startTime) {
+        // Find the batch that contains this unit
+        BatchItemEntity batchItem = batchItemRepository.findAll()
+            .filter(item -> unitNumber.equals(item.getUnitNumber()))
+            .blockFirst();
+        
+        if (batchItem != null) {
+            // Find and update the batch
+            BatchEntity batch = batchRepository.findById(batchItem.getBatchId()).block();
+            if (batch != null) {
+                // Set realistic end time (e.g., 2 hours after start time for typical irradiation duration)
+                LocalDateTime endTime = startTime.plusHours(2);
+                batch.setStartTime(startTime);
+                batch.setEndTime(endTime);
+                batchRepository.save(batch).block();
+                log.info("Updated batch {} times - start: {}, end: {} for unit {}", batch.getId(), startTime, endTime, unitNumber);
+            }
+        }
+    }
+
+    public boolean isProductStoredEventProcessed(String unitNumber, String productCode) {
+        BatchItemEntity batchItem = batchItemRepository.findAll()
+            .filter(item -> unitNumber.equals(item.getUnitNumber()) && productCode.equals(item.getProductCode()))
+            .blockFirst();
+        
+        return batchItem != null && Boolean.TRUE.equals(batchItem.getIsTimingRuleValidated());
+    }
+
+    public void closeBatchForUnit(String unitNumber) {
+        // Find the batch that contains this unit
+        BatchItemEntity batchItem = batchItemRepository.findAll()
+            .filter(item -> unitNumber.equals(item.getUnitNumber()))
+            .blockFirst();
+        
+        if (batchItem != null) {
+            // Find and close the batch
+            BatchEntity batch = batchRepository.findById(batchItem.getBatchId()).block();
+            if (batch != null && batch.getEndTime() == null) {
+                batch.setEndTime(LocalDateTime.now());
+                batchRepository.save(batch).block();
+                log.info("Closed batch {} for unit {}", batch.getId(), unitNumber);
+            }
+        }
+    }
 }

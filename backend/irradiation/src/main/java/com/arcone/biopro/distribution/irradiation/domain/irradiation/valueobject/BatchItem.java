@@ -18,6 +18,7 @@ public record BatchItem(
     String productDescription,
     boolean irradiated,
     boolean isImported,
-    String location
+    String location,
+    Boolean isTimingRuleValidated
 ) {
 }
