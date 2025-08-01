@@ -22,7 +22,7 @@ public record ProductModified(
         requiredMode = REQUIRED
     )
     String unitNumber,
-    
+
     @Schema(
         title = "Product Code",
         description = "Original product code",
@@ -30,7 +30,7 @@ public record ProductModified(
         requiredMode = REQUIRED
     )
     String productCode,
-    
+
     @Schema(
         title = "Product Description",
         description = "Description of the product",
@@ -38,7 +38,7 @@ public record ProductModified(
         requiredMode = NOT_REQUIRED
     )
     String productDescription,
-    
+
     @Schema(
         title = "Parent Product Code",
         description = "New product code after modification",
@@ -46,7 +46,7 @@ public record ProductModified(
         requiredMode = NOT_REQUIRED
     )
     String parentProductCode,
-    
+
     @Schema(
         title = "Product Family",
         description = "Product family classification",
@@ -54,7 +54,7 @@ public record ProductModified(
         requiredMode = NOT_REQUIRED
     )
     String productFamily,
-    
+
     @Schema(
         title = "Expiration Date",
         description = "Product expiration date",
@@ -62,7 +62,7 @@ public record ProductModified(
         requiredMode = NOT_REQUIRED
     )
     String expirationDate,
-    
+
     @Schema(
         title = "Expiration Time",
         description = "Product expiration time",
@@ -70,13 +70,28 @@ public record ProductModified(
         requiredMode = NOT_REQUIRED
     )
     String expirationTime,
-    
+
     @Schema(
         title = "Modification Location",
         description = "Location where the modification occurred",
         example = "IRRADIATION_FACILITY_A",
         requiredMode = REQUIRED
     )
-    String modificationLocation
+    String modificationLocation,
+
+    @Schema(
+        title = "Source",
+        description = "Source system that performed the modification",
+        example = "Irradiation Service",
+        requiredMode = REQUIRED
+    )
+    String source,
+
+    @Schema(
+        title = "Imported Blood Center",
+        description = "Information about the imported blood center",
+        requiredMode = NOT_REQUIRED
+    )
+    ImportedBloodCenter importedBloodCenter
 ) implements Serializable {
 }

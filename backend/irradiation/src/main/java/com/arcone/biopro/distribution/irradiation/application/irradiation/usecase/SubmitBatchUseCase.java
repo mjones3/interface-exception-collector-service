@@ -49,10 +49,12 @@ public class SubmitBatchUseCase implements CommandUseCase<SubmitBatchCommand, Ba
                                     .newProductCode(null)
                                     .expirationDate(inventory.getExpirationDate())
                                     .productFamily(inventory.getProductFamily())
+                                    .isImported(inventory.getIsImported())
+                                    .location(inventory.getLocation().value())
                                     .build());
                 })
                 .collectList()
-                .flatMap(batchItems -> batchRepository.submitBatch(deviceId, command.startTime(), batchItems))
+                .flatMap(batchItems -> batchRepository.submitBatch(deviceId, command, batchItems))
                 .map(batchMapper::toSubmissionResult)
                 .onErrorMap(throwable -> new BatchSubmissionException("Failed to submit batch: " + throwable.getMessage(), throwable));
     }

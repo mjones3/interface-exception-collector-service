@@ -13,38 +13,33 @@ import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("bld_batch_item")
-public class BatchItemEntity implements Serializable, Persistable<Long> {
+@Table("bld_imported_blood_center")
+public class ImportedBloodCenterEntity implements Serializable, Persistable<Long> {
+
     @Id
     private Long id;
 
-    @Column("batch_id")
-    private Long batchId;
+    @Column("product_id")
+    private Long productId;
 
-    @Column("unit_number")
-    private String unitNumber;
+    @Column("name")
+    private String name;
 
-    @Column("product_code")
-    private String productCode;
+    @Column("address")
+    private String address;
 
-    @Column("lot_number")
-    private String lotNumber;
+    @Column("registration_number")
+    private String registrationNumber;
 
-    @Column("new_product_code")
-    private String newProductCode;
-
-    @Column("expiration_date")
-    private LocalDateTime expirationDate;
-
-    @Column("product_family")
-    private String productFamily;
+    @Column("license_number")
+    private String licenseNumber;
 
     @CreatedDate
     @Column("create_date")
@@ -54,12 +49,6 @@ public class BatchItemEntity implements Serializable, Persistable<Long> {
     @Column("modification_date")
     @LastModifiedDate
     private ZonedDateTime modificationDate;
-
-    @Column("delete_date")
-    private LocalDateTime deleteDate;
-
-    @Column("is_timing_rule_validated")
-    private Boolean isTimingRuleValidated;
 
     @Override
     public boolean isNew() {

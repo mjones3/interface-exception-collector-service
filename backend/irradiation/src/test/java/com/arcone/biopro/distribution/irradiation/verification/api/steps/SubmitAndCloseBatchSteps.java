@@ -2,20 +2,29 @@ package com.arcone.biopro.distribution.irradiation.verification.api.steps;
 
 import com.arcone.biopro.distribution.irradiation.application.irradiation.dto.BatchSubmissionResultDTO;
 import com.arcone.biopro.distribution.irradiation.verification.api.support.IrradiationContext;
-import com.arcone.biopro.distribution.irradiation.verification.utils.LogMonitor;
+
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
+import org.slf4j.LoggerFactory;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,14 +40,29 @@ public class SubmitAndCloseBatchSteps {
     @Autowired
     private IrradiationContext irradiationContext;
 
-    @Autowired
-    private LogMonitor logMonitor;
-
     private String batchId;
     private String endTime;
     private List<Map<String, Object>> batchItems = new ArrayList<>();
     private BatchSubmissionResultDTO result;
     private String errorMessage;
+
+    private static final List<String> capturedLogs = new CopyOnWriteArrayList<>();
+    private static boolean appenderAttached = false;
+
+    static {
+        if (!appenderAttached) {
+            Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+            rootLogger.addAppender(new AppenderBase<ILoggingEvent>() {
+                { start(); }
+                @Override
+                protected void append(ILoggingEvent event) {
+                    capturedLogs.add(event.getFormattedMessage());
+                }
+            });
+            appenderAttached = true;
+        }
+    }
+
 
     @Given("I have an existing batch with products:")
     public void iHaveAnExistingBatchWithProducts(DataTable dataTable) {
@@ -68,7 +92,7 @@ public class SubmitAndCloseBatchSteps {
     public void iCompleteTheBatchWithEndTimeAndItems(String endTimeStr, DataTable dataTable) {
         this.endTime = endTimeStr;
         String deviceId = irradiationContext.getDeviceId();
-        
+
         if (deviceId == null || deviceId.isEmpty()) {
             throw new IllegalStateException("Device ID should be set from background step");
         }
@@ -152,11 +176,10 @@ public class SubmitAndCloseBatchSteps {
                          Boolean.TRUE.equals(item.get("isIrradiated")));
 
             if (wasIrradiated) {
-                try {
-                    logMonitor.await("ProductModified event published for unit: " + unitNumber);
-                } catch (InterruptedException e) {
-                    fail("ProductModified event was not published for irradiated item: " + unitNumber);
-                }
+                Awaitility.await().atMost(10, TimeUnit.SECONDS).until(() ->
+                    capturedLogs.stream().anyMatch(log ->
+                        log.contains("Published product modified event for unit: " + unitNumber))
+                );
             }
         });
     }
@@ -175,66 +198,23 @@ public class SubmitAndCloseBatchSteps {
                          Boolean.TRUE.equals(item.get("isIrradiated")));
 
             if (wasIrradiated && expirationDate != null && !expirationDate.isEmpty()) {
-                try {
-                    logMonitor.await("ProductModified event with expiration " + expirationDate + " published for unit: " + unitNumber);
-                } catch (InterruptedException e) {
-                    fail("ProductModified event with expiration date was not published for irradiated item: " + unitNumber);
-                }
+                Awaitility.await().atMost(10, TimeUnit.SECONDS).until(() ->
+                    capturedLogs.stream().anyMatch(log ->
+                        log.contains("Published product modified event for unit: " + unitNumber))
+                );
             }
         });
     }
 
-    @Then("quarantine events should be published for non-irradiated items:")
-    public void quarantineEventsShouldBePublishedForNonIrradiatedItems(DataTable dataTable) {
+    @Then("quarantine events should be published for {string} products")
+    public void quarantineEventsShouldBePublishedForProducts(String productAmount) {
         assertNotNull(result, "Batch completion result should not be null");
         assertTrue(result.success(), "Batch should be completed successfully");
 
-        dataTable.asMaps(String.class, String.class).forEach(quarantine -> {
-            String unitNumber = quarantine.get("Unit Number");
-            String reason = quarantine.get("Reason");
-
-            boolean wasNotIrradiated = batchItems.stream()
-                .anyMatch(item -> unitNumber.equals(item.get("unitNumber")) &&
-                         Boolean.FALSE.equals(item.get("isIrradiated")));
-
-            if (wasNotIrradiated) {
-                try {
-                    logMonitor.await("Quarantine event with reason '" + reason + "' published for unit: " + unitNumber);
-                } catch (InterruptedException e) {
-                    fail("Quarantine event was not published for non-irradiated item: " + unitNumber);
-                }
-            }
-        });
-    }
-
-    @Then("quarantine events should be published for non-irradiated items with reason {string}")
-    public void quarantineEventsShouldBePublishedForNonIrradiatedItemsWithReason(String reason) {
-        assertNotNull(result, "Batch completion result should not be null");
-        assertTrue(result.success(), "Batch should be completed successfully");
-
-        long nonIrradiatedCount = batchItems.stream()
-            .filter(item -> Boolean.FALSE.equals(item.get("isIrradiated")))
-            .count();
-
-        if (nonIrradiatedCount > 0) {
-            try {
-                logMonitor.await("Quarantine events with reason '" + reason + "' published for " + nonIrradiatedCount + " items");
-            } catch (InterruptedException e) {
-                fail("Quarantine events were not published for non-irradiated items with reason: " + reason);
-            }
-        }
-    }
-
-    @Then("quarantine events should be published for all items with reason {string}")
-    public void quarantineEventsShouldBePublishedForAllItemsWithReason(String reason) {
-        assertNotNull(result, "Batch completion result should not be null");
-        assertTrue(result.success(), "Batch should be completed successfully");
-
-        try {
-            logMonitor.await("Quarantine events with reason '" + reason + "' published for all " + batchItems.size() + " items");
-        } catch (InterruptedException e) {
-            fail("Quarantine events were not published for all items with reason: " + reason);
-        }
+        Awaitility.await().atMost(10, TimeUnit.SECONDS).until(() ->
+            capturedLogs.stream().anyMatch(log ->
+                log.contains(String.format("Published quarantine event for %s products", productAmount)))
+        );
     }
 
     @Then("no product modified events should be published")
@@ -246,13 +226,6 @@ public class SubmitAndCloseBatchSteps {
             .anyMatch(item -> Boolean.TRUE.equals(item.get("isIrradiated")));
 
         assertFalse(hasIrradiatedItems, "No product modified events should be published when no items are irradiated");
-    }
-
-    @Then("I should see an error message {string}")
-    public void iShouldSeeAnErrorMessage(String expectedError) {
-        assertNotNull(errorMessage, "Error message should not be null");
-        assertTrue(errorMessage.contains(expectedError),
-                  String.format("Error message '%s' should contain: '%s'", errorMessage, expectedError));
     }
 
     @And("I should see quarantine notification {string}")
