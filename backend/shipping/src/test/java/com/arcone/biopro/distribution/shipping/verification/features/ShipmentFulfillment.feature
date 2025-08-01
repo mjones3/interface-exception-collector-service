@@ -8,7 +8,7 @@ Feature: Shipment fulfillment request
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
         Rule: I should be able to manage labeled products to fill a shipment.
-        @DIS-65 @DIS-57 @DIS-444
+        @api @DIS-65 @DIS-57 @DIS-444
         Scenario Outline: Receive shipment fulfillment request
             Given I have no shipment fulfillment requests.
             When I receive a shipment fulfillment request event with Order Number as "<Order Number>", Priority as "<Priority>", Shipping Date as "<Shipping Date>" , Shipment Type defined as "<Shipment Type>", Label Status as "<Label Status>" and Quarantined Products as "<Quarantined Products>".
@@ -23,7 +23,7 @@ Feature: Shipment fulfillment request
 
        Rule: I should be able to list the pending shipment fulfillment request.
        Rule: I should be able to view the shipment fulfillment details.
-       @DIS-65 @DIS-57
+       @api @DIS-65 @DIS-57
        Scenario Outline: View shipment's fulfillment details
            Given I have a shipment request persisted.
            When I retrieve the shipment list.
@@ -39,9 +39,10 @@ Feature: Shipment fulfillment request
                | A           | 10       |
                | B           | 5        |
                | O           | 8        |
+
        Rule: I should be able to receive the shipment fulfillment request with short date product details.
        Rule: I should be able to persist with the short date shipment fulfilled request on the local store.
-       @DIS-65
+      @api  @DIS-65
        Scenario: Receive shipment fulfillment request
            Given I have no shipment fulfillment requests.
            When I receive a shipment fulfillment request event.
@@ -50,7 +51,7 @@ Feature: Shipment fulfillment request
 
        Rule: I should be able to list the pending shipment fulfillment request.
        Rule: I should be able to view the shipment fulfillment details with short date products.
-       @DIS-59
+       @api @DIS-59
        Scenario Outline: View shipment's fulfillment details
            Given I have a shipment request persisted.
            When I retrieve the shipment list.

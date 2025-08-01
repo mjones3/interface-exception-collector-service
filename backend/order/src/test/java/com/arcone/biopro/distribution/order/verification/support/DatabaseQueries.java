@@ -1,9 +1,20 @@
 package com.arcone.biopro.distribution.order.verification.support;
 
 public class DatabaseQueries {
+
     public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status) {
         return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, desired_shipping_date, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id) " +
             "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', '2026-12-25', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374')", externalId, locationCode, priority, deliveryType, status);
+    }
+
+    public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status, String shipmentType) {
+        if (shipmentType.equalsIgnoreCase("CUSTOMER")) {
+            return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, desired_shipping_date, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id, shipment_type) " +
+                "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', '2026-12-25', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', '%s')", externalId, locationCode, priority, deliveryType, status, shipmentType);
+        } else { // Assuming INTERNAL_TRANSFER
+            return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, desired_shipping_date, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id, shipment_type) " +
+                "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', '2026-12-25', null, null, 'DO1', 'Distribution Only', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', '%s')", externalId, locationCode, priority, deliveryType, status, shipmentType);
+        }
     }
 
     public static String insertBioProOrder(Integer orderNumber, String externalId, String locationCode, Integer priority, String deliveryType, String status) {
@@ -11,24 +22,26 @@ public class DatabaseQueries {
             "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', '2024-12-25', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374')", externalId, locationCode, priority, deliveryType, status);
     }
 
-    public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status, String desiredShipdate , String customerCode , String customerName , String createDate) {
+    public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status, String desiredShipdate, String customerCode, String customerName, String createDate) {
         return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, billing_customer_code, billing_customer_name, shipping_customer_code" +
                 ", shipping_customer_name, create_date, modification_date, product_category, create_employee_id, desired_shipping_date) " +
-            "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', '%s', '%s', '%s', '%s', '%s', CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', %s)"
-            , externalId, locationCode, priority, deliveryType,status,customerCode,customerName,customerCode,customerName,createDate, desiredShipdate);
+                "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', '%s', '%s', '%s', '%s', '%s', CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', %s)"
+            , externalId, locationCode, priority, deliveryType, status, customerCode, customerName, customerCode, customerName, createDate, desiredShipdate);
     }
+
     public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status, boolean backOrderFlag) {
         return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id, back_order) " +
             "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', %s)", externalId, locationCode, priority, deliveryType, status, backOrderFlag);
     }
+
     public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status, String productCategory, boolean backOrderFlag) {
         return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id, back_order) " +
             "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, '%s', 'ee1bf88e-2137-4a17-835a-d43e7b738374', %s)", externalId, locationCode, priority, deliveryType, status, productCategory, backOrderFlag);
     }
 
-    public static String insertBioProOrderWithDetails(String externalId, String locationCode, Integer priority, String deliveryType, String status, String shipmentType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments , String quarantinedProducts, String labelStatus) {
+    public static String insertBioProOrderWithDetails(String externalId, String locationCode, Integer priority, String deliveryType, String status, String shipmentType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments, String quarantinedProducts, String labelStatus) {
         return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipment_type, shipping_method, product_category, desired_shipping_date, shipping_customer_code, shipping_customer_name, billing_customer_code, billing_customer_name, comments, create_employee_id, create_date, modification_date  , quarantined_products, label_status) " +
-            "VALUES ('%s', '%s', %s, '%s', '%s', '%s', '%s', '%s', %s, '%s', '%s', %s, %s, '%s', 'ee1bf88e-2137-4a17-835a-d43e7b738374',current_date, current_date, %s, '%s')", externalId, locationCode, priority, deliveryType, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments , quarantinedProducts, labelStatus);
+            "VALUES ('%s', '%s', %s, '%s', '%s', '%s', '%s', '%s', %s, '%s', '%s', %s, %s, '%s', 'ee1bf88e-2137-4a17-835a-d43e7b738374',current_date, current_date, %s, '%s')", externalId, locationCode, priority, deliveryType, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments, quarantinedProducts, labelStatus);
     }
 
     public static String insertBioProOrderItem(String externalId, String productFamily, String bloodType, Integer quantity, String comments) {
@@ -92,7 +105,7 @@ public class DatabaseQueries {
             "VALUES (%s, 1, '%s', current_date, current_date)", orderId, shipmentStatus);
     }
 
-    public static String insertBioProOrderShipment(String orderId){
+    public static String insertBioProOrderShipment(String orderId) {
         return insertBioProOrderShipment(orderId, "OPEN");
     }
 
@@ -104,7 +117,7 @@ public class DatabaseQueries {
         return String.format("UPDATE lk_lookup SET option_value = %s WHERE type = 'BACK_ORDER_CREATION' and description_key = 'back-order-creation.label'", config);
     }
 
-    public static String insertBioProOrderShipmentQuantity(String quantity, String orderId){
+    public static String insertBioProOrderShipmentQuantity(String quantity, String orderId) {
         return String.format("UPDATE bld_order_item SET quantity_shipped = %s where order_id = %s", quantity, orderId);
     }
 
@@ -113,11 +126,11 @@ public class DatabaseQueries {
     }
 
     public static String removeLocationPropertyByExternalId(String externalId) {
-            return "DELETE FROM lk_location_property WHERE location_id = (SELECT id FROM lk_location WHERE external_id = '" + externalId + "');";
+        return "DELETE FROM lk_location_property WHERE location_id = (SELECT id FROM lk_location WHERE external_id = '" + externalId + "');";
 
     }
 
     public static String removeLocationByExternalId(String externalId) {
-            return "DELETE FROM lk_location WHERE external_id = '" + externalId + "';";
+        return "DELETE FROM lk_location WHERE external_id = '" + externalId + "';";
     }
 }

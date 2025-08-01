@@ -1,3 +1,6 @@
+@manual @disabled @ui
+Feature: Ship Imported Product
+
 #Manual Test of Shipping of Imported Products
 #Date of testing: 06/17/2025
 #Manually tested and documented by: Ruby Dizon, German Berros
@@ -5,8 +8,6 @@
 #Reviewed by: Archana Nallapeddi
 #Review Date: 06/18/2025
 
-@manual @disabled
-Feature: Ship Imported Product
 
 Rule: I should be prevented to ship an unacceptable imported product.
   @DIS-415

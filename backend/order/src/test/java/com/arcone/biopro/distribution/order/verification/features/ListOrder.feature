@@ -365,6 +365,7 @@ Feature: List of all orders in Search Order
                 Then I should receive the orders listed by "orderNumber" in "descending" order.
                 And  The sorting indicator should be at "orderNumber" property in "descending" order.
 
+        @ui @api
         Scenario: Database clean up
             Given I cleaned up from the database the orders with external ID starting with "EXT1141179".
             And I cleaned up from the database the orders with external ID starting with "EXTDIS220".

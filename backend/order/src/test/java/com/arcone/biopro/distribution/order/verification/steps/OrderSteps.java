@@ -779,17 +779,40 @@ public class OrderSteps {
 
     @Given("I have an order with external ID {string} partially fulfilled with a shipment {string}.")
     public void iHaveAnOrderPartiallyFulfilledWithAShipment(String externalId, String shipmentStatus) {
-        iHaveAOrderPartiallyFulfilledWithAShipment("IN_PROGRESS", externalId, shipmentStatus);
+        iHaveAOrderPartiallyFulfilledWithAShipment("IN_PROGRESS", "CUSTOMER", externalId, shipmentStatus);
     }
 
-    @Given("I have a {string} order with external ID {string} partially fulfilled with a shipment {string}.")
-    public void iHaveAOrderPartiallyFulfilledWithAShipment(String orderStatus, String externalId, String shipmentStatus) {
+    @Given("I have a(n) {string} {string} order with external ID {string} partially fulfilled with a shipment {string}.")
+    public void iHaveAOrderPartiallyFulfilledWithAShipment(String orderStatus, String shipmentType, String externalId, String shipmentStatus) {
         context.setExternalId(externalId);
         context.setOrderStatus(orderStatus);
+        context.setShipmentType(shipmentType);
         var priority = orderController.getRandomPriority();
 
         // Order
-        var createOrderQuery = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), priority.getValue(), priority.getKey(), orderStatus);
+        var createOrderQuery = "";
+        if (shipmentType.equalsIgnoreCase("CUSTOMER")) {
+            createOrderQuery = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), priority.getValue(), priority.getKey(), orderStatus);
+        } else {
+            createOrderQuery = DatabaseQueries.insertBioProOrderWithDetails(
+                externalId,
+                context.getLocationCode(),
+                priority.getValue(),
+                "STAT",
+                orderStatus,
+                shipmentType,
+                "FEDEX",
+                "FROZEN",
+                "'" + testUtils.parseDateKeyword("<tomorrow>") + "'",
+                "DO1",
+                "Distribution Only",
+                null,
+                null,
+                "DST Automation",
+                "true",
+                "UNLABELED" // TODO: add as param
+            );
+        }
         databaseService.executeSql(createOrderQuery).block();
 
         // Order Item
@@ -821,12 +844,23 @@ public class OrderSteps {
 
     @Given("I have an order with external ID {string} and status {string}.")
     public void iHaveAnOrderWithStatus(String externalId, String orderStatus) {
+        iHaveAnOrderWithStatus(externalId, "CUSTOMER", orderStatus);
+    }
+
+    @Given("I have a(n) {string} order with external ID {string} and status {string}.")
+    public void iHaveAnOrderWithStatuses(String shipmentType, String externalId, String orderStatus) {
+        iHaveAnOrderWithStatus(externalId, shipmentType, orderStatus);
+    }
+
+    @Given("I have an order with external ID {string}, shipment type {string}, and status {string}.")
+    public void iHaveAnOrderWithStatus(String externalId, String shipmentType, String orderStatus) {
         context.setExternalId(externalId);
         context.setOrderStatus(orderStatus);
+        context.setShipmentType(shipmentType);
         var priority = orderController.getRandomPriority();
 
         // Order
-        var createOrderQuery = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), priority.getValue(), priority.getKey(), orderStatus);
+        var createOrderQuery = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), priority.getValue(), priority.getKey(), orderStatus, shipmentType);
         databaseService.executeSql(createOrderQuery).block();
         context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString()));
 
@@ -1484,5 +1518,12 @@ public class OrderSteps {
         var shipmentDetails = orderController.getOrderShipmentDetailsMap(context.getOrderId());
         Assert.assertNotNull(shipmentDetails);
         Assert.assertEquals(context.getOrderId(), shipmentDetails.get("orderId"));
+    }
+
+    @And("I {string} have the back order created with the same externalId as the original order.")
+    public void iHaveTheBackOrderCreatedWithTheSameExternalIdAsTheOriginalOrder(String option) {
+        if (option.equalsIgnoreCase("should")) {
+            Assert.assertEquals(context.getOrderDetails().get("externalId").toString(), originalOrder.get("externalId").toString().replace("\"", ""));
+        }
     }
 }

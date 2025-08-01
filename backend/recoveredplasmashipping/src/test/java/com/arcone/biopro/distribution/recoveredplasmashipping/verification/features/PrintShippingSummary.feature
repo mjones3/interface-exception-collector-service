@@ -153,7 +153,7 @@ Feature: Print Shipment Summary
 
 
 
-
+        @ui @api
         Scenario: Reset default configurations
             Given I have reset the shipment product criteria to have the following values:
                 | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |

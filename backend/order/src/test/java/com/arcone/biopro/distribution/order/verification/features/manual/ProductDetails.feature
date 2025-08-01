@@ -1,3 +1,6 @@
+@manual @disabled @ui @AOA-36
+Feature: Automated Orders - Apheresis Plasma
+
 #Manual Test of Product Details columns order
 #Date of testing: 07/25/2025
 #Manually tested and documented by:  German Berros, Ruby Dizon
@@ -5,8 +8,6 @@
 #Reviewed by: Archana Nallapeddi
 #Review Date: 07/25/2025
 
-@manual @disabled @AOA-36
-Feature: Automated Orders - Apheresis Plasma
 
     Rule: I should be able to view the product details columns in the following order: Product Family, Blood Type, Quantity, Available Inventory and Filled Products.
     @DIS-97 @DIS-512

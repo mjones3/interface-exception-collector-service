@@ -1,3 +1,6 @@
+@manual @disabled @ui @AOA-89
+Feature: Print Carton Label
+
 #Manual Test of Print Carton Label
 
 #Date of testing:05/29/2025
@@ -5,8 +8,6 @@
 #Supported by:Michel Risucci, Allan Morelli Braga
 #Result:PASSED – Working as expected
 
-@disabled @AOA-89
-Feature: Print Carton Label
 
         Rule: I should be able to print the carton label with the shipment details, carton details, customer details and products information.
         Rule: The carton label should be printed on 4x4 label stock.
