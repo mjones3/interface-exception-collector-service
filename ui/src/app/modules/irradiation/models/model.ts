@@ -55,10 +55,17 @@ export interface IrradiationProductDTO {
     statuses?: { value: string; classes: string }[];
     disabled?: boolean;
     expired: boolean;
+    isImported: boolean;
     alreadyIrradiated: boolean,
     notConfigurableForIrradiation: boolean,
     isBeingIrradiated: boolean,
-    quarantines: IrradiationProductQuarantineDTO[];
+    quarantines: IrradiationProductQuarantineDTO[],
+    importDetails?: {
+        bloodCenterName: string;
+        address: string;
+        registrationNumber: string;
+        licenseNumber?: string;
+    };
 }
 
 export interface IrradiationProductQuarantineDTO {
@@ -81,7 +88,11 @@ export interface ValidateUnitEvent {
 export interface StartIrradiationBatchItemDTO {
     unitNumber: string;
     productCode: string;
-    lotNumber: string
+    lotNumber: string;
+    bloodCenterName?: string;
+    address?: string;
+    registrationNumber?: string;
+    licenseNumber?: string;
 }
 
 export interface StartIrradiationSubmitBatchRequestDTO {
