@@ -159,6 +159,7 @@ public class IrradiationAggregate {
         }
 
         return BatchItem.builder()
+                .id(originalItem.id())
                 .unitNumber(originalItem.unitNumber())
                 .productCode(originalItem.productCode())
                 .lotNumber(originalItem.lotNumber())

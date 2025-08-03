@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.domain.irradiation.service;
 
+import com.arcone.biopro.distribution.irradiation.adapter.out.kafka.dto.ImportedBloodCenter;
 import com.arcone.biopro.distribution.irradiation.domain.event.IrradiationEventPublisher;
 import com.arcone.biopro.distribution.irradiation.domain.event.ProductModifiedEvent;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.aggregate.IrradiationAggregate;
@@ -88,16 +89,21 @@ public class BatchCompletionServiceImpl implements BatchCompletionService {
                                 completion.unitNumber(),
                                 completion.productCode(),
                                 updatedItem.newProductCode()
-                            ).then(publishProductModifiedEvent(completion, aggregate, updatedItem))
+                            ).then(batchRepository.findImportedBloodCenterByBatchItemId(updatedItem.id())
+                                .defaultIfEmpty(ImportedBloodCenter.builder().build())
+                                .flatMap(importedBloodCenter ->
+                                    publishProductModifiedEvent(completion, aggregate, updatedItem, importedBloodCenter)
+                                )
+                            )
                         )
                 )
                 .then();
     }
 
     private Mono<Void> publishProductModifiedEvent(
-            IrradiationAggregate.BatchItemCompletion completion,
-            IrradiationAggregate aggregate,
-            com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchItem updatedItem) {
+        IrradiationAggregate.BatchItemCompletion completion,
+        IrradiationAggregate aggregate,
+        com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchItem updatedItem, ImportedBloodCenter importedBloodCenter) {
 
         return determineFormattedExpirationDate(updatedItem.expirationDate())
             .flatMap(formattedExpirationDate -> {
@@ -109,7 +115,7 @@ public class BatchCompletionServiceImpl implements BatchCompletionService {
                     updatedItem.productFamily(),
                     formattedExpirationDate,
                     "23:59",
-                    aggregate.getDevice().getLocation().value(), null, null
+                    aggregate.getDevice().getLocation().value(), "Irradiation Service", importedBloodCenter
                 );
 
                 eventPublisher.publish(new ProductModifiedEvent(productModified));

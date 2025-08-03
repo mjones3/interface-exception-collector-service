@@ -35,6 +35,7 @@ public class BatchEntityMapper {
 
     public BatchItem toDomain(BatchItemEntity entity) {
         return BatchItem.builder()
+                .id(entity.getId())
                 .unitNumber(new UnitNumber(entity.getUnitNumber()))
                 .productCode(entity.getProductCode())
                 .lotNumber(entity.getLotNumber())
@@ -46,6 +47,7 @@ public class BatchEntityMapper {
 
     public BatchItemEntity toEntity(BatchItem batchItem, Long batchId) {
         return BatchItemEntity.builder()
+                .id(batchItem.id())
                 .batchId(batchId)
                 .unitNumber(batchItem.unitNumber().value())
                 .productCode(batchItem.productCode())

@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.repository;
 
+import com.arcone.biopro.distribution.irradiation.adapter.out.kafka.dto.ImportedBloodCenter;
 import com.arcone.biopro.distribution.irradiation.application.irradiation.command.SubmitBatchCommand;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Batch;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.port.BatchRepository;
@@ -41,7 +42,8 @@ public class BatchRepositoryImpl implements BatchRepository {
     public BatchRepositoryImpl(BatchEntityRepository batchRepository,
                                BatchItemEntityRepository batchItemRepository,
                                BatchEntityMapper mapper,
-                               DatabaseClient databaseClient, ImportedBloodCenterEntityRepository importedBloodCenterEntityRepository) {
+                               DatabaseClient databaseClient,
+                               ImportedBloodCenterEntityRepository importedBloodCenterEntityRepository) {
         this.batchRepository = batchRepository;
         this.batchItemRepository = batchItemRepository;
         this.mapper = mapper;
@@ -231,8 +233,24 @@ public class BatchRepositoryImpl implements BatchRepository {
             .map(mapper::toDomain);
     }
 
+    @Override
+    public Mono<ImportedBloodCenter> findImportedBloodCenterByBatchItemId(Long batchItemId) {
+        return importedBloodCenterEntityRepository.findByProductId(batchItemId)
+                .map(this::mapToImportedBloodCenterDto);
+    }
+
+    private ImportedBloodCenter mapToImportedBloodCenterDto(ImportedBloodCenterEntity entity) {
+        return ImportedBloodCenter.builder()
+                .bloodCenterName(entity.getName())
+                .address(entity.getAddress())
+                .registrationNumber(entity.getRegistrationNumber())
+                .licenseNumber(entity.getLicenseNumber())
+                .build();
+    }
+
     private BatchItem mapToBatchItemWithDefaults(BatchItemEntity entity) {
         return BatchItem.builder()
+                .id(entity.getId())
                 .unitNumber(new com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.UnitNumber(entity.getUnitNumber()))
                 .productCode(entity.getProductCode())
                 .lotNumber(entity.getLotNumber())
