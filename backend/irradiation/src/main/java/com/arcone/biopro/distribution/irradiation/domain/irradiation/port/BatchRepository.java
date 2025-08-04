@@ -23,7 +23,6 @@ public interface BatchRepository {
     Mono<Boolean> isUnitAlreadyIrradiated(String unitNumber, String productCode);
     Mono<Boolean> isUnitBeingIrradiated(String unitNumber, String productCode);
     Mono<Void> markBatchItemAsTimingRuleValidated(String unitNumber, String productCode);
-    Mono<Batch> findLatestBatchWithItemByUnitProductAndDevice(String unitNumber, String productCode, String deviceUse);
     Mono<ImportedBloodCenter> findImportedBloodCenterByBatchItemId(Long batchItemId);
     Mono<Batch> findLatestBatchWithItemByUnitAndProduct(String unitNumber, String productCode);
 }
