@@ -25,4 +25,5 @@ public interface BatchRepository {
     Mono<Void> markBatchItemAsTimingRuleValidated(String unitNumber, String productCode);
     Mono<Batch> findLatestBatchWithItemByUnitProductAndDevice(String unitNumber, String productCode, String deviceUse);
     Mono<ImportedBloodCenter> findImportedBloodCenterByBatchItemId(Long batchItemId);
+    Mono<Batch> findLatestBatchWithItemByUnitAndProduct(String unitNumber, String productCode);
 }
