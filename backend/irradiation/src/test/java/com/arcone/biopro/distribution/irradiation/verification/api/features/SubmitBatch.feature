@@ -12,7 +12,7 @@ Feature: Submit Batch for Irradiation
             | Unit Number   | Product Code | Irradiator Indicator |
             | W777725003001 | E0102V00     | 123                  |
             | W777725003002 | E010200      | 234                  |
-        When I submit the batch for irradiation using GraphQL helper
+        When I submit the batch for irradiation of non-imported products
         Then the batch should be successfully created in the repository with items:
             | Unit Number   | Product Code | Irradiator Indicator |
             | W777725003001 | E0102V00     | 123                  |

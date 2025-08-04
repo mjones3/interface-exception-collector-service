@@ -116,8 +116,8 @@ public class GraphQLSteps {
         }
     }
 
-    @When("I submit the batch for irradiation using GraphQL helper")
-    public void iSubmitTheBatchForIrradiationUsingGraphQLHelper() {
+    @When("I submit the batch for irradiation of non-imported products")
+    public void iSubmitTheBatchForIrradiationNonImportedProducts() {
         String deviceId = repositorySteps.getBatchDeviceId();
         String startTime = repositorySteps.getBatchStartTime();
         List<Map<String, String>> batchItems = repositorySteps.getBatchItems();
