@@ -49,13 +49,24 @@ class SubmitBatchUseCaseTest {
     void execute_ShouldReturnSuccessResult_WhenBatchSubmittedSuccessfully() {
         // Given
         SubmitBatchCommand command = SubmitBatchCommand.builder()
-                .deviceId("1L")
-                .startTime(LocalDateTime.now())
-                .batchItems(List.of(
-                    BatchItemDTO.builder().unitNumber("W777725001001").productCode("PROD001").lotNumber("LOT001").build(),
-                    BatchItemDTO.builder().unitNumber("W777725001002").productCode("PROD002").lotNumber("LOT002").build()
-                ))
-                .build();
+            .deviceId("1L")
+            .startTime(LocalDateTime.now())
+            .batchItems(List.of(
+                BatchItemDTO.builder()
+                    .unitNumber("W777725001001")
+                    .productCode("PROD001")
+                    .lotNumber("LOT001")
+                    .bloodCenterName("Test Blood Center")
+                    .address("123 Test St")
+                    .registrationNumber("REG123")
+                    .build(),
+                BatchItemDTO.builder()
+                    .unitNumber("W777725001002")
+                    .productCode("PROD002")
+                    .lotNumber("LOT002")
+                    .build()
+            ))
+            .build();
 
         Inventory inventory1 = Inventory.builder()
                 .unitNumber(new UnitNumber("W777725001001"))

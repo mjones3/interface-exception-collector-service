@@ -29,12 +29,59 @@ public class InventoryServerMock {
 
     @MessageMapping("getInventoryByUnitNumber")
     public Flux<InventoryOutput> getInventoryByUnitNumber(String unitNumber) {
-        if ("W777725004001".equals(unitNumber)) {
+        log.info("Mock received request for unitNumber: {}", unitNumber);
+        if ("W777725003001".equals(unitNumber)) {
+            log.info("Returning mock data for W777725003001");
+            // Non-imported item for SubmitBatch feature
+            return Flux.just(
+                InventoryOutput.builder()
+                    .unitNumber(unitNumber)
+                    .productCode("E0102V00")
+                    .location("123456789")
+                    .inventoryStatus("AVAILABLE")
+                    .productDescription("Local Blood Sample Type 1")
+                    .productFamily("WHOLE_BLOOD")
+                    .expirationDate(LocalDateTime.now().plusDays(30))
+                    .shortDescription("Local Sample")
+                    .isLabeled(true)
+                    .statusReason("In Stock")
+                    .unsuitableReason(null)
+                    .expired(false)
+                    .quarantines(List.of())
+                    .properties(List.of()) // No IMPORTED property - non-imported
+                    .build()
+            );
+        }
+
+        if ("W777725003002".equals(unitNumber)) {
+            log.info("Returning mock data for W777725003002");
+            // Non-imported item for SubmitBatch feature
+            return Flux.just(
+                InventoryOutput.builder()
+                    .unitNumber(unitNumber)
+                    .productCode("E010200")
+                    .location("123456789")
+                    .inventoryStatus("AVAILABLE")
+                    .productDescription("Local Blood Sample Type 2")
+                    .productFamily("WHOLE_BLOOD")
+                    .expirationDate(LocalDateTime.now().plusDays(30))
+                    .shortDescription("Local Sample")
+                    .isLabeled(true)
+                    .statusReason("In Stock")
+                    .unsuitableReason(null)
+                    .expired(false)
+                    .quarantines(List.of())
+                    .properties(List.of()) // No IMPORTED property - non-imported
+                    .build()
+            );
+        }
+
+        if ("W777725006001".equals(unitNumber) || "W777725006002".equals(unitNumber)) {
             // Imported item - has blood center info
             return Flux.just(
                 InventoryOutput.builder()
                     .unitNumber(unitNumber)
-                    .productCode("E0869V00")
+                    .productCode("E003300")
                     .location("123456789")
                     .inventoryStatus("AVAILABLE")
                     .productDescription("Imported Blood Sample")
@@ -53,12 +100,12 @@ public class InventoryServerMock {
             );
         }
 
-        if ("W777725004002".equals(unitNumber)) {
+        if ("W777725006003".equals(unitNumber)) {
             // Non-imported item - no blood center info
             return Flux.just(
                 InventoryOutput.builder()
                     .unitNumber(unitNumber)
-                    .productCode("E0869V00")
+                    .productCode("E003300")
                     .location("123456789")
                     .inventoryStatus("AVAILABLE")
                     .productDescription("Local Blood Sample")
@@ -75,12 +122,12 @@ public class InventoryServerMock {
             );
         }
 
-        if ("W777725004003".equals(unitNumber)) {
-            // Imported item - has blood center info without license number
+        if ("W777725006004".equals(unitNumber) || "W777725006005".equals(unitNumber)) {
+            // Imported item - has blood center info without registration number
             return Flux.just(
                 InventoryOutput.builder()
                     .unitNumber(unitNumber)
-                    .productCode("E0869V00")
+                    .productCode("E003300")
                     .location("123456789")
                     .inventoryStatus("AVAILABLE")
                     .productDescription("Imported Blood Sample")

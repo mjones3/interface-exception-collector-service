@@ -218,13 +218,17 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                 lotNumber: this.lotNumber.value
             };
             if (product.isImported && product.importDetails) {
-                return {
+                const importItem: any = {
                     ...baseItem,
                     bloodCenterName: product.importDetails.bloodCenterName,
                     address: product.importDetails.address,
                     registrationNumber: product.importDetails.registrationNumber,
-                    licenseNumber: product.importDetails.licenseNumber || ''
                 };
+                if (product.importDetails.licenseNumber) {
+                    importItem.licenseNumber = product.importDetails.licenseNumber;
+                }
+                
+                return importItem;
             }
             return baseItem;
         });
@@ -640,8 +644,8 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
                 next: (result) => {
                     const isValid = result.data.validateLotNumber;
                     if (isValid) {
-                        this.unitNumberComponent.controlUnitNumber.enable();
-                        setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
+            this.unitNumberComponent.controlUnitNumber.enable();
+            setTimeout(() => this.unitNumberComponent.focusOnUnitNumber(), 0);
                     } else {
                         this.showMessage(MessageType.ERROR, 'Invalid lot number');
                         this.lotNumber.setErrors({ invalid: true });

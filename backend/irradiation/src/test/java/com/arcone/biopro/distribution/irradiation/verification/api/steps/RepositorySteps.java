@@ -1,8 +1,10 @@
 package com.arcone.biopro.distribution.irradiation.verification.api.steps;
 
+import com.arcone.biopro.distribution.irradiation.application.irradiation.dto.BatchSubmissionResultDTO;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchEntity;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.BatchItemEntity;
 import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.DeviceEntity;
+import com.arcone.biopro.distribution.irradiation.infrastructure.irradiation.entity.ImportedBloodCenterEntity;
 import com.arcone.biopro.distribution.irradiation.verification.api.support.IrradiationContext;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
@@ -36,6 +38,9 @@ public class RepositorySteps {
     private ReactiveCrudRepository<BatchItemEntity, Long> batchItemRepository;
 
     @Autowired
+    private ReactiveCrudRepository<ImportedBloodCenterEntity, Long> importedBloodCenterRepository;
+
+    @Autowired
     private IrradiationContext irradiationContext;
 
     @Setter
@@ -51,7 +56,7 @@ public class RepositorySteps {
     private List<Map<String, String>> batchItems = new ArrayList<>();
 
     @Setter
-    private String batchSubmissionResult;
+    private BatchSubmissionResultDTO batchSubmissionResult;
 
     @Setter
     private String batchSubmissionError;
@@ -61,6 +66,15 @@ public class RepositorySteps {
 
     @Getter
     private Long lastCreatedBatchId;
+
+    @Given("I clean up test data")
+    public void iCleanUpTestData() {
+        // Clean up in reverse dependency order
+        importedBloodCenterRepository.deleteAll().block();
+        batchItemRepository.deleteAll().block();
+        batchRepository.deleteAll().block();
+        log.info("Cleaned up test data");
+    }
 
     @Given("I have a device {string} at location {string} with status {string}")
     public void iHaveAValidDeviceAtLocation(String deviceId, String location, String status) {
@@ -162,7 +176,7 @@ public class RepositorySteps {
 
     @Then("I should see the success message {string}")
     public void iShouldSeeTheSuccessMessage(String expectedMessage) {
-        assertEquals(expectedMessage, batchSubmissionResult);
+        assertEquals(expectedMessage, batchSubmissionResult.message());
     }
 
     @Then("the batch submission should fail")
@@ -264,7 +278,7 @@ public class RepositorySteps {
         BatchItemEntity batchItem = batchItemRepository.findAll()
             .filter(item -> unitNumber.equals(item.getUnitNumber()))
             .blockFirst();
-        
+
         if (batchItem != null) {
             // Find and update the batch
             BatchEntity batch = batchRepository.findById(batchItem.getBatchId()).block();
@@ -283,7 +297,7 @@ public class RepositorySteps {
         BatchItemEntity batchItem = batchItemRepository.findAll()
             .filter(item -> unitNumber.equals(item.getUnitNumber()) && productCode.equals(item.getProductCode()))
             .blockFirst();
-        
+
         return batchItem != null && Boolean.TRUE.equals(batchItem.getIsTimingRuleValidated());
     }
 
@@ -292,7 +306,7 @@ public class RepositorySteps {
         BatchItemEntity batchItem = batchItemRepository.findAll()
             .filter(item -> unitNumber.equals(item.getUnitNumber()))
             .blockFirst();
-        
+
         if (batchItem != null) {
             // Find and close the batch
             BatchEntity batch = batchRepository.findById(batchItem.getBatchId()).block();
@@ -302,5 +316,57 @@ public class RepositorySteps {
                 log.info("Closed batch {} for unit {}", batch.getId(), unitNumber);
             }
         }
+    }
+
+    public void createDevice(String deviceId, String location, String status) {
+        DeviceEntity existingDevice = deviceRepository.findAll()
+            .filter(device -> deviceId.equals(device.getDeviceId()))
+            .blockFirst();
+
+        if (existingDevice == null) {
+            DeviceEntity device = new DeviceEntity(deviceId, location, status);
+            deviceRepository.save(device).block();
+        }
+
+        this.lastCreatedDeviceId = deviceId;
+    }
+
+    public void verifyBloodCenterInformation(String unitNumber, String bloodCenterName,
+                                           String address, String registrationNumber, String licenseNumber) {
+        BatchItemEntity batchItem = batchItemRepository.findAll()
+            .filter(item -> unitNumber.equals(item.getUnitNumber()))
+            .blockFirst();
+
+        assertNotNull(batchItem, "Batch item should exist for unit number: " + unitNumber);
+
+
+        ImportedBloodCenterEntity bloodCenter = importedBloodCenterRepository.findAll()
+            .filter(bc -> batchItem.getId().equals(bc.getProductId()))
+            .blockFirst();
+
+        assertNotNull(bloodCenter, "Blood center information should exist for unit: " + unitNumber);
+        assertEquals(bloodCenterName, bloodCenter.getName(),
+                    "Blood center name should match for unit: " + unitNumber);
+        assertEquals(address, bloodCenter.getAddress(),
+                    "Blood center address should match for unit: " + unitNumber);
+        assertEquals(registrationNumber, bloodCenter.getRegistrationNumber(),
+                    "Blood center registration number should match for unit: " + unitNumber);
+        assertEquals(licenseNumber, bloodCenter.getLicenseNumber(),
+                    "Blood center license number should match for unit: " + unitNumber);
+    }
+
+    public void verifyNoBloodCenterInformation(String unitNumber) {
+        BatchItemEntity batchItem = batchItemRepository.findAll()
+            .filter(item -> unitNumber.equals(item.getUnitNumber()))
+            .blockFirst();
+
+        assertNotNull(batchItem, "Batch item should exist for unit number: " + unitNumber);
+
+
+        ImportedBloodCenterEntity bloodCenter = importedBloodCenterRepository.findAll()
+            .filter(bc -> batchItem.getId().equals(bc.getProductId()))
+            .blockFirst();
+
+        assertNull(bloodCenter, "Blood center information should not exist for unit: " + unitNumber);
     }
 }

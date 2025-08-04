@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.irradiation.application.irradiation.usecase;
 
 import com.arcone.biopro.distribution.irradiation.application.irradiation.command.SubmitBatchCommand;
+import com.arcone.biopro.distribution.irradiation.application.irradiation.dto.BatchItemDTO;
 import com.arcone.biopro.distribution.irradiation.application.irradiation.dto.BatchSubmissionResultDTO;
 import com.arcone.biopro.distribution.irradiation.application.irradiation.mapper.BatchMapper;
 import com.arcone.biopro.distribution.irradiation.application.usecase.CommandUseCase;
@@ -42,7 +43,11 @@ public class SubmitBatchUseCase implements CommandUseCase<SubmitBatchCommand, Ba
                     return inventoryClient.getInventoryByUnitNumber(unitNumber)
                             .filter(inventory -> item.productCode().equals(inventory.getProductCode()))
                             .next()
-                            .map(inventory -> BatchItem.builder()
+                            .map(inventory -> {
+                                if (inventory.getIsImported() && isBloodCenterInformationMissing(item)) {
+                                    throw new BatchSubmissionException("Blood center information is missing for imported product");
+                                }
+                                return BatchItem.builder()
                                     .unitNumber(unitNumber)
                                     .productCode(item.productCode())
                                     .lotNumber(item.lotNumber())
@@ -51,11 +56,17 @@ public class SubmitBatchUseCase implements CommandUseCase<SubmitBatchCommand, Ba
                                     .productFamily(inventory.getProductFamily())
                                     .isImported(inventory.getIsImported())
                                     .location(inventory.getLocation().value())
-                                    .build());
+                                    .build();
+                            });
                 })
                 .collectList()
                 .flatMap(batchItems -> batchRepository.submitBatch(deviceId, command, batchItems))
                 .map(batchMapper::toSubmissionResult)
                 .onErrorMap(throwable -> new BatchSubmissionException("Failed to submit batch: " + throwable.getMessage(), throwable));
+    }
+    private boolean isBloodCenterInformationMissing(BatchItemDTO item) {
+        return item.bloodCenterName() == null || item.bloodCenterName().trim().isEmpty() ||
+            item.address() == null || item.address().trim().isEmpty() ||
+            item.registrationNumber() == null || item.registrationNumber().trim().isEmpty();
     }
 }

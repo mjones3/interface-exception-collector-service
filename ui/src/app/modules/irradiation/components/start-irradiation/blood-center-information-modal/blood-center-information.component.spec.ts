@@ -55,13 +55,20 @@ describe('ImportDetailsModal', () => {
       bloodCenterName: 'Test Center',
       address: 'Test Address',
       registrationNumber: 'REG123',
+      licenseStatus: 'isLicensed',
       licenseNumber: 'LIC456'
     };
 
     component.importForm.patchValue(formData);
     component.submit();
+      const expectedData = {
+        bloodCenterName: 'Test Center',
+        address: 'Test Address',
+        registrationNumber: 'REG123',
+        licenseNumber: 'LIC456'
+      };
 
-    expect(mockDialogRef.close).toHaveBeenCalledWith(formData);
+    expect(mockDialogRef.close).toHaveBeenCalledWith(expectedData);
   });
 
   it('should close dialog with null on cancel', () => {
@@ -69,17 +76,24 @@ describe('ImportDetailsModal', () => {
     expect(mockDialogRef.close).toHaveBeenCalledWith(null);
   });
 
-  it('should submit with empty license number when not provided', () => {
-    const formData = {
-      bloodCenterName: 'Test Center',
-      address: 'Test Address',
-      registrationNumber: 'REG123',
-      licenseNumber: ''
-    };
+  it('should submit without license number when not licensed', () => {
+  const formData = {
+    bloodCenterName: 'Test Center',
+    address: 'Test Address',
+    registrationNumber: 'REG123',
+    licenseStatus: 'isNotLicensed',
+    licenseNumber: ''
+  };
 
-    component.importForm.patchValue(formData);
-    component.submit();
+  component.importForm.patchValue(formData);
+  component.submit();
 
-    expect(mockDialogRef.close).toHaveBeenCalledWith(formData);
-  });
+  const expectedData = {
+    bloodCenterName: 'Test Center',
+    address: 'Test Address',
+    registrationNumber: 'REG123'
+  };
+
+  expect(mockDialogRef.close).toHaveBeenCalledWith(expectedData);
+});
 });

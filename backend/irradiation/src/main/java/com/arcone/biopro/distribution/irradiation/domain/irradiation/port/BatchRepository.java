@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.irradiation.domain.irradiation.port;
 
 import com.arcone.biopro.distribution.irradiation.application.irradiation.command.SubmitBatchCommand;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.entity.Batch;
+import com.arcone.biopro.distribution.irradiation.adapter.out.kafka.dto.ImportedBloodCenter;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchId;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.BatchItem;
 import com.arcone.biopro.distribution.irradiation.domain.irradiation.valueobject.DeviceId;
@@ -22,5 +23,7 @@ public interface BatchRepository {
     Mono<Boolean> isUnitAlreadyIrradiated(String unitNumber, String productCode);
     Mono<Boolean> isUnitBeingIrradiated(String unitNumber, String productCode);
     Mono<Void> markBatchItemAsTimingRuleValidated(String unitNumber, String productCode);
+    Mono<Batch> findLatestBatchWithItemByUnitProductAndDevice(String unitNumber, String productCode, String deviceUse);
+    Mono<ImportedBloodCenter> findImportedBloodCenterByBatchItemId(Long batchItemId);
     Mono<Batch> findLatestBatchWithItemByUnitAndProduct(String unitNumber, String productCode);
 }

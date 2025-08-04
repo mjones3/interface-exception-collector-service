@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
  */
 @Builder
 public record BatchItem(
+    Long id,
     UnitNumber unitNumber,
     String productCode,
     String lotNumber,
