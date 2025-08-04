@@ -27,22 +27,21 @@ public class ProductStoredUseCase implements UseCase<Mono<Void>, ProductStoredUs
         return outOfStorageValidationService.processProductStoredEvent(
                 input.unitNumber(),
                 input.productCode(),
-                input.deviceUse(),
                 input.storageTime()
         )
         .flatMap(result -> {
             if (!result.batchClosed()) {
-                log.info("Batch is not closed for unit: {}, product: {}, ignoring product stored event", 
+                log.info("Batch is not closed for unit: {}, product: {}, ignoring product stored event",
                         input.unitNumber(), input.productCode());
                 return Mono.empty();
             }
-            
+
             if (result.alreadyProcessed()) {
-                log.info("Product stored event already processed for unit: {}, product: {}, ignoring", 
+                log.info("Product stored event already processed for unit: {}, product: {}, ignoring",
                         input.unitNumber(), input.productCode());
                 return Mono.empty();
             }
-            
+
             if (result.shouldQuarantine()) {
                 log.info("Product {} with unit {} has exceeded out-of-storage time limit, triggering quarantine",
                         input.productCode(), input.unitNumber());
@@ -60,20 +59,19 @@ public class ProductStoredUseCase implements UseCase<Mono<Void>, ProductStoredUs
 
                 eventPublisher.publishEvent(new ProductQuarantinedApplicationEvent(quarantineProduct));
             }
-            
+
             // Only mark as processed if we actually performed timing validation
             if (result.validationPerformed()) {
                 return outOfStorageValidationService.markEventAsProcessed(
                         input.unitNumber(),
-                        input.productCode(),
-                        input.deviceUse()
+                        input.productCode()
                 );
             }
-            
+
             return Mono.empty();
         });
     }
-    
+
 
 
     @Builder
@@ -81,7 +79,7 @@ public class ProductStoredUseCase implements UseCase<Mono<Void>, ProductStoredUs
         String unitNumber,
         String productCode,
         String deviceStored,
-        String deviceUse,
+        String deviceUsed,
         String storageLocation,
         String location,
         String locationType,

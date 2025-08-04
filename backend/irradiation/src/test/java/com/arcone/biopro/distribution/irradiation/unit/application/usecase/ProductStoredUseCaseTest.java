@@ -44,7 +44,7 @@ class ProductStoredUseCaseTest {
                 .unitNumber(unitNumber)
                 .productCode(productCode)
                 .deviceStored("Amicus")
-                .deviceUse("Collection")
+                .deviceUsed("Collection")
                 .storageLocation("1FS")
                 .location("1FS")
                 .locationType("FREEZER")
@@ -52,9 +52,9 @@ class ProductStoredUseCaseTest {
                 .performedBy(performedBy)
                 .build();
 
-        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, "Collection", storageTime))
+        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, storageTime))
                 .thenReturn(Mono.just(new ProcessingResult(true, false, true, true)));
-        when(outOfStorageValidationService.markEventAsProcessed(unitNumber, productCode, "Collection"))
+        when(outOfStorageValidationService.markEventAsProcessed(unitNumber, productCode))
                 .thenReturn(Mono.empty());
 
         // When
@@ -87,7 +87,7 @@ class ProductStoredUseCaseTest {
                 .unitNumber(unitNumber)
                 .productCode(productCode)
                 .deviceStored("Amicus")
-                .deviceUse("Collection")
+                .deviceUsed("Collection")
                 .storageLocation("1FS")
                 .location("1FS")
                 .locationType("FREEZER")
@@ -95,9 +95,9 @@ class ProductStoredUseCaseTest {
                 .performedBy("test-user")
                 .build();
 
-        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, "Collection", storageTime))
+        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, storageTime))
                 .thenReturn(Mono.just(new ProcessingResult(true, false, false, true)));
-        when(outOfStorageValidationService.markEventAsProcessed(unitNumber, productCode, "Collection"))
+        when(outOfStorageValidationService.markEventAsProcessed(unitNumber, productCode))
                 .thenReturn(Mono.empty());
 
         // When
@@ -121,7 +121,7 @@ class ProductStoredUseCaseTest {
                 .unitNumber(unitNumber)
                 .productCode(productCode)
                 .deviceStored("Amicus")
-                .deviceUse("Collection")
+                .deviceUsed("Collection")
                 .storageLocation("1FS")
                 .location("1FS")
                 .locationType("FREEZER")
@@ -129,7 +129,7 @@ class ProductStoredUseCaseTest {
                 .performedBy("test-user")
                 .build();
 
-        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, "Collection", storageTime))
+        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, storageTime))
                 .thenReturn(Mono.just(new ProcessingResult(false, false, false, false)));
 
         // When
@@ -140,7 +140,7 @@ class ProductStoredUseCaseTest {
                 .verifyComplete();
 
         verify(eventPublisher, never()).publishEvent(any());
-        verify(outOfStorageValidationService, never()).markEventAsProcessed(any(), any(), any());
+        verify(outOfStorageValidationService, never()).markEventAsProcessed(any(), any());
     }
 
     @Test
@@ -154,7 +154,7 @@ class ProductStoredUseCaseTest {
                 .unitNumber(unitNumber)
                 .productCode(productCode)
                 .deviceStored("Amicus")
-                .deviceUse("Collection")
+                .deviceUsed("Collection")
                 .storageLocation("1FS")
                 .location("1FS")
                 .locationType("FREEZER")
@@ -162,7 +162,7 @@ class ProductStoredUseCaseTest {
                 .performedBy("test-user")
                 .build();
 
-        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, "Collection", storageTime))
+        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, storageTime))
                 .thenReturn(Mono.error(new RuntimeException("Processing failed")));
 
         // When
@@ -186,7 +186,7 @@ class ProductStoredUseCaseTest {
                 .unitNumber(unitNumber)
                 .productCode(productCode)
                 .deviceStored("Amicus")
-                .deviceUse("Collection")
+                .deviceUsed("Collection")
                 .storageLocation("1FS")
                 .location("1FS")
                 .locationType("FREEZER")
@@ -194,7 +194,7 @@ class ProductStoredUseCaseTest {
                 .performedBy("test-user")
                 .build();
 
-        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, "Collection", storageTime))
+        when(outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, storageTime))
                 .thenReturn(Mono.just(new ProcessingResult(true, true, false, false)));
 
         // When
@@ -205,6 +205,6 @@ class ProductStoredUseCaseTest {
                 .verifyComplete();
 
         verify(eventPublisher, never()).publishEvent(any());
-        verify(outOfStorageValidationService, never()).markEventAsProcessed(any(), any(), any());
+        verify(outOfStorageValidationService, never()).markEventAsProcessed(any(), any());
     }
 }

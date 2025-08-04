@@ -41,7 +41,7 @@ public record ProductStored(
         description = "Device Used",
         requiredMode = REQUIRED
     )
-    String deviceUse,
+    String deviceUsed,
 
     @Schema(
         title = "Storage Location",

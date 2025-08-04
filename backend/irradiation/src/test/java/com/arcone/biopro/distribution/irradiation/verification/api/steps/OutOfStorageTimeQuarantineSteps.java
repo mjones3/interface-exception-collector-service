@@ -118,7 +118,7 @@ public class OutOfStorageTimeQuarantineSteps {
             .unitNumber(unitNumber)
             .productCode(productCode)
             .deviceStored("STORAGE_DEVICE")
-            .deviceUse("AUTO-DEVICE500")
+            .deviceUsed("DEVICE_USED")
             .storageLocation("STORAGE_LOC")
             .location("123456789")
             .locationType("WAREHOUSE")
