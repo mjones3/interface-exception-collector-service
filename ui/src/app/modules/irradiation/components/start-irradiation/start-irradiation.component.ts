@@ -211,12 +211,23 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
 
     submit() {
         if (this.isSubmitEnabled()) {
-            const batchItems = this.products.map(product => ({
+            const batchItems = this.products.map(product => {
+            const baseItem = {
                 unitNumber: product.unitNumber,
                 productCode: product.productCode,
                 lotNumber: this.lotNumber.value
-            }));
-
+            };
+            if (product.isImported && product.importDetails) {
+                return {
+                    ...baseItem,
+                    bloodCenterName: product.importDetails.bloodCenterName,
+                    address: product.importDetails.address,
+                    registrationNumber: product.importDetails.registrationNumber,
+                    licenseNumber: product.importDetails.licenseNumber || ''
+                };
+            }
+            return baseItem;
+        });
             const request: StartIrradiationSubmitBatchRequestDTO = {
                 deviceId: this.irradiation.value,
                 startTime: this.startTime,
@@ -290,6 +301,7 @@ export class StartIrradiationComponent implements OnInit, AfterViewInit {
             const irradiationProducts: IrradiationProductDTO[] = inventories.map(inventory => ({
                 unitNumber: unitNumber,
                 expired: inventory.expired,
+                isImported: inventory.isImported,
                 productCode: inventory.productCode,
                 productDescription: inventory.productDescription,
                 status: this.getFinalStatus(inventory),

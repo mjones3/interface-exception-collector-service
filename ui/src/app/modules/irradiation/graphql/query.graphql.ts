@@ -27,6 +27,7 @@ const VALIDATE_UNIT = gql`
             statusReason
             unsuitableReason
             expired
+            isImported
             alreadyIrradiated
             notConfigurableForIrradiation
             isBeingIrradiated

@@ -25,13 +25,13 @@ public class OutOfStorageValidationServiceImpl implements OutOfStorageValidation
     }
 
     @Override
-    public Mono<Void> markEventAsProcessed(String unitNumber, String productCode, String deviceUse) {
+    public Mono<Void> markEventAsProcessed(String unitNumber, String productCode) {
         return batchRepository.markBatchItemAsTimingRuleValidated(unitNumber, productCode);
     }
     
     @Override
-    public Mono<ProcessingResult> processProductStoredEvent(String unitNumber, String productCode, String deviceUse, ZonedDateTime storageTime) {
-        return batchRepository.findLatestBatchWithItemByUnitProductAndDevice(unitNumber, productCode, deviceUse)
+    public Mono<ProcessingResult> processProductStoredEvent(String unitNumber, String productCode, ZonedDateTime storageTime) {
+        return batchRepository.findLatestBatchWithItemByUnitAndProduct(unitNumber, productCode)
                 .flatMap(batch -> {
                     boolean batchClosed = batch.getEndTime() != null;
                     if (!batchClosed) {

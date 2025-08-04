@@ -3,12 +3,13 @@ import {
     inject, OnInit
 } from '@angular/core';
 import {
-    MAT_DIALOG_DATA, MatDialogModule,
+    MAT_DIALOG_DATA, MatDialog, MatDialogModule,
     MatDialogRef
 } from '@angular/material/dialog';
 
 import {ActionButtonComponent} from "../../../../../shared/components/buttons/action-button.component";
 import {OptionsPickerComponent} from "../../../../../shared/components/options-picker/options-picker.component";
+import { ImportDetailsData, ImportDetailsModal } from '../blood-center-information-modal/blood-center-information.component';
 
 @Component({
     selector: 'biopro-irradiation-select-product',
@@ -28,8 +29,29 @@ export class IrradiationSelectProductModal {
         options: [],
         optionsLabel: string
     };
-
+    private matDialog = inject(MatDialog);
     selectOption(option: any) {
-        this.dialogRef.close(option);
+        if (option.isImported){
+            this.openBloodCenterInformationModal(option);
+        } else {
+            this.dialogRef.close(option);
+        } 
     }
+    private openBloodCenterInformationModal(product: any) {
+       const bloodCenterDialogRef = this.matDialog.open(ImportDetailsModal, {
+            width: '500px',
+            disableClose: true
+        });
+
+        bloodCenterDialogRef.afterClosed().subscribe((importDetails: ImportDetailsData) => {
+            if (importDetails) {
+                const productWithImportDetails = {
+                    ...product,
+                    importDetails
+                };
+                this.dialogRef.close(productWithImportDetails);
+            }
+        });
+    }
+
 }

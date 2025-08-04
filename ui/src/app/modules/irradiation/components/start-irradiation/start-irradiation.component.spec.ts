@@ -168,6 +168,7 @@ describe('StartIrradiationComponent', () => {
     statusReason: null,
     unsuitableReason: null,
     expired: false,
+    isImported: false,
     alreadyIrradiated: false,
     notConfigurableForIrradiation: false,
     isBeingIrradiated: false,

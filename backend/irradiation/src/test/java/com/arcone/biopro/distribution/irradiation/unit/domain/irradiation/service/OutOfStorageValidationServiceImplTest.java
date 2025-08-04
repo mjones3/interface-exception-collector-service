@@ -42,7 +42,6 @@ class OutOfStorageValidationServiceImplTest {
         // Given
         String unitNumber = "W036825008001";
         String productCode = "E003300";
-        String deviceUse = "Collection";
         ZonedDateTime storageTime = ZonedDateTime.now();
         ZonedDateTime batchStartTime = storageTime.minusMinutes(20);
 
@@ -67,7 +66,7 @@ class OutOfStorageValidationServiceImplTest {
                 .value("30")
                 .build();
 
-        when(batchRepository.findLatestBatchWithItemByUnitProductAndDevice(unitNumber, productCode, deviceUse))
+        when(batchRepository.findLatestBatchWithItemByUnitAndProduct(unitNumber, productCode))
                 .thenReturn(Mono.just(batch));
         when(batchRepository.findBatchItem(BatchId.of(1L), unitNumber, productCode))
                 .thenReturn(Mono.just(batchItem));
@@ -75,7 +74,7 @@ class OutOfStorageValidationServiceImplTest {
                 .thenReturn(Flux.just(config));
 
         // When
-        Mono<ProcessingResult> result = outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, deviceUse, storageTime);
+        Mono<ProcessingResult> result = outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, storageTime);
 
         // Then
         StepVerifier.create(result)
@@ -88,7 +87,6 @@ class OutOfStorageValidationServiceImplTest {
         // Given
         String unitNumber = "W036825008001";
         String productCode = "E003300";
-        String deviceUse = "Collection";
         ZonedDateTime storageTime = ZonedDateTime.now();
         ZonedDateTime batchStartTime = storageTime.minusMinutes(35);
 
@@ -113,7 +111,7 @@ class OutOfStorageValidationServiceImplTest {
                 .value("30")
                 .build();
 
-        when(batchRepository.findLatestBatchWithItemByUnitProductAndDevice(unitNumber, productCode, deviceUse))
+        when(batchRepository.findLatestBatchWithItemByUnitAndProduct(unitNumber, productCode))
                 .thenReturn(Mono.just(batch));
         when(batchRepository.findBatchItem(BatchId.of(1L), unitNumber, productCode))
                 .thenReturn(Mono.just(batchItem));
@@ -121,7 +119,7 @@ class OutOfStorageValidationServiceImplTest {
                 .thenReturn(Flux.just(config));
 
         // When
-        Mono<ProcessingResult> result = outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, deviceUse, storageTime);
+        Mono<ProcessingResult> result = outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, storageTime);
 
         // Then
         StepVerifier.create(result)
@@ -134,7 +132,6 @@ class OutOfStorageValidationServiceImplTest {
         // Given
         String unitNumber = "W036825008001";
         String productCode = "E003300";
-        String deviceUse = "Collection";
         ZonedDateTime storageTime = ZonedDateTime.now();
         ZonedDateTime batchStartTime = storageTime.minusMinutes(20);
 
@@ -145,11 +142,11 @@ class OutOfStorageValidationServiceImplTest {
                 null // No end time
         );
 
-        when(batchRepository.findLatestBatchWithItemByUnitProductAndDevice(unitNumber, productCode, deviceUse))
+        when(batchRepository.findLatestBatchWithItemByUnitAndProduct(unitNumber, productCode))
                 .thenReturn(Mono.just(batch));
 
         // When
-        Mono<ProcessingResult> result = outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, deviceUse, storageTime);
+        Mono<ProcessingResult> result = outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, storageTime);
 
         // Then
         StepVerifier.create(result)
@@ -162,7 +159,6 @@ class OutOfStorageValidationServiceImplTest {
         // Given
         String unitNumber = "W036825008001";
         String productCode = "E003300";
-        String deviceUse = "Collection";
         ZonedDateTime storageTime = ZonedDateTime.now();
         ZonedDateTime batchStartTime = storageTime.minusMinutes(20);
 
@@ -182,13 +178,13 @@ class OutOfStorageValidationServiceImplTest {
                 .isTimingRuleValidated(true)
                 .build();
 
-        when(batchRepository.findLatestBatchWithItemByUnitProductAndDevice(unitNumber, productCode, deviceUse))
+        when(batchRepository.findLatestBatchWithItemByUnitAndProduct(unitNumber, productCode))
                 .thenReturn(Mono.just(batch));
         when(batchRepository.findBatchItem(BatchId.of(1L), unitNumber, productCode))
                 .thenReturn(Mono.just(batchItem));
 
         // When
-        Mono<ProcessingResult> result = outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, deviceUse, storageTime);
+        Mono<ProcessingResult> result = outOfStorageValidationService.processProductStoredEvent(unitNumber, productCode, storageTime);
 
         // Then
         StepVerifier.create(result)
@@ -201,13 +197,12 @@ class OutOfStorageValidationServiceImplTest {
         // Given
         String unitNumber = "W036825008001";
         String productCode = "E003300";
-        String deviceUse = "Collection";
 
         when(batchRepository.markBatchItemAsTimingRuleValidated(unitNumber, productCode))
                 .thenReturn(Mono.empty());
 
         // When
-        Mono<Void> result = outOfStorageValidationService.markEventAsProcessed(unitNumber, productCode, deviceUse);
+        Mono<Void> result = outOfStorageValidationService.markEventAsProcessed(unitNumber, productCode);
 
         // Then
         StepVerifier.create(result)
