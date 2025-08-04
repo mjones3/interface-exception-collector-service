@@ -90,6 +90,7 @@ class BatchCompletionServiceImplTest {
 
         var aggregate = new IrradiationAggregate(device, batch, itemCompletions, productDeterminations, LocalDateTime.now());
         var batchItem = BatchItem.builder()
+                .id(1L)
                 .unitNumber(new UnitNumber("W123456789001"))
                 .productCode("E003300")
                 .lotNumber("LOT001")
@@ -99,6 +100,7 @@ class BatchCompletionServiceImplTest {
 
         when(batchRepository.findBatchItem(any(), any(), any())).thenReturn(Mono.just(batchItem));
         when(batchRepository.updateBatchItemNewProductCode(any(), any(), any(), any())).thenReturn(Mono.empty());
+        when(batchRepository.findImportedBloodCenterByBatchItemId(any())).thenReturn(Mono.empty());
         when(batchRepository.completeBatch(any(), any())).thenReturn(Mono.just(batch));
         when(configurationService.readConfiguration(List.of("IRRADIATION_EXPIRATION_DAYS")))
                 .thenReturn(Flux.just(new Configuration(new ConfigurationKey("IRRADIATION_EXPIRATION_DAYS"), "28")));

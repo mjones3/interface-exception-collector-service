@@ -2,9 +2,11 @@ package com.arcone.biopro.distribution.irradiation.verification.api.steps;
 
 import com.arcone.biopro.distribution.irradiation.adapter.in.web.dto.CheckDigitResponseDTO;
 import com.arcone.biopro.distribution.irradiation.application.dto.IrradiationInventoryOutput;
+import com.arcone.biopro.distribution.irradiation.application.irradiation.dto.BatchSubmissionResultDTO;
 import com.arcone.biopro.distribution.irradiation.application.usecase.ValidateDeviceUseCase;
 import com.arcone.biopro.distribution.irradiation.verification.api.support.IrradiationContext;
 import com.arcone.biopro.distribution.irradiation.verification.common.GraphQlHelper;
+import com.arcone.biopro.distribution.irradiation.verification.common.GraphQlResponse;
 import com.arcone.biopro.distribution.irradiation.verification.utils.CheckDigitUtil;
 import io.cucumber.java.en.When;
 import org.apache.logging.log4j.util.Strings;
@@ -13,6 +15,7 @@ import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +36,8 @@ public class GraphQLSteps {
 
     @Autowired
     private IrradiationContext irradiationContext;
+    private BatchSubmissionResultDTO result;
+    private String errorMessage;
 
     @When("I enter the unit number {string} in irradiation and the check digit")
     public void iScanTheUnitNumberInIrradiationAndACheckDigit(String unitNumber) {
@@ -111,29 +116,37 @@ public class GraphQLSteps {
         }
     }
 
-    @When("I submit the batch for irradiation")
-    public void iSubmitTheBatchForIrradiation() {
+    @When("I submit the batch for irradiation of non-imported products")
+    public void iSubmitTheBatchForIrradiationOfNonImportedProducts() {
         String deviceId = repositorySteps.getBatchDeviceId();
         String startTime = repositorySteps.getBatchStartTime();
         List<Map<String, String>> batchItems = repositorySteps.getBatchItems();
 
+        List<Map<String, Object>> batchItemsWithBloodCenter = batchItems.stream()
+            .map(item -> Map.<String, Object>of(
+                "unitNumber", item.get("unitNumber"),
+                "productCode", item.get("productCode"),
+                "lotNumber", item.get("lotNumber")
+            ))
+            .toList();
+
         Map<String, Object> input = Map.of(
             "deviceId", deviceId,
             "startTime", startTime.replace("Z", ""),
-            "batchItems", batchItems
+            "batchItems", batchItemsWithBloodCenter
         );
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("input", input);
 
-        try {
-            String result = graphQlTester
-                    .documentName("submitBatch")
-                    .variable("input", input)
-                    .execute()
-                    .path("submitBatch.message")
-                    .entity(String.class)
-                    .get();
-            repositorySteps.setBatchSubmissionResult(result);
-        } catch (AssertionError e) {
-            repositorySteps.setBatchSubmissionError(e.getMessage());
+        GraphQlResponse<BatchSubmissionResultDTO> response = graphQlHelper.executeQuery(
+                "submitBatch", variables, "submitBatch", BatchSubmissionResultDTO.class);
+
+        if (response.hasErrors()) {
+           errorMessage = response.getErrors().get(0).getMessage();
+           repositorySteps.setBatchSubmissionError(errorMessage);
+        } else {
+           result = response.getData();
+           repositorySteps.setBatchSubmissionResult(result);
         }
     }
 }
