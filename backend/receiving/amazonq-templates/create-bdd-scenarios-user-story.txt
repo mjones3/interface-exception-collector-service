@@ -1,9 +1,0 @@
-Create BDD scenarios to cover the following user story
-
-Description
-
-{USER_STORY_DESCRIPTION}
-
-Acceptance Criteria
-
-{USER_STORY_ACCEPTANCE_CRITERIA}

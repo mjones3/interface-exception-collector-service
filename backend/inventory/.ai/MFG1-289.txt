@@ -1,9 +1,0 @@
-Refactor shipmentCompleted listener to store the "locationCode" in the payload event in a new column table named as 'shipped_location' in the bld_inventory.
-To complete this you need to do:
-1- Create a new migration file in src/main/db/sql/common with the name V2025.07.02.001__add_shipped_location_field.sql to add this field in the database
-2- in the src/main/java/com/arcone/biopro/distribution/inventory/adapter/in/listener/shipment/ShipmentCompleted.java you need to add the locationCode field
-3- in the src/main/java/com/arcone/biopro/distribution/inventory/application/dto/ShipmentCompletedInput.java you need to add the locationCode field
-4- refactor the aggregator to receive the locationCode in the 'inventoryAggregate.completeShipment(shipmentType)' to set the locationCode in the new field shippedLocation in the inventory
-5- refactor inventory and inventoryEntity to add the shippedLocation field
-6- Refactor all unit tests and integration tests to validate this new field
-7- in the src/test/java/com/arcone/biopro/distribution/inventory/verification/features/ShipmentCompleted.feature refactore the step to add the logic to send  the and validate the new field in 'When I received a Shipment Completed event with shipment type "INTERNAL_TRANSFER" for the following units:' and 'Then the inventory statuses should be updated as follows:'
