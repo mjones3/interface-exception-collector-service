@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: interface-exception-collector-service
+  labels:
+    app: interface-exception-collector
+spec:
+  selector:
+    app: interface-exception-collector
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP

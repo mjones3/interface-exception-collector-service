@@ -1,0 +1,50 @@
+replicaCount: 2
+
+image:
+  repository: interface-exception-collector
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: exception-collector.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+postgres:
+  enabled: true
+  storage: 5Gi
+  
+kafka:
+  enabled: true
+
+env:
+  SPRING_PROFILES_ACTIVE: kubernetes
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: exception_collector_db
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
