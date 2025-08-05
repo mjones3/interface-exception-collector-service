@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.biopro.arcone.com/events/OrderCancelled/v1.0.0",
+  "title": "Order Cancelled Event",
+  "description": "Event published when an order is cancelled due to processing issues",
+  "type": "object",
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion", 
+    "occurredOn",
+    "source",
+    "payload"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "eventType": {
+      "type": "string", 
+      "const": "OrderCancelled"
+    },
+    "eventVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "occurredOn": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "const": "order-service"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "transactionId",
+        "externalId", 
+        "cancelReason"
+      ],
+      "properties": {
+        "transactionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "cancelReason": {
+          "type": "string",
+          "description": "Reason for cancellation"
+        },
+        "cancelledBy": {
+          "type": "string",
+          "description": "User or system that cancelled the order"
+        },
+        "customerId": {
+          "type": "string"
+        },
+        "orderNumber": {
+          "type": "integer",
+          "description": "Internal order number"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "eventId": "550e8400-e29b-41d4-a716-446655440003",
+      "eventType": "OrderCancelled",
+      "eventVersion": "1.0",
+      "occurredOn": "2025-08-04T10:35:00Z",
+      "source": "order-service",
+      "payload": {
+        "transactionId": "550e8400-e29b-41d4-a716-446655440004",
+        "externalId": "ORDER-DEF456",
+        "cancelReason": "Customer requested cancellation",
+        "cancelledBy": "system",
+        "customerId": "CUST002",
+        "orderNumber": 12345
+      }
+    }
+  ]
+}
