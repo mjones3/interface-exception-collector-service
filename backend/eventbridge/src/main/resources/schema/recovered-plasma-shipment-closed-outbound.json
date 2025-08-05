@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string"
+    },
+    "occurredOn": {
+      "type": "string"
+    },
+    "eventVersion": {
+      "type": "string"
+    },
+    "eventType": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "shipmentNumber": {
+          "type": "string"
+        },
+        "locationShipmentCode": {
+          "type": "string"
+        },
+        "locationCartonCode": {
+          "type": "string"
+        },
+        "customerCode": {
+          "type": "string"
+        },
+        "bloodCenterName": {
+          "type": "string"
+        },
+        "shipmentDate": {
+          "$ref": "#/definitions/optionalDatePattern"
+        },
+        "shipmentCloseDate": {
+          "$ref": "#/definitions/dateTimePattern"
+        },
+        "collectionFacility": {
+          "type": "string"
+        },
+        "shipmentLocationCode": {
+          "type": "string"
+        },
+        "cartonList": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "cartonNumber": {
+                  "type": "string"
+                },
+                "packedProducts": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "unitNumber": {
+                          "type": "string"
+                        },
+                        "productCode": {
+                          "type": "string"
+                        },
+                        "productVolume": {
+                          "type": "number"
+                        },
+                        "bloodType": {
+                          "type": "string"
+                        },
+                        "isbt128Flag": {
+                          "type": "string"
+                        },
+                        "collectionDate": {
+                          "$ref": "#/definitions/dateTimePattern"
+                        },
+                        "drawBeginTime": {
+                          "type": "string",
+                          "pattern": "^([0-1][0-9]|2[0-3]):[0-5][0-9]$"
+                        },
+                        "collectionTimeZone": {
+                          "type": "string"
+                        },
+                        "totalShipmentProducts": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "collectionFacility",
+                        "unitNumber",
+                        "productCode",
+                        "productVolume",
+                        "bloodType",
+                        "isbt128Flag",
+                        "collectionDate",
+                        "drawBeginTime",
+                        "collectionTimeZone"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "cartonNumber",
+                "packedProducts"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "shipmentNumber",
+        "locationShipmentCode",
+        "locationCartonCode",
+        "customerCode",
+        "bloodCenterName",
+        "shipmentCloseDate",
+        "shipmentLocationCode",
+        "totalShipmentProducts"
+      ]
+    }
+  },
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredOn"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "optionalDatePattern": {
+      "type": ["null","string"],
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "datePattern": {
+      "type": ["string"],
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "dateTimePattern": {
+      "type": ["string"],
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2})$"
+    }
+  }
+}

@@ -1,0 +1,178 @@
+# -*- mode: Python -*-
+
+# Load the helm_remote extension so we can create services from remote Helm charts
+load("ext://helm_remote", "helm_remote")
+
+# Load the kim_build extension so we can build images using nerdctl
+load('ext://nerdctl', 'nerdctl_build')
+
+# Load the 'configmap' extension
+load('ext://configmap', 'configmap_create')
+
+# Load the namespace extension
+load('ext://namespace', 'namespace_create', 'namespace_inject')
+
+
+# Function to build and deploy: cert-manager
+def cert_manager():
+    # Specify the Kubernetes manifest for the deployment
+    helm_remote(
+        'cert-manager',
+        repo_url='https://charts.jetstack.io',
+        version='v1.14.5',
+        set=[
+            'installCRDs=true',  # Automatically install and manage CRDs as part of the Helm release
+        ]
+    )
+
+
+# Function to build and deploy: zookeeper service
+def zookeeper_service():
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml([
+        './src/main/k8s/queue-namespace.yaml',
+        './src/main/k8s/zookeeper-service.yaml',
+        './src/main/k8s/zookeeper-deployment.yaml'
+    ])
+    k8s_resource(
+        'zookeeper-deployment',
+        resource_deps=['cert-manager'],
+        trigger_mode=TRIGGER_MODE_MANUAL,
+    )
+
+
+# Function to build and deploy: kafka service
+def kafka_service():
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml([
+        './src/main/k8s/kafka-service.yaml',
+        './src/main/k8s/kafka-deployment.yaml'
+    ])
+    k8s_resource(
+        'kafka-deployment',
+        port_forwards=29092,
+        resource_deps=['zookeeper-deployment']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
+    )
+
+
+# Function to build and deploy: redpanda console service
+def redpanda_console_service():
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml([
+        './src/main/k8s/redpanda-console-service.yaml',
+        './src/main/k8s/redpanda-console-deployment.yaml',
+        './src/main/k8s/redpanda-console-ingress.yaml'
+    ])
+    k8s_resource(
+        'redpanda-console-deployment',
+        links=['console.local.gd'],
+        resource_deps=['kafka-deployment']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
+    )
+
+
+# Function to build and deploy: keycloak service
+def keycloak_service():
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml([
+        './src/main/k8s/id-namespace.yaml',
+        './src/main/k8s/keycloak-service.yaml',
+        './src/main/k8s/keycloak-deployment.yaml',
+        './src/main/k8s/id-ingress.yaml'
+    ])
+    configmap_create(
+        'keycloak-realm-config',
+        namespace='id',
+        from_file=['realm.json=./src/main/k8s/realm-config/biopro-realm.json']
+    )
+    k8s_resource(
+        'keycloak-deployment',
+        port_forwards=9080,
+        links=['id.local.gd'],
+        resource_deps=['cert-manager']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
+    )
+
+
+# Function to build and deploy: postgres service
+def postgresql_service():
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml([
+        './src/main/k8s/db-namespace.yaml',
+        './src/main/k8s/postgresql-service.yaml',
+        './src/main/k8s/postgresql-deployment.yaml',
+        './src/main/k8s/postgresql-secret.yaml'
+    ])
+    k8s_resource(
+        'postgresql-deployment',
+        port_forwards=5432,
+        resource_deps=['cert-manager']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
+    )
+
+# Function to build and deploy: Flyway Service
+def flyway_service():
+    nerdctl_build(
+        'local/order-migration',
+        context='./',
+        dockerfile='./src/main/docker/DockerfileFlyway'
+    )
+    k8s_yaml([
+        './src/main/k8s/api-namespace.yaml',
+        './src/main/k8s/biopro-job.yaml'
+    ])
+    k8s_resource(
+        'database-migration',
+        resource_deps=[
+            'postgresql-deployment',
+            'kafka-deployment',
+            'keycloak-deployment'
+        ],
+         trigger_mode=TRIGGER_MODE_MANUAL
+    )
+
+def biopro_service():
+    # Specify the Kubernetes manifest for the deployment
+    nerdctl_build(
+        'local/order-service',
+        dockerfile='./src/main/docker/Dockerfile',
+        context='.',
+        ignore=['.git', 'src', '.idea'],
+#        live_update=[sync('./target/classes', '/app')]
+    )
+    k8s_yaml([
+        './src/main/k8s/biopro-deployment.yaml',
+        './src/main/k8s/biopro-service.yaml',
+        './src/main/k8s/api-ingress.yaml'
+    ])
+    k8s_resource(
+        'order-service-deployment',
+        links=['api.local.gd'],
+        resource_deps=[
+            'postgresql-deployment',
+            'kafka-deployment',
+            'keycloak-deployment',
+        ],
+        trigger_mode=TRIGGER_MODE_MANUAL
+    )
+
+def ui_service():
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml('./src/main/k8s/manufacturing-ui-deployment.yaml')
+    k8s_yaml('./src/main/k8s/manufacturing-ui-service.yaml')
+    k8s_yaml('./src/main/k8s/manufacturing-ingress.yaml')
+    k8s_resource(
+        'manufacturing-ui-deployment',
+        links=['manufacturing.local.gd']
+    )
+
+
+cert_manager()
+keycloak_service()
+zookeeper_service()
+kafka_service()
+redpanda_console_service()
+postgresql_service()
+flyway_service()
+biopro_service()

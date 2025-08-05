@@ -1,0 +1,15 @@
+.align-top {
+    vertical-align: top;
+}
+
+table.grid-borders {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table.grid-borders > thead > tr > th,
+table.grid-borders > tbody > tr > td {
+    padding: 0.25rem;
+    border: 1px solid black;
+    border-collapse: collapse;
+}

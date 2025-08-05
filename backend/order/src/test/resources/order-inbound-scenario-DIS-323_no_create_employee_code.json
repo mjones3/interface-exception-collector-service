@@ -1,0 +1,31 @@
+{
+  "eventType": "OrderReceived",
+  "eventVersion": "1.0",
+  "payload": {
+    "id": "6ff46d1b-14a1-4928-a7cc-40c49155f3bb",
+    "externalId": "{EXTERNAL_ID}",
+    "orderStatus": "OPEN",
+    "locationCode": "123456789",
+    "createDate": "2023-04-25 20:09:01",
+    "createEmployeeCode": null,
+    "shipmentType": "CUSTOMER",
+    "deliveryType": "SCHEDULED",
+    "willPickUp": true,
+    "willPickUpPhoneNumber": "12333333",
+    "shippingMethod": "FEDEX",
+    "productCategory": "REFRIGERATED",
+    "desiredShippingDate": "DESIRED_DATE",
+    "shippingCustomerCode": "A1235",
+    "billingCustomerCode": "A1235",
+    "comments": "string",
+    "transactionId": "94d9f7b8-95bf-4a56-8922-1111ecd5a353",
+    "orderItems": [
+      {
+        "productFamily": "RED_BLOOD_CELLS",
+        "bloodType": "ON",
+        "quantity": 1,
+        "comments": "Comments"
+      }
+    ]
+  }
+}

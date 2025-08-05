@@ -1,0 +1,13 @@
+{
+  "eventId": "{EVENT_ID}",
+  "eventType": "CancelOrderReceived",
+  "eventVersion": "1.0",
+  "occurredOn": "2024-10-07T20:59:16.925110827Z",
+  "payload": {
+    "cancelDate": "{CANCEL_DATE}",
+    "cancelEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+    "cancelReason": "Customer no longer need",
+    "externalId": "{EXTERNAL_ID}",
+    "transactionId": "df7092f3-78a6-4d17-ae2c-e9de07db6f3c"
+  }
+}

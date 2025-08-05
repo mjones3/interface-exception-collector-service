@@ -1,0 +1,26 @@
+# Builder
+FROM ghcr.io/graalvm/graalvm-community:21.0.2-ol9 AS builder
+
+WORKDIR /app
+
+# Copy the source code into the image for building
+COPY . .
+
+RUN ./mvnw dependency:go-offline -Dsilent=true -DexcludeGroupIds="com.arcone.biopro" -am
+
+# Build
+RUN ./src/main/docker/scripts/build_native_version.sh
+
+# Runner
+FROM debian:bookworm-slim AS runner
+
+WORKDIR /app
+COPY --from=builder /app/target/biopro ./biopro
+
+ENV CLUSTER_PORT=${CLUSTER_PORT:-8082}
+ENV ADMIN_PORT=${ADMIN_PORT:-8081}
+ENV API_PORT=${API_PORT:-8080}
+
+CMD [ "./biopro" ]
+
+EXPOSE $CLUSTER_PORT $ADMIN_PORT $API_PORT

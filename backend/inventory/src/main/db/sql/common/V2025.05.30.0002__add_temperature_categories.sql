@@ -1,0 +1,9 @@
+INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E355600', 'ROOM_TEMPERATURE');
+INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E355800', 'ROOM_TEMPERATURE');
+INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E355900', 'ROOM_TEMPERATURE');
+INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E356000', 'ROOM_TEMPERATURE');
+INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E869500', 'ROOM_TEMPERATURE');
+INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E869600', 'ROOM_TEMPERATURE');
+INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E869700', 'ROOM_TEMPERATURE');
+INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E869800', 'ROOM_TEMPERATURE');
+INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('EB31800', 'ROOM_TEMPERATURE');

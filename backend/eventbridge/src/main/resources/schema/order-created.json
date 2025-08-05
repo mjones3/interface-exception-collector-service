@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string"
+    },
+    "occurredOn": {
+      "type": "string"
+    },
+    "orderNumber": {
+      "type": "integer"
+    },
+    "externalId": {
+      "type": "string"
+    },
+    "orderStatus": {
+      "type": "string"
+    },
+    "locationCode": {
+      "type": "string"
+    },
+    "createDate": {
+      "type": "string"
+    },
+    "createEmployeeCode": {
+      "type": "string"
+    },
+    "shipmentType": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string"
+    },
+    "shippingMethod": {
+      "type": "string"
+    },
+    "productCategory": {
+      "type": "string"
+    },
+    "desiredShippingDate": {
+      "type": ["null","string"]
+    },
+    "shippingCustomerCode": {
+      "type": "string"
+    },
+    "billingCustomerCode": {
+      "type": "string"
+    },
+    "comments": {
+      "type": ["null","string"]
+    },
+    "willPickUp": {
+      "type": "boolean"
+    },
+    "willPickUpPhoneNumber": {
+      "type": ["null","string"]
+    },
+    "transactionId": {
+      "type": ["null","string"]
+    },
+    "orderItems": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "productFamily": {
+              "type": "string"
+            },
+            "bloodType": {
+              "type": "string"
+            },
+            "quantity": {
+              "type": "integer"
+            },
+            "comments": {
+              "type": ["null","string"]
+            }
+          },
+          "required": [
+            "productFamily",
+            "bloodType",
+            "quantity"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "eventId",
+    "occurredOn",
+    "orderNumber",
+    "externalId",
+    "orderStatus",
+    "locationCode",
+    "createDate",
+    "createEmployeeCode",
+    "shipmentType",
+    "priority",
+    "shippingMethod",
+    "productCategory",
+    "shippingCustomerCode",
+    "billingCustomerCode",
+    "willPickUp",
+    "orderItems"
+  ]
+}

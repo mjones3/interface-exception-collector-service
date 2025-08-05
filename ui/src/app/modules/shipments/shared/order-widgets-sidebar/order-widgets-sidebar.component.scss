@@ -1,0 +1,9 @@
+:host {
+  ::ng-deep {
+    .align-card-info {
+      flex: 1 0 50% !important;
+      max-width: 50%;
+      overflow-wrap: break-word;
+    }
+  }
+}

@@ -1,0 +1,67 @@
+<div class="m-auto">
+    <div class="grid gap-2" [ngClass]="'grid-cols-' + columns">
+        @for (option of options; track trackByFn($index, option)) {
+            <div class="text-left">
+                <fuse-card
+                    class="items-center {{ fullSize ? 'h-full w-full' : itemSize }}"
+                >
+                    <button
+                        mat-fab
+                        extended="true"
+                        class="flex w-full flex-col p-2 font-bold"
+                        [id]="'optionBtn' + $index"
+                        [disabled]="option.disabled"
+                        [color]="getOptionColor(option)"
+                        (click)="optionClick(option)"
+                    >
+                        <div class="flex items-center">
+                            <!--icon-->
+                            @if (option.icon) {
+                                <mat-icon
+                                    class="h-12 w-12"
+                                    [svgIcon]="option.icon"
+                                ></mat-icon>
+                            }
+
+                            @if (!buttonTemplate) {
+                                <span class="w-72">
+                                    <span class="block">{{
+                                        option[optionsLabel]
+                                    }}</span>
+                                </span>
+                            }
+                            <!-- Using a Template as Button Content -->
+                            @else {
+                                <ng-container
+                                    *ngTemplateOutlet="
+                                        buttonTemplate;
+                                        context: {
+                                            option: option,
+                                        }
+                                    "
+                                ></ng-container>
+                            }
+                        </div>
+                        <!-- Status -->
+                        @if (option.statuses?.length) {
+                            <span class="flex gap-2">
+                                @for (
+                                    status of option.statuses;
+                                    track trackByFn($index, status)
+                                ) {
+                                    <span
+                                        [id]="'status' + $index"
+                                        class="mt-2 rounded-2xl p-1 px-2 text-center text-sm text-white"
+                                        [ngClass]="status.classes"
+                                    >
+                                        {{ status.value }}
+                                    </span>
+                                }
+                            </span>
+                        }
+                    </button>
+                </fuse-card>
+            </div>
+        }
+    </div>
+</div>

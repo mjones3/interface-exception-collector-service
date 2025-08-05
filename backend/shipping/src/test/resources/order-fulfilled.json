@@ -1,0 +1,112 @@
+{
+  "eventId":"a0135914-b5fb-4b9c-b7b5-f97b7ad80e5b" ,
+  "occurredOn":"" ,
+  "eventVersion":"1.0",
+  "eventType": "OrderFulfilled",
+  "payload": {
+    "orderNumber": {order.number},
+    "externalId": "EXTERNAL_ID",
+    "priority": "{order.priority}",
+    "status": "OPEN",
+  "shippingCustomerCode": "1",
+    "locationCode": "123456789",
+    "deliveryType": "TEST",
+    "shippingMethod": "{SHIPPING_METHOD}",
+    "productCategory": "FROZEN",
+    "shippingDate": "{order.shipping_date}",
+    "shippingCustomerName": "Testing Customer",
+    "customerPhoneNumber": "3056778756",
+    "customerAddressState": "FL",
+    "customerAddressPostalCode": "33016",
+    "customerAddressCountry": "US",
+    "customerAddressCountryCode": "1",
+    "customerAddressCity": "Miami",
+    "customerAddressDistrict": "Miami-Dade",
+    "customerAddressAddressLine1": "36544 SW 27th St",
+    "customerAddressAddressLine2": "North Miami",
+    "comments": "Distribution Comments",
+    "departmentName": "Department",
+    "departmentCode": "Department Code",
+    "labelStatus": "LABELED",
+    "shipmentType": "CUSTOMER",
+    "quarantinedProducts": false,
+    "items": [
+      {
+        "productFamily": "PLASMA_TRANSFUSABLE",
+        "bloodType": "A",
+        "quantity": 10,
+        "totalAvailable": 10,
+        "comments": "Needs to be shipped ASAP",
+        "shortDateProducts": [
+          {
+            "unitNumber": "W036810946300",
+            "productCode": "E086900",
+            "storageLocation": "FREEZER 1, RACK 1, SHELF 1"
+          },
+          {
+            "unitNumber": "W036810946301",
+            "productCode": "E070700",
+            "storageLocation": "FREEZER 2, RACK 2, SHELF 5"
+          },
+          {
+            "unitNumber": "W036810946302",
+            "productCode": "E071300",
+            "storageLocation": "FREEZER 3, RACK 4, SHELF 3"
+          },
+          {
+            "unitNumber": "W036810946303",
+            "productCode": "E079700",
+            "storageLocation": "FREEZER 4, RACK 1, SHELF 2"
+          },
+          {
+            "unitNumber": "W036810946304",
+            "productCode": "E123700",
+            "storageLocation": "FREEZER 3, RACK 5, SHELF 7"
+          },
+          {
+            "unitNumber": "W036810946305",
+            "productCode": "E562500",
+            "storageLocation": "FREEZER 1, RACK 2, SHELF 6"
+          }
+        ]
+      },
+      {
+        "productFamily": "PLASMA_TRANSFUSABLE",
+        "bloodType": "B",
+        "quantity": 5,
+        "totalAvailable": 10,
+        "comments": "Contact the customer before shipping",
+        "shortDateProducts": [
+          {
+            "unitNumber": "W036810946400",
+            "productCode": "E246300",
+            "storageLocation": "FREEZER 10, RACK 1, SHELF 8"
+          },
+          {
+            "unitNumber": "W036810946401",
+            "productCode": "E255500",
+            "storageLocation": "FREEZER 11, RACK 2, SHELF 1"
+          }
+        ]
+      },
+      {
+        "productFamily": "PLASMA_TRANSFUSABLE",
+        "bloodType": "O",
+        "quantity": 8,
+        "shortDateProducts": [
+          {
+            "unitNumber": "W036810946500",
+            "productCode": "E247400",
+            "storageLocation": "FREEZER 4, RACK 10, SHELF 3"
+          },
+          {
+            "unitNumber": "W036810946518",
+            "productCode": "E124600",
+            "storageLocation": "FREEZER 8, RACK 10, SHELF 3"
+          }
+        ]
+      }
+    ]
+  }
+}
+

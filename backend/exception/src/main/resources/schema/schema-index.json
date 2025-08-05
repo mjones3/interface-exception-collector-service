@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.biopro.arcone.com/exception-collector/index",
+  "title": "Interface Exception Collector Service - Schema Index",
+  "description": "Index of all event schemas used by the Interface Exception Collector Service",
+  "type": "object",
+  "properties": {
+    "inboundEvents": {
+      "type": "object",
+      "description": "Events consumed by the Exception Collector Service",
+      "properties": {
+        "OrderRejected": {
+          "$ref": "./OrderRejected-Inbound.json",
+          "description": "Order rejection events from Order Service"
+        },
+        "OrderCancelled": {
+          "$ref": "./OrderCancelled-Inbound.json",
+          "description": "Order cancellation events from Order Service"
+        },
+        "CollectionRejected": {
+          "$ref": "./CollectionRejected-Inbound.json", 
+          "description": "Collection rejection events from Collection Service"
+        },
+        "DistributionFailed": {
+          "$ref": "./DistributionFailed-Inbound.json",
+          "description": "Distribution failure events from Distribution Service"
+        },
+        "ValidationError": {
+          "$ref": "./ValidationError-Inbound.json",
+          "description": "Schema validation errors from any interface service"
+        }
+      }
+    },
+    "outboundEvents": {
+      "type": "object",
+      "description": "Events published by the Exception Collector Service",
+      "properties": {
+        "ExceptionCaptured": {
+          "$ref": "./ExceptionCaptured-Outbound.json",
+          "description": "Published when new exception is captured and stored"
+        },
+        "ExceptionRetryCompleted": {
+          "$ref": "./ExceptionRetryCompleted-Outbound.json",
+          "description": "Published when retry operation completes"
+        },
+        "ExceptionResolved": {
+          "$ref": "./ExceptionResolved-Outbound.json",
+          "description": "Published when exception is fully resolved"
+        },
+        "CriticalExceptionAlert": {
+          "$ref": "./CriticalExceptionAlert-Outbound.json",
+          "description": "High-priority alerts for critical exceptions"
+        }
+      }
+    }
+  },
+  "schemaVersions": {
+    "current": "1.0.0",
+    "supported": ["1.0.0"],
+    "deprecated": []
+  },
+  "metadata": {
+    "service": "interface-exception-collector-service",
+    "domain": "exception-management",
+    "owner": "architecture-team",
+    "lastUpdated": "2025-08-04T12:00:00Z"
+  }
+}

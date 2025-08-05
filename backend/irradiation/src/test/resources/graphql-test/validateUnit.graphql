@@ -1,0 +1,22 @@
+query validateUnit($unitNumber: String!, $location: String!) {
+    validateUnit(unitNumber: $unitNumber, location: $location) {
+        unitNumber
+        productCode
+        location
+        status
+        productDescription
+        productFamily
+        statusReason
+        unsuitableReason
+        expired
+        isImported
+        alreadyIrradiated
+        isBeingIrradiated
+        notConfigurableForIrradiation
+        quarantines {
+              reason
+              comments
+              stopsManufacturing
+        }
+    }
+}

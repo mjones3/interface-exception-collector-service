@@ -1,0 +1,64 @@
+<div mat-dialog-content class="import-details-content">
+  <h2 mat-dialog-title class="dialog-title">Import Details</h2>
+  
+  <form [formGroup]="importForm" class="import-form">
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Blood Center Name</mat-label>
+      <input matInput formControlName="bloodCenterName" required>
+      <mat-error *ngIf="importForm.get('bloodCenterName')?.hasError('required')">
+        Blood Center Name is required
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Address</mat-label>
+      <input matInput formControlName="address" required>
+      <mat-error *ngIf="importForm.get('address')?.hasError('required')">
+        Address is required
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Registration Number</mat-label>
+      <input matInput formControlName="registrationNumber" required>
+      <mat-error *ngIf="importForm.get('registrationNumber')?.hasError('required')">
+        Registration Number is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>License Status</mat-label>
+      <mat-select formControlName="licenseStatus" required>
+        <mat-option value="isLicensed">Licensed</mat-option>
+        <mat-option value="isNotLicensed">Not Licensed</mat-option>
+      </mat-select>
+      <mat-error *ngIf="importForm.get('licenseStatus')?.hasError('required')">
+        License Status is required
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="form-field" *ngIf="importForm.get('licenseStatus')?.value === 'isLicensed'">
+      <mat-label>License Number</mat-label>
+      <input matInput formControlName="licenseNumber" required>
+      <mat-error *ngIf="importForm.get('licenseNumber')?.hasError('required')">
+        License Number is required
+      </mat-error>
+    </mat-form-field>
+  </form>
+</div>
+
+<div mat-dialog-actions class="dialog-actions">
+  <biopro-action-button
+    btnId="cancel-btn" 
+    label="Cancel" 
+    color="secondary"
+    (click)="cancel()">
+  </biopro-action-button>
+  <biopro-action-button
+    btnId="submit-btn" 
+    label="Submit" 
+    variant="primary"
+    [disabled]="importForm.invalid"
+    (click)="submit()">
+  </biopro-action-button>
+</div>

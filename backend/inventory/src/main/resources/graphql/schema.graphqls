@@ -1,0 +1,18 @@
+scalar DateTime
+@specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
+
+type Mutation {
+    createInventory(dto: InventoryRequestDTO!): InventoryResponseDTO!
+}
+
+type Query {
+    inventoryList: [InventoryResponseDTO]!
+}
+
+input InventoryRequestDTO {
+    id: ID!   # Add fields here
+}
+
+type InventoryResponseDTO {
+    id: ID!
+}

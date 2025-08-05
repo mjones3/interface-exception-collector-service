@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.biopro.arcone.com/events/ValidationError/v1.0.0",
+  "title": "Validation Error Event",
+  "description": "Event published when schema or data validation fails",
+  "type": "object",
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredOn",
+    "source",
+    "payload"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "eventType": {
+      "type": "string",
+      "const": "ValidationError"
+    },
+    "eventVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "occurredOn": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "description": "Service that detected the validation error"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "transactionId",
+        "interfaceType",
+        "validationErrors"
+      ],
+      "properties": {
+        "transactionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "interfaceType": {
+          "type": "string",
+          "enum": ["ORDER", "COLLECTION", "DISTRIBUTION"],
+          "description": "Type of interface that failed validation"
+        },
+        "validationErrors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["field", "errorCode", "message"],
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Field that failed validation"
+              },
+              "errorCode": {
+                "type": "string",
+                "description": "Validation error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable error message"
+              },
+              "rejectedValue": {
+                "description": "Value that was rejected"
+              }
+            }
+          }
+        },
+        "schemaVersion": {
+          "type": "string",
+          "description": "Version of schema used for validation"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "API endpoint that received the request"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "eventId": "550e8400-e29b-41d4-a716-446655440009",
+      "eventType": "ValidationError",
+      "eventVersion": "1.0",
+      "occurredOn": "2025-08-04T12:00:00Z",
+      "source": "order-service",
+      "payload": {
+        "transactionId": "550e8400-e29b-41d4-a716-446655440010",
+        "interfaceType": "ORDER",
+        "validationErrors": [
+          {
+            "field": "orderItems[0].quantity",
+            "errorCode": "INVALID_RANGE",
+            "message": "Quantity must be greater than 0",
+            "rejectedValue": 0
+          },
+          {
+            "field": "customerId",
+            "errorCode": "REQUIRED_FIELD",
+            "message": "Customer ID is required"
+          }
+        ],
+        "schemaVersion": "1.2.0",
+        "endpoint": "/api/orders"
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+applicationName=org.springframework.boot.logging.logback.ApplicationNameConverter
+clr=org.springframework.boot.logging.logback.ColorConverter
+correlationId=org.springframework.boot.logging.logback.CorrelationIdConverter
+crlf=com.arcone.biopro.{{ domain }}.{{ subdomain }}.infrastructure.config.CRLFLogConverter
+wEx=org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter
+wex=org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter

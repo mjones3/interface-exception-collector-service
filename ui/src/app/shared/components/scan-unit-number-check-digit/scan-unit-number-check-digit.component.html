@@ -1,0 +1,53 @@
+<form class="mt-0 flex w-full flex-row" [formGroup]="form">
+    <div class="flex w-full flex-row space-x-2">
+        <div class="flex w-full flex-col">
+            <mat-form-field class="block" hideRequiredMarker="true">
+                <mat-label>Unit Number</mat-label>
+                <input
+                    id="inUnitNumber"
+                    matInput
+                    formControlName="unitNumber"
+                    [placeholder]="'Scan or Enter Unit Number'"
+                    autocomplete="off"
+                    #inputUnitNumber
+                    class="w-full"
+                    validateOn="touchedState"
+                    (keyup)="enableDisableCheckDigit()"
+                    autofocus
+                />
+                @if (form.get('unitNumber').hasError('required')) {
+                    <mat-error>Unit Number is required</mat-error>
+                }
+                @if (form.get('unitNumber').hasError('invalidUnitNumber')) {
+                    <mat-error>Unit Number is invalid</mat-error>
+                }
+            </mat-form-field>
+        </div>
+
+        <div class="mb-4 flex flex-col items-baseline">
+            @if (checkDigitVisible) {
+                <mat-form-field class="block w-30" hideRequiredMarker="true">
+                    <mat-label>Check Digit</mat-label>
+                    <input
+                        matInput
+                        formControlName="checkDigit"
+                        id="inCheckDigit"
+                        required
+                        class="w-20"
+                        #inputCheckDigit
+                        autocomplete="off"
+                        validateOn="touchedState"
+                        (input)="toUpperCase()"
+                        (keyup)="checkValues(true)"
+                    />
+                    @if (form.get('checkDigit').hasError('required')) {
+                        <mat-error>Check Digit is required</mat-error>
+                    }
+                    @if (form.get('checkDigit').hasError('invalid')) {
+                        <mat-error>{{ checkDigitInvalidMessage }}</mat-error>
+                    }
+                </mat-form-field>
+            }
+        </div>
+    </div>
+</form>

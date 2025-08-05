@@ -1,0 +1,82 @@
+import { gql } from '@apollo/client/core';
+
+const GET_IRRADIATION_DEVICE_BY_ID = gql`
+    query  validateDevice($deviceId: String!, $location: String!) {
+        validateDevice(deviceId: $deviceId, location: $location)
+    }
+`;
+
+const GET_CONFIGURATIONS = gql`
+    query  readConfiguration($keys: [String]) {
+        readConfiguration(keys: $keys) {
+            key
+            value
+        }
+    }
+`;
+
+const VALIDATE_UNIT = gql`
+    query  validateUnit($unitNumber: String!, $location: String!) {
+        validateUnit(unitNumber: $unitNumber, location: $location) {
+            unitNumber
+            productCode
+            location
+            status
+            productDescription
+            productFamily
+            statusReason
+            unsuitableReason
+            expired
+            isImported
+            alreadyIrradiated
+            notConfigurableForIrradiation
+            isBeingIrradiated
+            quarantines {
+                reason
+                comments
+                stopsManufacturing
+            }
+        }
+    }
+`;
+
+const CHECK_DIGIT = gql`
+    query  checkDigit($unitNumber: String!, $checkDigit: String!) {
+        checkDigit(unitNumber: $unitNumber, checkDigit: $checkDigit) {
+            isValid
+        }
+    }
+`;
+
+const VALIDATE_LOT_NUMBER = gql`
+    query validateLotNumber($lotNumber: String!, $type: String!) {
+        validateLotNumber(lotNumber: $lotNumber, type: $type)
+    }
+`;
+
+const VALIDATE_DEVICE_ON_CLOSE_BATCH = gql`
+    query validateDeviceOnCloseBatch($deviceId: String!, $location: String!) {
+        validateDeviceOnCloseBatch(deviceId: $deviceId, location: $location) {
+            unitNumber
+            productCode
+            productFamily
+            productDescription
+            status
+            quarantines {
+                reason
+                comments
+                stopsManufacturing
+            }
+
+        }
+    }
+`;
+
+export {
+    GET_IRRADIATION_DEVICE_BY_ID,
+    GET_CONFIGURATIONS,
+    VALIDATE_UNIT,
+    CHECK_DIGIT,
+    VALIDATE_LOT_NUMBER,
+    VALIDATE_DEVICE_ON_CLOSE_BATCH
+};

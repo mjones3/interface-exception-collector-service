@@ -1,0 +1,11 @@
+mutation completeBatch($deviceId: String!, $endTime: String!, $batchItems: [BatchItemCompletionInput!]!) {
+    completeBatch(input: {
+        deviceId: $deviceId,
+        endTime: $endTime,
+        batchItems: $batchItems
+    }) {
+        batchId
+        message
+        success
+    }
+}

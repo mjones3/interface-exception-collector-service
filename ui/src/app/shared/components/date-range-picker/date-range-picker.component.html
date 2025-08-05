@@ -1,0 +1,37 @@
+<mat-form-field class="block w-full" [id]="dateRangeId">
+    <mat-label>{{ title }}</mat-label>
+    <mat-date-range-input
+        [disabled]="disabled"
+        [rangePicker]="dateRangePicker"
+        [formGroup]="formGroup"
+        [max]="maxDate"
+        [min]="minDate"
+        sharedInputFix
+    >
+        <input
+            matStartDate
+            formControlName="start"
+            placeholder="Start date"
+            [minlength]="10"
+            [maxLength]="10"
+            [id]="dateRangeId + 'From'"
+        />
+        <input
+            matEndDate
+            formControlName="end"
+            placeholder="End date"
+            [minlength]="10"
+            [maxLength]="10"
+            [id]="dateRangeId + 'To'"
+        />
+    </mat-date-range-input>
+
+    <mat-datepicker-toggle
+        matIconSuffix
+        [for]="dateRangePicker"
+    ></mat-datepicker-toggle>
+    <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
+    @if (errorMessage()) {
+        <mat-error>{{ errorMessage() }}</mat-error>
+    }
+</mat-form-field>

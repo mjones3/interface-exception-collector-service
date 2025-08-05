@@ -1,0 +1,57 @@
+{
+  "inventory" : {
+    "id" : "6ae40a90-7cc3-410c-bc84-ea016982885b",
+    "unitNumber" : {
+      "value" : "W012345678903"
+    },
+    "productCode" : {
+      "value" : "E0869V02"
+    },
+    "shortDescription" : "Short description",
+    "inventoryStatus" : "AVAILABLE",
+    "expirationDate" : "2024-10-31T13:02:48.179494",
+    "collectionDate" : "2024-10-30T16:02:48.179494Z",
+    "isLicensed" : true,
+    "weight" : 123,
+    "inventoryLocation" : "LOCATION_2",
+    "productFamily" : "PLASMA_TRANSFUSABLE",
+    "statusReason" : "ACTIVE_DEFERRAL",
+    "aboRh" : "OP",
+    "createDate" : "2024-10-30T16:02:48.179494Z",
+    "modificationDate" : "2024-10-30T16:02:48.179494Z",
+    "quarantines" : [ {
+      "externId" : 1,
+      "reason" : "ABS_POSITIVE",
+      "comments" : null
+    }, {
+      "externId" : 2,
+      "reason" : "BCA_UNIT_NEEDED",
+      "comments" : null
+    }, {
+      "externId" : 3,
+      "reason" : "CCP_ELIGIBLE",
+      "comments" : null
+    }, {
+      "externId" : 4,
+      "reason" : "FAILED_VISUAL_INSPECTION",
+      "comments" : null
+    }, {
+      "externId" : 5,
+      "reason" : "OTHER_SEE_COMMENTS",
+      "comments" : "The blood bag is in quarantine for safety testing to ensure it’s free from contaminants and safe for transfusion."
+    } ],
+    "histories" : [ ],
+    "comments" : null,
+    "deviceStored" : "FREEZER 1",
+    "storageLocation" : "RACK 1, SHELF 1"
+  },
+  "notificationMessages" : [ {
+    "name" : "INVENTORY_IS_QUARANTINED",
+    "code" : 4,
+    "message" : "INVENTORY_IS_QUARANTINED",
+    "type" : "INFO",
+    "action" : "BACK_TO_STORAGE",
+    "reason" : null,
+    "details" : [ "ABS_POSITIVE", "BCA_UNIT_NEEDED", "CCP_ELIGIBLE", "FAILED_VISUAL_INSPECTION", "OTHER_SEE_COMMENTS: The blood bag is in quarantine for safety testing to ensure it’s free from contaminants and safe for transfusion." ]
+  } ]
+}

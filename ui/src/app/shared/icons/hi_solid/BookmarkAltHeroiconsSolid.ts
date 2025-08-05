@@ -1,0 +1,8 @@
+// This icon file is generated automatically.
+import { IconDefinition } from '../type';
+
+export const BookmarkAltHeroiconsSolid: IconDefinition = {
+    name: 'bookmark-alt',
+    theme: 'hi_solid',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z" clip-rule="evenodd"/></svg>'
+};

@@ -1,0 +1,61 @@
+include:
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: pipeline_biopro_domain.gitlab-ci.yml
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.build_ui.pipeline.yml
+    inputs:
+      service: distribution
+      build_cmd: | 
+        npm run build:prod
+        npm run test >/dev/null 2>&1 || true
+        npm run test
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: inventory
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: order
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: partnerorderprovider
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: shipping
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: eventbridge
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: recoveredplasmashipping
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: receiving
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: irradiation
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: customer
+
+.use-cache-ui:
+  image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/nodejs/main:20.16.0-ba97ad57

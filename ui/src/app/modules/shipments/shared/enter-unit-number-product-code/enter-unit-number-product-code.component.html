@@ -1,0 +1,93 @@
+<div id="fillProductForm" class="flex flex-auto" [formGroup]="productGroup">
+    <div class="flex w-full flex-auto gap-4 px-8 pb-4 pt-4">
+        <div class="mt-4 flex flex-col w-3/4">
+            <biopro-scan-unit-number-check-digit
+                id="scanOrEnterUnitNumberId"
+                [showCheckDigit]="showCheckDigit"
+                (validate)="verifyUnit($event)"
+                #unitnumber
+            >
+            </biopro-scan-unit-number-check-digit>
+        </div>
+
+        <div class="flex w-full flex-row gap-6">
+            @if (showProductCode) {
+                <div class="mt-4 flex flex-auto flex-col w-2/3">
+                    <mat-form-field class="block" hideRequiredMarker="true">
+                        <mat-label>Product Code</mat-label>
+                        <input
+                            id="productCodeId"
+                            #inputProductCode
+                            matInput
+                            formControlName="productCode"
+                            autocomplete="off"
+                            validateOn="touchedState"
+                            (keyup)="enableVisualInspection()"
+                            [placeholder]="'Scan or Enter Product Code'"
+                        />
+                        @if (
+                            productGroup.get('productCode').hasError('required')
+                        ) {
+                            <mat-error>Product Code is required</mat-error>
+                        }
+
+                        @if (
+                            productGroup
+                                .get('productCode')
+                                .hasError('invalidProductCode')
+                        ) {
+                            <mat-error>Product Code is invalid</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            }
+            @if (showVisualInspection) {
+                <div class="flex flex-col">
+                    <span class="flex pl-2">
+                        <label
+                            [ngClass]="{
+                                'opacity-70': visualInspectionDisabled,
+                            }"
+                            for="visualInspectionId"
+                            class="block font-bold"
+                            >Visual Inspection
+                        </label>
+                        <span
+                            class="custom-required"
+                            [ngClass]="{
+                                'opacity-70': visualInspectionDisabled,
+                            }"
+                            >*</span
+                        >
+                    </span>
+                    <div>
+                        <mat-button-toggle-group
+                            id="visualInspectionId"
+                            formControlName="visualInspection"
+                        >
+                            <mat-button-toggle
+                                id="inspection-satisfactory"
+                                [value]="'satisfactory'"
+                                >Satisfactory
+                            </mat-button-toggle>
+                            <mat-button-toggle
+                                id="inspection-unsatisfactory"
+                                [value]="'unsatisfactory'"
+                                >Unsatisfactory
+                            </mat-button-toggle>
+                        </mat-button-toggle-group>
+                    </div>
+                    @if (
+                        productGroup
+                            .get('visualInspection')
+                            .hasError('required')
+                    ) {
+                        <span class="custom-error-message mt-1"
+                            >Visual Inspection is required</span
+                        >
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

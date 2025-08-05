@@ -1,0 +1,150 @@
+scalar DateTime
+scalar Date
+scalar JSON
+
+type Query {
+    findAllLookupsByType(type: String!): [LookupDTO]!
+    enterShippingInformation(enterShippingInformationRequest:EnterShippingInformationRequestDTO!): UseCaseResponseDTO!
+    validateDevice(validateDeviceRequest:ValidateDeviceRequestDTO!): UseCaseResponseDTO!
+    validateTemperature(validateTemperatureRequest:ValidateTemperatureRequestDTO!): UseCaseResponseDTO!
+    validateTransitTime(validateTransitTimeRequest:ValidateTransitTimeRequestDTO!): UseCaseResponseDTO!
+    validateBarcode(validateBarcodeRequest:ValidateBarcodeRequestDTO!): UseCaseResponseDTO!
+    findImportById(importId:ID!): UseCaseResponseDTO!
+    validateTransferOrderNumber(validateTransferOrderNumberRequest:ValidateTransferOrderNumberRequestDTO!): UseCaseResponseDTO!
+
+}
+
+type Mutation {
+    createImport(createImportRequest:CreateImportRequestDTO!): UseCaseResponseDTO!
+    createImportItem(createImportItemRequest:AddImportItemRequestDTO!): UseCaseResponseDTO!
+    completeImport(completeImportRequest:CompleteImportRequestDTO!): UseCaseResponseDTO!
+    cancelImport(cancelImportRequest:CancelImportRequestDTO!): UseCaseResponseDTO!
+
+}
+
+input InputQuerySortDTO {
+    orderByList: [InputQueryOrderByDTO]
+}
+
+type OutputQuerySortDTO {
+    orderByList: [OutputQueryOrderByDTO]
+}
+
+input InputQueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+input EnterShippingInformationRequestDTO {
+    productCategory:String!
+    employeeId:String!
+    locationCode:String!
+}
+
+input ValidateDeviceRequestDTO {
+    bloodCenterId:String!
+    locationCode:String!
+}
+
+input ValidateTemperatureRequestDTO{
+    temperature:Float!
+    temperatureCategory:String!
+}
+
+input ValidateTransitTimeRequestDTO {
+    temperatureCategory:String!
+    startDateTime:DateTime!
+    startTimeZone:String!
+    endDateTime:DateTime!
+    endTimeZone:String!
+}
+
+input CreateImportRequestDTO {
+    temperatureCategory:String!
+    transitStartDateTime:DateTime
+    transitStartTimeZone:String
+    transitEndDateTime:DateTime
+    transitEndTimeZone:String
+    temperature:Float
+    thermometerCode:String
+    locationCode:String!
+    comments:String
+    employeeId:String!
+}
+
+input ValidateBarcodeRequestDTO {
+    temperatureCategory:String!
+    barcodeValue:String!
+    barcodePattern:String!
+}
+
+input AddImportItemRequestDTO {
+    importId:ID!
+    unitNumber:String!
+    productCode:String!
+    aboRh:String!
+    expirationDate:DateTime!
+    visualInspection:String!
+    licenseStatus:String!
+    employeeId:String!
+}
+
+input CompleteImportRequestDTO {
+    importId:ID!
+    completeEmployeeId:String!
+
+}
+
+input CancelImportRequestDTO {
+    importId:ID!
+    cancelEmployeeId:String!
+}
+
+input ValidateTransferOrderNumberRequestDTO {
+    orderNumber:ID!
+    employeeId:String!
+    locationCode:String!
+}
+
+type UseCaseNotificationDTO {
+    message: String
+    type: String
+    code: Int
+    action:String
+    reason:String
+    details:[String]
+    name: String
+}
+
+type UseCaseResponseDTO {
+    notifications: [UseCaseNotificationDTO]
+    _links: JSON
+    data: JSON
+}
+
+type OutputQueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+type PageDTO {
+    content: JSON
+    pageNumber: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    querySort: OutputQuerySortDTO!
+    hasPrevious: Boolean!
+    hasNext: Boolean!
+    isFirst: Boolean!
+    isLast: Boolean!
+    totalPages: Int!
+}
+
+type LookupDTO {
+    id: Int!
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
+}
