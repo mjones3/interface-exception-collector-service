@@ -1,0 +1,161 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "interface-exception-collector.fullname" . }}-config
+  labels:
+    {{- include "interface-exception-collector.labels" . | nindent 4 }}
+data:
+  application.yml: |
+    spring:
+      profiles:
+        active: {{ .Values.app.profile }}
+      application:
+        name: interface-exception-collector
+      
+      datasource:
+        url: jdbc:postgresql://{{ include "interface-exception-collector.databaseHost" . }}:{{ .Values.app.database.port }}/{{ .Values.app.database.name }}
+        username: {{ .Values.app.database.username }}
+        driver-class-name: org.postgresql.Driver
+        hikari:
+          minimum-idle: {{ .Values.app.database.connectionPool.minimumIdle }}
+          maximum-pool-size: {{ .Values.app.database.connectionPool.maximumPoolSize }}
+          connection-timeout: {{ .Values.app.database.connectionPool.connectionTimeout }}
+          idle-timeout: {{ .Values.app.database.connectionPool.idleTimeout }}
+          max-lifetime: {{ .Values.app.database.connectionPool.maxLifetime }}
+      
+      jpa:
+        hibernate:
+          ddl-auto: validate
+        show-sql: false
+        properties:
+          hibernate:
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+            format_sql: true
+      
+      flyway:
+        enabled: true
+        locations: classpath:db/migration
+        baseline-on-migrate: true
+      
+      kafka:
+        bootstrap-servers: {{ .Values.app.kafka.bootstrapServers }}
+        consumer:
+          group-id: {{ .Values.app.kafka.consumerGroup }}
+          auto-offset-reset: {{ .Values.app.kafka.consumer.autoOffsetReset }}
+          enable-auto-commit: {{ .Values.app.kafka.consumer.enableAutoCommit }}
+          max-poll-records: {{ .Values.app.kafka.consumer.maxPollRecords }}
+          session-timeout-ms: {{ .Values.app.kafka.consumer.sessionTimeoutMs }}
+          heartbeat-interval-ms: {{ .Values.app.kafka.consumer.heartbeatIntervalMs }}
+          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+          properties:
+            spring.json.trusted.packages: "com.arcone.biopro.exception.collector.domain.event"
+        producer:
+          acks: {{ .Values.app.kafka.producer.acks }}
+          retries: {{ .Values.app.kafka.producer.retries }}
+          batch-size: {{ .Values.app.kafka.producer.batchSize }}
+          linger-ms: {{ .Values.app.kafka.producer.lingerMs }}
+          buffer-memory: {{ .Values.app.kafka.producer.bufferMemory }}
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      
+      data:
+        redis:
+          host: {{ include "interface-exception-collector.redisHost" . }}
+          port: {{ .Values.app.redis.port }}
+          database: {{ .Values.app.redis.database }}
+          timeout: {{ .Values.app.redis.timeout }}ms
+          lettuce:
+            pool:
+              max-active: {{ .Values.app.redis.pool.maxActive }}
+              max-idle: {{ .Values.app.redis.pool.maxIdle }}
+              min-idle: {{ .Values.app.redis.pool.minIdle }}
+              max-wait: {{ .Values.app.redis.pool.maxWait }}ms
+      
+      cache:
+        type: redis
+        redis:
+          time-to-live: 300000
+          cache-null-values: false
+    
+    server:
+      port: 8080
+      servlet:
+        context-path: /
+      shutdown: graceful
+    
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,metrics,prometheus
+          base-path: /actuator
+      endpoint:
+        health:
+          show-details: when-authorized
+          probes:
+            enabled: true
+      health:
+        livenessstate:
+          enabled: true
+        readinessstate:
+          enabled: true
+      metrics:
+        export:
+          prometheus:
+            enabled: {{ .Values.monitoring.enabled }}
+    
+    logging:
+      level:
+        root: {{ .Values.app.logLevel }}
+        com.arcone.biopro.exception.collector: {{ .Values.app.logLevel }}
+        org.springframework.kafka: INFO
+        org.hibernate.SQL: {{ if eq .Values.app.profile "development" }}DEBUG{{ else }}WARN{{ end }}
+      pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+        file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+    
+    # Application specific configuration
+    app:
+      kafka:
+        topics:
+          order-rejected: {{ .Values.app.kafka.topics.orderRejected }}
+          order-cancelled: {{ .Values.app.kafka.topics.orderCancelled }}
+          collection-rejected: {{ .Values.app.kafka.topics.collectionRejected }}
+          distribution-failed: {{ .Values.app.kafka.topics.distributionFailed }}
+          validation-error: {{ .Values.app.kafka.topics.validationError }}
+          exception-captured: {{ .Values.app.kafka.topics.exceptionCaptured }}
+          exception-resolved: {{ .Values.app.kafka.topics.exceptionResolved }}
+          critical-alert: {{ .Values.app.kafka.topics.criticalAlert }}
+          exception-retry-completed: {{ .Values.app.kafka.topics.exceptionRetryCompleted }}
+      
+      external-services:
+        order-service:
+          base-url: {{ .Values.app.externalServices.orderService.baseUrl }}
+          timeout: {{ .Values.app.externalServices.orderService.timeout }}
+          circuit-breaker:
+            failure-rate-threshold: {{ .Values.app.externalServices.orderService.circuitBreaker.failureRateThreshold }}
+            wait-duration-in-open-state: {{ .Values.app.externalServices.orderService.circuitBreaker.waitDurationInOpenState }}
+            sliding-window-size: {{ .Values.app.externalServices.orderService.circuitBreaker.slidingWindowSize }}
+        collection-service:
+          base-url: {{ .Values.app.externalServices.collectionService.baseUrl }}
+          timeout: {{ .Values.app.externalServices.collectionService.timeout }}
+          circuit-breaker:
+            failure-rate-threshold: {{ .Values.app.externalServices.collectionService.circuitBreaker.failureRateThreshold }}
+            wait-duration-in-open-state: {{ .Values.app.externalServices.collectionService.circuitBreaker.waitDurationInOpenState }}
+            sliding-window-size: {{ .Values.app.externalServices.collectionService.circuitBreaker.slidingWindowSize }}
+        distribution-service:
+          base-url: {{ .Values.app.externalServices.distributionService.baseUrl }}
+          timeout: {{ .Values.app.externalServices.distributionService.timeout }}
+          circuit-breaker:
+            failure-rate-threshold: {{ .Values.app.externalServices.distributionService.circuitBreaker.failureRateThreshold }}
+            wait-duration-in-open-state: {{ .Values.app.externalServices.distributionService.circuitBreaker.waitDurationInOpenState }}
+            sliding-window-size: {{ .Values.app.externalServices.distributionService.circuitBreaker.slidingWindowSize }}
+      
+      security:
+        jwt:
+          expiration: {{ .Values.app.security.jwt.expiration }}
+        rate-limiting:
+          enabled: {{ .Values.app.security.rateLimiting.enabled }}
+          requests-per-minute: {{ .Values.app.security.rateLimiting.requestsPerMinute }}
+          burst-capacity: {{ .Values.app.security.rateLimiting.burstCapacity }}

@@ -1,5 +1,0 @@
-query checkDigit($unitNumber: String!, $checkDigit: String!) {
-  checkDigit(unitNumber: $unitNumber, checkDigit: $checkDigit) {
-    isValid
-  }
-}

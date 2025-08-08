@@ -1,0 +1,1249 @@
+apiVersion: kiro.dev/v1alpha1
+kind: ProjectSpec
+metadata:
+  name: interface-exception-collector-service
+  description: "Centralized collection and management of interface exceptions from all BioPro interface services"
+  version: "1.0.0"
+  labels:
+    domain: "exception-management"
+    team: "architecture"
+    criticality: "high"
+  annotations:
+    kiro.dev/created-by: "solutions-architect"
+    kiro.dev/project-type: "microservice"
+    kiro.dev/architecture-pattern: "event-driven"
+
+spec:
+  # Project Information
+  project:
+    name: "interface-exception-collector-service"
+    displayName: "Interface Exception Collector Service"
+    description: |
+      Event-driven microservice that collects, stores, and manages exception events 
+      from BioPro interface services (Order, Collection, Distribution). Provides 
+      centralized exception visibility, retry capabilities, and operational dashboards.
+    
+    repository:
+      type: "git"
+      url: "https://github.com/arcone/interface-exception-collector-service"
+      
+    documentation:
+      readme: "README.md"
+      architecture: "docs/architecture/service-architecture.md"
+      api: "site/openapi.yaml"
+      asyncApi: "site/asyncapi.yaml"
+
+  # Technology Stack
+  technology:
+    language: "java"
+    languageVersion: "17"
+    framework: "spring-boot"
+    frameworkVersion: "3.2.1"
+    buildTool: "maven"
+    buildToolVersion: "3.9.0"
+    
+    dependencies:
+      runtime:
+        - name: "spring-boot-starter-web"
+          version: "3.2.1"
+        - name: "spring-boot-starter-data-jpa"
+          version: "3.2.1"
+        - name: "spring-kafka"
+          version: "3.0.12"
+        - name: "postgresql"
+          version: "42.7.1"
+          scope: "runtime"
+        - name: "flyway-core"
+          version: "9.22.3"
+        - name: "lombok"
+          version: "1.18.30"
+          scope: "provided"
+        - name: "mapstruct"
+          version: "1.5.5.Final"
+        - name: "springdoc-openapi-starter-webmvc-ui"
+          version: "2.3.0"
+          
+      test:
+        - name: "spring-boot-starter-test"
+          version: "3.2.1"
+        - name: "spring-kafka-test"
+          version: "3.0.12"
+        - name: "testcontainers-postgresql"
+          version: "1.19.3"
+        - name: "testcontainers-kafka"
+          version: "1.19.3"
+        - name: "embedded-kafka"
+          version: "3.0.12"
+
+  # Build Configuration
+  build:
+    tool: "maven"
+    javaVersion: "17"
+    
+    phases:
+      prebuild:
+        goals:
+          - "validate"
+        plugins:
+          - name: "kiro-codebase-modifier"
+            version: "1.0.0"
+            configuration:
+              modifyExistingCode: true
+              backupOriginal: true
+              tasks:
+                - name: "update-java-version"
+                  type: "file-replace"
+                  files:
+                    - "pom.xml"
+                    - "src/main/docker/Dockerfile"
+                    - ".github/workflows/*.yml"
+                  replacements:
+                    - pattern: "<java.version>17</java.version>"
+                      replacement: "<java.version>21</java.version>"
+                    - pattern: "<maven.compiler.source>17</maven.compiler.source>"
+                      replacement: "<maven.compiler.source>21</maven.compiler.source>"
+                    - pattern: "<maven.compiler.target>17</maven.compiler.target>"
+                      replacement: "<maven.compiler.target>21</maven.compiler.target>"
+                    - pattern: "FROM openjdk:17"
+                      replacement: "FROM openjdk:21"
+                    - pattern: "java-version: '17'"
+                      replacement: "java-version: '21'"
+                      
+                - name: "update-spring-boot-version"
+                  type: "file-replace"
+                  files:
+                    - "pom.xml"
+                  replacements:
+                    - pattern: "<spring-boot.version>3\\.[0-9]+\\.[0-9]+</spring-boot.version>"
+                      replacement: "<spring-boot.version>3.2.1</spring-boot.version>"
+                    - pattern: "<version>3\\.[0-9]+\\.[0-9]+</version><!-- spring-boot -->"
+                      replacement: "<version>3.2.1</version><!-- spring-boot -->"
+                      
+                - name: "add-kafka-dependencies"
+                  type: "pom-dependency-injection"
+                  file: "pom.xml"
+                  dependencies:
+                    - groupId: "org.springframework.kafka"
+                      artifactId: "spring-kafka"
+                      version: "3.0.12"
+                    - groupId: "org.springframework.kafka"
+                      artifactId: "spring-kafka-test"
+                      version: "3.0.12"
+                      scope: "test"
+                      
+                - name: "add-database-dependencies"
+                  type: "pom-dependency-injection"
+                  file: "pom.xml"
+                  dependencies:
+                    - groupId: "org.springframework.boot"
+                      artifactId: "spring-boot-starter-data-jpa"
+                    - groupId: "org.postgresql"
+                      artifactId: "postgresql"
+                      scope: "runtime"
+                    - groupId: "org.flywaydb"
+                      artifactId: "flyway-core"
+                      
+                - name: "add-testing-dependencies"
+                  type: "pom-dependency-injection"
+                  file: "pom.xml"
+                  dependencies:
+                    - groupId: "org.testcontainers"
+                      artifactId: "postgresql"
+                      version: "1.19.3"
+                      scope: "test"
+                    - groupId: "org.testcontainers"
+                      artifactId: "kafka"
+                      version: "1.19.3"
+                      scope: "test"
+                      
+                - name: "create-application-properties"
+                  type: "file-creation"
+                  file: "src/main/resources/application.yml"
+                  content: |
+                    server:
+                      port: 8080
+                    
+                    spring:
+                      application:
+                        name: interface-exception-collector-service
+                        
+                      datasource:
+                        url: jdbc:postgresql://${DB_HOST:localhost}:5432/exception_collector_db
+                        username: ${DB_USERNAME:exception_user}
+                        password: ${DB_PASSWORD:exception_pass}
+                        driver-class-name: org.postgresql.Driver
+                        
+                      jpa:
+                        hibernate:
+                          ddl-auto: validate
+                        show-sql: false
+                        properties:
+                          hibernate:
+                            dialect: org.hibernate.dialect.PostgreSQLDialect
+                            
+                      flyway:
+                        baseline-on-migrate: true
+                        locations: classpath:db/migration
+                        
+                      kafka:
+                        bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+                        consumer:
+                          group-id: interface-exception-collector
+                          auto-offset-reset: earliest
+                          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                          value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+                          properties:
+                            spring.json.trusted.packages: "*"
+                            
+                    management:
+                      endpoints:
+                        web:
+                          exposure:
+                            include: health,info,metrics,prometheus
+                      endpoint:
+                        health:
+                          show-details: always
+                          
+                    logging:
+                      level:
+                        com.arcone.biopro.exceptioncollector: DEBUG
+                        org.springframework.kafka: INFO
+                      pattern:
+                        console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+                        
+                - name: "create-main-application-class"
+                  type: "file-creation"
+                  file: "src/main/java/com/arcone/biopro/exceptioncollector/InterfaceExceptionCollectorApplication.java"
+                  content: |
+                    package com.arcone.biopro.exceptioncollector;
+                    
+                    import org.springframework.boot.SpringApplication;
+                    import org.springframework.boot.autoconfigure.SpringBootApplication;
+                    import org.springframework.kafka.annotation.EnableKafka;
+                    
+                    @SpringBootApplication
+                    @EnableKafka
+                    public class InterfaceExceptionCollectorApplication {
+                    
+                        public static void main(String[] args) {
+                            SpringApplication.run(InterfaceExceptionCollectorApplication.class, args);
+                        }
+                    }
+                    
+                - name: "create-database-migration"
+                  type: "file-creation" 
+                  file: "src/main/resources/db/migration/V2025.08.04.0001__initial_schema.sql"
+                  content: |
+                    -- Initial schema for Interface Exception Collector Service
+                    
+                    CREATE TABLE IF NOT EXISTS interface_exceptions (
+                        id BIGSERIAL PRIMARY KEY,
+                        transaction_id VARCHAR(255) NOT NULL UNIQUE,
+                        interface_type VARCHAR(50) NOT NULL,
+                        exception_reason TEXT NOT NULL,
+                        operation VARCHAR(100) NOT NULL,
+                        external_id VARCHAR(255),
+                        status VARCHAR(50) NOT NULL DEFAULT 'NEW',
+                        severity VARCHAR(50) NOT NULL DEFAULT 'MEDIUM',
+                        retryable BOOLEAN NOT NULL DEFAULT true,
+                        timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+                        retry_timestamp TIMESTAMP WITH TIME ZONE,
+                        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+                        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+                    );
+                    
+                    -- Indexes for performance
+                    CREATE INDEX idx_interface_exceptions_transaction_id ON interface_exceptions(transaction_id);
+                    CREATE INDEX idx_interface_exceptions_interface_type ON interface_exceptions(interface_type);
+                    CREATE INDEX idx_interface_exceptions_timestamp ON interface_exceptions(timestamp DESC);
+                    CREATE INDEX idx_interface_exceptions_status ON interface_exceptions(status);
+                    
+                - name: "create-tiltfile"
+                  type: "file-creation"
+                  file: "Tiltfile"
+                  content: |
+                    # Interface Exception Collector Service - Tiltfile
+                    
+                    # Load extensions
+                    load('ext://restart_process', 'docker_build_with_restart')
+                    load('ext://helm_resource', 'helm_resource', 'helm_repo')
+                    
+                    # Build the application
+                    local_resource(
+                        'maven-compile',
+                        'mvn compile -DskipTests',
+                        deps=['pom.xml', 'src'],
+                        ignore=['src/test']
+                    )
+                    
+                    # Build Docker image with live reload
+                    docker_build_with_restart(
+                        'interface-exception-collector-service',
+                        '.',
+                        dockerfile='src/main/docker/Dockerfile',
+                        entrypoint=['java', '-cp', '@/app/jib-classpath-file', 'com.arcone.biopro.exceptioncollector.InterfaceExceptionCollectorApplication'],
+                        only=['target/classes'],
+                        live_update=[
+                            sync('target/classes', '/app/classes'),
+                        ]
+                    )
+                    
+                    # PostgreSQL
+                    k8s_yaml(blob('''
+                    apiVersion: apps/v1
+                    kind: Deployment
+                    metadata:
+                      name: postgres
+                    spec:
+                      replicas: 1
+                      selector:
+                        matchLabels:
+                          app: postgres
+                      template:
+                        metadata:
+                          labels:
+                            app: postgres
+                        spec:
+                          containers:
+                          - name: postgres
+                            image: postgres:15
+                            env:
+                            - name: POSTGRES_DB
+                              value: exception_collector_db
+                            - name: POSTGRES_USER
+                              value: exception_user
+                            - name: POSTGRES_PASSWORD
+                              value: exception_pass
+                            ports:
+                            - containerPort: 5432
+                    ---
+                    apiVersion: v1
+                    kind: Service
+                    metadata:
+                      name: postgres
+                    spec:
+                      selector:
+                        app: postgres
+                      ports:
+                      - port: 5432
+                        targetPort: 5432
+                    '''))
+                    
+                    # Kafka (KRaft mode)
+                    k8s_yaml(blob('''
+                    apiVersion: apps/v1
+                    kind: Deployment
+                    metadata:
+                      name: kafka
+                    spec:
+                      replicas: 1
+                      selector:
+                        matchLabels:
+                          app: kafka
+                      template:
+                        metadata:
+                          labels:
+                            app: kafka
+                        spec:
+                          containers:
+                          - name: kafka
+                            image: confluentinc/cp-kafka:7.4.0
+                            env:
+                            - name: KAFKA_NODE_ID
+                              value: "1"
+                            - name: KAFKA_PROCESS_ROLES
+                              value: "broker,controller"
+                            - name: KAFKA_LISTENERS
+                              value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092"
+                            - name: KAFKA_ADVERTISED_LISTENERS
+                              value: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+                            - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+                              value: "1@kafka:29093"
+                            - name: KAFKA_CONTROLLER_LISTENER_NAMES
+                              value: "CONTROLLER"
+                            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+                              value: "PLAINTEXT"
+                            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+                              value: "1"
+                            - name: CLUSTER_ID
+                              value: "MkU3OEVBNTcwNTJENDM2Qk"
+                            ports:
+                            - containerPort: 9092
+                            - containerPort: 29092
+                    ---
+                    apiVersion: v1
+                    kind: Service
+                    metadata:
+                      name: kafka
+                    spec:
+                      selector:
+                        app: kafka
+                      ports:
+                      - name: internal
+                        port: 9092
+                        targetPort: 9092
+                      - name: external
+                        port: 29092
+                        targetPort: 29092
+                    '''))
+                    
+                    # Kafka UI
+                    k8s_yaml(blob('''
+                    apiVersion: apps/v1
+                    kind: Deployment
+                    metadata:
+                      name: kafka-ui
+                    spec:
+                      replicas: 1
+                      selector:
+                        matchLabels:
+                          app: kafka-ui
+                      template:
+                        metadata:
+                          labels:
+                            app: kafka-ui
+                        spec:
+                          containers:
+                          - name: kafka-ui
+                            image: provectuslabs/kafka-ui:latest
+                            env:
+                            - name: KAFKA_CLUSTERS_0_NAME
+                              value: "local"
+                            - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+                              value: "kafka:9092"
+                            ports:
+                            - containerPort: 8080
+                    ---
+                    apiVersion: v1
+                    kind: Service
+                    metadata:
+                      name: kafka-ui
+                    spec:
+                      selector:
+                        app: kafka-ui
+                      ports:
+                      - port: 8080
+                        targetPort: 8080
+                    '''))
+                    
+                    # Application
+                    k8s_yaml(blob('''
+                    apiVersion: apps/v1
+                    kind: Deployment
+                    metadata:
+                      name: interface-exception-collector-service
+                    spec:
+                      replicas: 1
+                      selector:
+                        matchLabels:
+                          app: interface-exception-collector-service
+                      template:
+                        metadata:
+                          labels:
+                            app: interface-exception-collector-service
+                        spec:
+                          containers:
+                          - name: app
+                            image: interface-exception-collector-service
+                            env:
+                            - name: SPRING_PROFILES_ACTIVE
+                              value: "local"
+                            - name: DB_HOST
+                              value: "postgres"
+                            - name: KAFKA_BOOTSTRAP_SERVERS
+                              value: "kafka:9092"
+                            ports:
+                            - containerPort: 8080
+                    ---
+                    apiVersion: v1
+                    kind: Service
+                    metadata:
+                      name: interface-exception-collector-service
+                    spec:
+                      selector:
+                        app: interface-exception-collector-service
+                      ports:
+                      - port: 8080
+                        targetPort: 8080
+                    '''))
+                    
+                    # Port forwards
+                    k8s_resource('postgres', port_forwards='5432:5432')
+                    k8s_resource('kafka', port_forwards=['29092:29092', '9092:9092'])
+                    k8s_resource('kafka-ui', port_forwards='8081:8080')
+                    k8s_resource('interface-exception-collector-service', port_forwards='8080:8080')
+                    
+                    # Create Kafka topics
+                    local_resource(
+                        'create-kafka-topics',
+                        'scripts/create-kafka-topics.sh',
+                        resource_deps=['kafka'],
+                        auto_init=True
+                    )
+                    
+                    # Run database migrations
+                    local_resource(
+                        'flyway-migrate',
+                        'mvn flyway:migrate -Dflyway.url=jdbc:postgresql://localhost:5432/exception_collector_db -Dflyway.user=exception_user -Dflyway.password=exception_pass',
+                        resource_deps=['postgres'],
+                        auto_init=True
+                    )
+                    
+                - name: "create-kafka-topics-script"
+                  type: "file-creation"
+                  file: "scripts/create-kafka-topics.sh"
+                  executable: true
+                  content: |
+                    #!/bin/bash
+                    
+                    # Wait for Kafka to be ready
+                    echo "Waiting for Kafka to be ready..."
+                    while ! kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --list > /dev/null 2>&1; do
+                        sleep 2
+                    done
+                    
+                    echo "Creating Kafka topics..."
+                    
+                    # Inbound topics
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic OrderRejected --partitions 3 --replication-factor 1
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic OrderCancelled --partitions 3 --replication-factor 1
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic CollectionRejected --partitions 3 --replication-factor 1
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic DistributionFailed --partitions 3 --replication-factor 1
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic ValidationError --partitions 3 --replication-factor 1
+                    
+                    # Outbound topics  
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic ExceptionCaptured --partitions 3 --replication-factor 1
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic ExceptionRetryCompleted --partitions 3 --replication-factor 1
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic ExceptionResolved --partitions 3 --replication-factor 1
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic CriticalExceptionAlert --partitions 1 --replication-factor 1
+                    
+                    # Test topics
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic OrderRejected-test --partitions 1 --replication-factor 1
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic ExceptionCaptured-test --partitions 1 --replication-factor 1
+                    kubectl exec deployment/kafka -- kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic test-events --partitions 1 --replication-factor 1
+                    
+                    echo "Kafka topics created successfully!"
+                    
+                - name: "create-docker-compose"
+                  type: "file-creation"
+                  file: "docker-compose.yml"
+                  content: |
+                    version: '3.8'
+                    
+                    services:
+                      postgres:
+                        image: postgres:15
+                        container_name: exception-collector-db
+                        environment:
+                          POSTGRES_DB: exception_collector_db
+                          POSTGRES_USER: exception_user
+                          POSTGRES_PASSWORD: exception_pass
+                        ports:
+                          - "5432:5432"
+                        volumes:
+                          - postgres_data:/var/lib/postgresql/data
+                    
+                      kafka:
+                        image: confluentinc/cp-kafka:7.4.0
+                        container_name: exception-collector-kafka
+                        environment:
+                          KAFKA_NODE_ID: 1
+                          KAFKA_PROCESS_ROLES: broker,controller
+                          KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092
+                          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+                          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+                          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+                          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+                          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+                          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+                          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+                          CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+                        ports:
+                          - "29092:29092"
+                          - "9092:9092"
+                    
+                      kafka-ui:
+                        image: provectuslabs/kafka-ui:latest
+                        container_name: exception-collector-kafka-ui
+                        environment:
+                          KAFKA_CLUSTERS_0_NAME: local
+                          KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+                        ports:
+                          - "8081:8080"
+                        depends_on:
+                          - kafka
+                    
+                    volumes:
+                      postgres_data:
+                      
+                - name: "update-dockerfile"
+                  type: "file-replace"
+                  file: "src/main/docker/Dockerfile"
+                  create_if_missing: true
+                  content: |
+                    FROM openjdk:21-jdk-slim
+                    
+                    WORKDIR /app
+                    
+                    COPY target/interface-exception-collector-service-*.jar app.jar
+                    
+                    EXPOSE 8080
+                    
+                    ENTRYPOINT ["java", "-jar", "app.jar"]
+    
+      compile:
+        goals:
+          - "clean"
+          - "compile"
+        properties:
+          maven.compiler.source: "17"
+          maven.compiler.target: "17"
+          
+      test:
+        goals:
+          - "test"
+        properties:
+          skipTests: "false"
+          junit.platform.output.capture.stdout: "true"
+          
+      package:
+        goals:
+          - "package"
+        properties:
+          spring-boot.build-image.skip: "false"
+          
+      verify:
+        goals:
+          - "verify"
+        includes:
+          - "integration-test"
+          - "contract-test"
+          
+    artifacts:
+      - name: "interface-exception-collector-service.jar"
+        type: "executable-jar"
+        path: "target/interface-exception-collector-service-1.0.0-SNAPSHOT.jar"
+      - name: "docker-image"
+        type: "container-image"
+        registry: "ghcr.io/arcone"
+        repository: "interface-exception-collector-service"
+        tag: "${BUILD_NUMBER:-latest}"
+
+  # Environment Configuration
+  environments:
+    local:
+      description: "Local development with Tilt"
+      runtime: "tilt"
+      requirements:
+        - "tilt >= 0.30.0"
+        - "kubectl >= 1.28.0"
+        - "docker >= 24.0.0"
+        - "java >= 17"
+        - "maven >= 3.8.0"
+        
+      services:
+        postgres:
+          image: "postgres:15"
+          environment:
+            POSTGRES_DB: "exception_collector_db"
+            POSTGRES_USER: "exception_user"
+            POSTGRES_PASSWORD: "exception_pass"
+          ports:
+            - "5432:5432"
+          volumes:
+            - "postgres-data:/var/lib/postgresql/data"
+            
+        kafka:
+          image: "confluentinc/cp-kafka:7.4.0"
+          mode: "kraft"
+          environment:
+            KAFKA_NODE_ID: "1"
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+            KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+            KAFKA_LISTENERS: "PLAINTEXT://kafka:9092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:29092"
+            KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+            KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+            KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+            KAFKA_PROCESS_ROLES: "broker,controller"
+            KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+            CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+          ports:
+            - "29092:29092"
+            - "9092:9092"
+            
+        kafka-ui:
+          image: "provectuslabs/kafka-ui:latest"
+          environment:
+            KAFKA_CLUSTERS_0_NAME: "local"
+            KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:9092"
+          ports:
+            - "8081:8080"
+          depends_on:
+            - "kafka"
+
+    dev:
+      description: "Development environment"
+      runtime: "kubernetes"
+      namespace: "exception-collector-dev"
+      
+    staging:
+      description: "Staging environment"
+      runtime: "kubernetes"
+      namespace: "exception-collector-staging"
+      
+    production:
+      description: "Production environment"
+      runtime: "kubernetes"
+      namespace: "exception-collector-prod"
+
+  # Kubernetes Configuration
+  kubernetes:
+    namespace: "${KIRO_NAMESPACE:-exception-collector}"
+    
+    deployment:
+      replicas: 2
+      strategy:
+        type: "RollingUpdate"
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 0
+          
+      container:
+        image: "ghcr.io/arcone/interface-exception-collector-service:${BUILD_NUMBER:-latest}"
+        ports:
+          - containerPort: 8080
+            name: "http"
+          - containerPort: 8081
+            name: "management"
+            
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+            
+        env:
+          - name: "SPRING_PROFILES_ACTIVE"
+            value: "${ENVIRONMENT:-dev}"
+          - name: "KAFKA_BOOTSTRAP_SERVERS"
+            value: "kafka:9092"
+          - name: "DB_HOST"
+            value: "postgres"
+          - name: "DB_USERNAME"
+            valueFrom:
+              secretKeyRef:
+                name: "postgres-credentials"
+                key: "username"
+          - name: "DB_PASSWORD"
+            valueFrom:
+              secretKeyRef:
+                name: "postgres-credentials"  
+                key: "password"
+                
+        livenessProbe:
+          httpGet:
+            path: "/actuator/health/liveness"
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          
+        readinessProbe:
+          httpGet:
+            path: "/actuator/health/readiness"
+            port: 8081
+          initialDelaySeconds: 20
+          periodSeconds: 5
+
+    service:
+      type: "ClusterIP"
+      ports:
+        - port: 80
+          targetPort: 8080
+          name: "http"
+        - port: 8081
+          targetPort: 8081
+          name: "management"
+
+    ingress:
+      enabled: true
+      className: "nginx"
+      annotations:
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/use-regex: "true"
+      hosts:
+        - host: "exception-collector.${DOMAIN:-local.dev}"
+          paths:
+            - path: "/api/v1"
+              pathType: "Prefix"
+        - host: "exception-collector-mgmt.${DOMAIN:-local.dev}"
+          paths:
+            - path: "/"
+              pathType: "Prefix"
+              backend:
+                service:
+                  port:
+                    number: 8081
+
+  # Kafka Topics Configuration
+  kafka:
+    topics:
+      # Inbound Topics (consumed by this service)
+      - name: "OrderRejected"
+        partitions: 3
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "604800000" # 7 days
+          compression.type: "lz4"
+          
+      - name: "OrderCancelled"
+        partitions: 3
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "604800000"
+          compression.type: "lz4"
+          
+      - name: "CollectionRejected"
+        partitions: 3
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "604800000"
+          compression.type: "lz4"
+          
+      - name: "DistributionFailed"
+        partitions: 3
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "604800000"
+          compression.type: "lz4"
+          
+      - name: "ValidationError"
+        partitions: 3
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "604800000"
+          compression.type: "lz4"
+          
+      # Outbound Topics (published by this service)
+      - name: "ExceptionCaptured"
+        partitions: 3
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "2592000000" # 30 days
+          compression.type: "lz4"
+          
+      - name: "ExceptionRetryCompleted"
+        partitions: 3
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "2592000000"
+          compression.type: "lz4"
+          
+      - name: "ExceptionResolved"
+        partitions: 3
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "2592000000"
+          compression.type: "lz4"
+          
+      - name: "CriticalExceptionAlert"
+        partitions: 1
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "7776000000" # 90 days
+          compression.type: "lz4"
+          
+      # Test Topics
+      - name: "OrderRejected-test"
+        partitions: 1
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "86400000" # 1 day
+          
+      - name: "ExceptionCaptured-test"
+        partitions: 1
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "86400000"
+          
+      - name: "test-events"
+        partitions: 1
+        replicationFactor: 1
+        config:
+          cleanup.policy: "delete"
+          retention.ms: "3600000" # 1 hour
+
+    consumer:
+      groupId: "interface-exception-collector"
+      autoOffsetReset: "earliest"
+      enableAutoCommit: false
+      properties:
+        session.timeout.ms: "30000"
+        heartbeat.interval.ms: "3000"
+        max.poll.records: "100"
+        max.poll.interval.ms: "300000"
+
+  # Database Configuration  
+  database:
+    type: "postgresql"
+    version: "15"
+    
+    connection:
+      host: "${DB_HOST:-postgres}"
+      port: 5432
+      database: "exception_collector_db"
+      username: "${DB_USERNAME:-exception_user}"
+      password: "${DB_PASSWORD:-exception_pass}"
+      
+    migrations:
+      tool: "flyway"
+      location: "classpath:db/migration"
+      baseline: true
+      validateOnMigrate: true
+      
+    schema:
+      tables:
+        - name: "interface_exceptions"
+          description: "Main exception tracking table"
+        - name: "retry_attempts"
+          description: "Retry attempt history"
+        - name: "flyway_schema_history"
+          description: "Database migration history"
+
+  # Testing Configuration
+  testing:
+    framework: "junit5"
+    
+    unit:
+      framework: "junit5"
+      mockFramework: "mockito"
+      coverage:
+        tool: "jacoco"
+        threshold: 80
+      includes:
+        - "src/test/java/**/*Test.java"
+      excludes:
+        - "src/test/java/**/*IntegrationTest.java"
+        - "src/test/java/**/*ContractTest.java"
+        
+    integration:
+      framework: "spring-boot-test"
+      includes:
+        - "src/test/java/**/*IntegrationTest.java"
+      testcontainers:
+        - "postgresql"
+        - "kafka"
+      profiles:
+        - "integration-test"
+        
+    contract:
+      framework: "spring-cloud-contract"
+      includes:
+        - "src/test/java/**/*ContractTest.java"
+      contracts:
+        - "src/test/resources/contracts/"
+        
+    performance:
+      tool: "gatling"
+      scenarios:
+        - "load-test"
+        - "spike-test"
+        - "endurance-test"
+
+  # API Configuration
+  api:
+    rest:
+      basePath: "/api/v1"
+      documentation:
+        openapi: "3.0.3"
+        path: "/swagger-ui.html"
+        spec: "/v3/api-docs"
+        
+      endpoints:
+        - path: "/exceptions"
+          methods: ["GET"]
+          description: "List interface exceptions"
+        - path: "/exceptions/{transactionId}"
+          methods: ["GET"]
+          description: "Get exception details"
+        - path: "/exceptions/{transactionId}/retry"
+          methods: ["POST"]
+          description: "Retry failed request"
+        - path: "/exceptions/{transactionId}/acknowledge"
+          methods: ["PUT"]
+          description: "Acknowledge exception"
+        - path: "/exceptions/summary"
+          methods: ["GET"]
+          description: "Get exception summary"
+        - path: "/exceptions/search"
+          methods: ["GET"]
+          description: "Search exceptions"
+          
+    events:
+      protocol: "kafka"
+      documentation:
+        asyncapi: "3.0.0"
+        path: "/asyncapi"
+        
+      consumes:
+        - topic: "OrderRejected"
+          schema: "OrderRejectedEvent"
+        - topic: "OrderCancelled"
+          schema: "OrderCancelledEvent"
+        - topic: "CollectionRejected"
+          schema: "CollectionRejectedEvent"
+        - topic: "DistributionFailed"
+          schema: "DistributionFailedEvent"
+        - topic: "ValidationError"
+          schema: "ValidationErrorEvent"
+          
+      produces:
+        - topic: "ExceptionCaptured"
+          schema: "ExceptionCapturedEvent"
+        - topic: "ExceptionRetryCompleted"
+          schema: "ExceptionRetryCompletedEvent"
+        - topic: "ExceptionResolved"
+          schema: "ExceptionResolvedEvent"
+        - topic: "CriticalExceptionAlert"
+          schema: "CriticalExceptionAlertEvent"
+
+  # Monitoring & Observability
+  observability:
+    metrics:
+      provider: "micrometer"
+      registry: "prometheus"
+      endpoints:
+        - "/actuator/metrics"
+        - "/actuator/prometheus"
+        
+      custom:
+        - name: "exceptions.captured.total"
+          type: "counter"
+          description: "Total exceptions captured"
+          tags: ["interface_type", "severity"]
+        - name: "exceptions.retry.duration"
+          type: "timer"
+          description: "Time taken for retry operations"
+        - name: "exceptions.resolution.rate"
+          type: "gauge"
+          description: "Exception resolution rate"
+          
+    logging:
+      level: "INFO"
+      format: "json"
+      appenders:
+        - "console"
+        - "file"
+      correlation:
+        - "traceId"
+        - "spanId"
+        - "transactionId"
+        
+    tracing:
+      provider: "opentelemetry"
+      sampling: 0.1
+      exporters:
+        - "jaeger"
+        - "zipkin"
+        
+    health:
+      endpoints:
+        - path: "/actuator/health"
+          port: 8081
+        - path: "/actuator/health/liveness"
+          port: 8081
+        - path: "/actuator/health/readiness"
+          port: 8081
+          
+      checks:
+        - name: "database"
+          type: "db"
+        - name: "kafka"
+          type: "kafka"
+        - name: "disk-space"
+          type: "diskspace"
+
+  # Tilt Configuration
+  tilt:
+    configFile: "Tiltfile"
+    
+    resources:
+      - name: "exception-collector-service"
+        dockerfile: "src/main/docker/Dockerfile"
+        context: "."
+        liveUpdate:
+          - sync:
+              src: "target/classes"
+              dest: "/app/classes"
+          - run:
+              cmd: "touch /tmp/restart.txt"
+              trigger: ["src/main/java/**/*.java"]
+              
+      - name: "postgres"
+        image: "postgres:15"
+        portForwards:
+          - "5432:5432"
+        env:
+          POSTGRES_DB: "exception_collector_db"
+          POSTGRES_USER: "exception_user"
+          POSTGRES_PASSWORD: "exception_pass"
+          
+      - name: "kafka"
+        image: "confluentinc/cp-kafka:7.4.0"
+        portForwards:
+          - "29092:29092"
+        env:
+          KAFKA_NODE_ID: "1"
+          KAFKA_PROCESS_ROLES: "broker,controller"
+          KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092"
+          KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+          KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+          KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+          KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+          CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+          
+      - name: "kafka-ui"
+        image: "provectuslabs/kafka-ui:latest"
+        portForwards:
+          - "8081:8080"
+        env:
+          KAFKA_CLUSTERS_0_NAME: "local"
+          KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:9092"
+
+    triggers:
+      - name: "create-kafka-topics"
+        command: "scripts/create-kafka-topics.sh"
+        dependencies:
+          - "kafka"
+          
+      - name: "run-migrations"
+        command: "./mvnw flyway:migrate"
+        dependencies:
+          - "postgres"
+          
+      - name: "run-tests"
+        command: "./mvnw test"
+        auto: false
+
+  # Security Configuration
+  security:
+    authentication:
+      type: "oauth2"
+      provider: "keycloak"
+      
+    authorization:
+      rbac:
+        enabled: true
+        roles:
+          - name: "exception-viewer"
+            permissions:
+              - "exceptions:read"
+          - name: "exception-operator"
+            permissions:
+              - "exceptions:read"
+              - "exceptions:acknowledge"
+              - "exceptions:retry"
+          - name: "exception-admin"
+            permissions:
+              - "exceptions:*"
+              
+    secrets:
+      - name: "postgres-credentials"
+        type: "database"
+        keys:
+          - "username"
+          - "password"
+      - name: "kafka-credentials"
+        type: "messaging"
+        keys:
+          - "username"
+          - "password"
+
+  # Operations
+  operations:
+    deployment:
+      strategy: "blue-green"
+      automation: true
+      
+    scaling:
+      hpa:
+        enabled: true
+        minReplicas: 2
+        maxReplicas: 10
+        metrics:
+          - type: "Resource"
+            resource:
+              name: "cpu"
+              target:
+                type: "Utilization"
+                averageUtilization: 70
+          - type: "Resource"
+            resource:
+              name: "memory"
+              target:
+                type: "Utilization"
+                averageUtilization: 80
+                
+    backup:
+      database:
+        enabled: true
+        schedule: "0 2 * * *"
+        retention: "30d"
+        
+    maintenance:
+      windows:
+        - day: "sunday"
+          time: "02:00-04:00"
+          timezone: "UTC"
+
+# Project Dependencies
+dependencies:
+  services:
+    - name: "order-service"
+      type: "internal"
+      api: "rest"
+      endpoints:
+        - "/api/internal/payloads/{transactionId}"
+        - "/api/internal/orders"
+        
+    - name: "collection-service"
+      type: "internal"
+      api: "rest"
+      endpoints:
+        - "/api/internal/payloads/{transactionId}"
+        - "/api/internal/collections"
+        
+    - name: "distribution-service"
+      type: "internal"
+      api: "rest"
+      endpoints:
+        - "/api/internal/payloads/{transactionId}"
+        - "/api/internal/distributions"
+
+  external:
+    - name: "kafka"
+      type: "messaging"
+      version: "7.4.0"
+      
+    - name: "postgresql"
+      type: "database"
+      version: "15"
+      
+    - name: "prometheus"
+      type: "monitoring"
+      version: "2.45.0"

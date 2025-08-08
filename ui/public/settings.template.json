@@ -1,9 +1,0 @@
-{
-    "serverApiURL": "https://api.${DOMAIN}",
-    "agentApiURL": "http://localhost:8282",
-    "clientId": "distribution-client",
-    "environment": "${ENVIRONMENT}",
-    "url": "https://id.${DOMAIN}/auth",
-    "realm": "biopro",
-    "uuid": "215b898c-0f1e-43e8-abd1-f835bef767e3"
-}

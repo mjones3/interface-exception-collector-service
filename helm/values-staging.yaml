@@ -1,0 +1,137 @@
+# Staging environment values
+replicaCount: 2
+
+image:
+  tag: "staging"
+  pullPolicy: IfNotPresent
+
+app:
+  profile: staging
+  logLevel: INFO
+
+resources:
+  limits:
+    cpu: 750m
+    memory: 768Mi
+  requests:
+    cpu: 375m
+    memory: 384Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Staging database settings
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "staging-postgres-password"
+    username: "staging_user"
+    password: "staging-password"
+    database: "exception_collector_staging"
+  primary:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 375m
+        memory: 384Mi
+      requests:
+        cpu: 187m
+        memory: 192Mi
+
+# Staging Redis settings
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "staging-redis-password"
+  master:
+    persistence:
+      enabled: true
+      size: 2Gi
+    resources:
+      limits:
+        cpu: 187m
+        memory: 192Mi
+      requests:
+        cpu: 75m
+        memory: 96Mi
+
+# Staging Kafka settings
+app:
+  kafka:
+    consumer:
+      autoOffsetReset: earliest
+      maxPollRecords: 300
+    producer:
+      acks: all
+      retries: 2
+
+# Staging external services
+  externalServices:
+    orderService:
+      baseUrl: http://order-service-staging:8080
+    collectionService:
+      baseUrl: http://collection-service-staging:8080
+    distributionService:
+      baseUrl: http://distribution-service-staging:8080
+
+# Staging ingress
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+  hosts:
+    - host: exception-collector-staging.arcone.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: exception-collector-staging-tls
+      hosts:
+        - exception-collector-staging.arcone.com
+
+# Staging monitoring
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+
+# Kafka topics with moderate partitioning for staging
+kafkaTopics:
+  topics:
+    - name: order-rejected
+      partitions: 2
+      replicationFactor: 1
+    - name: order-cancelled
+      partitions: 2
+      replicationFactor: 1
+    - name: collection-rejected
+      partitions: 2
+      replicationFactor: 1
+    - name: distribution-failed
+      partitions: 2
+      replicationFactor: 1
+    - name: validation-error
+      partitions: 2
+      replicationFactor: 1
+    - name: exception-captured
+      partitions: 2
+      replicationFactor: 1
+    - name: exception-resolved
+      partitions: 2
+      replicationFactor: 1
+    - name: critical-alert
+      partitions: 2
+      replicationFactor: 1
+    - name: exception-retry-completed
+      partitions: 2
+      replicationFactor: 1

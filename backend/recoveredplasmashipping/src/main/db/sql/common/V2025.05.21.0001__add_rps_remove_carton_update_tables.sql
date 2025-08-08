@@ -1,1 +1,0 @@
-ALTER TABLE recoveredplasmashipping.bld_recovered_plasma_shipment_carton ADD COLUMN delete_employee_id varchar(50) NULL;

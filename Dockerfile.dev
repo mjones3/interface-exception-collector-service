@@ -1,0 +1,51 @@
+# Development Dockerfile with hot reload capabilities
+FROM maven:3.9.9-eclipse-temurin-17 AS development
+
+# Install development tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    netcat \
+    bash \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -g 1001 appgroup \
+    && useradd -u 1001 -g appgroup -s /bin/bash -m appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy pom.xml and download dependencies
+COPY pom.xml .
+
+# Download dependencies
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Change ownership to non-root user
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+# Configure JVM for development
+ENV JAVA_OPTS="-XX:+UseContainerSupport \
+               -XX:MaxRAMPercentage=75.0 \
+               -XX:+UseG1GC \
+               -Djava.security.egd=file:/dev/./urandom \
+               -Dspring.profiles.active=docker,dev \
+               -Dspring.devtools.restart.enabled=true \
+               -Dspring.devtools.livereload.enabled=true"
+
+# Expose application and live reload ports
+EXPOSE 8080 35729
+
+# Health check configuration
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Configure graceful shutdown
+STOPSIGNAL SIGTERM
+
+# Development entrypoint with Maven Spring Boot plugin
+ENTRYPOINT ["sh", "-c", "exec mvn spring-boot:run -Dspring-boot.run.jvmArguments=\"$JAVA_OPTS\""]

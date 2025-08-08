@@ -1,0 +1,253 @@
+spring:
+  application:
+    name: interface-exception-collector-service
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/exception_collector_db?sslmode=${DB_SSL_MODE:disable}&sslcert=${DB_SSL_CERT:}&sslkey=${DB_SSL_KEY:}&sslrootcert=${DB_SSL_ROOT_CERT:}
+    username: exception_user
+    password: exception_pass
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+  
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    schemas: public
+    table: flyway_schema_history
+    validate-on-migrate: true
+
+  # Redis Cache Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000  # 5 minutes default TTL
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: "exception-collector:"
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: interface-exception-collector
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.arcone.biopro.exception.collector.domain.event"
+        spring.json.type.mapping: >
+          OrderRejectedEvent:com.arcone.biopro.exception.collector.domain.event.inbound.OrderRejectedEvent,
+          OrderCancelledEvent:com.arcone.biopro.exception.collector.domain.event.inbound.OrderCancelledEvent,
+          CollectionRejectedEvent:com.arcone.biopro.exception.collector.domain.event.inbound.CollectionRejectedEvent,
+          DistributionFailedEvent:com.arcone.biopro.exception.collector.domain.event.inbound.DistributionFailedEvent,
+          ValidationErrorEvent:com.arcone.biopro.exception.collector.domain.event.inbound.ValidationErrorEvent
+        # TLS configuration
+        security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+        ssl.truststore.location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:}
+        ssl.truststore.password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
+        ssl.keystore.location: ${KAFKA_SSL_KEYSTORE_LOCATION:}
+        ssl.keystore.password: ${KAFKA_SSL_KEYSTORE_PASSWORD:}
+        ssl.key.password: ${KAFKA_SSL_KEY_PASSWORD:}
+      enable-auto-commit: false
+      max-poll-records: 10
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        # TLS configuration
+        security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+        ssl.truststore.location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:}
+        ssl.truststore.password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
+        ssl.keystore.location: ${KAFKA_SSL_KEYSTORE_LOCATION:}
+        ssl.keystore.password: ${KAFKA_SSL_KEYSTORE_PASSWORD:}
+        ssl.key.password: ${KAFKA_SSL_KEY_PASSWORD:}
+    listener:
+      ack-mode: manual_immediate
+      concurrency: 3
+
+server:
+  port: 8080
+  ssl:
+    enabled: ${app.security.tls.enabled:false}
+    key-store: ${app.security.tls.keystore.path:}
+    key-store-password: ${app.security.tls.keystore.password:}
+    key-store-type: JKS
+    trust-store: ${app.security.tls.truststore.path:}
+    trust-store-password: ${app.security.tls.truststore.password:}
+    trust-store-type: JKS
+
+# Application specific configuration
+app:
+  # Security configuration
+  security:
+    jwt:
+      secret: ${JWT_SECRET:mySecretKey1234567890123456789012345678901234567890}
+    rate-limit:
+      requests-per-minute: ${RATE_LIMIT_RPM:60}
+      burst-capacity: ${RATE_LIMIT_BURST:10}
+    tls:
+      enabled: ${TLS_ENABLED:false}
+      keystore:
+        path: ${TLS_KEYSTORE_PATH:}
+        password: ${TLS_KEYSTORE_PASSWORD:}
+      truststore:
+        path: ${TLS_TRUSTSTORE_PATH:}
+        password: ${TLS_TRUSTSTORE_PASSWORD:}
+  source-services:
+    order:
+      base-url: http://order-service:8080
+      api-key: ${ORDER_SERVICE_API_KEY:}
+      auth-header: X-API-Key
+    collection:
+      base-url: http://collection-service:8080
+      api-key: ${COLLECTION_SERVICE_API_KEY:}
+      auth-header: X-API-Key
+    distribution:
+      base-url: http://distribution-service:8080
+      api-key: ${DISTRIBUTION_SERVICE_API_KEY:}
+      auth-header: X-API-Key
+    timeout: 5000
+    connection-timeout: 3000
+  
+  # Database retry configuration
+  database:
+    retry:
+      enabled: true
+      max-attempts: 5
+      initial-interval: 1000
+      multiplier: 2.0
+      max-interval: 30000
+  
+  # Kafka dead letter queue configuration
+  kafka:
+    dead-letter:
+      enabled: true
+      suffix: ".DLT"
+      max-retries: 5
+      retry-interval: 1000
+
+# Resilience4j configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      source-service:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 30s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+        record-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.net.ConnectException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+  retry:
+    instances:
+      source-service:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.net.ConnectException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+  timelimiter:
+    instances:
+      source-service:
+        timeout-duration: 5s
+        cancel-running-future: true
+
+logging:
+  level:
+    com.arcone.biopro: INFO
+    org.flywaydb: INFO
+    org.springframework.kafka: INFO
+    io.github.resilience4j: DEBUG
+    org.springframework.retry: DEBUG
+    org.springframework.boot.actuator.health: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"
+
+# Actuator configuration for health checks and metrics
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,loggers
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
+    kafka:
+      enabled: true
+    redis:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: 10s
+        descriptions: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+        "[exception.processing.duration]": true
+        "[retry.operation.duration]": true
+        "[api.response.duration]": true
+        "[database.operation.duration]": true
+        "[external.service.call.duration]": true
+      percentiles:
+        "[http.server.requests]": 0.5, 0.95, 0.99
+        "[exception.processing.duration]": 0.5, 0.95, 0.99
+        "[retry.operation.duration]": 0.5, 0.95, 0.99
+        "[api.response.duration]": 0.5, 0.95, 0.99
+        "[database.operation.duration]": 0.5, 0.95, 0.99
+        "[external.service.call.duration]": 0.5, 0.95, 0.99
+    tags:
+      application: interface-exception-collector-service
+      environment: ${ENVIRONMENT:local}
+      version: ${BUILD_VERSION:1.0.0-SNAPSHOT}

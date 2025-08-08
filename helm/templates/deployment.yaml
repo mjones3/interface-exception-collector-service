@@ -1,0 +1,215 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "interface-exception-collector.fullname" . }}
+  labels:
+    {{- include "interface-exception-collector.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "interface-exception-collector.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-app.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret-app.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "interface-exception-collector.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "interface-exception-collector.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Values.environment | default "production" }}
+            - name: SPRING_CONFIG_LOCATION
+              value: "classpath:/application.yml,/etc/config/application.yml"
+            # Database environment variables
+            - name: DB_HOST
+              value: {{ .Values.database.host }}
+            - name: DB_PORT
+              value: {{ .Values.database.port | quote }}
+            - name: DB_NAME
+              value: {{ .Values.database.name }}
+            - name: DB_USERNAME
+              value: {{ .Values.database.username }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: DB_PASSWORD
+            # Redis environment variables
+            - name: REDIS_HOST
+              value: {{ .Values.redis.host }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+            {{- if .Values.redis.password }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: REDIS_PASSWORD
+            {{- end }}
+            # Kafka environment variables
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.kafka.bootstrapServers }}
+            {{- if .Values.kafka.ssl.enabled }}
+            - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            - name: KAFKA_SSL_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: KAFKA_SSL_KEYSTORE_PASSWORD
+            - name: KAFKA_SSL_KEY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: KAFKA_SSL_KEY_PASSWORD
+            {{- end }}
+            # Security environment variables
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: JWT_SECRET
+            # External service API keys
+            - name: ORDER_SERVICE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: ORDER_SERVICE_API_KEY
+            - name: COLLECTION_SERVICE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: COLLECTION_SERVICE_API_KEY
+            - name: DISTRIBUTION_SERVICE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: DISTRIBUTION_SERVICE_API_KEY
+            # TLS environment variables
+            {{- if .Values.server.ssl.enabled }}
+            - name: SERVER_SSL_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: SERVER_SSL_KEYSTORE_PASSWORD
+            - name: SERVER_SSL_TRUSTSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: SERVER_SSL_TRUSTSTORE_PASSWORD
+            {{- end }}
+            {{- if .Values.security.tls.enabled }}
+            - name: TLS_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: TLS_KEYSTORE_PASSWORD
+            - name: TLS_TRUSTSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "interface-exception-collector.fullname" . }}-app-secret
+                  key: TLS_TRUSTSTORE_PASSWORD
+            {{- end }}
+            # Build and deployment metadata
+            - name: BUILD_VERSION
+              value: {{ .Values.image.tag | default .Chart.AppVersion }}
+            - name: ENVIRONMENT
+              value: {{ .Values.environment }}
+            - name: DATACENTER
+              value: {{ .Values.datacenter | default "unknown" }}
+            - name: REGION
+              value: {{ .Values.region | default "unknown" }}
+            - name: JAVA_OPTS
+              value: "-Xmx{{ .Values.resources.limits.memory | replace "Gi" "g" | replace "Mi" "m" }} -Xms{{ .Values.resources.requests.memory | replace "Gi" "g" | replace "Mi" "m" }} -XX:+UseG1GC -XX:+UseContainerSupport"
+          livenessProbe:
+            {{- toYaml .Values.healthCheck.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.healthCheck.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/config
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+            - name: logs
+              mountPath: /app/logs
+            {{- if .Values.kafka.ssl.enabled }}
+            - name: kafka-ssl
+              mountPath: /etc/kafka/ssl
+              readOnly: true
+            {{- end }}
+            {{- if .Values.server.ssl.enabled }}
+            - name: server-ssl
+              mountPath: /etc/ssl
+              readOnly: true
+            {{- end }}
+            {{- if .Values.security.tls.enabled }}
+            - name: app-tls
+              mountPath: /etc/app/ssl
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "interface-exception-collector.fullname" . }}-app-config
+        - name: tmp
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+        {{- if .Values.kafka.ssl.enabled }}
+        - name: kafka-ssl
+          secret:
+            secretName: {{ include "interface-exception-collector.fullname" . }}-kafka-ssl
+        {{- end }}
+        {{- if .Values.server.ssl.enabled }}
+        - name: server-ssl
+          secret:
+            secretName: {{ include "interface-exception-collector.fullname" . }}-server-ssl
+        {{- end }}
+        {{- if .Values.security.tls.enabled }}
+        - name: app-tls
+          secret:
+            secretName: {{ include "interface-exception-collector.fullname" . }}-app-tls
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 30

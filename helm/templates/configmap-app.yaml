@@ -1,0 +1,328 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "interface-exception-collector.fullname" . }}-app-config
+  labels:
+    {{- include "interface-exception-collector.labels" . | nindent 4 }}
+    component: configuration
+data:
+  # Application configuration
+  application.yml: |
+    spring:
+      application:
+        name: {{ .Values.app.name | default "interface-exception-collector-service" }}
+      
+      # Database configuration
+      datasource:
+        url: jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?sslmode={{ .Values.database.sslMode | default "require" }}
+        username: {{ .Values.database.username }}
+        hikari:
+          maximum-pool-size: {{ .Values.database.connectionPool.maxSize | default 50 }}
+          minimum-idle: {{ .Values.database.connectionPool.minIdle | default 10 }}
+          connection-timeout: {{ .Values.database.connectionPool.connectionTimeout | default 30000 }}
+          idle-timeout: {{ .Values.database.connectionPool.idleTimeout | default 600000 }}
+          max-lifetime: {{ .Values.database.connectionPool.maxLifetime | default 1800000 }}
+          leak-detection-threshold: {{ .Values.database.connectionPool.leakDetectionThreshold | default 60000 }}
+      
+      jpa:
+        hibernate:
+          ddl-auto: validate
+        show-sql: {{ .Values.database.showSql | default false }}
+        properties:
+          hibernate:
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+            format_sql: {{ .Values.database.formatSql | default false }}
+            jdbc:
+              batch_size: {{ .Values.database.batchSize | default 50 }}
+              time_zone: UTC
+      
+      flyway:
+        enabled: true
+        baseline-on-migrate: true
+        validate-on-migrate: true
+        locations: classpath:db/migration
+        clean-disabled: true
+      
+      # Redis configuration
+      data:
+        redis:
+          host: {{ .Values.redis.host }}
+          port: {{ .Values.redis.port | default 6379 }}
+          timeout: {{ .Values.redis.timeout | default "3000ms" }}
+          ssl: {{ .Values.redis.ssl | default true }}
+          lettuce:
+            pool:
+              max-active: {{ .Values.redis.pool.maxActive | default 20 }}
+              max-idle: {{ .Values.redis.pool.maxIdle | default 20 }}
+              min-idle: {{ .Values.redis.pool.minIdle | default 5 }}
+              max-wait: {{ .Values.redis.pool.maxWait | default "2000ms" }}
+      
+      cache:
+        type: redis
+        redis:
+          time-to-live: {{ .Values.cache.ttl | default 600000 }}
+          cache-null-values: false
+          use-key-prefix: true
+          key-prefix: "{{ .Values.environment }}-exception-collector:"
+      
+      # Kafka configuration
+      kafka:
+        bootstrap-servers: {{ .Values.kafka.bootstrapServers }}
+        consumer:
+          group-id: {{ .Values.kafka.consumer.groupId | default "interface-exception-collector" }}
+          auto-offset-reset: {{ .Values.kafka.consumer.autoOffsetReset | default "earliest" }}
+          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+          properties:
+            spring.json.trusted.packages: "com.arcone.biopro.exception.collector.domain.event"
+            max.poll.records: {{ .Values.kafka.consumer.maxPollRecords | default 100 }}
+            session.timeout.ms: {{ .Values.kafka.consumer.sessionTimeout | default 30000 }}
+            heartbeat.interval.ms: {{ .Values.kafka.consumer.heartbeatInterval | default 3000 }}
+            enable.auto.commit: false
+            {{- if .Values.kafka.ssl.enabled }}
+            security.protocol: SSL
+            ssl.truststore.location: /etc/kafka/ssl/truststore.jks
+            ssl.keystore.location: /etc/kafka/ssl/keystore.jks
+            ssl.endpoint.identification.algorithm: https
+            {{- else }}
+            security.protocol: PLAINTEXT
+            {{- end }}
+        producer:
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          acks: {{ .Values.kafka.producer.acks | default "all" }}
+          retries: {{ .Values.kafka.producer.retries | default 5 }}
+          properties:
+            batch.size: {{ .Values.kafka.producer.batchSize | default 32768 }}
+            linger.ms: {{ .Values.kafka.producer.lingerMs | default 10 }}
+            buffer.memory: {{ .Values.kafka.producer.bufferMemory | default 67108864 }}
+            compression.type: {{ .Values.kafka.producer.compressionType | default "snappy" }}
+            {{- if .Values.kafka.ssl.enabled }}
+            security.protocol: SSL
+            ssl.truststore.location: /etc/kafka/ssl/truststore.jks
+            ssl.keystore.location: /etc/kafka/ssl/keystore.jks
+            ssl.endpoint.identification.algorithm: https
+            {{- else }}
+            security.protocol: PLAINTEXT
+            {{- end }}
+        listener:
+          ack-mode: manual_immediate
+          concurrency: {{ .Values.kafka.listener.concurrency | default 5 }}
+    
+    # Server configuration
+    server:
+      port: {{ .Values.service.port | default 8080 }}
+      shutdown: graceful
+      tomcat:
+        threads:
+          max: {{ .Values.server.threads.max | default 200 }}
+          min-spare: {{ .Values.server.threads.minSpare | default 20 }}
+        connection-timeout: {{ .Values.server.connectionTimeout | default 20000 }}
+        keep-alive-timeout: {{ .Values.server.keepAliveTimeout | default 20000 }}
+        max-connections: {{ .Values.server.maxConnections | default 8192 }}
+      {{- if .Values.server.ssl.enabled }}
+      ssl:
+        enabled: true
+        key-store: /etc/ssl/keystore.jks
+        key-store-type: JKS
+        protocol: TLS
+        enabled-protocols: TLSv1.2,TLSv1.3
+      {{- end }}
+    
+    # Logging configuration
+    logging:
+      level:
+        com.arcone.biopro.exception.collector: {{ .Values.logging.level.app | default "INFO" }}
+        org.springframework.kafka: {{ .Values.logging.level.kafka | default "WARN" }}
+        org.springframework.web: {{ .Values.logging.level.web | default "WARN" }}
+        org.hibernate.SQL: {{ .Values.logging.level.sql | default "WARN" }}
+        org.flywaydb: {{ .Values.logging.level.flyway | default "INFO" }}
+        io.github.resilience4j: {{ .Values.logging.level.resilience | default "INFO" }}
+        root: {{ .Values.logging.level.root | default "WARN" }}
+      pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"
+        file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"
+      file:
+        name: /app/logs/application.log
+        max-size: {{ .Values.logging.file.maxSize | default "200MB" }}
+        max-history: {{ .Values.logging.file.maxHistory | default 30 }}
+        total-size-cap: {{ .Values.logging.file.totalSizeCap | default "5GB" }}
+    
+    # Management endpoints
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: {{ .Values.management.endpoints.include | default "health,info,metrics,prometheus" }}
+          base-path: /actuator
+      endpoint:
+        health:
+          show-details: {{ .Values.management.health.showDetails | default "when-authorized" }}
+          show-components: {{ .Values.management.health.showComponents | default "when-authorized" }}
+        metrics:
+          enabled: true
+        prometheus:
+          enabled: true
+      health:
+        circuitbreakers:
+          enabled: true
+        kafka:
+          enabled: true
+        redis:
+          enabled: true
+        diskspace:
+          enabled: true
+          threshold: {{ .Values.management.health.diskspaceThreshold | default "10GB" }}
+      metrics:
+        export:
+          prometheus:
+            enabled: true
+            step: {{ .Values.metrics.prometheus.step | default "30s" }}
+            descriptions: true
+        distribution:
+          percentiles-histogram:
+            "[http.server.requests]": true
+            "[exception.processing.duration]": true
+            "[retry.operation.duration]": true
+            "[api.response.duration]": true
+            "[database.operation.duration]": true
+            "[external.service.call.duration]": true
+          percentiles:
+            "[http.server.requests]": 0.5, 0.95, 0.99, 0.999
+            "[exception.processing.duration]": 0.5, 0.95, 0.99, 0.999
+            "[retry.operation.duration]": 0.5, 0.95, 0.99, 0.999
+            "[api.response.duration]": 0.5, 0.95, 0.99, 0.999
+            "[database.operation.duration]": 0.5, 0.95, 0.99, 0.999
+            "[external.service.call.duration]": 0.5, 0.95, 0.99, 0.999
+        tags:
+          application: {{ .Values.app.name | default "interface-exception-collector-service" }}
+          environment: {{ .Values.environment }}
+          version: {{ .Values.image.tag | default .Chart.AppVersion }}
+          datacenter: {{ .Values.datacenter | default "unknown" }}
+          region: {{ .Values.region | default "unknown" }}
+    
+    # Application-specific configuration
+    app:
+      # Feature flags
+      features:
+        enhanced-logging: {{ .Values.features.enhancedLogging | default false }}
+        debug-mode: {{ .Values.features.debugMode | default false }}
+        payload-caching: {{ .Values.features.payloadCaching | default true }}
+        circuit-breaker: {{ .Values.features.circuitBreaker | default true }}
+        retry-mechanism: {{ .Values.features.retryMechanism | default true }}
+        hot-reload: {{ .Values.features.hotReload | default false }}
+        metrics-collection: {{ .Values.features.metricsCollection | default true }}
+        audit-logging: {{ .Values.features.auditLogging | default true }}
+      
+      # Security configuration
+      security:
+        jwt:
+          expiration: {{ .Values.security.jwt.expiration | default 3600000 }}
+          issuer: {{ .Values.security.jwt.issuer | default "interface-exception-collector" }}
+          audience: {{ .Values.security.jwt.audience | default "biopro-services" }}
+        rate-limit:
+          enabled: {{ .Values.security.rateLimit.enabled | default true }}
+          requests-per-minute: {{ .Values.security.rateLimit.requestsPerMinute | default 60 }}
+          burst-capacity: {{ .Values.security.rateLimit.burstCapacity | default 10 }}
+        tls:
+          enabled: {{ .Values.security.tls.enabled | default true }}
+        audit:
+          enabled: {{ .Values.security.audit.enabled | default true }}
+          log-successful-requests: {{ .Values.security.audit.logSuccessfulRequests | default false }}
+          log-failed-requests: {{ .Values.security.audit.logFailedRequests | default true }}
+      
+      # External services configuration
+      source-services:
+        order:
+          base-url: {{ .Values.externalServices.order.baseUrl }}
+          auth-header: X-API-Key
+        collection:
+          base-url: {{ .Values.externalServices.collection.baseUrl }}
+          auth-header: X-API-Key
+        distribution:
+          base-url: {{ .Values.externalServices.distribution.baseUrl }}
+          auth-header: X-API-Key
+        timeout: {{ .Values.externalServices.timeout | default 5000 }}
+        connection-timeout: {{ .Values.externalServices.connectionTimeout | default 3000 }}
+        read-timeout: {{ .Values.externalServices.readTimeout | default 5000 }}
+      
+      # Database retry configuration
+      database:
+        retry:
+          enabled: {{ .Values.database.retry.enabled | default true }}
+          max-attempts: {{ .Values.database.retry.maxAttempts | default 5 }}
+          initial-interval: {{ .Values.database.retry.initialInterval | default 1000 }}
+          multiplier: {{ .Values.database.retry.multiplier | default 2.0 }}
+          max-interval: {{ .Values.database.retry.maxInterval | default 30000 }}
+      
+      # Kafka configuration
+      kafka:
+        dead-letter:
+          enabled: {{ .Values.kafka.deadLetter.enabled | default true }}
+          suffix: {{ .Values.kafka.deadLetter.suffix | default ".DLT" }}
+          max-retries: {{ .Values.kafka.deadLetter.maxRetries | default 5 }}
+          retry-interval: {{ .Values.kafka.deadLetter.retryInterval | default 1000 }}
+        topics:
+          order-rejected: {{ .Values.kafka.topics.orderRejected | default "OrderRejected" }}
+          order-cancelled: {{ .Values.kafka.topics.orderCancelled | default "OrderCancelled" }}
+          collection-rejected: {{ .Values.kafka.topics.collectionRejected | default "CollectionRejected" }}
+          distribution-failed: {{ .Values.kafka.topics.distributionFailed | default "DistributionFailed" }}
+          validation-error: {{ .Values.kafka.topics.validationError | default "ValidationError" }}
+          exception-captured: {{ .Values.kafka.topics.exceptionCaptured | default "ExceptionCaptured" }}
+          exception-resolved: {{ .Values.kafka.topics.exceptionResolved | default "ExceptionResolved" }}
+          critical-alert: {{ .Values.kafka.topics.criticalAlert | default "CriticalExceptionAlert" }}
+      
+      # Exception processing configuration
+      exception:
+        processing:
+          batch-size: {{ .Values.exception.processing.batchSize | default 100 }}
+          timeout: {{ .Values.exception.processing.timeout | default 30000 }}
+          max-concurrent: {{ .Values.exception.processing.maxConcurrent | default 10 }}
+        retry:
+          max-attempts: {{ .Values.exception.retry.maxAttempts | default 5 }}
+          backoff-delay: {{ .Values.exception.retry.backoffDelay | default 1000 }}
+        alert:
+          critical-threshold: {{ .Values.exception.alert.criticalThreshold | default 5 }}
+          escalation-timeout: {{ .Values.exception.alert.escalationTimeout | default 300 }}
+        cleanup:
+          enabled: {{ .Values.exception.cleanup.enabled | default true }}
+          retention-days: {{ .Values.exception.cleanup.retentionDays | default 90 }}
+          batch-size: {{ .Values.exception.cleanup.batchSize | default 1000 }}
+    
+    # Resilience4j configuration
+    resilience4j:
+      circuitbreaker:
+        instances:
+          source-service:
+            register-health-indicator: true
+            sliding-window-size: {{ .Values.resilience.circuitBreaker.windowSize | default 20 }}
+            minimum-number-of-calls: {{ .Values.resilience.circuitBreaker.minCalls | default 10 }}
+            permitted-number-of-calls-in-half-open-state: {{ .Values.resilience.circuitBreaker.halfOpenCalls | default 5 }}
+            automatic-transition-from-open-to-half-open-enabled: true
+            wait-duration-in-open-state: {{ .Values.resilience.circuitBreaker.waitDuration | default "30s" }}
+            failure-rate-threshold: {{ .Values.resilience.circuitBreaker.failureRate | default 50 }}
+            event-consumer-buffer-size: 10
+            record-exceptions:
+              - org.springframework.web.client.HttpServerErrorException
+              - java.util.concurrent.TimeoutException
+              - java.net.ConnectException
+              - java.net.SocketTimeoutException
+            ignore-exceptions:
+              - org.springframework.web.client.HttpClientErrorException
+      retry:
+        instances:
+          source-service:
+            max-attempts: {{ .Values.resilience.retry.maxAttempts | default 3 }}
+            wait-duration: {{ .Values.resilience.retry.waitDuration | default "1s" }}
+            exponential-backoff-multiplier: {{ .Values.resilience.retry.backoffMultiplier | default 2 }}
+            retry-exceptions:
+              - org.springframework.web.client.ResourceAccessException
+              - java.net.ConnectException
+              - java.net.SocketTimeoutException
+            ignore-exceptions:
+              - org.springframework.web.client.HttpClientErrorException
+      timelimiter:
+        instances:
+          source-service:
+            timeout-duration: {{ .Values.resilience.timeLimiter.timeout | default "5s" }}
+            cancel-running-future: true

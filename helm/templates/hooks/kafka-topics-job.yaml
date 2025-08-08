@@ -1,0 +1,73 @@
+{{- if .Values.kafkaTopics.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "interface-exception-collector.fullname" . }}-kafka-topics
+  labels:
+    {{- include "interface-exception-collector.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kafka-topics
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-3"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ include "interface-exception-collector.fullname" . }}-kafka-topics
+      labels:
+        {{- include "interface-exception-collector.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: kafka-topics
+    spec:
+      restartPolicy: Never
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: kafka-topics
+          image: "{{ .Values.kafkaTopics.image.repository }}:{{ .Values.kafkaTopics.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "Waiting for Kafka to be ready..."
+              until kafka-topics --bootstrap-server {{ .Values.app.kafka.bootstrapServers }} --list > /dev/null 2>&1; do
+                echo "Kafka not ready, waiting..."
+                sleep 5
+              done
+              echo "Kafka is ready, creating topics..."
+              
+              {{- range .Values.kafkaTopics.topics }}
+              echo "Creating topic: {{ .name }}"
+              kafka-topics --bootstrap-server {{ $.Values.app.kafka.bootstrapServers }} \
+                --create \
+                --if-not-exists \
+                --topic {{ .name }} \
+                --partitions {{ .partitions }} \
+                --replication-factor {{ .replicationFactor }} \
+                --config cleanup.policy=delete \
+                --config retention.ms=604800000 \
+                --config segment.ms=86400000 || echo "Topic {{ .name }} already exists or creation failed"
+              {{- end }}
+              
+              echo "Topic creation completed"
+              kafka-topics --bootstrap-server {{ .Values.app.kafka.bootstrapServers }} --list
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  backoffLimit: 3
+{{- end }}

@@ -1,0 +1,237 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: exception-collector-backup
+  namespace: biopro
+  labels:
+    app: interface-exception-collector
+    component: backup
+spec:
+  # Run daily at 2 AM UTC
+  schedule: "0 2 * * *"
+  timeZone: "UTC"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600  # 1 hour timeout
+      template:
+        metadata:
+          labels:
+            app: interface-exception-collector
+            component: backup
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: exception-collector-backup
+          containers:
+          - name: postgres-backup
+            image: postgres:15-alpine
+            env:
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: host
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: port
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: database
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            - name: BACKUP_RETENTION_DAYS
+              value: "30"
+            - name: S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: backup-config
+                  key: s3-bucket
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: secret-access-key
+            - name: AWS_DEFAULT_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: backup-config
+                  key: aws-region
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              # Install AWS CLI
+              apk add --no-cache aws-cli
+              
+              # Create backup directory
+              mkdir -p /tmp/backup
+              
+              # Generate backup filename with timestamp
+              BACKUP_DATE=$(date +%Y%m%d_%H%M%S)
+              BACKUP_FILE="exception_collector_backup_${BACKUP_DATE}.sql"
+              BACKUP_PATH="/tmp/backup/${BACKUP_FILE}"
+              
+              echo "Starting database backup: ${BACKUP_FILE}"
+              
+              # Create database backup
+              pg_dump \
+                --verbose \
+                --no-password \
+                --format=custom \
+                --compress=9 \
+                --file="${BACKUP_PATH}" \
+                --exclude-table-data='data_migration_log' \
+                --exclude-table-data='data_cleanup_log' \
+                --exclude-table-data='data_archive_log'
+              
+              # Verify backup file was created
+              if [ ! -f "${BACKUP_PATH}" ]; then
+                echo "ERROR: Backup file was not created"
+                exit 1
+              fi
+              
+              # Get backup file size
+              BACKUP_SIZE=$(du -h "${BACKUP_PATH}" | cut -f1)
+              echo "Backup created successfully: ${BACKUP_FILE} (${BACKUP_SIZE})"
+              
+              # Upload to S3
+              echo "Uploading backup to S3: s3://${S3_BUCKET}/database-backups/${BACKUP_FILE}"
+              aws s3 cp "${BACKUP_PATH}" "s3://${S3_BUCKET}/database-backups/${BACKUP_FILE}" \
+                --storage-class STANDARD_IA
+              
+              # Verify upload
+              if aws s3 ls "s3://${S3_BUCKET}/database-backups/${BACKUP_FILE}" > /dev/null; then
+                echo "Backup uploaded successfully to S3"
+              else
+                echo "ERROR: Failed to upload backup to S3"
+                exit 1
+              fi
+              
+              # Clean up old backups (keep last 30 days)
+              echo "Cleaning up old backups (retention: ${BACKUP_RETENTION_DAYS} days)"
+              CUTOFF_DATE=$(date -d "${BACKUP_RETENTION_DAYS} days ago" +%Y%m%d)
+              
+              aws s3 ls "s3://${S3_BUCKET}/database-backups/" | while read -r line; do
+                BACKUP_NAME=$(echo $line | awk '{print $4}')
+                if [[ $BACKUP_NAME =~ exception_collector_backup_([0-9]{8})_ ]]; then
+                  BACKUP_DATE_STR="${BASH_REMATCH[1]}"
+                  if [ "$BACKUP_DATE_STR" -lt "$CUTOFF_DATE" ]; then
+                    echo "Deleting old backup: $BACKUP_NAME"
+                    aws s3 rm "s3://${S3_BUCKET}/database-backups/$BACKUP_NAME"
+                  fi
+                fi
+              done
+              
+              # Create backup metadata
+              cat > /tmp/backup_metadata.json << EOF
+              {
+                "backup_date": "${BACKUP_DATE}",
+                "backup_file": "${BACKUP_FILE}",
+                "backup_size": "${BACKUP_SIZE}",
+                "database": "${PGDATABASE}",
+                "host": "${PGHOST}",
+                "tables_backed_up": [
+                  "interface_exceptions",
+                  "retry_attempts",
+                  "interface_exceptions_archive",
+                  "retry_attempts_archive"
+                ],
+                "excluded_tables": [
+                  "data_migration_log",
+                  "data_cleanup_log", 
+                  "data_archive_log"
+                ]
+              }
+              EOF
+              
+              # Upload metadata
+              aws s3 cp /tmp/backup_metadata.json \
+                "s3://${S3_BUCKET}/database-backups/metadata/${BACKUP_FILE}.metadata.json"
+              
+              echo "Database backup completed successfully"
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /tmp/backup
+          volumes:
+          - name: backup-storage
+            emptyDir:
+              sizeLimit: 2Gi
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: exception-collector-backup
+  namespace: biopro
+  labels:
+    app: interface-exception-collector
+    component: backup
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: exception-collector-backup
+  namespace: biopro
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: exception-collector-backup
+  namespace: biopro
+subjects:
+- kind: ServiceAccount
+  name: exception-collector-backup
+  namespace: biopro
+roleRef:
+  kind: Role
+  name: exception-collector-backup
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-config
+  namespace: biopro
+  labels:
+    app: interface-exception-collector
+    component: backup
+data:
+  s3-bucket: "biopro-database-backups"
+  aws-region: "us-west-2"
+  retention-days: "30"

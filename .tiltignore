@@ -1,0 +1,74 @@
+# Tilt ignore file - files and directories to ignore for file watching
+
+# Build artifacts
+target/
+*.jar
+*.war
+*.class
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Test files (for live reload, we don't need to watch test files)
+src/test/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+
+# Maven wrapper
+.mvn/
+mvnw
+mvnw.cmd
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Kubernetes manifests (already loaded by Tilt)
+k8s/
+helm/
+
+# Scripts (except the ones we need)
+scripts/
+*.sh
+!dev-start.sh
+
+# Configuration files that don't affect runtime
+.prettierrc
+.prettierignore
+checkstyle.xml
+sonar-project.properties
+lombok.config
+
+# CI/CD
+.gitlab-ci.yml
+.github/
+
+# Other
+site/
+requirements.md
+IMPLEMENTATION_SUMMARY.md
+MONITORING_IMPLEMENTATION_SUMMARY.md
+SECURITY_IMPLEMENTATION.md

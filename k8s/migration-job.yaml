@@ -1,0 +1,149 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migration-job
+  labels:
+    app: migration-job
+spec:
+  template:
+    metadata:
+      labels:
+        app: migration-job
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:15-alpine
+        command:
+          - sh
+          - -c
+          - |
+            until pg_isready -h postgres -p 5432 -U exception_user; do
+              echo "Waiting for PostgreSQL to be ready..."
+              sleep 2
+            done
+            echo "PostgreSQL is ready!"
+      containers:
+      - name: flyway
+        image: flyway/flyway:10.21.0-alpine
+        command:
+          - flyway
+          - -url=jdbc:postgresql://postgres:5432/exception_collector_db
+          - -user=exception_user
+          - -password=exception_pass
+          - -locations=filesystem:/flyway/sql
+          - -baselineOnMigrate=true
+          - migrate
+        volumeMounts:
+        - name: migration-scripts
+          mountPath: /flyway/sql
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: migration-scripts
+        configMap:
+          name: migration-scripts
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-scripts
+data:
+  V1__Create_interface_exceptions_table.sql: |
+    CREATE TABLE IF NOT EXISTS interface_exceptions (
+        id BIGSERIAL PRIMARY KEY,
+        transaction_id VARCHAR(255) NOT NULL UNIQUE,
+        interface_type VARCHAR(50) NOT NULL,
+        exception_reason TEXT NOT NULL,
+        operation VARCHAR(100) NOT NULL,
+        external_id VARCHAR(255),
+        status VARCHAR(50) NOT NULL DEFAULT 'NEW',
+        severity VARCHAR(50) NOT NULL DEFAULT 'MEDIUM',
+        category VARCHAR(50) NOT NULL,
+        retryable BOOLEAN NOT NULL DEFAULT true,
+        customer_id VARCHAR(255),
+        location_code VARCHAR(100),
+        timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+        processed_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        acknowledged_at TIMESTAMP WITH TIME ZONE,
+        acknowledged_by VARCHAR(255),
+        resolved_at TIMESTAMP WITH TIME ZONE,
+        resolved_by VARCHAR(255),
+        retry_count INTEGER NOT NULL DEFAULT 0,
+        last_retry_at TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    );
+
+  V2__Create_retry_attempts_table.sql: |
+    CREATE TABLE IF NOT EXISTS retry_attempts (
+        id BIGSERIAL PRIMARY KEY,
+        exception_id BIGINT NOT NULL REFERENCES interface_exceptions(id),
+        attempt_number INTEGER NOT NULL,
+        status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+        initiated_by VARCHAR(255) NOT NULL,
+        initiated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        completed_at TIMESTAMP WITH TIME ZONE,
+        result_success BOOLEAN,
+        result_message TEXT,
+        result_response_code INTEGER,
+        result_error_details JSONB,
+        UNIQUE(exception_id, attempt_number)
+    );
+
+  V3__Create_performance_indexes.sql: |
+    -- Primary lookup indexes
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_transaction_id ON interface_exceptions(transaction_id);
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_interface_type ON interface_exceptions(interface_type);
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_status ON interface_exceptions(status);
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_severity ON interface_exceptions(severity);
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_customer_id ON interface_exceptions(customer_id);
+
+    -- Time-based queries
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_timestamp ON interface_exceptions(timestamp DESC);
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_processed_at ON interface_exceptions(processed_at DESC);
+
+    -- Composite indexes for common filter combinations
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_type_status ON interface_exceptions(interface_type, status);
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_severity_timestamp ON interface_exceptions(severity, timestamp DESC);
+
+  V4__Create_fulltext_search_indexes.sql: |
+    -- Full-text search indexes
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_reason_fts ON interface_exceptions USING gin(to_tsvector('english', exception_reason));
+    CREATE INDEX IF NOT EXISTS idx_interface_exceptions_external_id_fts ON interface_exceptions USING gin(to_tsvector('english', external_id));
+
+  V5__Create_audit_triggers.sql: |
+    -- Update timestamp trigger function
+    CREATE OR REPLACE FUNCTION update_updated_at_column()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        NEW.updated_at = NOW();
+        RETURN NEW;
+    END;
+    $$ language 'plpgsql';
+
+    -- Create trigger for interface_exceptions
+    DROP TRIGGER IF EXISTS update_interface_exceptions_updated_at ON interface_exceptions;
+    CREATE TRIGGER update_interface_exceptions_updated_at
+        BEFORE UPDATE ON interface_exceptions
+        FOR EACH ROW
+        EXECUTE FUNCTION update_updated_at_column();
+
+  V6__Add_acknowledgment_and_resolution_fields.sql: |
+    -- Add additional fields if they don't exist (idempotent)
+    DO $$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='interface_exceptions' AND column_name='resolution_method') THEN
+            ALTER TABLE interface_exceptions ADD COLUMN resolution_method VARCHAR(50);
+        END IF;
+        
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='interface_exceptions' AND column_name='resolution_notes') THEN
+            ALTER TABLE interface_exceptions ADD COLUMN resolution_notes TEXT;
+        END IF;
+    END
+    $$;
