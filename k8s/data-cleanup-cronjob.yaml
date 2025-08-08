@@ -1,0 +1,236 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: exception-collector-data-cleanup
+  namespace: biopro
+  labels:
+    app: interface-exception-collector
+    component: data-cleanup
+spec:
+  # Run weekly on Sunday at 3 AM UTC
+  schedule: "0 3 * * 0"
+  timeZone: "UTC"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 7200  # 2 hour timeout
+      template:
+        metadata:
+          labels:
+            app: interface-exception-collector
+            component: data-cleanup
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: exception-collector-data-cleanup
+          containers:
+          - name: data-cleanup
+            image: postgres:15-alpine
+            env:
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: host
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: port
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: database
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            - name: RETENTION_DAYS
+              valueFrom:
+                configMapKeyRef:
+                  name: data-cleanup-config
+                  key: retention-days
+            - name: RESOLVED_RETENTION_DAYS
+              valueFrom:
+                configMapKeyRef:
+                  name: data-cleanup-config
+                  key: resolved-retention-days
+            - name: ARCHIVE_DAYS
+              valueFrom:
+                configMapKeyRef:
+                  name: data-cleanup-config
+                  key: archive-days
+            - name: BATCH_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: data-cleanup-config
+                  key: batch-size
+            - name: PRESERVE_CRITICAL
+              valueFrom:
+                configMapKeyRef:
+                  name: data-cleanup-config
+                  key: preserve-critical
+            - name: DRY_RUN
+              valueFrom:
+                configMapKeyRef:
+                  name: data-cleanup-config
+                  key: dry-run
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              echo "Starting automated data cleanup and archival"
+              echo "Configuration:"
+              echo "  Retention Days: ${RETENTION_DAYS}"
+              echo "  Resolved Retention Days: ${RESOLVED_RETENTION_DAYS}"
+              echo "  Archive Days: ${ARCHIVE_DAYS}"
+              echo "  Batch Size: ${BATCH_SIZE}"
+              echo "  Preserve Critical: ${PRESERVE_CRITICAL}"
+              echo "  Dry Run: ${DRY_RUN}"
+              
+              # Function to execute SQL and capture results
+              execute_sql() {
+                local sql="$1"
+                local description="$2"
+                
+                echo "Executing: $description"
+                psql --no-password --quiet --tuples-only --command "$sql" || {
+                  echo "ERROR: Failed to execute $description"
+                  return 1
+                }
+              }
+              
+              # Get cleanup statistics before operations
+              echo "=== Pre-cleanup Statistics ==="
+              execute_sql "SELECT metric_name, metric_value, recommendation FROM get_cleanup_statistics();" \
+                "Getting cleanup statistics"
+              
+              # Archive old exceptions first (if not dry run)
+              if [ "$DRY_RUN" = "false" ]; then
+                echo "=== Archiving Old Exceptions ==="
+                execute_sql "SELECT * FROM archive_old_exceptions(${ARCHIVE_DAYS}, ${BATCH_SIZE}, false, ${PRESERVE_CRITICAL}, 'automated-cronjob');" \
+                  "Archiving exceptions older than ${ARCHIVE_DAYS} days"
+              else
+                echo "=== Dry Run: Archive Analysis ==="
+                execute_sql "SELECT * FROM archive_old_exceptions(${ARCHIVE_DAYS}, ${BATCH_SIZE}, true, ${PRESERVE_CRITICAL}, 'automated-cronjob');" \
+                  "Analyzing archival for exceptions older than ${ARCHIVE_DAYS} days"
+              fi
+              
+              # Clean up resolved exceptions
+              echo "=== Cleaning Up Resolved Exceptions ==="
+              if [ "$DRY_RUN" = "false" ]; then
+                execute_sql "SELECT * FROM cleanup_resolved_exceptions(${RESOLVED_RETENTION_DAYS}, ${BATCH_SIZE}, false);" \
+                  "Cleaning up resolved exceptions older than ${RESOLVED_RETENTION_DAYS} days"
+              else
+                execute_sql "SELECT * FROM cleanup_resolved_exceptions(${RESOLVED_RETENTION_DAYS}, ${BATCH_SIZE}, true);" \
+                  "Analyzing cleanup for resolved exceptions older than ${RESOLVED_RETENTION_DAYS} days"
+              fi
+              
+              # Clean up very old exceptions (beyond archive period)
+              echo "=== Cleaning Up Very Old Exceptions ==="
+              if [ "$DRY_RUN" = "false" ]; then
+                execute_sql "SELECT * FROM cleanup_old_exceptions(${RETENTION_DAYS}, ${BATCH_SIZE}, false, ${PRESERVE_CRITICAL});" \
+                  "Cleaning up exceptions older than ${RETENTION_DAYS} days"
+              else
+                execute_sql "SELECT * FROM cleanup_old_exceptions(${RETENTION_DAYS}, ${BATCH_SIZE}, true, ${PRESERVE_CRITICAL});" \
+                  "Analyzing cleanup for exceptions older than ${RETENTION_DAYS} days"
+              fi
+              
+              # Validate data integrity after cleanup
+              echo "=== Data Integrity Validation ==="
+              execute_sql "SELECT validation_type, issue_count FROM validate_migrated_data();" \
+                "Validating data integrity"
+              
+              # Get final statistics
+              echo "=== Post-cleanup Statistics ==="
+              execute_sql "SELECT metric_name, metric_value, recommendation FROM get_cleanup_statistics();" \
+                "Getting final cleanup statistics"
+              
+              # Get archive statistics
+              echo "=== Archive Statistics ==="
+              execute_sql "SELECT metric_name, main_table_count, archive_table_count, total_count, archive_percentage FROM get_archive_statistics();" \
+                "Getting archive statistics"
+              
+              # Update database statistics
+              echo "=== Updating Database Statistics ==="
+              execute_sql "ANALYZE interface_exceptions, retry_attempts, interface_exceptions_archive, retry_attempts_archive;" \
+                "Updating table statistics"
+              
+              echo "Automated data cleanup and archival completed successfully"
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "100m"
+              limits:
+                memory: "256Mi"
+                cpu: "200m"
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: exception-collector-data-cleanup
+  namespace: biopro
+  labels:
+    app: interface-exception-collector
+    component: data-cleanup
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: exception-collector-data-cleanup
+  namespace: biopro
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: exception-collector-data-cleanup
+  namespace: biopro
+subjects:
+- kind: ServiceAccount
+  name: exception-collector-data-cleanup
+  namespace: biopro
+roleRef:
+  kind: Role
+  name: exception-collector-data-cleanup
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-cleanup-config
+  namespace: biopro
+  labels:
+    app: interface-exception-collector
+    component: data-cleanup
+data:
+  # Keep exceptions for 2 years before deletion
+  retention-days: "730"
+  # Keep resolved exceptions for 90 days
+  resolved-retention-days: "90"
+  # Archive exceptions after 1 year
+  archive-days: "365"
+  # Process in batches of 1000
+  batch-size: "1000"
+  # Preserve critical exceptions from deletion
+  preserve-critical: "true"
+  # Set to false to actually perform cleanup
+  dry-run: "true"

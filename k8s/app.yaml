@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  SPRING_PROFILES_ACTIVE: "local"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/exception_collector_db"
+  SPRING_DATASOURCE_USERNAME: "exception_user"
+  SPRING_DATASOURCE_PASSWORD: "exception_pass"
+  SPRING_DATA_REDIS_HOST: "redis"
+  SPRING_DATA_REDIS_PORT: "6379"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  LOGGING_LEVEL_COM_ARCONE_BIOPRO: "DEBUG"
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,metrics,prometheus,loggers"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interface-exception-collector
+  labels:
+    app: interface-exception-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: interface-exception-collector
+  template:
+    metadata:
+      labels:
+        app: interface-exception-collector
+    spec:
+      containers:
+      - name: app
+        image: interface-exception-collector
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 5005
+          name: debug
+        envFrom:
+        - configMapRef:
+            name: app-config
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx512m -Xms256m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interface-exception-collector
+  labels:
+    app: interface-exception-collector
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: debug
+    port: 5005
+    targetPort: 5005
+  selector:
+    app: interface-exception-collector

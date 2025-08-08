@@ -1,0 +1,122 @@
+# Development environment values
+replicaCount: 1
+
+image:
+  tag: "dev"
+  pullPolicy: Always
+
+app:
+  profile: development
+  logLevel: DEBUG
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+
+# Development database settings
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "dev-postgres-password"
+    username: "dev_user"
+    password: "dev-password"
+    database: "exception_collector_dev"
+  primary:
+    persistence:
+      enabled: false
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+# Development Redis settings
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: false
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
+
+# Development Kafka settings
+app:
+  kafka:
+    consumer:
+      autoOffsetReset: latest
+      maxPollRecords: 100
+    producer:
+      acks: 1
+      retries: 1
+
+# Development external services
+  externalServices:
+    orderService:
+      baseUrl: http://order-service-dev:8080
+    collectionService:
+      baseUrl: http://collection-service-dev:8080
+    distributionService:
+      baseUrl: http://distribution-service-dev:8080
+
+# Development ingress
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: exception-collector-dev.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+# Development monitoring
+monitoring:
+  enabled: false
+
+# Kafka topics with single partition for dev
+kafkaTopics:
+  topics:
+    - name: order-rejected
+      partitions: 1
+      replicationFactor: 1
+    - name: order-cancelled
+      partitions: 1
+      replicationFactor: 1
+    - name: collection-rejected
+      partitions: 1
+      replicationFactor: 1
+    - name: distribution-failed
+      partitions: 1
+      replicationFactor: 1
+    - name: validation-error
+      partitions: 1
+      replicationFactor: 1
+    - name: exception-captured
+      partitions: 1
+      replicationFactor: 1
+    - name: exception-resolved
+      partitions: 1
+      replicationFactor: 1
+    - name: critical-alert
+      partitions: 1
+      replicationFactor: 1
+    - name: exception-retry-completed
+      partitions: 1
+      replicationFactor: 1

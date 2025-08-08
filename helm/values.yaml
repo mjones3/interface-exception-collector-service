@@ -1,0 +1,296 @@
+# Default values for interface-exception-collector
+# This is a YAML-formatted file.
+
+replicaCount: 2
+
+image:
+  repository: interface-exception-collector
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1000
+  runAsNonRoot: true
+  runAsUser: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+  annotations: {}
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: exception-collector.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - interface-exception-collector
+        topologyKey: kubernetes.io/hostname
+
+# Application configuration
+app:
+  profile: production
+  logLevel: INFO
+  
+  # Database configuration
+  database:
+    host: postgresql
+    port: 5432
+    name: exception_collector
+    username: exception_user
+    # Password will be set via secret
+    connectionPool:
+      minimumIdle: 5
+      maximumPoolSize: 20
+      connectionTimeout: 30000
+      idleTimeout: 600000
+      maxLifetime: 1800000
+  
+  # Kafka configuration
+  kafka:
+    bootstrapServers: kafka:9092
+    consumerGroup: interface-exception-collector
+    topics:
+      orderRejected: order-rejected
+      orderCancelled: order-cancelled
+      collectionRejected: collection-rejected
+      distributionFailed: distribution-failed
+      validationError: validation-error
+      exceptionCaptured: exception-captured
+      exceptionResolved: exception-resolved
+      criticalAlert: critical-alert
+      exceptionRetryCompleted: exception-retry-completed
+    consumer:
+      autoOffsetReset: earliest
+      enableAutoCommit: false
+      maxPollRecords: 500
+      sessionTimeoutMs: 30000
+      heartbeatIntervalMs: 3000
+    producer:
+      acks: all
+      retries: 3
+      batchSize: 16384
+      lingerMs: 5
+      bufferMemory: 33554432
+  
+  # Redis configuration
+  redis:
+    host: redis-master
+    port: 6379
+    database: 0
+    timeout: 2000
+    # Password will be set via secret
+    pool:
+      maxActive: 20
+      maxIdle: 10
+      minIdle: 5
+      maxWait: 3000
+  
+  # External service configuration
+  externalServices:
+    orderService:
+      baseUrl: http://order-service:8080
+      timeout: 5000
+      circuitBreaker:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30000
+        slidingWindowSize: 10
+    collectionService:
+      baseUrl: http://collection-service:8080
+      timeout: 5000
+      circuitBreaker:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30000
+        slidingWindowSize: 10
+    distributionService:
+      baseUrl: http://distribution-service:8080
+      timeout: 5000
+      circuitBreaker:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30000
+        slidingWindowSize: 10
+  
+  # Security configuration
+  security:
+    jwt:
+      # Secret will be set via secret
+      expiration: 86400000 # 24 hours
+    rateLimiting:
+      enabled: true
+      requestsPerMinute: 100
+      burstCapacity: 200
+
+# Health check configuration
+healthCheck:
+  livenessProbe:
+    httpGet:
+      path: /actuator/health/liveness
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readinessProbe:
+    httpGet:
+      path: /actuator/health/readiness
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    path: /actuator/prometheus
+    port: 8080
+
+# PostgreSQL dependency configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "postgres-admin-password"
+    username: "exception_user"
+    password: "exception-password"
+    database: "exception_collector"
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+# Redis dependency configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "redis-password"
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+# Migration job configuration
+migration:
+  enabled: true
+  image:
+    repository: interface-exception-collector
+    tag: "latest"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Kafka topic creation job configuration
+kafkaTopics:
+  enabled: true
+  image:
+    repository: confluentinc/cp-kafka
+    tag: "7.4.0"
+  topics:
+    - name: order-rejected
+      partitions: 3
+      replicationFactor: 1
+    - name: order-cancelled
+      partitions: 3
+      replicationFactor: 1
+    - name: collection-rejected
+      partitions: 3
+      replicationFactor: 1
+    - name: distribution-failed
+      partitions: 3
+      replicationFactor: 1
+    - name: validation-error
+      partitions: 3
+      replicationFactor: 1
+    - name: exception-captured
+      partitions: 3
+      replicationFactor: 1
+    - name: exception-resolved
+      partitions: 3
+      replicationFactor: 1
+    - name: critical-alert
+      partitions: 3
+      replicationFactor: 1
+    - name: exception-retry-completed
+      partitions: 3
+      replicationFactor: 1

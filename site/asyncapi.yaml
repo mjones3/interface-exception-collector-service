@@ -1,0 +1,683 @@
+asyncapi: 3.0.0
+info:
+  title: Interface Exception Collector Service - Event API
+  version: 1.0.0
+  description: |
+    Event-driven API for the Interface Exception Collector Service.
+    
+    This service consumes exception events from various BioPro interface services
+    and publishes events related to exception processing, retry operations, and
+    resolution activities.
+  contact:
+    name: BioPro Architecture Team
+    email: architecture@arcone.com
+  license:
+    name: Proprietary
+    url: https://arcone.com/license
+
+defaultContentType: application/json
+
+servers:
+  kafka-prod:
+    host: kafka.biopro.arcone.com:9092
+    protocol: kafka
+    description: Production Kafka Cluster
+  kafka-staging:
+    host: kafka-staging.biopro.arcone.com:9092
+    protocol: kafka
+    description: Staging Kafka Cluster
+  kafka-local:
+    host: localhost:9092
+    protocol: kafka
+    description: Local Development Kafka
+
+channels:
+  # Inbound Events - Events this service consumes
+  OrderRejected:
+    address: OrderRejected
+    description: Order rejection events from Order Service
+    messages:
+      OrderRejected:
+        $ref: '#/components/messages/OrderRejected'
+
+  OrderCancelled:
+    address: OrderCancelled
+    description: Order cancellation events from Order Service
+    messages:
+      OrderCancelled:
+        $ref: '#/components/messages/OrderCancelled'
+
+  CollectionRejected:
+    address: CollectionRejected
+    description: Collection rejection events from Collection Service
+    messages:
+      CollectionRejected:
+        $ref: '#/components/messages/CollectionRejected'
+
+  DistributionFailed:
+    address: DistributionFailed
+    description: Distribution failure events from Distribution Service
+    messages:
+      DistributionFailed:
+        $ref: '#/components/messages/DistributionFailed'
+
+  ValidationError:
+    address: ValidationError
+    description: Schema validation errors from any interface service
+    messages:
+      ValidationError:
+        $ref: '#/components/messages/ValidationError'
+
+  # Outbound Events - Events this service publishes
+  ExceptionCaptured:
+    address: ExceptionCaptured
+    description: Published when new exception is captured and stored
+    messages:
+      ExceptionCaptured:
+        $ref: '#/components/messages/ExceptionCaptured'
+
+  ExceptionRetryCompleted:
+    address: ExceptionRetryCompleted
+    description: Published when retry operation completes
+    messages:
+      ExceptionRetryCompleted:
+        $ref: '#/components/messages/ExceptionRetryCompleted'
+
+  ExceptionResolved:
+    address: ExceptionResolved
+    description: Published when exception reaches resolved state
+    messages:
+      ExceptionResolved:
+        $ref: '#/components/messages/ExceptionResolved'
+
+  CriticalExceptionAlert:
+    address: CriticalExceptionAlert
+    description: High-priority alerts for critical exceptions
+    messages:
+      CriticalExceptionAlert:
+        $ref: '#/components/messages/CriticalExceptionAlert'
+
+operations:
+  # Receive Operations - Events this service consumes
+  handleOrderRejected:
+    action: receive
+    channel:
+      $ref: '#/channels/OrderRejected'
+    summary: Handle Order Rejection Events
+    description: Processes order rejection events to create exception records
+    messages:
+      - $ref: '#/channels/OrderRejected/messages/OrderRejected'
+
+  handleOrderCancelled:
+    action: receive
+    channel:
+      $ref: '#/channels/OrderCancelled'
+    summary: Handle Order Cancellation Events
+    description: Processes order cancellation events for exception tracking
+    messages:
+      - $ref: '#/channels/OrderCancelled/messages/OrderCancelled'
+
+  handleCollectionRejected:
+    action: receive
+    channel:
+      $ref: '#/channels/CollectionRejected'
+    summary: Handle Collection Rejection Events
+    description: Processes collection rejection events to create exception records
+    messages:
+      - $ref: '#/channels/CollectionRejected/messages/CollectionRejected'
+
+  handleDistributionFailed:
+    action: receive
+    channel:
+      $ref: '#/channels/DistributionFailed'
+    summary: Handle Distribution Failure Events
+    description: Processes distribution failure events for exception management
+    messages:
+      - $ref: '#/channels/DistributionFailed/messages/DistributionFailed'
+
+  handleValidationError:
+    action: receive
+    channel:
+      $ref: '#/channels/ValidationError'
+    summary: Handle Validation Error Events
+    description: Processes validation errors from any interface service
+    messages:
+      - $ref: '#/channels/ValidationError/messages/ValidationError'
+
+  # Send Operations - Events this service publishes
+  publishExceptionCaptured:
+    action: send
+    channel:
+      $ref: '#/channels/ExceptionCaptured'
+    summary: Publish Exception Captured Event
+    description: Notifies other services when new exception is captured
+    messages:
+      - $ref: '#/channels/ExceptionCaptured/messages/ExceptionCaptured'
+
+  publishExceptionRetryCompleted:
+    action: send
+    channel:
+      $ref: '#/channels/ExceptionRetryCompleted'
+    summary: Publish Retry Completion Event
+    description: Notifies about retry operation results
+    messages:
+      - $ref: '#/channels/ExceptionRetryCompleted/messages/ExceptionRetryCompleted'
+
+  publishExceptionResolved:
+    action: send
+    channel:
+      $ref: '#/channels/ExceptionResolved'
+    summary: Publish Exception Resolution Event
+    description: Notifies when exception is fully resolved
+    messages:
+      - $ref: '#/channels/ExceptionResolved/messages/ExceptionResolved'
+
+  publishCriticalAlert:
+    action: send
+    channel:
+      $ref: '#/channels/CriticalExceptionAlert'
+    summary: Publish Critical Exception Alert
+    description: Sends high-priority alerts for critical exceptions
+    messages:
+      - $ref: '#/channels/CriticalExceptionAlert/messages/CriticalExceptionAlert'
+
+components:
+  messages:
+    # Inbound Message Definitions
+    OrderRejected:
+      name: OrderRejected
+      title: Order Rejection Event
+      summary: Order request rejected by Order Service
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/withCorrelation'
+        - $ref: '#/components/messageTraits/withTimestamp'
+        - $ref: '#/components/messageTraits/withSource'
+      payload:
+        $ref: '#/components/schemas/OrderRejectedPayload'
+      examples:
+        - name: DuplicateOrderExample
+          payload:
+            eventId: "evt-12345"
+            eventType: "OrderRejected"
+            eventVersion: "1.0"
+            occurredOn: "2025-08-04T10:30:00Z"
+            source: "order-service"
+            payload:
+              transactionId: "550e8400-e29b-41d4-a716-446655440000"
+              externalId: "ORDER-ABC123"
+              operation: "CREATE_ORDER"
+              rejectedReason: "Order already exists"
+              customerId: "CUST001"
+
+    OrderCancelled:
+      name: OrderCancelled
+      title: Order Cancellation Event
+      summary: Order cancelled due to processing issues
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrderCancelledPayload'
+
+    CollectionRejected:
+      name: CollectionRejected
+      title: Collection Rejection Event
+      summary: Collection request rejected by Collection Service
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/CollectionRejectedPayload'
+
+    DistributionFailed:
+      name: DistributionFailed
+      title: Distribution Failure Event
+      summary: Distribution processing failed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DistributionFailedPayload'
+
+    ValidationError:
+      name: ValidationError
+      title: Validation Error Event
+      summary: Schema or data validation failure
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ValidationErrorPayload'
+
+    # Outbound Message Definitions
+    ExceptionCaptured:
+      name: ExceptionCaptured
+      title: Exception Captured Event
+      summary: New exception has been captured and stored
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/withCorrelation'
+        - $ref: '#/components/messageTraits/withTimestamp'
+        - $ref: '#/components/messageTraits/withSource'
+      payload:
+        $ref: '#/components/schemas/ExceptionCapturedPayload'
+      examples:
+        - name: OrderExceptionCaptured
+          payload:
+            eventId: "evt-67890"
+            eventType: "ExceptionCaptured"
+            eventVersion: "1.0"
+            occurredOn: "2025-08-04T10:30:05Z"
+            source: "exception-collector-service"
+            payload:
+              exceptionId: 12345
+              transactionId: "550e8400-e29b-41d4-a716-446655440000"
+              interfaceType: "ORDER"
+              severity: "MEDIUM"
+              category: "BUSINESS_RULE"
+
+    ExceptionRetryCompleted:
+      name: ExceptionRetryCompleted
+      title: Exception Retry Completed Event
+      summary: Retry operation has completed with results
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ExceptionRetryCompletedPayload'
+
+    ExceptionResolved:
+      name: ExceptionResolved
+      title: Exception Resolved Event
+      summary: Exception has been fully resolved
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ExceptionResolvedPayload'
+
+    CriticalExceptionAlert:
+      name: CriticalExceptionAlert
+      title: Critical Exception Alert
+      summary: High-priority alert for critical exception
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/CriticalExceptionAlertPayload'
+
+  schemas:
+    # Common Event Envelope
+    EventEnvelope:
+      type: object
+      required:
+        - eventId
+        - eventType
+        - eventVersion
+        - occurredOn
+        - source
+        - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          description: Unique event identifier
+        eventType:
+          type: string
+          description: Type of event
+        eventVersion:
+          type: string
+          description: Event schema version
+          pattern: '^\d+\.\d+$'
+        occurredOn:
+          type: string
+          format: date-time
+          description: When the event occurred
+        source:
+          type: string
+          description: Service that published the event
+        correlationId:
+          type: string
+          format: uuid
+          description: Correlation ID for request tracing
+        causationId:
+          type: string
+          format: uuid
+          description: ID of the event that caused this event
+
+    # Inbound Event Payloads
+    OrderRejectedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            payload:
+              type: object
+              required:
+                - transactionId
+                - externalId
+                - operation
+                - rejectedReason
+              properties:
+                transactionId:
+                  type: string
+                  format: uuid
+                  description: Transaction ID from order processing
+                externalId:
+                  type: string
+                  description: Customer's external order ID
+                operation:
+                  type: string
+                  enum: [CREATE_ORDER, MODIFY_ORDER, CANCEL_ORDER]
+                rejectedReason:
+                  type: string
+                  description: Human-readable rejection reason
+                customerId:
+                  type: string
+                  description: Customer identifier
+                locationCode:
+                  type: string
+                  description: Location where order was submitted
+                orderItems:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      bloodType:
+                        type: string
+                      productFamily:
+                        type: string
+                      quantity:
+                        type: integer
+
+    OrderCancelledPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            payload:
+              type: object
+              required:
+                - transactionId
+                - externalId
+                - cancelReason
+              properties:
+                transactionId:
+                  type: string
+                  format: uuid
+                externalId:
+                  type: string
+                cancelReason:
+                  type: string
+                cancelledBy:
+                  type: string
+                customerId:
+                  type: string
+
+    CollectionRejectedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            payload:
+              type: object
+              required:
+                - transactionId
+                - collectionId
+                - operation
+                - rejectedReason
+              properties:
+                transactionId:
+                  type: string
+                  format: uuid
+                collectionId:
+                  type: string
+                operation:
+                  type: string
+                  enum: [CREATE_COLLECTION, MODIFY_COLLECTION]
+                rejectedReason:
+                  type: string
+                donorId:
+                  type: string
+                locationCode:
+                  type: string
+
+    DistributionFailedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            payload:
+              type: object
+              required:
+                - transactionId
+                - distributionId
+                - operation
+                - failureReason
+              properties:
+                transactionId:
+                  type: string
+                  format: uuid
+                distributionId:
+                  type: string
+                operation:
+                  type: string
+                  enum: [CREATE_DISTRIBUTION, MODIFY_DISTRIBUTION]
+                failureReason:
+                  type: string
+                customerId:
+                  type: string
+                destinationLocation:
+                  type: string
+
+    ValidationErrorPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            payload:
+              type: object
+              required:
+                - transactionId
+                - interfaceType
+                - validationErrors
+              properties:
+                transactionId:
+                  type: string
+                  format: uuid
+                interfaceType:
+                  type: string
+                  enum: [ORDER, COLLECTION, DISTRIBUTION]
+                validationErrors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        type: string
+                      errorCode:
+                        type: string
+                      message:
+                        type: string
+
+    # Outbound Event Payloads
+    ExceptionCapturedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            payload:
+              type: object
+              required:
+                - exceptionId
+                - transactionId
+                - interfaceType
+                - severity
+                - category
+              properties:
+                exceptionId:
+                  type: integer
+                  format: int64
+                transactionId:
+                  type: string
+                  format: uuid
+                interfaceType:
+                  type: string
+                  enum: [ORDER, COLLECTION, DISTRIBUTION]
+                severity:
+                  type: string
+                  enum: [LOW, MEDIUM, HIGH, CRITICAL]
+                category:
+                  type: string
+                  enum: [BUSINESS_RULE, VALIDATION, SYSTEM_ERROR, INTEGRATION]
+                exceptionReason:
+                  type: string
+                customerId:
+                  type: string
+                retryable:
+                  type: boolean
+
+    ExceptionRetryCompletedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            payload:
+              type: object
+              required:
+                - exceptionId
+                - transactionId
+                - attemptNumber
+                - retryStatus
+              properties:
+                exceptionId:
+                  type: integer
+                  format: int64
+                transactionId:
+                  type: string
+                  format: uuid
+                attemptNumber:
+                  type: integer
+                  minimum: 1
+                retryStatus:
+                  type: string
+                  enum: [SUCCESS, FAILED]
+                retryResult:
+                  type: object
+                  properties:
+                    success:
+                      type: boolean
+                    message:
+                      type: string
+                    responseCode:
+                      type: integer
+                    errorDetails:
+                      type: object
+                initiatedBy:
+                  type: string
+                  description: User or system that initiated retry
+                completedAt:
+                  type: string
+                  format: date-time
+
+    ExceptionResolvedPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            payload:
+              type: object
+              required:
+                - exceptionId
+                - transactionId
+                - resolutionMethod
+              properties:
+                exceptionId:
+                  type: integer
+                  format: int64
+                transactionId:
+                  type: string
+                  format: uuid
+                resolutionMethod:
+                  type: string
+                  enum: [RETRY_SUCCESS, MANUAL_RESOLUTION, CUSTOMER_RESOLVED, AUTOMATED]
+                  description: How the exception was resolved
+                resolvedBy:
+                  type: string
+                  description: User or system that resolved the exception
+                resolvedAt:
+                  type: string
+                  format: date-time
+                totalRetryAttempts:
+                  type: integer
+                  minimum: 0
+                resolutionNotes:
+                  type: string
+                  description: Optional notes about the resolution
+
+    CriticalExceptionAlertPayload:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            payload:
+              type: object
+              required:
+                - exceptionId
+                - transactionId
+                - alertLevel
+                - alertReason
+              properties:
+                exceptionId:
+                  type: integer
+                  format: int64
+                transactionId:
+                  type: string
+                  format: uuid
+                alertLevel:
+                  type: string
+                  enum: [HIGH, CRITICAL, EMERGENCY]
+                alertReason:
+                  type: string
+                  enum: [CRITICAL_SEVERITY, MULTIPLE_RETRIES_FAILED, SYSTEM_ERROR, CUSTOMER_IMPACT]
+                interfaceType:
+                  type: string
+                  enum: [ORDER, COLLECTION, DISTRIBUTION]
+                exceptionReason:
+                  type: string
+                customerId:
+                  type: string
+                customersAffected:
+                  type: integer
+                  description: Number of customers affected by this exception pattern
+                estimatedImpact:
+                  type: string
+                  enum: [LOW, MEDIUM, HIGH, SEVERE]
+                requiresImmediateAction:
+                  type: boolean
+                escalationTeam:
+                  type: string
+                  enum: [OPERATIONS, ENGINEERING, CUSTOMER_SUCCESS, MANAGEMENT]
+
+  # Message Traits for common patterns
+  messageTraits:
+    withCorrelation:
+      headers:
+        type: object
+        properties:
+          correlationId:
+            type: string
+            format: uuid
+            description: Correlation ID for request tracing
+          causationId:
+            type: string
+            format: uuid
+            description: ID of the event that caused this event
+
+    withTimestamp:
+      headers:
+        type: object
+        properties:
+          timestamp:
+            type: string
+            format: date-time
+            description: When the message was created
+
+    withSource:
+      headers:
+        type: object
+        properties:
+          source:
+            type: string
+            description: Service that produced this message
+          version:
+            type: string
+            description: Version of the producing service
+

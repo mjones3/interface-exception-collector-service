@@ -1,195 +1,248 @@
 ######################
-# Project Specific
+# Java
 ######################
-/target/www/**
-/src/test/javascript/coverage/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
 
 ######################
-# Node
+# Maven
 ######################
-/node/
-node_tmp/
-node_modules/
-npm-debug.log.*
-/.awcache/*
-/.cache-loader/*
-/.devcontainer/*
-
 target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Maven Wrapper
+!.mvn/wrapper/maven-wrapper.jar
 
 ######################
-# SASS
+# Spring Boot
 ######################
-.sass-cache/
+*.log
+logs/
+application-local.yml
+application-*.yml
+!application.yml
+!application-*.yml.template
 
 ######################
+# IDE
+######################
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+*.ids
+*.orig
+
 # Eclipse
-######################
-*.pydevproject
 .project
+.classpath
+.settings/
 .metadata
+.loadpath
+.factorypath
+bin/
 tmp/
-tmp/**/*
 *.tmp
 *.bak
 *.swp
 *~.nib
 local.properties
-.classpath
-.settings/
-.loadpath
-.factorypath
-/src/main/resources/rebel.xml
 
-# External tool builders
-.externalToolBuilders/**
-
-# Locally stored "Eclipse launch configurations"
-*.launch
-
-# CDT-specific
-.cproject
-
-# PDT-specific
-.buildpath
-
-######################
-# Intellij
-######################
-.idea/
-*.iml
-*.iws
-*.ipr
-*.ids
-*.orig
-classes/
-
-######################
 # Visual Studio Code
-######################
 .vscode/
+*.code-workspace
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 
 ######################
-# Maven
-######################
-/log/
-/target/
-
-######################
-# Gradle
-######################
-.gradle/
-/build/
-
-######################
-# Package Files
-######################
-*.jar
-*.war
-*.ear
-*.db
-*.zip
-*.exe
-
+# Operating System
 ######################
 # Windows
-######################
-# Windows image file caches
 Thumbs.db
-
-# Folder config file
+ehthumbs.db
 Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
 
-######################
-# Mac OSX
-######################
+# macOS
 .DS_Store
-.svn
-
-# Thumbnails
+.AppleDouble
+.LSOverride
+Icon
 ._*
-
-# Files that might appear on external disk
+.DocumentRevisions-V100
+.fseventsd
 .Spotlight-V100
+.TemporaryItems
 .Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
-######################
-# Directories
-######################
-/bin/
-/deploy/
-
-######################
-# Logs
-######################
-*.log*
-
-######################
-# Others
-######################
-*.class
-*.*~
+# Linux
 *~
-.merge_file*
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
 
 ######################
-# Gradle Wrapper
+# Docker
 ######################
-!gradle/wrapper/gradle-wrapper.jar
+.dockerignore
+docker-compose.override.yml
+.docker/
 
 ######################
-# Maven Wrapper
+# Kubernetes
 ######################
-!.mvn/wrapper/maven-wrapper.jar
+# Helm
+*.tgz
+charts/*.tgz
+.helm/
+
+# Kubernetes secrets and configs
+*-secret.yaml
+*-configmap.yaml
+kustomization.yaml
+.kube/
+
+# Tilt
+.tiltbuild/
 
 ######################
-# ESLint
+# Testing
 ######################
-.eslintcache
-/build.sh
+/coverage/
+/test-results/
+/allure-results/
+/allure-report/
+*.lcov
+jacoco.exec
+*.exec
 
 ######################
-# Angular
+# Build Tools
 ######################
-.angular
-/package-lock.json
-# misc
-/.angular/cache
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-.nx
-ui/.nx-cache
-/**/report/allure-report
-/**/report/allure-results
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
 
-
-*.class
-*.log
-*.jar
-*.war
-*.nar
-*.ear
-
+# SBT
+.sbt
+project/project/
+project/target/
 target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
 
-.vscode/
-.idea/
-*.iws
-*.iml
-*.ipr
+######################
+# Security
+######################
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+*.keystore
+*.truststore
 
-.DS_Store
-Thumbs.db
+# Environment files
+.env
+.env.local
+.env.*.local
 
+######################
+# Cache and Temporary
+######################
+.cache/
+.tmp/
+.temp/
+*.pid
+*.seed
+*.pid.lock
+
+######################
+# Database
+######################
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+######################
+# Monitoring and Profiling
+######################
+*.hprof
+*.prof
+flight.jfr
+*.jfr
+
+######################
+# Documentation
+######################
+.asciidoctor/
+
+######################
+# Backup Files
+######################
+*.backup
+*.bak
+*~
+*.orig
+*.rej
+
+######################
+# Project Specific
+######################
+# Local configuration overrides
 application-local.yml
-logs/
+application-dev-local.yml
+
+# Generated files
+/generated/
+/generated-sources/
+/generated-test-sources/
+
+# Local development
+/local/
+/dev-data/
 

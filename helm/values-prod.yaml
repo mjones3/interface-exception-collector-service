@@ -1,0 +1,196 @@
+# Production environment values
+replicaCount: 3
+
+image:
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+app:
+  profile: production
+  logLevel: WARN
+
+resources:
+  limits:
+    cpu: 1500m
+    memory: 1.5Gi
+  requests:
+    cpu: 750m
+    memory: 768Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 15
+  targetCPUUtilizationPercentage: 60
+  targetMemoryUtilizationPercentage: 70
+
+# Production database settings
+postgresql:
+  enabled: false  # Use external managed PostgreSQL in production
+
+# Production Redis settings
+redis:
+  enabled: false  # Use external managed Redis in production
+
+# Production external database configuration
+app:
+  database:
+    host: postgres-prod.internal.arcone.com
+    port: 5432
+    name: exception_collector_prod
+    username: prod_exception_user
+    connectionPool:
+      minimumIdle: 10
+      maximumPoolSize: 50
+      connectionTimeout: 30000
+      idleTimeout: 600000
+      maxLifetime: 1800000
+
+# Production Redis configuration
+  redis:
+    host: redis-prod.internal.arcone.com
+    port: 6379
+    database: 0
+    timeout: 2000
+    pool:
+      maxActive: 50
+      maxIdle: 20
+      minIdle: 10
+      maxWait: 3000
+
+# Production Kafka settings
+  kafka:
+    bootstrapServers: kafka-prod.internal.arcone.com:9092
+    consumer:
+      autoOffsetReset: earliest
+      maxPollRecords: 500
+      sessionTimeoutMs: 30000
+    producer:
+      acks: all
+      retries: 5
+      batchSize: 32768
+      lingerMs: 10
+
+# Production external services
+  externalServices:
+    orderService:
+      baseUrl: https://order-service.arcone.com
+      timeout: 5000
+      circuitBreaker:
+        failureRateThreshold: 30
+        waitDurationInOpenState: 60000
+        slidingWindowSize: 20
+    collectionService:
+      baseUrl: https://collection-service.arcone.com
+      timeout: 5000
+      circuitBreaker:
+        failureRateThreshold: 30
+        waitDurationInOpenState: 60000
+        slidingWindowSize: 20
+    distributionService:
+      baseUrl: https://distribution-service.arcone.com
+      timeout: 5000
+      circuitBreaker:
+        failureRateThreshold: 30
+        waitDurationInOpenState: 60000
+        slidingWindowSize: 20
+
+# Production security settings
+  security:
+    jwt:
+      expiration: 3600000 # 1 hour
+    rateLimiting:
+      enabled: true
+      requestsPerMinute: 1000
+      burstCapacity: 2000
+
+# Production ingress
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit: "1000"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+  hosts:
+    - host: exception-collector.arcone.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: exception-collector-prod-tls
+      hosts:
+        - exception-collector.arcone.com
+
+# Production monitoring
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+
+# Production affinity rules
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - interface-exception-collector
+      topologyKey: kubernetes.io/hostname
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: node-type
+          operator: In
+          values:
+          - application
+
+# Production tolerations
+tolerations:
+- key: "application-workload"
+  operator: "Equal"
+  value: "true"
+  effect: "NoSchedule"
+
+# Kafka topics with full partitioning for production
+kafkaTopics:
+  enabled: false  # Topics managed externally in production
+  topics:
+    - name: order-rejected
+      partitions: 6
+      replicationFactor: 3
+    - name: order-cancelled
+      partitions: 6
+      replicationFactor: 3
+    - name: collection-rejected
+      partitions: 6
+      replicationFactor: 3
+    - name: distribution-failed
+      partitions: 6
+      replicationFactor: 3
+    - name: validation-error
+      partitions: 6
+      replicationFactor: 3
+    - name: exception-captured
+      partitions: 6
+      replicationFactor: 3
+    - name: exception-resolved
+      partitions: 6
+      replicationFactor: 3
+    - name: critical-alert
+      partitions: 6
+      replicationFactor: 3
+    - name: exception-retry-completed
+      partitions: 6
+      replicationFactor: 3
+
+# Production migration settings
+migration:
+  enabled: false  # Migrations handled separately in production
