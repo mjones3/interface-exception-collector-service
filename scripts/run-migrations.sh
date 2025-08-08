@@ -9,9 +9,9 @@ set -e
 NAMESPACE=${NAMESPACE:-"interface-exception-collector"}
 POSTGRES_SERVICE=${POSTGRES_SERVICE:-"postgresql"}
 POSTGRES_PORT=${POSTGRES_PORT:-"5432"}
-POSTGRES_DB=${POSTGRES_DB:-"interface_exceptions"}
-POSTGRES_USER=${POSTGRES_USER:-"exception_collector"}
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-"exception_collector_pass"}
+POSTGRES_DB=${POSTGRES_DB:-"exception_collector_db"}
+POSTGRES_USER=${POSTGRES_USER:-"exception_user"}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-"exception_pass"}
 MIGRATION_PATH=${MIGRATION_PATH:-"src/main/resources/db/migration"}
 FLYWAY_VERSION=${FLYWAY_VERSION:-"9.22.0"}
 
@@ -61,22 +61,48 @@ check_prerequisites() {
 wait_for_postgresql() {
     log_info "Waiting for PostgreSQL to be ready..."
     
-    # Wait for PostgreSQL pods to be ready
-    kubectl wait --for=condition=ready pod \
-        --selector=app.kubernetes.io/name=postgresql \
-        --namespace="$NAMESPACE" \
-        --timeout=300s
-    
-    # Additional wait to ensure PostgreSQL is fully initialized
-    sleep 5
-    
-    log_success "PostgreSQL is ready"
+    if [ "$RUN_LOCAL" = true ]; then
+        # Wait for Docker Compose PostgreSQL to be ready
+        local retries=0
+        local max_retries=30
+        
+        while [ $retries -lt $max_retries ]; do
+            if docker-compose exec -T postgres pg_isready -U exception_user -d exception_collector_db > /dev/null 2>&1; then
+                log_success "PostgreSQL is ready"
+                return 0
+            fi
+            
+            log_info "PostgreSQL not ready yet, waiting... (attempt $((retries + 1))/$max_retries)"
+            sleep 5
+            retries=$((retries + 1))
+        done
+        
+        log_error "PostgreSQL failed to become ready within timeout"
+        return 1
+    else
+        # Wait for PostgreSQL pods to be ready
+        kubectl wait --for=condition=ready pod \
+            --selector=app.kubernetes.io/name=postgresql \
+            --namespace="$NAMESPACE" \
+            --timeout=300s
+        
+        # Additional wait to ensure PostgreSQL is fully initialized
+        sleep 5
+        
+        log_success "PostgreSQL is ready"
+    fi
 }
 
 # Function to get PostgreSQL connection details
 get_postgres_connection() {
-    local postgres_host="${POSTGRES_SERVICE}.${NAMESPACE}.svc.cluster.local"
-    local postgres_url="jdbc:postgresql://${postgres_host}:${POSTGRES_PORT}/${POSTGRES_DB}"
+    local postgres_url
+    
+    if [ "$RUN_LOCAL" = true ]; then
+        postgres_url="jdbc:postgresql://localhost:${POSTGRES_PORT}/${POSTGRES_DB}"
+    else
+        local postgres_host="${POSTGRES_SERVICE}.${NAMESPACE}.svc.cluster.local"
+        postgres_url="jdbc:postgresql://${postgres_host}:${POSTGRES_PORT}/${POSTGRES_DB}"
+    fi
     
     echo "$postgres_url"
 }
@@ -85,20 +111,31 @@ get_postgres_connection() {
 test_database_connection() {
     log_info "Testing database connection..."
     
-    local postgres_pod
-    postgres_pod=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=postgresql -o jsonpath='{.items[0].metadata.name}')
-    
-    if [ -z "$postgres_pod" ]; then
-        log_error "No PostgreSQL pods found in namespace $NAMESPACE"
-        return 1
-    fi
-    
-    # Test connection using psql
-    if kubectl exec -n "$NAMESPACE" "$postgres_pod" -- psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 1;" > /dev/null 2>&1; then
-        log_success "Database connection successful"
+    if [ "$RUN_LOCAL" = true ]; then
+        # Test Docker Compose PostgreSQL connection
+        if docker-compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 1;" > /dev/null 2>&1; then
+            log_success "Database connection successful"
+        else
+            log_error "Database connection failed"
+            return 1
+        fi
     else
-        log_error "Database connection failed"
-        return 1
+        # Test Kubernetes PostgreSQL connection
+        local postgres_pod
+        postgres_pod=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=postgresql -o jsonpath='{.items[0].metadata.name}')
+        
+        if [ -z "$postgres_pod" ]; then
+            log_error "No PostgreSQL pods found in namespace $NAMESPACE"
+            return 1
+        fi
+        
+        # Test connection using psql
+        if kubectl exec -n "$NAMESPACE" "$postgres_pod" -- psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 1;" > /dev/null 2>&1; then
+            log_success "Database connection successful"
+        else
+            log_error "Database connection failed"
+            return 1
+        fi
     fi
 }
 
@@ -243,24 +280,37 @@ run_migrations_flyway_local() {
     local postgres_url
     postgres_url=$(get_postgres_connection)
     
-    # Port forward to access PostgreSQL locally
-    log_info "Setting up port forwarding to PostgreSQL..."
-    kubectl port-forward -n "$NAMESPACE" service/"$POSTGRES_SERVICE" 5432:5432 &
-    local port_forward_pid=$!
-    
-    # Wait for port forward to be ready
-    sleep 3
-    
-    # Run Flyway migration
-    flyway \
-        -url="jdbc:postgresql://localhost:5432/$POSTGRES_DB" \
-        -user="$POSTGRES_USER" \
-        -password="$POSTGRES_PASSWORD" \
-        -locations="filesystem:$MIGRATION_PATH" \
-        migrate
-    
-    # Clean up port forward
-    kill $port_forward_pid 2>/dev/null || true
+    if [ "$RUN_LOCAL" = true ]; then
+        # For local mode, PostgreSQL is already accessible on localhost
+        log_info "Using direct connection to local PostgreSQL..."
+        
+        # Run Flyway migration
+        flyway \
+            -url="$postgres_url" \
+            -user="$POSTGRES_USER" \
+            -password="$POSTGRES_PASSWORD" \
+            -locations="filesystem:$MIGRATION_PATH" \
+            migrate
+    else
+        # Port forward to access PostgreSQL locally
+        log_info "Setting up port forwarding to PostgreSQL..."
+        kubectl port-forward -n "$NAMESPACE" service/"$POSTGRES_SERVICE" 5432:5432 &
+        local port_forward_pid=$!
+        
+        # Wait for port forward to be ready
+        sleep 3
+        
+        # Run Flyway migration
+        flyway \
+            -url="jdbc:postgresql://localhost:5432/$POSTGRES_DB" \
+            -user="$POSTGRES_USER" \
+            -password="$POSTGRES_PASSWORD" \
+            -locations="filesystem:$MIGRATION_PATH" \
+            migrate
+        
+        # Clean up port forward
+        kill $port_forward_pid 2>/dev/null || true
+    fi
     
     log_success "Local Flyway migration completed"
 }
@@ -269,22 +319,35 @@ run_migrations_flyway_local() {
 run_migrations_maven() {
     log_info "Running migrations using Maven Flyway plugin..."
     
-    # Port forward to access PostgreSQL locally
-    log_info "Setting up port forwarding to PostgreSQL..."
-    kubectl port-forward -n "$NAMESPACE" service/"$POSTGRES_SERVICE" 5432:5432 &
-    local port_forward_pid=$!
-    
-    # Wait for port forward to be ready
-    sleep 3
-    
-    # Run Maven Flyway migration
-    ./mvnw flyway:migrate \
-        -Dflyway.url="jdbc:postgresql://localhost:5432/$POSTGRES_DB" \
-        -Dflyway.user="$POSTGRES_USER" \
-        -Dflyway.password="$POSTGRES_PASSWORD"
-    
-    # Clean up port forward
-    kill $port_forward_pid 2>/dev/null || true
+    if [ "$RUN_LOCAL" = true ]; then
+        # For local mode, PostgreSQL is already accessible on localhost
+        log_info "Using direct connection to local PostgreSQL..."
+        
+        # Run Maven Flyway migration
+        ./mvnw flyway:migrate \
+            -Dflyway.url="jdbc:postgresql://localhost:5432/$POSTGRES_DB" \
+            -Dflyway.user="$POSTGRES_USER" \
+            -Dflyway.password="$POSTGRES_PASSWORD" \
+            -Dflyway.baselineOnMigrate=true
+    else
+        # Port forward to access PostgreSQL locally
+        log_info "Setting up port forwarding to PostgreSQL..."
+        kubectl port-forward -n "$NAMESPACE" service/"$POSTGRES_SERVICE" 5432:5432 &
+        local port_forward_pid=$!
+        
+        # Wait for port forward to be ready
+        sleep 3
+        
+        # Run Maven Flyway migration
+        ./mvnw flyway:migrate \
+            -Dflyway.url="jdbc:postgresql://localhost:5432/$POSTGRES_DB" \
+            -Dflyway.user="$POSTGRES_USER" \
+            -Dflyway.password="$POSTGRES_PASSWORD" \
+            -Dflyway.baselineOnMigrate=true
+        
+        # Clean up port forward
+        kill $port_forward_pid 2>/dev/null || true
+    fi
     
     log_success "Maven Flyway migration completed"
 }

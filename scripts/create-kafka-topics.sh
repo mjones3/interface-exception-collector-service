@@ -82,39 +82,78 @@ check_prerequisites() {
 wait_for_kafka() {
     log_info "Waiting for Kafka to be ready..."
     
-    # Wait for Kafka pods to be ready
-    kubectl wait --for=condition=ready pod \
-        --selector=app.kubernetes.io/name=kafka \
-        --namespace="$NAMESPACE" \
-        --timeout=300s
-    
-    # Additional wait to ensure Kafka is fully initialized
-    sleep 10
-    
-    log_success "Kafka is ready"
+    if [ "$RUN_LOCAL" = true ]; then
+        # Wait for Docker Compose Kafka to be ready
+        local retries=0
+        local max_retries=30
+        
+        while [ $retries -lt $max_retries ]; do
+            if docker-compose exec -T kafka kafka-topics --bootstrap-server localhost:9092 --list > /dev/null 2>&1; then
+                log_success "Kafka is ready"
+                return 0
+            fi
+            
+            log_info "Kafka not ready yet, waiting... (attempt $((retries + 1))/$max_retries)"
+            sleep 5
+            retries=$((retries + 1))
+        done
+        
+        log_error "Kafka failed to become ready within timeout"
+        return 1
+    else
+        # Wait for Kafka pods to be ready
+        kubectl wait --for=condition=ready pod \
+            --selector=app.kubernetes.io/name=kafka \
+            --namespace="$NAMESPACE" \
+            --timeout=300s
+        
+        # Additional wait to ensure Kafka is fully initialized
+        sleep 10
+        
+        log_success "Kafka is ready"
+    fi
 }
 
-# Function to execute Kafka command in pod
+# Function to get Kafka server address
+get_kafka_server() {
+    if [ "$RUN_LOCAL" = true ]; then
+        echo "localhost:${KAFKA_PORT}"
+    else
+        echo "${KAFKA_SERVICE}.${NAMESPACE}.svc.cluster.local:${KAFKA_PORT}"
+    fi
+}
+
+# Function to execute Kafka command in pod or Docker Compose
 execute_kafka_command() {
     local command="$1"
-    local kafka_pod
     
-    # Get the first Kafka pod
-    kafka_pod=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=kafka -o jsonpath='{.items[0].metadata.name}')
-    
-    if [ -z "$kafka_pod" ]; then
-        log_error "No Kafka pods found in namespace $NAMESPACE"
-        return 1
+    if [ "$RUN_LOCAL" = true ]; then
+        # Use Docker Compose for local development
+        # Replace kafka-topics.sh with kafka-topics for Confluent image
+        local docker_command=$(echo "$command" | sed 's/kafka-topics\.sh/kafka-topics/g')
+        docker-compose exec -T kafka bash -c "$docker_command"
+    else
+        # Use Kubernetes
+        local kafka_pod
+        
+        # Get the first Kafka pod
+        kafka_pod=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/name=kafka -o jsonpath='{.items[0].metadata.name}')
+        
+        if [ -z "$kafka_pod" ]; then
+            log_error "No Kafka pods found in namespace $NAMESPACE"
+            return 1
+        fi
+        
+        # Execute the command in the Kafka pod
+        kubectl exec -n "$NAMESPACE" "$kafka_pod" -- bash -c "$command"
     fi
-    
-    # Execute the command in the Kafka pod
-    kubectl exec -n "$NAMESPACE" "$kafka_pod" -- bash -c "$command"
 }
 
 # Function to check if topic exists
 topic_exists() {
     local topic_name="$1"
-    local kafka_server="${KAFKA_SERVICE}.${NAMESPACE}.svc.cluster.local:${KAFKA_PORT}"
+    local kafka_server
+    kafka_server=$(get_kafka_server)
     
     execute_kafka_command "kafka-topics.sh --bootstrap-server $kafka_server --list" | grep -q "^${topic_name}$"
 }
@@ -124,7 +163,8 @@ create_topic() {
     local topic_name="$1"
     local topic_config
     topic_config=$(get_topic_config "$topic_name")
-    local kafka_server="${KAFKA_SERVICE}.${NAMESPACE}.svc.cluster.local:${KAFKA_PORT}"
+    local kafka_server
+    kafka_server=$(get_kafka_server)
     
     if topic_exists "$topic_name"; then
         log_info "Topic '$topic_name' already exists"
@@ -191,7 +231,8 @@ create_all_topics() {
 list_topics() {
     log_info "Listing all Kafka topics..."
     
-    local kafka_server="${KAFKA_SERVICE}.${NAMESPACE}.svc.cluster.local:${KAFKA_PORT}"
+    local kafka_server
+    kafka_server=$(get_kafka_server)
     
     echo "Topics in Kafka cluster:"
     echo "========================"
@@ -203,7 +244,8 @@ list_topics() {
 describe_topics() {
     log_info "Describing application topics..."
     
-    local kafka_server="${KAFKA_SERVICE}.${NAMESPACE}.svc.cluster.local:${KAFKA_PORT}"
+    local kafka_server
+    kafka_server=$(get_kafka_server)
     
     for topic_name in "${TOPIC_NAMES[@]}"; do
         if topic_exists "$topic_name"; then
@@ -219,7 +261,8 @@ describe_topics() {
 delete_topics() {
     log_warning "Deleting all application topics..."
     
-    local kafka_server="${KAFKA_SERVICE}.${NAMESPACE}.svc.cluster.local:${KAFKA_PORT}"
+    local kafka_server
+    kafka_server=$(get_kafka_server)
     
     read -p "Are you sure you want to delete all application topics? This action cannot be undone. (y/N): " -n 1 -r
     echo
@@ -298,6 +341,7 @@ usage() {
     echo "  --partitions COUNT           Default partitions per topic (default: 3)"
     echo "  --replication-factor COUNT   Default replication factor (default: 1)"
     echo "  --retention-ms MS            Default retention in milliseconds (default: 604800000)"
+    echo "  --local                      Use Docker Compose instead of Kubernetes"
     echo "  -h, --help                   Show this help message"
     echo ""
     echo "Environment variables:"
@@ -311,6 +355,7 @@ usage() {
 
 # Parse command line arguments
 COMMAND="create"
+RUN_LOCAL=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -337,6 +382,10 @@ while [[ $# -gt 0 ]]; do
         --retention-ms)
             RETENTION_MS="$2"
             shift 2
+            ;;
+        --local)
+            RUN_LOCAL=true
+            shift
             ;;
         create|list|describe|verify|delete|info)
             COMMAND="$1"
