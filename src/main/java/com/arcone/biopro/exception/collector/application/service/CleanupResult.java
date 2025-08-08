@@ -16,14 +16,3 @@ public class CleanupResult {
     private String duration;
     private String errorMessage;
 }
-
-/**
- * Statistics about data that can be cleaned up.
- */
-@Data
-@Builder
-class CleanupStatistic {
-    private String metricName;
-    private Long metricValue;
-    private String recommendation;
-}

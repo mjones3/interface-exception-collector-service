@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
-import io.github.bucket4j.distributed.proxy.ProxyManager;
+import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +31,7 @@ import java.util.Map;
 @Slf4j
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private final ProxyManager<String> proxyManager;
+    private final LettuceBasedProxyManager proxyManager;
     private final ObjectMapper objectMapper;
 
     @Value("${app.security.rate-limit.requests-per-minute:60}")
@@ -47,7 +47,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String clientId = getClientIdentifier(request);
 
         Bucket bucket = proxyManager.builder()
-                .build(clientId, this::createBucketConfiguration);
+                .build(clientId.getBytes(), this::createBucketConfiguration);
 
         if (bucket.tryConsume(1)) {
             // Add rate limit headers

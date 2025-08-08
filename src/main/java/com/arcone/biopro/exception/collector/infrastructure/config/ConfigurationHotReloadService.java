@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 // Optional Spring Cloud Config import - only available if dependency is present
 // import org.springframework.cloud.context.refresh.ContextRefresher;
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 @Endpoint(id = "config-reload")
+@ConditionalOnProperty(name = "app.config.hot-reload.enabled", havingValue = "true", matchIfMissing = false)
 public class ConfigurationHotReloadService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationHotReloadService.class);
@@ -50,8 +52,10 @@ public class ConfigurationHotReloadService {
     }
 
     @Autowired(required = false)
-    public void setContextRefresher(Object contextRefresher) {
+    public void setContextRefresher(
+            @org.springframework.beans.factory.annotation.Qualifier("contextRefresher") Object contextRefresher) {
         this.contextRefresher = contextRefresher;
+        logger.info("Spring Cloud Config ContextRefresher detected and configured for hot reload");
     }
 
     /**

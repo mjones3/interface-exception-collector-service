@@ -26,7 +26,7 @@ public class RateLimitingConfig {
     private String redisPassword;
 
     @Bean
-    public ProxyManager<String> proxyManager() {
+    public LettuceBasedProxyManager proxyManager() {
         RedisURI.Builder uriBuilder = RedisURI.builder()
                 .withHost(redisHost)
                 .withPort(redisPort);
@@ -38,6 +38,8 @@ public class RateLimitingConfig {
         RedisClient redisClient = RedisClient.create(uriBuilder.build());
 
         return LettuceBasedProxyManager.builderFor(redisClient)
+                .withExpirationStrategy(io.github.bucket4j.distributed.ExpirationAfterWriteStrategy
+                        .basedOnTimeForRefillingBucketUpToMax(java.time.Duration.ofMinutes(10)))
                 .build();
     }
 }
