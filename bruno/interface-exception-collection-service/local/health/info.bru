@@ -1,0 +1,15 @@
+meta {
+  name: info
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/actuator/info
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

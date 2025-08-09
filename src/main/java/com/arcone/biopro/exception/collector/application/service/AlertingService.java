@@ -331,7 +331,7 @@ public class AlertingService {
         OffsetDateTime oneHourAgo = OffsetDateTime.now().minusHours(1);
 
         // Count exceptions of the same type and category in the last hour
-        List<InterfaceException> recentSimilarExceptions = exceptionRepository.findWithFilters(
+        List<InterfaceException> recentSimilarExceptions = exceptionRepository.findWithFiltersTypeSafe(
                 exception.getInterfaceType(),
                 null, // any status
                 exception.getSeverity(),

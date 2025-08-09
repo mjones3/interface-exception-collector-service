@@ -64,8 +64,11 @@ public class ExceptionQueryService {
                 "Finding exceptions with filters: interfaceType={}, status={}, severity={}, customerId={}, fromDate={}, toDate={}",
                 interfaceType, status, severity, customerId, fromDate, toDate);
 
-        return exceptionRepository.findWithFilters(
-                interfaceType, status, severity, customerId, fromDate, toDate, pageable);
+        return exceptionRepository.findWithFiltersTypeSafe(
+                interfaceType,
+                status,
+                severity,
+                customerId, fromDate, toDate, pageable);
     }
 
     /**
@@ -210,7 +213,7 @@ public class ExceptionQueryService {
         for (InterfaceType type : InterfaceType.values()) {
             // This is a simplified implementation - in a real scenario, you'd want a more
             // efficient query
-            Page<InterfaceException> exceptions = exceptionRepository.findWithFilters(
+            Page<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
                     type, null, null, null, fromDate, toDate, Pageable.unpaged());
             counts.put(type.name(), exceptions.getTotalElements());
         }
@@ -229,7 +232,7 @@ public class ExceptionQueryService {
         Map<String, Long> counts = new HashMap<>();
 
         for (ExceptionSeverity severity : ExceptionSeverity.values()) {
-            Page<InterfaceException> exceptions = exceptionRepository.findWithFilters(
+            Page<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
                     null, null, severity, null, fromDate, toDate, Pageable.unpaged());
             counts.put(severity.name(), exceptions.getTotalElements());
         }
@@ -248,7 +251,7 @@ public class ExceptionQueryService {
         Map<String, Long> counts = new HashMap<>();
 
         for (ExceptionStatus status : ExceptionStatus.values()) {
-            Page<InterfaceException> exceptions = exceptionRepository.findWithFilters(
+            Page<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
                     null, status, null, null, fromDate, toDate, Pageable.unpaged());
             counts.put(status.name(), exceptions.getTotalElements());
         }

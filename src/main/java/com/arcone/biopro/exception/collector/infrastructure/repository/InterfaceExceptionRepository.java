@@ -23,7 +23,8 @@ import java.util.Optional;
  * for filtering, searching, and aggregation operations.
  */
 @Repository
-public interface InterfaceExceptionRepository extends JpaRepository<InterfaceException, Long> {
+public interface InterfaceExceptionRepository
+                extends JpaRepository<InterfaceException, Long>, InterfaceExceptionRepositoryCustom {
 
         /**
          * Find an exception by its transaction ID.
@@ -98,7 +99,7 @@ public interface InterfaceExceptionRepository extends JpaRepository<InterfaceExc
 
         /**
          * Complex filtering query supporting multiple optional filters.
-         * Uses dynamic query construction to handle optional parameters.
+         * Uses simple JPQL with proper null handling to avoid parameter type issues.
          * 
          * @param interfaceType optional interface type filter
          * @param status        optional status filter
