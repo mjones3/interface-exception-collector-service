@@ -1,0 +1,15 @@
+# Python dependencies for Kafka event generation scripts
+# Core dependencies - using more compatible versions
+kafka-python>=2.0.2,<3.0.0  # Kafka client library (compatible with Python 3.13)
+
+# Alternative Kafka client (fallback option)
+# confluent-kafka>=2.3.0     # Uncomment if kafka-python fails
+
+# Optional dependencies for enhanced functionality
+requests>=2.31.0,<3.0.0      # For HTTP requests (if needed for REST API calls)
+python-dateutil>=2.8.2,<3.0.0  # For advanced date/time handling
+colorama>=0.4.6,<1.0.0       # For colored terminal output (cross-platform)
+
+# Development dependencies (optional)
+# pytest>=7.4.3             # For testing (uncomment if needed)
+# black>=23.9.1              # For code formatting (uncomment if needed)
