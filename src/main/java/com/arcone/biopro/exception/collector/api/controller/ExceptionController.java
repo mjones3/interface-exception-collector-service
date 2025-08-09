@@ -4,7 +4,6 @@ import com.arcone.biopro.exception.collector.api.dto.ErrorResponse;
 import com.arcone.biopro.exception.collector.api.dto.ExceptionDetailResponse;
 import com.arcone.biopro.exception.collector.api.dto.ExceptionListResponse;
 import com.arcone.biopro.exception.collector.api.dto.ExceptionSummaryResponse;
-import com.arcone.biopro.exception.collector.api.dto.PagedResponse;
 import com.arcone.biopro.exception.collector.api.mapper.ExceptionMapper;
 import com.arcone.biopro.exception.collector.application.service.ExceptionQueryService;
 import com.arcone.biopro.exception.collector.application.service.PayloadRetrievalService;
@@ -19,15 +18,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +35,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
 
 /**
  * REST controller for exception management endpoints.
@@ -61,16 +55,16 @@ public class ExceptionController {
         private final ExceptionMapper exceptionMapper;
 
         /**
-         * Retrieves exceptions with filtering and pagination support.
+         * Retrieves exceptions with filtering support.
          * Implements requirement US-007 for exception listing with filters.
          */
         @GetMapping
-        @Operation(summary = "List exceptions with filtering", description = "Retrieves a paginated list of exceptions with optional filtering by interface type, status, severity, customer, and date range")
+        @Operation(summary = "List exceptions with filtering", description = "Retrieves a list of exceptions with optional filtering by interface type, status, severity, customer, and date range")
         @ApiResponses(value = {
-                        @ApiResponse(responseCode = "200", description = "Successfully retrieved exceptions", content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+                        @ApiResponse(responseCode = "200", description = "Successfully retrieved exceptions", content = @Content(schema = @Schema(implementation = ExceptionListResponse.class))),
                         @ApiResponse(responseCode = "400", description = "Invalid request parameters", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
         })
-        public ResponseEntity<PagedResponse<ExceptionListResponse>> listExceptions(
+        public ResponseEntity<List<ExceptionListResponse>> listExceptions(
                         @Parameter(description = "Filter by interface type") @RequestParam(name = "interfaceType", required = false) InterfaceType interfaceType,
 
                         @Parameter(description = "Filter by exception status") @RequestParam(name = "status", required = false) ExceptionStatus status,
@@ -83,28 +77,23 @@ public class ExceptionController {
 
                         @Parameter(description = "Filter by end date (ISO 8601 format)") @RequestParam(name = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime toDate,
 
-                        @Parameter(description = "Page number (0-based)") @RequestParam(name = "page", defaultValue = "0") @Min(0) Integer page,
-
-                        @Parameter(description = "Page size (max 100)") @RequestParam(name = "size", defaultValue = "20") @Min(1) @Max(100) Integer size,
-
                         @Parameter(description = "Sort criteria (format: field,direction)") @RequestParam(name = "sort", defaultValue = "timestamp,desc") String sort) {
 
                 log.info(
-                                "Listing exceptions with filters - interfaceType: {}, status: {}, severity: {}, customerId: {}, fromDate: {}, toDate: {}, page: {}, size: {}",
-                                interfaceType, status, severity, customerId, fromDate, toDate, page, size);
+                                "Listing exceptions with filters - interfaceType: {}, status: {}, severity: {}, customerId: {}, fromDate: {}, toDate: {}",
+                                interfaceType, status, severity, customerId, fromDate, toDate);
 
                 // Parse sort parameter
-                Pageable pageable = createPageable(page, size, sort);
+                Sort sortObj = createSort(sort);
 
                 // Query exceptions with filters
-                Page<InterfaceException> exceptionsPage = exceptionQueryService.findExceptionsWithFilters(
-                                interfaceType, status, severity, customerId, fromDate, toDate, pageable);
+                List<InterfaceException> exceptions = exceptionQueryService.findExceptionsWithFilters(
+                                interfaceType, status, severity, customerId, fromDate, toDate, sortObj);
 
                 // Map to response DTOs
-                PagedResponse<ExceptionListResponse> response = exceptionMapper.toPagedListResponse(exceptionsPage);
+                List<ExceptionListResponse> response = exceptionMapper.toListResponse(exceptions);
 
-                log.info("Retrieved {} exceptions out of {} total",
-                                response.getNumberOfElements(), response.getTotalElements());
+                log.info("Retrieved {} exceptions", response.size());
 
                 return ResponseEntity.ok(response);
         }
@@ -150,11 +139,11 @@ public class ExceptionController {
 
                 // Include related exceptions for the same customer
                 if (exception.getCustomerId() != null) {
-                        Pageable relatedPageable = PageRequest.of(0, 5, Sort.by("timestamp").descending());
-                        Page<InterfaceException> relatedExceptions = exceptionQueryService
+                        Sort relatedSort = Sort.by("timestamp").descending();
+                        List<InterfaceException> relatedExceptions = exceptionQueryService
                                         .findRelatedExceptionsByCustomer(
-                                                        exception.getCustomerId(), transactionId, relatedPageable);
-                        response.setRelatedExceptions(exceptionMapper.toListResponse(relatedExceptions.getContent()));
+                                                        exception.getCustomerId(), transactionId, relatedSort, 5);
+                        response.setRelatedExceptions(exceptionMapper.toListResponse(relatedExceptions));
                 }
 
                 log.info("Retrieved exception details for transaction: {}", transactionId);
@@ -168,22 +157,17 @@ public class ExceptionController {
         @GetMapping("/search")
         @Operation(summary = "Search exceptions by text", description = "Performs full-text search across exception fields (reason, external ID, operation)")
         @ApiResponses(value = {
-                        @ApiResponse(responseCode = "200", description = "Successfully performed search", content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+                        @ApiResponse(responseCode = "200", description = "Successfully performed search", content = @Content(schema = @Schema(implementation = ExceptionListResponse.class))),
                         @ApiResponse(responseCode = "400", description = "Invalid search parameters", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
         })
-        public ResponseEntity<PagedResponse<ExceptionListResponse>> searchExceptions(
+        public ResponseEntity<List<ExceptionListResponse>> searchExceptions(
                         @Parameter(description = "Search query string", required = true) @RequestParam @NotBlank String query,
 
                         @Parameter(description = "Fields to search in (exceptionReason, externalId, operation)") @RequestParam(defaultValue = "exceptionReason") List<String> fields,
 
-                        @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") @Min(0) Integer page,
-
-                        @Parameter(description = "Page size (max 100)") @RequestParam(defaultValue = "20") @Min(1) @Max(100) Integer size,
-
                         @Parameter(description = "Sort criteria (format: field,direction)") @RequestParam(defaultValue = "timestamp,desc") String sort) {
 
-                log.info("Searching exceptions with query: '{}', fields: {}, page: {}, size: {}",
-                                query, fields, page, size);
+                log.info("Searching exceptions with query: '{}', fields: {}", query, fields);
 
                 // Validate search fields
                 List<String> validFields = Arrays.asList("exceptionReason", "externalId", "operation");
@@ -197,17 +181,16 @@ public class ExceptionController {
                 }
 
                 // Parse sort parameter
-                Pageable pageable = createPageable(page, size, sort);
+                Sort sortObj = createSort(sort);
 
                 // Perform search
-                Page<InterfaceException> searchResults = exceptionQueryService.searchExceptions(
-                                query, fieldsToSearch, pageable);
+                List<InterfaceException> searchResults = exceptionQueryService.searchExceptions(
+                                query, fieldsToSearch, sortObj);
 
                 // Map to response DTOs
-                PagedResponse<ExceptionListResponse> response = exceptionMapper.toPagedListResponse(searchResults);
+                List<ExceptionListResponse> response = exceptionMapper.toListResponse(searchResults);
 
-                log.info("Search returned {} results out of {} total for query: '{}'",
-                                response.getNumberOfElements(), response.getTotalElements(), query);
+                log.info("Search returned {} results for query: '{}'", response.size(), query);
 
                 return ResponseEntity.ok(response);
         }
@@ -246,14 +229,12 @@ public class ExceptionController {
         }
 
         /**
-         * Creates a Pageable object from request parameters.
+         * Creates a Sort object from request parameters.
          *
-         * @param page the page number
-         * @param size the page size
          * @param sort the sort criteria
-         * @return the Pageable object
+         * @return the Sort object
          */
-        private Pageable createPageable(Integer page, Integer size, String sort) {
+        private Sort createSort(String sort) {
                 // Parse sort parameter (format: field,direction)
                 String[] sortParts = sort.split(",");
                 String sortField = sortParts[0];
@@ -261,6 +242,6 @@ public class ExceptionController {
                                 ? Sort.Direction.ASC
                                 : Sort.Direction.DESC;
 
-                return PageRequest.of(page, size, Sort.by(sortDirection, sortField));
+                return Sort.by(sortDirection, sortField);
         }
 }

@@ -10,8 +10,7 @@ import com.arcone.biopro.exception.collector.infrastructure.repository.Interface
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +38,7 @@ public class ExceptionQueryService {
     private final InterfaceExceptionRepository exceptionRepository;
 
     /**
-     * Retrieves exceptions with filtering and pagination support.
+     * Retrieves exceptions with filtering support.
      * Implements requirement US-007 for exception listing with filters.
      *
      * @param interfaceType optional interface type filter
@@ -48,17 +47,17 @@ public class ExceptionQueryService {
      * @param customerId    optional customer ID filter
      * @param fromDate      optional start date filter
      * @param toDate        optional end date filter
-     * @param pageable      pagination and sorting parameters
-     * @return page of exceptions matching the filters
+     * @param sort          sorting parameters
+     * @return list of exceptions matching the filters
      */
-    public Page<InterfaceException> findExceptionsWithFilters(
+    public List<InterfaceException> findExceptionsWithFilters(
             InterfaceType interfaceType,
             ExceptionStatus status,
             ExceptionSeverity severity,
             String customerId,
             OffsetDateTime fromDate,
             OffsetDateTime toDate,
-            Pageable pageable) {
+            Sort sort) {
 
         log.debug(
                 "Finding exceptions with filters: interfaceType={}, status={}, severity={}, customerId={}, fromDate={}, toDate={}",
@@ -68,7 +67,7 @@ public class ExceptionQueryService {
                 interfaceType,
                 status,
                 severity,
-                customerId, fromDate, toDate, pageable);
+                customerId, fromDate, toDate, sort);
     }
 
     /**
@@ -92,15 +91,16 @@ public class ExceptionQueryService {
      *
      * @param customerId           the customer ID
      * @param excludeTransactionId transaction ID to exclude from results
-     * @param pageable             pagination parameters
-     * @return page of related exceptions
+     * @param sort                 sorting parameters
+     * @param limit                maximum number of results to return
+     * @return list of related exceptions
      */
-    @Cacheable(value = CacheConfig.RELATED_EXCEPTIONS_CACHE, key = "#customerId + ':' + #excludeTransactionId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", condition = "#customerId != null")
-    public Page<InterfaceException> findRelatedExceptionsByCustomer(
-            String customerId, String excludeTransactionId, Pageable pageable) {
+    @Cacheable(value = CacheConfig.RELATED_EXCEPTIONS_CACHE, key = "#customerId + ':' + #excludeTransactionId + ':' + #limit", condition = "#customerId != null")
+    public List<InterfaceException> findRelatedExceptionsByCustomer(
+            String customerId, String excludeTransactionId, Sort sort, int limit) {
 
         log.debug("Finding related exceptions for customer: {}, excluding: {}", customerId, excludeTransactionId);
-        return exceptionRepository.findRelatedExceptionsByCustomer(customerId, excludeTransactionId, pageable);
+        return exceptionRepository.findRelatedExceptionsByCustomer(customerId, excludeTransactionId, sort, limit);
     }
 
     /**
@@ -111,11 +111,11 @@ public class ExceptionQueryService {
      * @param searchQuery  the search query string
      * @param searchFields list of fields to search in (exceptionReason, externalId,
      *                     operation)
-     * @param pageable     pagination and sorting parameters
-     * @return page of exceptions matching the search query
+     * @param sort         sorting parameters
+     * @return list of exceptions matching the search query
      */
-    @Cacheable(value = CacheConfig.SEARCH_RESULTS_CACHE, key = "#searchQuery + ':' + #searchFields.toString() + ':' + #pageable.pageNumber + ':' + #pageable.pageSize", condition = "#searchQuery != null and !#searchQuery.isEmpty()")
-    public Page<InterfaceException> searchExceptions(String searchQuery, List<String> searchFields, Pageable pageable) {
+    @Cacheable(value = CacheConfig.SEARCH_RESULTS_CACHE, key = "#searchQuery + ':' + #searchFields.toString()", condition = "#searchQuery != null and !#searchQuery.isEmpty()")
+    public List<InterfaceException> searchExceptions(String searchQuery, List<String> searchFields, Sort sort) {
         log.debug("Searching exceptions with query: '{}' in fields: {}", searchQuery, searchFields);
 
         // Validate search fields
@@ -128,7 +128,7 @@ public class ExceptionQueryService {
             fieldsToSearch = List.of("exceptionReason"); // Default to searching exception reason
         }
 
-        return exceptionRepository.searchInFields(searchQuery, fieldsToSearch, pageable);
+        return exceptionRepository.searchInFields(searchQuery, fieldsToSearch, sort);
     }
 
     /**
@@ -213,9 +213,9 @@ public class ExceptionQueryService {
         for (InterfaceType type : InterfaceType.values()) {
             // This is a simplified implementation - in a real scenario, you'd want a more
             // efficient query
-            Page<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
-                    type, null, null, null, fromDate, toDate, Pageable.unpaged());
-            counts.put(type.name(), exceptions.getTotalElements());
+            List<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
+                    type, null, null, null, fromDate, toDate, Sort.unsorted());
+            counts.put(type.name(), (long) exceptions.size());
         }
 
         return counts;
@@ -232,9 +232,9 @@ public class ExceptionQueryService {
         Map<String, Long> counts = new HashMap<>();
 
         for (ExceptionSeverity severity : ExceptionSeverity.values()) {
-            Page<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
-                    null, null, severity, null, fromDate, toDate, Pageable.unpaged());
-            counts.put(severity.name(), exceptions.getTotalElements());
+            List<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
+                    null, null, severity, null, fromDate, toDate, Sort.unsorted());
+            counts.put(severity.name(), (long) exceptions.size());
         }
 
         return counts;
@@ -251,9 +251,9 @@ public class ExceptionQueryService {
         Map<String, Long> counts = new HashMap<>();
 
         for (ExceptionStatus status : ExceptionStatus.values()) {
-            Page<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
-                    null, status, null, null, fromDate, toDate, Pageable.unpaged());
-            counts.put(status.name(), exceptions.getTotalElements());
+            List<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
+                    null, status, null, null, fromDate, toDate, Sort.unsorted());
+            counts.put(status.name(), (long) exceptions.size());
         }
 
         return counts;
