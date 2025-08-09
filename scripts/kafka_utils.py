@@ -84,7 +84,7 @@ class ConfluentKafkaEventSender:
     
     def send_event(self, topic: str, event: Dict[Any, Any], key: Optional[str] = None) -> bool:
         """
-        Send an event to Kafka topic.
+        Send an event to Kafka topic with proper Spring Kafka headers.
         
         Args:
             topic: Kafka topic name
@@ -103,11 +103,19 @@ class ConfluentKafkaEventSender:
             value = json.dumps(event).encode('utf-8')
             key_bytes = key.encode('utf-8') if key else None
             
-            # Send message
+            # Create headers for Spring Kafka type information
+            headers = {
+                '__TypeId__': 'com.arcone.biopro.exception.collector.domain.event.inbound.OrderRejectedEvent',
+                '__ContentTypeId__': 'application/json',
+                '__KeyTypeId__': 'java.lang.String'
+            }
+            
+            # Send message with headers
             self.producer.produce(
                 topic=topic,
                 value=value,
                 key=key_bytes,
+                headers=headers,
                 callback=self._delivery_callback
             )
             
@@ -188,8 +196,10 @@ class EventGenerator:
     
     @staticmethod
     def generate_timestamp() -> str:
-        """Generate ISO timestamp string."""
-        return datetime.now(timezone.utc).isoformat()
+        """Generate timestamp string in the format expected by Spring Boot."""
+        # Format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX (e.g., 2025-08-08T22:30:00.123Z)
+        now = datetime.now(timezone.utc)
+        return now.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     
     @staticmethod
     def create_base_event(event_type: str, source: str) -> Dict[str, Any]:

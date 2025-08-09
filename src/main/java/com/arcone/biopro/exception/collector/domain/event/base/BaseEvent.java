@@ -42,7 +42,6 @@ public abstract class BaseEvent {
     @JsonProperty("source")
     private String source;
 
-    @NotBlank(message = "Correlation ID is required")
     @JsonProperty("correlationId")
     private String correlationId;
 

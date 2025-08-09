@@ -1,6 +1,7 @@
 package com.arcone.biopro.exception.collector.domain.mapper;
 
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
+import com.arcone.biopro.exception.collector.domain.entity.OrderItem;
 import com.arcone.biopro.exception.collector.domain.entity.RetryAttempt;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionCategory;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionSeverity;
@@ -10,6 +11,8 @@ import com.arcone.biopro.exception.collector.domain.event.outbound.*;
 import org.mapstruct.*;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,13 +31,14 @@ public interface EventMapper {
     @Mapping(target = "transactionId", source = "payload.transactionId")
     @Mapping(target = "interfaceType", constant = "ORDER")
     @Mapping(target = "exceptionReason", source = "payload.rejectedReason")
-    @Mapping(target = "operation", source = "payload.operation")
+    @Mapping(target = "operation", source = "payload.operation", qualifiedByName = "mapOrderOperationToString")
     @Mapping(target = "externalId", source = "payload.externalId")
     @Mapping(target = "customerId", source = "payload.customerId")
     @Mapping(target = "locationCode", source = "payload.locationCode")
     @Mapping(target = "timestamp", source = "occurredOn")
     @Mapping(target = "category", source = "payload.rejectedReason", qualifiedByName = "mapRejectionReasonToCategory")
     @Mapping(target = "severity", source = "payload.rejectedReason", qualifiedByName = "mapRejectionReasonToSeverity")
+    @Mapping(target = "orderItems", source = "payload.orderItems", qualifiedByName = "mapOrderItems")
     InterfaceException toInterfaceException(OrderRejectedEvent event);
 
     /**
@@ -308,5 +312,25 @@ public interface EventMapper {
                     return field + error.getMessage();
                 })
                 .collect(Collectors.joining("; "));
+    }
+
+    @Named("mapOrderOperationToString")
+    default String mapOrderOperationToString(OrderRejectedEvent.OrderOperation operation) {
+        return operation != null ? operation.name() : "CREATE_ORDER";
+    }
+
+    @Named("mapOrderItems")
+    default List<OrderItem> mapOrderItems(List<OrderRejectedEvent.OrderItem> eventOrderItems) {
+        if (eventOrderItems == null || eventOrderItems.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return eventOrderItems.stream()
+                .map(eventItem -> OrderItem.builder()
+                        .bloodType(eventItem.getBloodType())
+                        .productFamily(eventItem.getProductFamily())
+                        .quantity(eventItem.getQuantity())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

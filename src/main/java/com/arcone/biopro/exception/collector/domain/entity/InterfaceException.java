@@ -155,6 +155,10 @@ public class InterfaceException {
     @Builder.Default
     private List<RetryAttempt> retryAttempts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "interfaceException", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<OrderItem> orderItems = new ArrayList<>();
+
     /**
      * Convenience method to add a retry attempt to this exception.
      * Maintains bidirectional relationship consistency.
@@ -171,5 +175,23 @@ public class InterfaceException {
     public void removeRetryAttempt(RetryAttempt retryAttempt) {
         retryAttempts.remove(retryAttempt);
         retryAttempt.setInterfaceException(null);
+    }
+
+    /**
+     * Convenience method to add an order item to this exception.
+     * Maintains bidirectional relationship consistency.
+     */
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        orderItem.setInterfaceException(this);
+    }
+
+    /**
+     * Convenience method to remove an order item from this exception.
+     * Maintains bidirectional relationship consistency.
+     */
+    public void removeOrderItem(OrderItem orderItem) {
+        orderItems.remove(orderItem);
+        orderItem.setInterfaceException(null);
     }
 }

@@ -73,7 +73,7 @@ public class ExceptionProcessingService {
                     .transactionId(transactionId)
                     .interfaceType(InterfaceType.ORDER)
                     .exceptionReason(event.getPayload().getRejectedReason())
-                    .operation(event.getPayload().getOperation())
+                    .operation(event.getPayload().getOperation().name())
                     .externalId(event.getPayload().getExternalId())
                     .status(ExceptionStatus.NEW)
                     .category(categorizeOrderException(event.getPayload().getRejectedReason()))

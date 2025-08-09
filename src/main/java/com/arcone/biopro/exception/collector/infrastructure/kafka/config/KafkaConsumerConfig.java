@@ -20,6 +20,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.util.backoff.ExponentialBackOff;
 
 import java.util.HashMap;
@@ -67,9 +68,17 @@ public class KafkaConsumerConfig {
         configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
-        // Serialization configuration
-        configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        // Serialization configuration with error handling deserializers
+        configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                org.springframework.kafka.support.serializer.ErrorHandlingDeserializer.class);
+        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                org.springframework.kafka.support.serializer.ErrorHandlingDeserializer.class);
+
+        // Delegate deserializers for actual deserialization
+        configProps.put(org.springframework.kafka.support.serializer.ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS,
+                StringDeserializer.class);
+        configProps.put(org.springframework.kafka.support.serializer.ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS,
+                JsonDeserializer.class);
 
         // JSON deserializer configuration for trusted packages
         configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "com.arcone.biopro.exception.collector.domain.event");
@@ -138,7 +147,10 @@ public class KafkaConsumerConfig {
         errorHandler.addNotRetryableExceptions(
                 org.springframework.kafka.support.serializer.DeserializationException.class,
                 org.springframework.messaging.converter.MessageConversionException.class,
-                IllegalArgumentException.class);
+                org.apache.kafka.common.errors.SerializationException.class,
+                org.apache.kafka.common.errors.RecordDeserializationException.class,
+                IllegalArgumentException.class,
+                IllegalStateException.class);
 
         factory.setCommonErrorHandler(errorHandler);
 
@@ -163,8 +175,10 @@ public class KafkaConsumerConfig {
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
-        configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        configProps.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
+        configProps.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
         configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "com.arcone.biopro.exception.collector.domain.event");
         configProps.put(JsonDeserializer.VALUE_DEFAULT_TYPE, OrderRejectedEvent.class.getName());
         configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);

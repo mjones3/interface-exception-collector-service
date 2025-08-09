@@ -52,8 +52,17 @@ public class OrderExceptionConsumer {
             Acknowledgment acknowledgment) {
 
         try {
+            log.debug("Received OrderRejected event from partition: {}, offset: {}", partition, offset);
+
+            // Additional null checks for better error handling
+            if (event == null) {
+                log.error("Received null OrderRejected event from partition: {}, offset: {}", partition, offset);
+                acknowledgment.acknowledge();
+                return;
+            }
+
             log.info("Processing OrderRejected event for transaction: {} from partition: {}, offset: {}",
-                    event.getPayload().getTransactionId(), partition, offset);
+                    event.getPayload() != null ? event.getPayload().getTransactionId() : "null", partition, offset);
 
             // Validate event payload
             if (event.getPayload() == null || event.getPayload().getTransactionId() == null) {

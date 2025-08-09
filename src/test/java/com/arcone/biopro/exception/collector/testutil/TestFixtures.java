@@ -30,10 +30,10 @@ public class TestFixtures {
     public static final OffsetDateTime ONE_WEEK_AGO = BASE_TIME.minusWeeks(1);
 
     // Common test identifiers
-    public static final String TEST_TRANSACTION_ID = "TEST-TXN-001";
+    public static final String TEST_TRANSACTION_ID = "550e8400-e29b-41d4-a716-446655440002";
     public static final String TEST_CUSTOMER_ID = "TEST-CUST-001";
     public static final String TEST_LOCATION_CODE = "TEST-LOC-001";
-    public static final String TEST_EXTERNAL_ID = "TEST-EXT-001";
+    public static final String TEST_EXTERNAL_ID = "ORDER-ABC123";
     public static final String TEST_USER = "test-user";
 
     // Exception Fixtures
@@ -316,22 +316,30 @@ public class TestFixtures {
 
         public static OrderRejectedEvent orderRejectedEvent() {
             return OrderRejectedEvent.builder()
-                    .eventId("test-order-rejected-001")
+                    .eventId("550e8400-e29b-41d4-a716-446655440000")
                     .eventType("OrderRejected")
                     .eventVersion("1.0")
                     .occurredOn(BASE_TIME)
                     .source("order-service")
-                    .correlationId("test-correlation-001")
+                    .correlationId("550e8400-e29b-41d4-a716-446655440001")
                     .payload(OrderRejectedEvent.OrderRejectedPayload.builder()
-                            .transactionId(TEST_TRANSACTION_ID)
-                            .externalId(TEST_EXTERNAL_ID)
-                            .operation("CREATE_ORDER")
-                            .rejectedReason("Order validation failed: Invalid customer ID")
+                            .transactionId("550e8400-e29b-41d4-a716-446655440002")
+                            .externalId("ORDER-ABC123")
+                            .operation(OrderRejectedEvent.OrderOperation.CREATE_ORDER)
+                            .rejectedReason("Order already exists for external ID ORDER-ABC123")
                             .customerId(TEST_CUSTOMER_ID)
                             .locationCode(TEST_LOCATION_CODE)
                             .orderItems(List.of(
-                                    Map.of("itemId", "ITEM-001", "quantity", 5, "price", 29.99),
-                                    Map.of("itemId", "ITEM-002", "quantity", 2, "price", 15.50)))
+                                    OrderRejectedEvent.OrderItem.builder()
+                                            .bloodType("O+")
+                                            .productFamily("WHOLE_BLOOD")
+                                            .quantity(5)
+                                            .build(),
+                                    OrderRejectedEvent.OrderItem.builder()
+                                            .bloodType("A-")
+                                            .productFamily("RED_BLOOD_CELLS")
+                                            .quantity(2)
+                                            .build()))
                             .build())
                     .build();
         }

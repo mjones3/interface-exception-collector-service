@@ -25,16 +25,28 @@ except ImportError:
 KAFKA_BOOTSTRAP_SERVERS = ['localhost:29092']
 TOPIC_NAME = 'OrderRejected'
 
-# Blood banking domain data
+# Blood banking domain data - updated to match schema
 BLOOD_PRODUCTS = [
-    {'itemId': 'RBC-O-NEG-001', 'itemType': 'Red Blood Cells', 'unitPrice': 245.50},
-    {'itemId': 'RBC-A-POS-002', 'itemType': 'Red Blood Cells', 'unitPrice': 245.50},
-    {'itemId': 'PLT-AB-POS-003', 'itemType': 'Platelets', 'unitPrice': 520.75},
-    {'itemId': 'FFP-B-NEG-004', 'itemType': 'Fresh Frozen Plasma', 'unitPrice': 185.25},
-    {'itemId': 'CRYO-O-POS-005', 'itemType': 'Cryoprecipitate', 'unitPrice': 165.00},
-    {'itemId': 'WB-A-NEG-006', 'itemType': 'Whole Blood', 'unitPrice': 425.00},
-    {'itemId': 'RBC-B-POS-007', 'itemType': 'Red Blood Cells', 'unitPrice': 245.50},
-    {'itemId': 'PLT-O-NEG-008', 'itemType': 'Platelets', 'unitPrice': 520.75}
+    {'bloodType': 'O-', 'productFamily': 'RED_BLOOD_CELLS'},
+    {'bloodType': 'O+', 'productFamily': 'RED_BLOOD_CELLS'},
+    {'bloodType': 'A-', 'productFamily': 'RED_BLOOD_CELLS'},
+    {'bloodType': 'A+', 'productFamily': 'RED_BLOOD_CELLS'},
+    {'bloodType': 'B-', 'productFamily': 'RED_BLOOD_CELLS'},
+    {'bloodType': 'B+', 'productFamily': 'RED_BLOOD_CELLS'},
+    {'bloodType': 'AB-', 'productFamily': 'RED_BLOOD_CELLS'},
+    {'bloodType': 'AB+', 'productFamily': 'RED_BLOOD_CELLS'},
+    {'bloodType': 'O-', 'productFamily': 'PLATELETS'},
+    {'bloodType': 'O+', 'productFamily': 'PLATELETS'},
+    {'bloodType': 'A-', 'productFamily': 'PLATELETS'},
+    {'bloodType': 'AB+', 'productFamily': 'PLATELETS'},
+    {'bloodType': 'O-', 'productFamily': 'FRESH_FROZEN_PLASMA'},
+    {'bloodType': 'A+', 'productFamily': 'FRESH_FROZEN_PLASMA'},
+    {'bloodType': 'B-', 'productFamily': 'FRESH_FROZEN_PLASMA'},
+    {'bloodType': 'AB+', 'productFamily': 'FRESH_FROZEN_PLASMA'},
+    {'bloodType': 'O+', 'productFamily': 'WHOLE_BLOOD'},
+    {'bloodType': 'A-', 'productFamily': 'WHOLE_BLOOD'},
+    {'bloodType': 'B+', 'productFamily': 'WHOLE_BLOOD'},
+    {'bloodType': 'AB-', 'productFamily': 'CRYOPRECIPITATE'}
 ]
 
 HOSPITAL_LOCATIONS = [
@@ -50,27 +62,26 @@ CUSTOMER_IDS = [
 ]
 
 REJECTION_REASONS = [
-    'Insufficient inventory for blood type O-negative',
-    'Product expired - expiration date exceeded by 2 days',
+    'Order already exists for external ID',
+    'Insufficient inventory for requested blood type',
+    'Product expired - expiration date exceeded',
     'Cross-match incompatibility detected for patient',
     'Invalid customer credentials - account suspended',
-    'Order quantity exceeds maximum allowed limit',
-    'Product recall in effect for lot number BB-2024-0156',
-    'Temperature control breach during transport',
-    'Duplicate order detected for same patient within 24 hours',
-    'Invalid blood type specification in order',
-    'Customer payment method declined - insufficient funds'
+    'Order quantity exceeds maximum allowed limit per customer',
+    'Product recall in effect for requested lot',
+    'Temperature control breach during storage',
+    'Duplicate order detected within 24 hours',
+    'Invalid blood type specification in order request',
+    'Customer payment method declined',
+    'Location not authorized for requested product family',
+    'Donor screening requirements not met',
+    'Regulatory compliance violation detected'
 ]
 
 OPERATIONS = [
-    'CREATE_BLOOD_ORDER',
-    'RESERVE_BLOOD_UNITS',
-    'SCHEDULE_DELIVERY',
-    'VALIDATE_COMPATIBILITY',
-    'PROCESS_URGENT_ORDER',
-    'ALLOCATE_INVENTORY',
-    'CONFIRM_AVAILABILITY',
-    'UPDATE_ORDER_STATUS'
+    'CREATE_ORDER',
+    'MODIFY_ORDER',
+    'CANCEL_ORDER'
 ]
 
 def generate_order_rejected_event() -> Dict[str, Any]:
@@ -79,9 +90,9 @@ def generate_order_rejected_event() -> Dict[str, Any]:
     # Create base event structure
     event = EventGenerator.create_base_event('OrderRejected', 'order-service')
     
-    # Generate transaction identifiers
-    transaction_id = f"TXN-{random.randint(100000, 999999)}"
-    external_id = f"EXT-ORD-{random.randint(10000, 99999)}"
+    # Generate transaction identifiers - transaction ID must be UUID format
+    transaction_id = EventGenerator.generate_uuid()
+    external_id = f"ORDER-{random.randint(100000, 999999)}"
     
     # Select random data
     customer_id = random.choice(CUSTOMER_IDS)
@@ -98,10 +109,9 @@ def generate_order_rejected_event() -> Dict[str, Any]:
         quantity = random.randint(1, 5)
         
         order_items.append({
-            'itemId': product['itemId'],
-            'itemType': product['itemType'],
-            'quantity': quantity,
-            'unitPrice': product['unitPrice']
+            'bloodType': product['bloodType'],
+            'productFamily': product['productFamily'],
+            'quantity': quantity
         })
     
     # Add payload to the base event

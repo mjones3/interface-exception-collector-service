@@ -1,0 +1,136 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://schemas.biopro.arcone.com/events/OrderRejected/v1.0.0",
+    "title": "Order Rejected Event",
+    "description": "Event published when an order is rejected by the Order Service",
+    "type": "object",
+    "required": [
+      "eventId",
+      "eventType",
+      "eventVersion",
+      "occurredOn",
+      "source",
+      "payload"
+    ],
+    "properties": {
+      "eventId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Unique event identifier"
+      },
+      "eventType": {
+        "type": "string",
+        "const": "OrderRejected",
+        "description": "Type of event"
+      },
+      "eventVersion": {
+        "type": "string",
+        "pattern": "^\\d+\\.\\d+$",
+        "description": "Event schema version"
+      },
+      "occurredOn": {
+        "type": "string",
+        "format": "date-time",
+        "description": "When the event occurred"
+      },
+      "source": {
+        "type": "string",
+        "const": "order-service",
+        "description": "Service that published the event"
+      },
+      "correlationId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Correlation ID for request tracing"
+      },
+      "causationId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "ID of the event that caused this event"
+      },
+      "payload": {
+        "type": "object",
+        "required": [
+          "transactionId",
+          "externalId",
+          "operation",
+          "rejectedReason"
+        ],
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transaction ID from order processing"
+          },
+          "externalId": {
+            "type": "string",
+            "description": "Customer's external order ID"
+          },
+          "operation": {
+            "type": "string",
+            "enum": ["CREATE_ORDER", "MODIFY_ORDER", "CANCEL_ORDER"],
+            "description": "Operation that was attempted"
+          },
+          "rejectedReason": {
+            "type": "string",
+            "description": "Human-readable rejection reason"
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier"
+          },
+          "locationCode": {
+            "type": "string",
+            "description": "Location where order was submitted"
+          },
+          "orderItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "bloodType": {
+                  "type": "string",
+                  "description": "Blood type for the item"
+                },
+                "productFamily": {
+                  "type": "string",
+                  "description": "Product family classification"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Quantity requested"
+                }
+              },
+              "required": ["bloodType", "productFamily", "quantity"]
+            }
+          }
+        }
+      }
+    },
+    "examples": [
+      {
+        "eventId": "550e8400-e29b-41d4-a716-446655440000",
+        "eventType": "OrderRejected",
+        "eventVersion": "1.0",
+        "occurredOn": "2025-08-04T10:30:00Z",
+        "source": "order-service",
+        "correlationId": "550e8400-e29b-41d4-a716-446655440001",
+        "payload": {
+          "transactionId": "550e8400-e29b-41d4-a716-446655440002",
+          "externalId": "ORDER-ABC123",
+          "operation": "CREATE_ORDER",
+          "rejectedReason": "Order already exists for external ID ORDER-ABC123",
+          "customerId": "CUST001",
+          "locationCode": "LOC123",
+          "orderItems": [
+            {
+              "bloodType": "O+",
+              "productFamily": "WHOLE_BLOOD",
+              "quantity": 5
+            }
+          ]
+        }
+      }
+    ]
+  }
