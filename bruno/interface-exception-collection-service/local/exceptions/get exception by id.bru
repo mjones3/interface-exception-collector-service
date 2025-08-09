@@ -1,0 +1,19 @@
+meta {
+  name: get exception by id
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/api/v1/exceptions/b677584b-c599-4721-ad5d-03a5ce33dbc0
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXIiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3NTQ3MDY3MDAsImV4cCI6MTc1NDcxMDMwMH0.D9TcZMN5vOWBpg1ZMsPhaCHfplXUs-e-Qk_sqNVurpA
+}
+
+settings {
+  encodeUrl: true
+}

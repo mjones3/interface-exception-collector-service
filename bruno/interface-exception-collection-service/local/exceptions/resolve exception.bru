@@ -1,0 +1,28 @@
+meta {
+  name: resolve exception
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8080/api/v1/exceptions/b677584b-c599-4721-ad5d-03a5ce33dbc0/resolve
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXIiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3NTQ3MDY3MDAsImV4cCI6MTc1NDcxMDMwMH0.D9TcZMN5vOWBpg1ZMsPhaCHfplXUs-e-Qk_sqNVurpA
+}
+
+body:json {
+  {
+    "acknowledgedBy": "user-id",
+    "resolvedBy": "user-id",
+    "resolutionMethod": "MANUAL_RESOLUTION",
+    "notes": "Acknowledgment notes"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
