@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -156,10 +157,12 @@ public class InterfaceException {
     private OffsetDateTime updatedAt;
 
     @OneToMany(mappedBy = "interfaceException", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference("exception-retryAttempts")
     @Builder.Default
     private List<RetryAttempt> retryAttempts = new ArrayList<>();
 
     @OneToMany(mappedBy = "interfaceException", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference("exception-orderItems")
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 

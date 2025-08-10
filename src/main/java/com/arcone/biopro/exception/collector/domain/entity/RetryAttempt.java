@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -45,6 +46,7 @@ public class RetryAttempt {
     @NotNull(message = "Interface exception is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exception_id", nullable = false, foreignKey = @ForeignKey(name = "fk_retry_attempts_exception"))
+    @JsonBackReference("exception-retryAttempts")
     private InterfaceException interfaceException;
 
     @NotNull(message = "Attempt number is required")
