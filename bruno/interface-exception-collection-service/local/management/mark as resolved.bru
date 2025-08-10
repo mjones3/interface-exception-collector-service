@@ -5,13 +5,22 @@ meta {
 }
 
 put {
-  url: http://localhost:8080/api/v1/exceptions/{transactionId}/resolve
+  url: http://localhost:8080/api/v1/exceptions/7aa8b2de-6b39-48fc-a309-bc22df28fb5b/resolve
   body: json
   auth: bearer
 }
 
 auth:bearer {
   token: {{token}}
+}
+
+body:json {
+  {
+    "resolvedBy": "test.user@company.com",
+    "resolutionMethod": "MANUAL_RESOLUTION",
+    "resolutionNotes": "Fixed data validation issue in source system"
+  }
+  
 }
 
 settings {

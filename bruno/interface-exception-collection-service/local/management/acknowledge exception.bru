@@ -5,13 +5,20 @@ meta {
 }
 
 put {
-  url: http://localhost:8080/api/v1/exceptions/{transactionId}/acknowledge
+  url: http://localhost:8080/api/v1/exceptions/7aa8b2de-6b39-48fc-a309-bc22df28fb5b/acknowledge
   body: json
   auth: bearer
 }
 
 auth:bearer {
   token: {{token}}
+}
+
+body:json {
+  {
+    "acknowledgedBy": "test.user@company.com",
+    "notes": "Reviewed and assigned to development team"
+  }
 }
 
 settings {
