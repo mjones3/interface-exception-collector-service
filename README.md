@@ -192,15 +192,207 @@ For advanced development with hot reload:
 - `GET /api/v1/exceptions/search` - Full-text search
 - `GET /api/v1/exceptions/summary` - Aggregated statistics
 
+#### Example API Calls
+
+**List Exceptions:**
+```bash
+curl -H @auth_header.txt "http://localhost:8080/api/v1/exceptions"
+```
+
+**Search Exceptions:**
+```bash
+curl -H @auth_header.txt "http://localhost:8080/api/v1/exceptions/search?query=suspended"
+```
+
+**Get Exception Details:**
+```bash
+curl -H @auth_header.txt "http://localhost:8080/api/v1/exceptions/7aa8b2de-6b39-48fc-a309-bc22df28fb5b"
+```
+
+**Get Exception Summary:**
+```bash
+curl -H @auth_header.txt "http://localhost:8080/api/v1/exceptions/summary?timeRange=week"
+```
+
 ### Retry Operations
 
 - `POST /api/v1/exceptions/{transactionId}/retry` - Initiate retry
 - `GET /api/v1/exceptions/{transactionId}/retry-history` - Get retry history
 
+#### Initiate Retry
+
+**Endpoint:** `POST /api/v1/exceptions/{transactionId}/retry`
+
+**Request Payload:**
+```json
+{
+  "initiatedBy": "user@company.com",
+  "reason": "Customer requested retry after fixing data issue"
+}
+```
+
+**Fields:**
+- `initiatedBy` (required): String, max 255 characters - User or system that initiated the retry
+- `reason` (optional): String, max 500 characters - Reason for the retry attempt
+
+**Example Response:**
+```json
+{
+  "retryId": 123,
+  "status": "PENDING",
+  "message": "Retry operation initiated successfully",
+  "estimatedCompletionTime": "2025-08-09T22:36:37.708251-04:00",
+  "attemptNumber": 2
+}
+```
+
+#### Get Retry History
+
+**Endpoint:** `GET /api/v1/exceptions/{transactionId}/retry-history`
+
+**Example Response:**
+```json
+[
+  {
+    "id": 1,
+    "attemptNumber": 1,
+    "status": "PENDING",
+    "initiatedBy": "test user",
+    "initiatedAt": "2025-08-10T01:46:37.503291Z",
+    "completedAt": null,
+    "resultSuccess": null,
+    "resultMessage": null,
+    "resultResponseCode": null,
+    "resultErrorDetails": null
+  }
+]
+```
+
 ### Management Operations
 
 - `PUT /api/v1/exceptions/{transactionId}/acknowledge` - Acknowledge exception
 - `PUT /api/v1/exceptions/{transactionId}/resolve` - Mark as resolved
+
+#### Acknowledge Exception
+
+**Endpoint:** `PUT /api/v1/exceptions/{transactionId}/acknowledge`
+
+**Request Payload:**
+```json
+{
+  "acknowledgedBy": "user@company.com",
+  "notes": "Reviewed and assigned to development team"
+}
+```
+
+**Fields:**
+- `acknowledgedBy` (required): String, max 255 characters - User or system that acknowledged the exception
+- `notes` (optional): String, max 1000 characters - Optional notes about the acknowledgment
+
+**Example Response:**
+```json
+{
+  "status": "ACKNOWLEDGED",
+  "acknowledgedAt": "2025-08-09T22:31:27.507582-04:00",
+  "acknowledgedBy": "user@company.com",
+  "notes": "Reviewed and assigned to development team",
+  "transactionId": "7aa8b2de-6b39-48fc-a309-bc22df28fb5b"
+}
+```
+
+#### Resolve Exception
+
+**Endpoint:** `PUT /api/v1/exceptions/{transactionId}/resolve`
+
+**Request Payload:**
+```json
+{
+  "resolvedBy": "user@company.com",
+  "resolutionMethod": "MANUAL_RESOLUTION",
+  "resolutionNotes": "Fixed data validation issue in source system"
+}
+```
+
+**Fields:**
+- `resolvedBy` (required): String, max 255 characters - User or system that resolved the exception
+- `resolutionMethod` (required): Enum - Method used to resolve the exception
+- `resolutionNotes` (optional): String, max 1000 characters - Notes about how the exception was resolved
+
+**Available Resolution Methods:**
+- `RETRY_SUCCESS` - Exception was resolved through a successful retry
+- `MANUAL_RESOLUTION` - Exception was manually resolved by a user
+- `CUSTOMER_RESOLVED` - Exception was resolved by the customer
+- `AUTOMATED` - Exception was resolved automatically by the system
+
+**Example Response:**
+```json
+{
+  "status": "RESOLVED",
+  "resolvedAt": "2025-08-09T22:31:37.708251-04:00",
+  "resolvedBy": "user@company.com",
+  "resolutionMethod": "MANUAL_RESOLUTION",
+  "resolutionNotes": "Fixed data validation issue in source system",
+  "transactionId": "7aa8b2de-6b39-48fc-a309-bc22df28fb5b",
+  "totalRetryAttempts": 1
+}
+```
+
+#### Example cURL Commands
+
+**Acknowledge Exception:**
+```bash
+curl -X PUT \
+  -H @auth_header.txt \
+  -H "Content-Type: application/json" \
+  -d '{"acknowledgedBy": "user@company.com", "notes": "Reviewed and assigned to development team"}' \
+  "http://localhost:8080/api/v1/exceptions/7aa8b2de-6b39-48fc-a309-bc22df28fb5b/acknowledge"
+```
+
+**Resolve Exception:**
+```bash
+curl -X PUT \
+  -H @auth_header.txt \
+  -H "Content-Type: application/json" \
+  -d '{"resolvedBy": "user@company.com", "resolutionMethod": "MANUAL_RESOLUTION", "resolutionNotes": "Fixed data validation issue in source system"}' \
+  "http://localhost:8080/api/v1/exceptions/7aa8b2de-6b39-48fc-a309-bc22df28fb5b/resolve"
+```
+
+**Initiate Retry:**
+```bash
+curl -X POST \
+  -H @auth_header.txt \
+  -H "Content-Type: application/json" \
+  -d '{"initiatedBy": "user@company.com", "reason": "Customer requested retry after fixing data issue"}' \
+  "http://localhost:8080/api/v1/exceptions/7aa8b2de-6b39-48fc-a309-bc22df28fb5b/retry"
+```
+
+### Authentication
+
+All API endpoints require JWT authentication. Include the JWT token in the Authorization header:
+
+```bash
+Authorization: Bearer <your-jwt-token>
+```
+
+**Generate JWT Token for Testing:**
+```bash
+# Generate token with VIEWER role
+node generate-jwt.js "test-user" "VIEWER"
+
+# Generate token with ADMIN role (required for management operations)
+node generate-jwt.js "test-user" "ADMIN"
+```
+
+**Role Requirements:**
+- `VIEWER` - Can access read-only endpoints (GET operations)
+- `OPERATOR` - Can perform retry operations and management actions
+- `ADMIN` - Full access to all endpoints including management operations
+
+**Note:** When using curl with long JWT tokens, save the token to a file to avoid command-line parsing issues:
+```bash
+echo "Authorization: Bearer <your-jwt-token>" > auth_header.txt
+curl -H @auth_header.txt "http://localhost:8080/api/v1/exceptions"
+```
 
 ### Health and Monitoring
 
@@ -374,6 +566,41 @@ curl http://localhost:8080/actuator/metrics/exception.processing.rate
 # Check retry success rates
 curl http://localhost:8080/actuator/metrics/retry.success.rate
 ```
+
+### Recent Fixes and Known Issues
+
+#### Circular Reference Issues (Fixed)
+
+**Issue**: Some endpoints were returning 500 Internal Server Error due to StackOverflowError caused by circular references in JPA entity relationships during JSON serialization.
+
+**Affected Endpoints**:
+- `/api/v1/exceptions/search`
+- `/api/v1/exceptions/{transactionId}/retry-history`
+
+**Root Cause**: Bidirectional relationships between `InterfaceException`, `RetryAttempt`, and `OrderItem` entities caused infinite loops during JSON serialization when using `@Data` annotation from Lombok.
+
+**Solution Applied**:
+1. Replaced `@Data` with specific Lombok annotations (`@Getter`, `@Setter`, `@ToString`)
+2. Excluded problematic fields from `toString()` methods using `@ToString(exclude = {...})`
+3. Added Jackson annotations to handle circular references:
+   - `@JsonManagedReference` on parent entity collections
+   - `@JsonBackReference` on child entity references
+
+**Status**: ✅ Fixed - All endpoints now return proper responses
+
+#### JWT Token Authentication Issues (Fixed)
+
+**Issue**: Long JWT tokens were causing 400 Bad Request errors when passed directly in curl command line.
+
+**Root Cause**: Command-line parsing issues with long authorization headers in curl.
+
+**Solution**: Use file-based headers for curl requests:
+```bash
+echo "Authorization: Bearer <token>" > auth_header.txt
+curl -H @auth_header.txt "http://localhost:8080/api/endpoint"
+```
+
+**Status**: ✅ Fixed - Authentication working correctly
 
 For detailed troubleshooting procedures, see the [Operational Runbooks](#operational-runbooks) section.
 
