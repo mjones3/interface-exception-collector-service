@@ -1,0 +1,26 @@
+meta {
+  name: initiate retry
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/v1/exceptions/7aa8b2de-6b39-48fc-a309-bc22df28fb5b/retry
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "initiatedBy": "test user",
+    "reason": "test reason"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

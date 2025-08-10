@@ -1,0 +1,19 @@
+meta {
+  name: acknowledge exception
+  type: http
+  seq: 1
+}
+
+put {
+  url: http://localhost:8080/api/v1/exceptions/{transactionId}/acknowledge
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+}

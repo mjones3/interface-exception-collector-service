@@ -271,10 +271,24 @@ public class ExceptionQueryService {
         List<Object[]> dailyCounts = exceptionRepository.getDailyCounts(fromDate, toDate);
 
         return dailyCounts.stream()
-                .map(row -> ExceptionSummaryResponse.DailyTrendResponse.builder()
-                        .date(((LocalDate) row[0]).toString())
-                        .count(((Number) row[1]).longValue())
-                        .build())
+                .map(row -> {
+                    // Handle the date conversion properly - JPQL DATE() function can return
+                    // different types
+                    String dateStr;
+                    if (row[0] instanceof java.sql.Date) {
+                        dateStr = ((java.sql.Date) row[0]).toLocalDate().toString();
+                    } else if (row[0] instanceof LocalDate) {
+                        dateStr = ((LocalDate) row[0]).toString();
+                    } else {
+                        // Fallback - convert to string and parse
+                        dateStr = row[0].toString();
+                    }
+
+                    return ExceptionSummaryResponse.DailyTrendResponse.builder()
+                            .date(dateStr)
+                            .count(((Number) row[1]).longValue())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 }

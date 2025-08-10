@@ -8,8 +8,10 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -28,10 +30,12 @@ import java.time.OffsetDateTime;
                 @Index(name = "idx_retry_attempts_initiated_at", columnList = "initiated_at")
         })
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "interfaceException")
 public class RetryAttempt {
 
     @Id
@@ -77,6 +81,7 @@ public class RetryAttempt {
     private Integer resultResponseCode;
 
     @Column(name = "result_error_details", columnDefinition = "JSONB")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     private String resultErrorDetails;
 
     @CreatedDate
@@ -107,6 +112,18 @@ public class RetryAttempt {
         this.resultSuccess = false;
         this.resultMessage = message;
         this.resultResponseCode = responseCode;
-        this.resultErrorDetails = errorDetails;
+
+        // Convert error details to JSON format if it's not already JSON
+        if (errorDetails != null && !errorDetails.trim().isEmpty()) {
+            if (errorDetails.trim().startsWith("{") || errorDetails.trim().startsWith("[")) {
+                // Already JSON format
+                this.resultErrorDetails = errorDetails;
+            } else {
+                // Convert string to JSON object
+                this.resultErrorDetails = "{\"error\": \"" + errorDetails.replace("\"", "\\\"") + "\"}";
+            }
+        } else {
+            this.resultErrorDetails = null;
+        }
     }
 }

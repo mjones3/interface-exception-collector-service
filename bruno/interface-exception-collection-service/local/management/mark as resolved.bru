@@ -1,0 +1,19 @@
+meta {
+  name: mark as resolved
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://localhost:8080/api/v1/exceptions/{transactionId}/resolve
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+}
