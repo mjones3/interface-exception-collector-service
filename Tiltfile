@@ -1,9 +1,14 @@
 # Tiltfile for Interface Exception Collector Service Local Development
 
+# Load extensions
+load('ext://restart_process', 'docker_build_with_restart')
+
 # Configuration
 config.define_string("namespace", args=False, usage="Kubernetes namespace to use")
+config.define_bool("skip-tests", args=False, usage="Skip running tests on startup")
 cfg = config.parse()
 namespace = cfg.get("namespace", "default")
+skip_tests = cfg.get("skip-tests", False)
 
 # Set namespace
 k8s_namespace(namespace)
@@ -16,9 +21,9 @@ k8s_resource('postgres', port_forwards='5432:5432')
 k8s_yaml('k8s/redis.yaml')
 k8s_resource('redis', port_forwards='6379:6379')
 
-# Kafka
-k8s_yaml('k8s/kafka.yaml')
-k8s_resource('kafka', port_forwards=['9092:9092', '29092:29092'])
+# Kafka (using simplified configuration)
+k8s_yaml('k8s/kafka-simple.yaml')
+k8s_resource('kafka', port_forwards='9092:9092')
 
 # Kafka UI for development
 k8s_yaml('k8s/kafka-ui.yaml')
@@ -35,7 +40,7 @@ k8s_resource('kafka-topics-job', resource_deps=['kafka'])
 # Prepare dependencies (run once)
 local_resource(
     'maven-dependencies',
-    'mvn dependency:copy-dependencies -DoutputDirectory=target/lib -DincludeScope=runtime -q',
+    'mvn dependency:copy-dependencies -DoutputDirectory=target/lib -DincludeScope=runtime',
     deps=['pom.xml'],
     ignore=['src']
 )
@@ -43,7 +48,7 @@ local_resource(
 # Build the application with live reload
 local_resource(
     'maven-compile',
-    'mvn compile -q',
+    'mvn compile',
     deps=['src/main', 'pom.xml'],
     ignore=['src/test'],
     resource_deps=['maven-dependencies']
@@ -54,10 +59,8 @@ docker_build(
     'interface-exception-collector',
     '.',
     dockerfile='Dockerfile.dev',
-    only=['./target/classes', './target/lib'],
     live_update=[
-        sync('./target/classes', '/app/classes'),
-        restart_container()
+        sync('./target/classes', '/app/target/classes'),
     ]
 )
 
@@ -66,7 +69,7 @@ k8s_yaml('k8s/app.yaml')
 k8s_resource(
     'interface-exception-collector',
     port_forwards=['8080:8080', '5005:5005'],
-    resource_deps=['postgres', 'redis', 'kafka', 'migration-job', 'kafka-topics-job']
+    resource_deps=['postgres', 'redis', 'kafka']
 )
 
 # Local resource for running tests
@@ -81,7 +84,7 @@ local_resource(
 # Local resource for Maven package (useful for debugging)
 local_resource(
     'maven-package',
-    'mvn package -DskipTests -q',
+    'mvn package -Dmaven.test.skip=true',
     deps=['src', 'pom.xml'],
     auto_init=False,
     trigger_mode=TRIGGER_MODE_MANUAL

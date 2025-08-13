@@ -5,10 +5,14 @@ metadata:
   labels:
     app: kafka-topics-job
 spec:
+  ttlSecondsAfterFinished: 30
   template:
     metadata:
       labels:
         app: kafka-topics-job
+      annotations:
+        sidecar.istio.io/inject: "false"
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
     spec:
       restartPolicy: OnFailure
       initContainers:
@@ -30,50 +34,30 @@ spec:
           - sh
           - -c
           - |
-            # Function to create topic if it doesn't exist
-            create_topic_if_not_exists() {
-              local topic_name=$1
-              local partitions=${2:-3}
-              local replication_factor=${3:-1}
-              
-              if kafka-topics --bootstrap-server kafka:9092 --list | grep -q "^${topic_name}$"; then
-                echo "Topic ${topic_name} already exists"
-              else
-                echo "Creating topic ${topic_name}"
-                kafka-topics --bootstrap-server kafka:9092 \
-                  --create \
-                  --topic ${topic_name} \
-                  --partitions ${partitions} \
-                  --replication-factor ${replication_factor}
-                echo "Topic ${topic_name} created successfully"
-              fi
-            }
-
+            # Create topics (ignore if they already exist)
+            echo "Creating Kafka topics..."
+            
             # Create inbound topics (from interface services)
-            create_topic_if_not_exists "OrderRejected" 3 1
-            create_topic_if_not_exists "OrderCancelled" 3 1
-            create_topic_if_not_exists "CollectionRejected" 3 1
-            create_topic_if_not_exists "DistributionFailed" 3 1
-            create_topic_if_not_exists "ValidationError" 3 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic OrderRejected --partitions 3 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic OrderCancelled --partitions 3 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic CollectionRejected --partitions 3 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic DistributionFailed --partitions 3 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ValidationError --partitions 3 --replication-factor 1
 
             # Create outbound topics (from exception collector)
-            create_topic_if_not_exists "ExceptionCaptured" 3 1
-            create_topic_if_not_exists "ExceptionResolved" 3 1
-            create_topic_if_not_exists "ExceptionRetryCompleted" 3 1
-            create_topic_if_not_exists "CriticalExceptionAlert" 3 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ExceptionCaptured --partitions 3 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ExceptionResolved --partitions 3 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ExceptionRetryCompleted --partitions 3 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic CriticalExceptionAlert --partitions 3 --replication-factor 1
 
             # Create dead letter topics
-            create_topic_if_not_exists "OrderRejected.DLT" 1 1
-            create_topic_if_not_exists "OrderCancelled.DLT" 1 1
-            create_topic_if_not_exists "CollectionRejected.DLT" 1 1
-            create_topic_if_not_exists "DistributionFailed.DLT" 1 1
-            create_topic_if_not_exists "ValidationError.DLT" 1 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic OrderRejected.DLT --partitions 1 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic OrderCancelled.DLT --partitions 1 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic CollectionRejected.DLT --partitions 1 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic DistributionFailed.DLT --partitions 1 --replication-factor 1
+            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ValidationError.DLT --partitions 1 --replication-factor 1
 
             echo "All Kafka topics created successfully!"
-            
-            # List all topics for verification
-            echo "Current topics:"
-            kafka-topics --bootstrap-server kafka:9092 --list
         resources:
           requests:
             memory: "128Mi"
@@ -81,3 +65,7 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "wget -qO- --post-data='' http://localhost:15020/quitquitquit"]

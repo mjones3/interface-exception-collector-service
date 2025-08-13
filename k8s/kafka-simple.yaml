@@ -27,87 +27,62 @@ spec:
     spec:
       containers:
       - name: kafka
-        image: confluentinc/cp-kafka:7.4.0
+        image: apache/kafka:3.7.0
         ports:
         - containerPort: 9092
-        - containerPort: 9093
         env:
-        # KRaft mode configuration
+        # KRaft mode configuration for Apache Kafka
         - name: KAFKA_NODE_ID
           value: "1"
         - name: KAFKA_PROCESS_ROLES
           value: "broker,controller"
-        - name: CLUSTER_ID
-          value: "MkU3OEVBNTcwNTJENDM2Qk"
-        
-        # Listener configuration
+        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+          value: "1@localhost:9093"
         - name: KAFKA_LISTENERS
           value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
         - name: KAFKA_ADVERTISED_LISTENERS
           value: "PLAINTEXT://kafka:9092"
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-          value: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
-        - name: KAFKA_INTER_BROKER_LISTENER_NAME
-          value: "PLAINTEXT"
-        
-        # Controller configuration
-        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
-          value: "1@kafka:9093"
+          value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
         - name: KAFKA_CONTROLLER_LISTENER_NAMES
           value: "CONTROLLER"
-        
-        # Topic and replication settings
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: "PLAINTEXT"
+        - name: CLUSTER_ID
+          value: "MkU3OEVBNTcwNTJENDM2Qk"
         - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-          value: "1"
-        - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
           value: "1"
         - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
           value: "1"
-        - name: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
-          value: "0"
+        - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+          value: "1"
+        - name: KAFKA_LOG_DIRS
+          value: "/var/lib/kafka/data"
         - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
           value: "true"
         - name: KAFKA_NUM_PARTITIONS
           value: "3"
-        - name: KAFKA_DEFAULT_REPLICATION_FACTOR
-          value: "1"
-        
-        # Storage configuration
-        - name: KAFKA_LOG_DIRS
-          value: "/var/lib/kafka/data"
-        - name: KAFKA_LOG_RETENTION_HOURS
-          value: "168"
-        - name: KAFKA_LOG_SEGMENT_BYTES
-          value: "1073741824"
-        - name: KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS
-          value: "300000"
         volumeMounts:
         - name: kafka-storage
           mountPath: /var/lib/kafka/data
         resources:
           requests:
             memory: "512Mi"
-            cpu: "500m"
+            cpu: "250m"
           limits:
             memory: "1Gi"
-            cpu: "1000m"
+            cpu: "500m"
         readinessProbe:
-          exec:
-            command:
-              - sh
-              - -c
-              - "kafka-broker-api-versions --bootstrap-server localhost:9092"
-          initialDelaySeconds: 45
-          periodSeconds: 15
-          timeoutSeconds: 10
+          tcpSocket:
+            port: 9092
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
           failureThreshold: 3
         livenessProbe:
-          exec:
-            command:
-              - sh
-              - -c
-              - "kafka-broker-api-versions --bootstrap-server localhost:9092"
-          initialDelaySeconds: 90
+          tcpSocket:
+            port: 9092
+          initialDelaySeconds: 60
           periodSeconds: 30
           timeoutSeconds: 10
           failureThreshold: 5
@@ -128,8 +103,5 @@ spec:
   - name: kafka
     port: 9092
     targetPort: 9092
-  - name: controller
-    port: 9093
-    targetPort: 9093
   selector:
     app: kafka

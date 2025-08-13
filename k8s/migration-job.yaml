@@ -5,10 +5,14 @@ metadata:
   labels:
     app: migration-job
 spec:
+  ttlSecondsAfterFinished: 30
   template:
     metadata:
       labels:
         app: migration-job
+      annotations:
+        sidecar.istio.io/inject: "false"
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
     spec:
       restartPolicy: OnFailure
       initContainers:
@@ -27,13 +31,17 @@ spec:
       - name: flyway
         image: flyway/flyway:10.21.0-alpine
         command:
-          - flyway
-          - -url=jdbc:postgresql://postgres:5432/exception_collector_db
-          - -user=exception_user
-          - -password=exception_pass
-          - -locations=filesystem:/flyway/sql
-          - -baselineOnMigrate=true
-          - migrate
+          - sh
+          - -c
+          - |
+            flyway -url=jdbc:postgresql://postgres:5432/exception_collector_db \
+              -user=exception_user \
+              -password=exception_pass \
+              -locations=filesystem:/flyway/sql \
+              -baselineOnMigrate=true \
+              migrate
+            # Signal Istio sidecar to shut down
+            curl -X POST http://localhost:15020/quitquitquit || true
         volumeMounts:
         - name: migration-scripts
           mountPath: /flyway/sql
@@ -44,6 +52,10 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "wget -qO- --post-data='' http://localhost:15020/quitquitquit"]
       volumes:
       - name: migration-scripts
         configMap:

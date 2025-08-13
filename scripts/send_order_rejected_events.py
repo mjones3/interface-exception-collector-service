@@ -22,7 +22,7 @@ except ImportError:
     sys.exit(1)
 
 # Kafka configuration
-KAFKA_BOOTSTRAP_SERVERS = ['localhost:29092']
+KAFKA_BOOTSTRAP_SERVERS = ['127.0.0.1:9092']
 TOPIC_NAME = 'OrderRejected'
 
 # Blood banking domain data - updated to match schema

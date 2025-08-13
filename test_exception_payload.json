@@ -1,0 +1,19 @@
+{
+  "externalId": "ORDER-TEST-123456",
+  "operation": "CREATE_ORDER",
+  "rejectedReason": "Insufficient inventory for blood type O-negative - testing end-to-end Kafka flow",
+  "customerId": "CUST-MOUNT-SINAI-001",
+  "locationCode": "HOSP-NYC-001",
+  "orderItems": [
+    {
+      "bloodType": "O-",
+      "productFamily": "RED_BLOOD_CELLS",
+      "quantity": 2
+    },
+    {
+      "bloodType": "O-",
+      "productFamily": "PLATELETS",
+      "quantity": 1
+    }
+  ]
+}

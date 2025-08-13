@@ -1,5 +1,7 @@
 package com.arcone.biopro.exception.collector.api.controller;
 
+import com.arcone.biopro.exception.collector.api.dto.CreateExceptionRequest;
+import com.arcone.biopro.exception.collector.api.dto.CreateExceptionResponse;
 import com.arcone.biopro.exception.collector.api.dto.ErrorResponse;
 import com.arcone.biopro.exception.collector.api.dto.ExceptionDetailResponse;
 import com.arcone.biopro.exception.collector.api.dto.ExceptionListResponse;
@@ -7,6 +9,7 @@ import com.arcone.biopro.exception.collector.api.dto.ExceptionSummaryResponse;
 import com.arcone.biopro.exception.collector.api.mapper.ExceptionMapper;
 import com.arcone.biopro.exception.collector.application.service.ExceptionQueryService;
 import com.arcone.biopro.exception.collector.application.service.PayloadRetrievalService;
+import com.arcone.biopro.exception.collector.domain.event.inbound.OrderRejectedEvent;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionSeverity;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionStatus;
@@ -18,15 +21,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +42,10 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.support.SendResult;
 
 /**
  * REST controller for exception management endpoints.
@@ -53,6 +63,109 @@ public class ExceptionController {
         private final ExceptionQueryService exceptionQueryService;
         private final PayloadRetrievalService payloadRetrievalService;
         private final ExceptionMapper exceptionMapper;
+        private final KafkaTemplate<String, Object> kafkaTemplate;
+
+        /**
+         * Creates and publishes an exception event to Kafka for testing purposes.
+         * This endpoint allows testing the end-to-end Kafka flow by publishing
+         * an OrderRejected event that will be consumed by the application.
+         */
+        @PostMapping
+        @Operation(summary = "Create and publish exception event", description = "Creates and publishes an OrderRejected event to Kafka for testing the end-to-end flow")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "201", description = "Exception event created and published successfully", content = @Content(schema = @Schema(implementation = CreateExceptionResponse.class))),
+                        @ApiResponse(responseCode = "400", description = "Invalid request payload", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                        @ApiResponse(responseCode = "500", description = "Failed to publish event to Kafka", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+        })
+        public ResponseEntity<CreateExceptionResponse> createException(
+                        @Parameter(description = "Exception details to create and publish", required = true) @Valid @RequestBody CreateExceptionRequest request) {
+
+                log.info("Creating and publishing exception event for external ID: {}, operation: {}",
+                                request.getExternalId(), request.getOperation());
+
+                try {
+                        // Generate IDs
+                        String transactionId = UUID.randomUUID().toString();
+                        String eventId = UUID.randomUUID().toString();
+                        String correlationId = "corr-" + UUID.randomUUID().toString();
+                        String causationId = "cause-" + UUID.randomUUID().toString();
+                        OffsetDateTime now = OffsetDateTime.now();
+
+                        // Convert request to OrderRejectedEvent
+                        List<OrderRejectedEvent.OrderItem> orderItems = null;
+                        if (request.getOrderItems() != null) {
+                                orderItems = request.getOrderItems().stream()
+                                                .map(item -> OrderRejectedEvent.OrderItem.builder()
+                                                                .bloodType(item.getBloodType())
+                                                                .productFamily(item.getProductFamily())
+                                                                .quantity(item.getQuantity())
+                                                                .build())
+                                                .collect(java.util.stream.Collectors.toList());
+                        }
+
+                        OrderRejectedEvent.OrderRejectedPayload payload = OrderRejectedEvent.OrderRejectedPayload
+                                        .builder()
+                                        .transactionId(transactionId)
+                                        .externalId(request.getExternalId())
+                                        .operation(OrderRejectedEvent.OrderOperation
+                                                        .valueOf(request.getOperation().name()))
+                                        .rejectedReason(request.getRejectedReason())
+                                        .customerId(request.getCustomerId())
+                                        .locationCode(request.getLocationCode())
+                                        .orderItems(orderItems)
+                                        .build();
+
+                        OrderRejectedEvent event = OrderRejectedEvent.builder()
+                                        .eventId(eventId)
+                                        .eventType("OrderRejected")
+                                        .eventVersion("1.0")
+                                        .occurredOn(now)
+                                        .source("test-api")
+                                        .correlationId(correlationId)
+                                        .causationId(causationId)
+                                        .payload(payload)
+                                        .build();
+
+                        // Publish to Kafka
+                        String topic = "OrderRejected";
+                        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, transactionId,
+                                        event);
+
+                        // Wait for the send to complete (for synchronous response)
+                        SendResult<String, Object> result = future.get();
+
+                        log.info("Successfully published OrderRejected event to topic: {}, partition: {}, offset: {}, transaction ID: {}",
+                                        result.getRecordMetadata().topic(),
+                                        result.getRecordMetadata().partition(),
+                                        result.getRecordMetadata().offset(),
+                                        transactionId);
+
+                        // Build response
+                        CreateExceptionResponse response = CreateExceptionResponse.builder()
+                                        .transactionId(transactionId)
+                                        .eventId(eventId)
+                                        .correlationId(correlationId)
+                                        .publishedAt(now)
+                                        .topic(topic)
+                                        .status("SUCCESS")
+                                        .message("Exception event published successfully to Kafka")
+                                        .build();
+
+                        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+                } catch (Exception e) {
+                        log.error("Failed to create and publish exception event for external ID: {}",
+                                        request.getExternalId(), e);
+
+                        CreateExceptionResponse errorResponse = CreateExceptionResponse.builder()
+                                        .status("FAILED")
+                                        .message("Failed to publish event to Kafka: " + e.getMessage())
+                                        .publishedAt(OffsetDateTime.now())
+                                        .build();
+
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                }
+        }
 
         /**
          * Retrieves exceptions with filtering support.

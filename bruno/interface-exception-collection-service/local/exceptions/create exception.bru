@@ -1,0 +1,36 @@
+meta {
+  name: create exception
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8080/api/v1/exceptions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "externalId": "ORDER-123456",
+    "operation": "CREATE_ORDER",
+    "rejectedReason": "Insufficient inventory for blood type O-negative",
+    "customerId": "CUST-MOUNT-SINAI-001",
+    "locationCode": "HOSP-NYC-001",
+    "orderItems": [
+      {
+        "bloodType": "O-",
+        "productFamily": "RED_BLOOD_CELLS",
+        "quantity": 2
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+}

@@ -8,7 +8,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="$SCRIPT_DIR/.venv"
 
-echo "🩸 Blood Banking Order Rejection Event Generator"
+echo "🩸 BioPro Order Rejection Event Generator"
 echo "================================================"
 
 # Check if Python 3 is available
@@ -85,11 +85,11 @@ import sys
 sys.path.insert(0, '$SCRIPT_DIR')
 from kafka_utils import check_kafka_connectivity
 try:
-    if check_kafka_connectivity(['localhost:29092']):
+    if check_kafka_connectivity(['localhost:9092']):
         print('✅ Kafka is accessible')
     else:
         print('❌ Cannot connect to Kafka')
-        print('   Make sure Kafka is running on localhost:29092')
+        print('   Make sure Kafka is running on localhost:9092')
         print('   You can start it with: docker-compose up -d kafka')
         sys.exit(1)
 except Exception as e:
