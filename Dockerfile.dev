@@ -13,14 +13,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
+# Copy pom.xml and download dependencies first (for better caching)
 COPY pom.xml .
 
-# Download dependencies
-RUN mvn dependency:go-offline -B
+# Download dependencies and cache them
+RUN mvn dependency:go-offline -B && \
+    mvn dependency:copy-dependencies -DoutputDirectory=target/lib -DincludeScope=runtime
 
 # Copy source code
 COPY src ./src
+COPY target/classes ./target/classes
+
+# Create necessary directories
+RUN mkdir -p target/classes target/lib
 
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app
@@ -28,26 +33,28 @@ RUN chown -R appuser:appgroup /app
 # Switch to non-root user
 USER appuser
 
-# Configure JVM for development
+# Configure JVM for development with more memory and better GC
 ENV JAVA_OPTS="-XX:+UseContainerSupport \
-               -XX:MaxRAMPercentage=75.0 \
+               -XX:MaxRAMPercentage=70.0 \
                -XX:+UseG1GC \
+               -XX:G1HeapRegionSize=16m \
+               -XX:+UseStringDeduplication \
                -Djava.security.egd=file:/dev/./urandom \
-               -Dspring.profiles.active=docker,dev \
-               -Dspring.devtools.restart.enabled=true \
-               -Dspring.devtools.livereload.enabled=true"
+               -Dspring.profiles.active=local \
+               -Dspring.devtools.restart.enabled=false \
+               -Dspring.devtools.livereload.enabled=false"
 
-# Expose application and live reload ports
-EXPOSE 8080 35729
-
-# Health check configuration
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8080/actuator/health || exit 1
+# Expose application port
+EXPOSE 8080 5005
 
 # Configure graceful shutdown
 STOPSIGNAL SIGTERM
 
-# Development entrypoint with Maven Spring Boot plugin
-# ENTRYPOINT ["sh", "-c", "exec mvn spring-boot:run -Dspring-boot.run.jvmArguments=\"$JAVA_OPTS\""]
-
-ENTRYPOINT ["sh", "-c", "echo 'Starting application...' && ls -la /app && mvn spring-boot:run -Dspring-boot.run.profiles=dev -Dmaven.test.skip=true"]
+# Use java -jar instead of mvn spring-boot:run for better performance
+ENTRYPOINT ["sh", "-c", "echo 'Starting application with pre-compiled classes...' && \
+    if [ ! -f target/lib/*.jar ]; then \
+        echo 'Dependencies not found, downloading...'; \
+        mvn dependency:copy-dependencies -DoutputDirectory=target/lib -DincludeScope=runtime; \
+    fi && \
+    mvn compile -q && \
+    java $JAVA_OPTS -cp 'target/classes:target/lib/*' com.arcone.biopro.exception.collector.InterfaceExceptionCollectorApplication"]

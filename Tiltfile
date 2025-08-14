@@ -48,7 +48,7 @@ local_resource(
 # Build the application with live reload
 local_resource(
     'maven-compile',
-    'mvn compile',
+    'mvn compile -q',
     deps=['src/main', 'pom.xml'],
     ignore=['src/test'],
     resource_deps=['maven-dependencies']
@@ -61,6 +61,7 @@ docker_build(
     dockerfile='Dockerfile.dev',
     live_update=[
         sync('./target/classes', '/app/target/classes'),
+        sync('./target/lib', '/app/target/lib'),
     ]
 )
 

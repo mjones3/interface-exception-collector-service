@@ -39,13 +39,15 @@ public class SecurityConfig {
 
                                 // Configure authorization rules
                                 .authorizeHttpRequests(authz -> authz
-                                                // Public endpoints
-                                                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                                                // Public endpoints - health checks for Kubernetes
+                                                .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
                                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                                                 // API endpoints with role-based access
                                                 .requestMatchers(HttpMethod.GET, "/api/v1/exceptions/**")
                                                 .hasAnyRole("OPERATOR", "ADMIN", "VIEWER")
+                                                .requestMatchers(HttpMethod.POST, "/api/v1/exceptions")
+                                                .hasAnyRole("OPERATOR", "ADMIN")
                                                 .requestMatchers(HttpMethod.POST, "/api/v1/exceptions/*/retry")
                                                 .hasAnyRole("OPERATOR", "ADMIN")
                                                 .requestMatchers(HttpMethod.PUT, "/api/v1/exceptions/*/acknowledge")
@@ -53,7 +55,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.PUT, "/api/v1/exceptions/*/resolve")
                                                 .hasAnyRole("OPERATOR", "ADMIN")
 
-                                                // Admin-only endpoints
+                                                // Admin-only endpoints (other actuator endpoints)
                                                 .requestMatchers("/actuator/**").hasRole("ADMIN")
 
                                                 // All other requests require authentication

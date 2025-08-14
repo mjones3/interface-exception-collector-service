@@ -45,30 +45,30 @@ spec:
             name: app-config
         env:
         - name: JAVA_OPTS
-          value: "-Xmx512m -Xms256m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+          value: "-Xmx768m -Xms512m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
+            memory: "768Mi"
             cpu: "500m"
+          limits:
+            memory: "1.5Gi"
+            cpu: "1000m"
         readinessProbe:
           httpGet:
             path: /actuator/health/readiness
             port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
+          initialDelaySeconds: 90
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 5
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
             port: 8080
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 30
-          timeoutSeconds: 10
-          failureThreshold: 3
+          timeoutSeconds: 15
+          failureThreshold: 5
         volumeMounts:
         - name: tmp
           mountPath: /tmp
