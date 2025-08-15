@@ -21,6 +21,7 @@ import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.backoff.ExponentialBackOff;
 
 import java.util.HashMap;
@@ -35,6 +36,12 @@ import java.util.Map;
 @EnableKafka
 @Slf4j
 public class KafkaConsumerConfig {
+
+        private final ObjectMapper objectMapper;
+
+        public KafkaConsumerConfig(ObjectMapper objectMapper) {
+                this.objectMapper = objectMapper;
+        }
 
         @Value("${spring.kafka.bootstrap-servers}")
         private String bootstrapServers;
@@ -79,6 +86,10 @@ public class KafkaConsumerConfig {
                                 StringDeserializer.class);
                 configProps.put(org.springframework.kafka.support.serializer.ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS,
                                 JsonDeserializer.class);
+
+                // Configure JsonDeserializer to use our custom ObjectMapper
+                configProps.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Object.class);
+                configProps.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
 
                 // JSON deserializer configuration for trusted packages - allow all packages for
                 // flexibility

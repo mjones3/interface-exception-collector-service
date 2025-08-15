@@ -12,35 +12,44 @@ post {
 
 body:json {
   {
-    "externalId": "ORDER-COMPLETE-67890",
+    "externalId": "TEST-ORD-2025-004",
     "orderStatus": "OPEN",
-    "locationCode": "HOSP-MOUNT-SINAI-001",
+    "locationCode": "HOSP-CHI-001",
+    "createDate": "2025-08-14 10:30:00",
+    "createEmployeeCode": "emp-melvin-jones-001",
     "shipmentType": "CUSTOMER",
     "deliveryType": "STAT",
-    "productCategory": "EMERGENCY_BLOOD_PRODUCTS",
-    "createDate": "2025-08-13 15:45:30",
+    "orderPickType": {
+      "willCallPickUp": false,
+      "phoneNumber": "312-555-0123"
+    },
+    "shippingMethod": "FEDEX",
+    "productCategory": "REFRIGERATED",
+    "desiredShippingDate": "2025-08-15",
+    "shippingCustomerCode": "CUST-CHI-HOSP-001",
+    "billingCustomerCode": "CUST-CHI-HOSP-001",
+    "comments": "Urgent STAT order for trauma surgery - notify blood bank supervisor on arrival",
     "orderItems": [
       {
         "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
-        "bloodType": "O-",
+        "bloodType": "O_NEGATIVE",
         "quantity": 4,
-        "comments": "Emergency trauma case - multiple units needed"
+        "comments": "Type O Neg for emergency trauma case"
       },
       {
         "productFamily": "PLASMA_TRANSFUSABLE",
-        "bloodType": "O-",
+        "bloodType": "AB",
         "quantity": 2,
         "comments": "Fresh frozen plasma for coagulation support"
       },
       {
-        "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
-        "bloodType": "A+",
+        "productFamily": "PLATELETS_APHERESIS",
+        "bloodType": "A_POSITIVE", 
         "quantity": 1,
-        "comments": "Additional unit for patient compatibility"
+        "comments": "Single donor platelets"
       }
     ]
   }
-  
 }
 
 settings {
