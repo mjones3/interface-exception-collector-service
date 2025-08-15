@@ -1,0 +1,15 @@
+meta {
+  name: get order
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8090/v1/partner-order-provider/orders/419e13c3-db10-466d-a175-2afd48a5aef0/payload
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

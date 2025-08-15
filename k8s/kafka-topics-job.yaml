@@ -6,6 +6,8 @@ metadata:
     app: kafka-topics-job
 spec:
   ttlSecondsAfterFinished: 30
+  activeDeadlineSeconds: 300
+  backoffLimit: 2
   template:
     metadata:
       labels:
@@ -22,11 +24,27 @@ spec:
           - sh
           - -c
           - |
-            until kafka-topics --bootstrap-server kafka:9092 --list; do
-              echo "Waiting for Kafka to be ready..."
+            echo "Waiting for Kafka to be ready..."
+            max_attempts=30
+            attempt=0
+            while [ $attempt -lt $max_attempts ]; do
+              if kafka-topics --bootstrap-server kafka:9092 --list >/dev/null 2>&1; then
+                echo "✅ Kafka is ready!"
+                exit 0
+              fi
+              attempt=$((attempt + 1))
+              echo "⏳ Attempt $attempt/$max_attempts - Kafka not ready yet, waiting..."
               sleep 5
             done
-            echo "Kafka is ready!"
+            echo "❌ Kafka failed to become ready after $max_attempts attempts"
+            exit 1
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
       containers:
       - name: create-topics
         image: confluentinc/cp-kafka:7.4.0
@@ -34,30 +52,55 @@ spec:
           - sh
           - -c
           - |
-            # Create topics (ignore if they already exist)
+            set -e
             echo "Creating Kafka topics..."
             
+            # Function to create topic with error handling
+            create_topic() {
+              local topic=$1
+              local partitions=$2
+              local replication=$3
+              echo "Creating topic: $topic"
+              if kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic "$topic" --partitions "$partitions" --replication-factor "$replication"; then
+                echo "✓ Topic $topic created or already exists"
+              else
+                echo "⚠ Warning: Failed to create topic $topic, but continuing..."
+              fi
+            }
+            
             # Create inbound topics (from interface services)
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic OrderRejected --partitions 3 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic OrderCancelled --partitions 3 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic CollectionRejected --partitions 3 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic DistributionFailed --partitions 3 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ValidationError --partitions 3 --replication-factor 1
+            create_topic "OrderRejected" 3 1
+            create_topic "OrderCancelled" 3 1
+            create_topic "CollectionRejected" 3 1
+            create_topic "DistributionFailed" 3 1
+            create_topic "ValidationError" 3 1
+            
+            # Create Partner Order Service topics
+            create_topic "OrderRecieved" 3 1
+            create_topic "InvalidOrderEvent" 3 1
 
             # Create outbound topics (from exception collector)
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ExceptionCaptured --partitions 3 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ExceptionResolved --partitions 3 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ExceptionRetryCompleted --partitions 3 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic CriticalExceptionAlert --partitions 3 --replication-factor 1
+            create_topic "ExceptionCaptured" 3 1
+            create_topic "ExceptionResolved" 3 1
+            create_topic "ExceptionRetryCompleted" 3 1
+            create_topic "CriticalExceptionAlert" 3 1
 
             # Create dead letter topics
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic OrderRejected.DLT --partitions 1 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic OrderCancelled.DLT --partitions 1 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic CollectionRejected.DLT --partitions 1 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic DistributionFailed.DLT --partitions 1 --replication-factor 1
-            kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ValidationError.DLT --partitions 1 --replication-factor 1
+            create_topic "OrderRejected.DLT" 1 1
+            create_topic "OrderCancelled.DLT" 1 1
+            create_topic "CollectionRejected.DLT" 1 1
+            create_topic "DistributionFailed.DLT" 1 1
+            create_topic "ValidationError.DLT" 1 1
+            create_topic "OrderRecieved.DLT" 1 1
+            create_topic "InvalidOrderEvent.DLT" 1 1
 
-            echo "All Kafka topics created successfully!"
+            echo "✅ All Kafka topics processed successfully!"
+            
+            # List all topics to verify
+            echo "📋 Current topics:"
+            kafka-topics --bootstrap-server kafka:9092 --list
+            
+            echo "🎉 Kafka topics job completed!"
         resources:
           requests:
             memory: "128Mi"
@@ -65,7 +108,3 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
-        lifecycle:
-          preStop:
-            exec:
-              command: ["/bin/sh", "-c", "wget -qO- --post-data='' http://localhost:15020/quitquitquit"]

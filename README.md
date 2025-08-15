@@ -185,13 +185,22 @@ For advanced development with hot reload:
 
 ## API Documentation
 
-### Exception Management
+### Interface Exception Collector Service (Port 8080)
+
+#### Exception Management
 
 - `POST /api/v1/exceptions` - Create and publish exception event to Kafka
 - `GET /api/v1/exceptions` - List exceptions with filtering
 - `GET /api/v1/exceptions/{transactionId}` - Get exception details
 - `GET /api/v1/exceptions/search` - Full-text search
 - `GET /api/v1/exceptions/summary` - Aggregated statistics
+
+### Partner Order Service (Port 8090)
+
+#### Order Management
+
+- `POST /v1/partner-order-provider/orders` - Submit partner orders (no authentication required)
+- `GET /v1/partner-order-provider/orders/{transactionId}/payload` - Retrieve original payloads for retry operations
 
 #### Example API Calls
 
@@ -487,24 +496,71 @@ All API endpoints require JWT authentication. Include the JWT token in the Autho
 Authorization: Bearer <your-jwt-token>
 ```
 
-**Generate JWT Token for Testing:**
-```bash
-# Generate token with VIEWER role
-node generate-jwt.js "test-user" "VIEWER"
+**Generate JWT Tokens for Testing:**
 
-# Generate token with ADMIN role (required for management operations)
-node generate-jwt.js "test-user" "ADMIN"
+```bash
+# Generate VIEWER token (read-only access)
+node generate-jwt.js "viewer-user" "VIEWER"
+
+# Generate OPERATOR token (can perform retries and management)
+node generate-jwt.js "operator-user" "OPERATOR"
+
+# Generate ADMIN token (full access to all endpoints)
+node generate-jwt.js "admin-user" "ADMIN"
+```
+
+**Example Token Generation:**
+```bash
+# Create a viewer token
+$ node generate-jwt.js "john.doe" "VIEWER"
+🔑 JWT Token Generated
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Username: john.doe
+🛡️  Roles: VIEWER
+⏰ Expires: 8/14/2025, 8:26:39 PM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 For Bruno Authorization Header:
+Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+🔗 Raw Token:
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Role Requirements:**
 - `VIEWER` - Can access read-only endpoints (GET operations)
-- `OPERATOR` - Can perform retry operations and management actions
+- `OPERATOR` - Can perform retry operations and management actions  
 - `ADMIN` - Full access to all endpoints including management operations
 
-**Note:** When using curl with long JWT tokens, save the token to a file to avoid command-line parsing issues:
+**Using Tokens with curl:**
 ```bash
+# Save token to file to avoid command-line parsing issues
 echo "Authorization: Bearer <your-jwt-token>" > auth_header.txt
+
+# Use with Interface Exception Collector (port 8080)
 curl -H @auth_header.txt "http://localhost:8080/api/v1/exceptions"
+
+# Use with Partner Order Service (port 8090) - no auth required for order submission
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"externalId":"ORDER-123","orderStatus":"OPEN",...}' \
+  "http://localhost:8090/v1/partner-order-provider/orders"
+```
+
+**Token Examples:**
+```bash
+# VIEWER Token (expires in 1 hour)
+VIEWER_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2aWV3ZXItdXNlciIsInJvbGVzIjpbIlZJRVdFUiJdLCJpYXQiOjE3NTUyMTM5OTksImV4cCI6MTc1NTIxNzU5OX0.XMDw0HPMgxalYxMGIwpUOZThhlZjdc8Su6ifExytx9s"
+
+# OPERATOR Token (expires in 1 hour)  
+OPERATOR_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJvcGVyYXRvci11c2VyIiwicm9sZXMiOlsiT1BFUkFUT1IiXSwiaWF0IjoxNzU1MjE0Mjg3LCJleHAiOjE3NTUyMTc4ODd9.cmhcFpxjZZG1uCD1do3SEoc-HAUNhum_FAI69IUytPc"
+
+# ADMIN Token (expires in 1 hour)
+ADMIN_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbi11c2VyIiwicm9sZXMiOlsiQURNSU4iXSwiaWF0IjoxNzU1MjE0MDE4LCJleHAiOjE3NTUyMTc2MTh9.zl0Fv3C7zGQ69wCQBPIjmgBsuX6JoKaDwYsX_-rUvmg"
+
+# Use tokens in requests
+curl -H "Authorization: Bearer $VIEWER_TOKEN" "http://localhost:8080/api/v1/exceptions"
+curl -H "Authorization: Bearer $OPERATOR_TOKEN" -X POST "http://localhost:8080/api/v1/exceptions/123/retry" -d '{"reason":"test"}'
+curl -H "Authorization: Bearer $ADMIN_TOKEN" "http://localhost:8080/actuator/metrics"
 ```
 
 ### Health and Monitoring

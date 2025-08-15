@@ -1,0 +1,48 @@
+meta {
+  name: create new order
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8090/v1/partner-order-provider/orders
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "externalId": "ORDER-COMPLETE-67890",
+    "orderStatus": "OPEN",
+    "locationCode": "HOSP-MOUNT-SINAI-001",
+    "shipmentType": "CUSTOMER",
+    "deliveryType": "STAT",
+    "productCategory": "EMERGENCY_BLOOD_PRODUCTS",
+    "createDate": "2025-08-13 15:45:30",
+    "orderItems": [
+      {
+        "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+        "bloodType": "O-",
+        "quantity": 4,
+        "comments": "Emergency trauma case - multiple units needed"
+      },
+      {
+        "productFamily": "PLASMA_TRANSFUSABLE",
+        "bloodType": "O-",
+        "quantity": 2,
+        "comments": "Fresh frozen plasma for coagulation support"
+      },
+      {
+        "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+        "bloodType": "A+",
+        "quantity": 1,
+        "comments": "Additional unit for patient compatibility"
+      }
+    ]
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+}

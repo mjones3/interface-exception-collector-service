@@ -1,0 +1,66 @@
+# Development Dockerfile for Partner Order Service with hot reload
+FROM maven:3.9.9-eclipse-temurin-17 AS development
+
+# Install development tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    netcat-openbsd \
+    bash \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -g 1001 appgroup \
+    && useradd -u 1001 -g appgroup -s /bin/bash -m appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy parent POM first (from the build context root)
+COPY pom.xml ./parent-pom.xml
+
+# Copy module POM
+COPY partner-order-service/pom.xml ./pom.xml
+
+# Update the parent relativePath to point to the copied parent POM
+RUN sed -i 's|<relativePath>.*</relativePath>|<relativePath>./parent-pom.xml</relativePath>|' pom.xml
+
+# Download dependencies
+RUN mvn dependency:go-offline -B && \
+    mvn dependency:copy-dependencies -DoutputDirectory=target/lib -DincludeScope=runtime
+
+# Copy source code
+COPY partner-order-service/src ./src
+COPY partner-order-service/target/classes ./target/classes
+
+# Create necessary directories
+RUN mkdir -p target/classes target/lib
+
+# Change ownership to non-root user
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+# Configure JVM for development
+ENV JAVA_OPTS="-XX:+UseContainerSupport \
+               -XX:MaxRAMPercentage=70.0 \
+               -XX:+UseG1GC \
+               -XX:G1HeapRegionSize=16m \
+               -XX:+UseStringDeduplication \
+               -Djava.security.egd=file:/dev/./urandom \
+               -Dspring.profiles.active=local \
+               -Dspring.devtools.restart.enabled=false \
+               -Dspring.devtools.livereload.enabled=false"
+
+# Expose application port
+EXPOSE 8090
+
+# Configure graceful shutdown
+STOPSIGNAL SIGTERM
+
+# Use java -jar for better performance
+ENTRYPOINT ["sh", "-c", "echo 'Starting Partner Order Service...' && \
+    if [ ! -f target/lib/*.jar ]; then \
+        echo 'Dependencies not found, downloading...'; \
+        mvn dependency:copy-dependencies -DoutputDirectory=target/lib -DincludeScope=runtime; \
+    fi && \
+    mvn compile -q && \
+    java $JAVA_OPTS -cp 'target/classes:target/lib/*' com.arcone.biopro.partner.order.PartnerOrderServiceApplication"]

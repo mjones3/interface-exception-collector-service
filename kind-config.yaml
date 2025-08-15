@@ -1,0 +1,30 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: api-governance
+nodes:
+- role: control-plane
+  # Mount host directories to give more space
+  extraMounts:
+  - hostPath: /tmp/kind-containerd
+    containerPath: /var/lib/containerd
+    readOnly: false
+  - hostPath: /tmp/kind-kubelet
+    containerPath: /var/lib/kubelet
+    readOnly: false
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+        # Increase disk pressure thresholds
+        eviction-hard: "memory.available<100Mi,nodefs.available<2Gi,imagefs.available<2Gi"
+        eviction-soft: "memory.available<300Mi,nodefs.available<5Gi,imagefs.available<5Gi"
+        eviction-soft-grace-period: "memory.available=1m30s,nodefs.available=1m30s,imagefs.available=1m30s"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP

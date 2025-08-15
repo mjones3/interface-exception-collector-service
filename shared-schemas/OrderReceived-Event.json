@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "OrderReceived Event",
+  "type": "object",
+  "required": ["eventId", "eventType", "eventVersion", "occurredOn", "source", "correlationId", "transactionId", "payload"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this event"
+    },
+    "eventType": {
+      "type": "string",
+      "const": "OrderReceived"
+    },
+    "eventVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "occurredOn": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the event occurred"
+    },
+    "source": {
+      "type": "string",
+      "const": "partner-order-service"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Correlation ID for tracing"
+    },
+    "transactionId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Transaction ID for the order"
+    },
+    "payload": {
+      "type": "object",
+      "required": ["externalId", "locationCode", "orderData"],
+      "properties": {
+        "externalId": {
+          "type": "string",
+          "description": "Partner's unique order identifier"
+        },
+        "locationCode": {
+          "type": "string",
+          "description": "Location code for the order"
+        },
+        "orderData": {
+          "type": "object",
+          "description": "Complete order data"
+        }
+      }
+    }
+  }
+}

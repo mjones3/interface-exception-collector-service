@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: partner-order-service-config
+data:
+  SPRING_PROFILES_ACTIVE: "local"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://partner-order-postgres:5432/partner_order_db"
+  SPRING_DATASOURCE_USERNAME: "partner_order_user"
+  SPRING_DATASOURCE_PASSWORD: "partner_order_pass"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  SPRING_FLYWAY_ENABLED: "true"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "validate"
+  LOGGING_LEVEL_COM_ARCONE_BIOPRO_PARTNER_ORDER: "DEBUG"
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,metrics,prometheus"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: partner-order-service
+  labels:
+    app: partner-order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: partner-order-service
+  template:
+    metadata:
+      labels:
+        app: partner-order-service
+    spec:
+      containers:
+      - name: app
+        image: partner-order-service
+        ports:
+        - containerPort: 8090
+          name: http
+        - containerPort: 5005
+          name: debug
+        envFrom:
+        - configMapRef:
+            name: partner-order-service-config
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx768m -Xms512m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+        resources:
+          requests:
+            memory: "768Mi"
+            cpu: "500m"
+          limits:
+            memory: "1.5Gi"
+            cpu: "1000m"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8090
+          initialDelaySeconds: 90
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8090
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 15
+          failureThreshold: 5
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: partner-order-service
+  labels:
+    app: partner-order-service
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8090
+    targetPort: 8090
+  - name: debug
+    port: 5005
+    targetPort: 5005
+  selector:
+    app: partner-order-service

@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
+  # PostgreSQL Database for Interface Exception Collector
   postgres:
     image: postgres:15-alpine
     container_name: exception-collector-db
@@ -17,6 +17,30 @@ services:
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U exception_user -d exception_collector_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - exception-collector-network
+
+  # PostgreSQL Database for Partner Order Service
+  postgres-partner:
+    image: postgres:15-alpine
+    container_name: partner-order-db
+    environment:
+      POSTGRES_DB: partner_order_db
+      POSTGRES_USER: partner_order_user
+      POSTGRES_PASSWORD: partner_order_pass
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_partner_data:/var/lib/postgresql/data
+      - ./scripts/init-partner-db.sql:/docker-entrypoint-initdb.d/init-partner-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U partner_order_user -d partner_order_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -106,13 +130,9 @@ services:
       bash -c "
         echo 'Creating Kafka topics...'
         kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic OrderRejected
-        kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic OrderCancelled
-        kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic CollectionRejected
-        kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic DistributionFailed
         kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic ValidationError
         kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic ExceptionCaptured
         kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic ExceptionResolved
-        kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic ExceptionRetryCompleted
         kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic CriticalExceptionAlert
         echo 'Kafka topics created successfully!'
       "
@@ -184,6 +204,66 @@ services:
     volumes:
       - app_logs:/app/logs
 
+  # Partner Order Service
+  partner-order-service:
+    build:
+      context: ./partner-order-service
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: partner-order-service
+    environment:
+      # Spring profiles
+      SPRING_PROFILES_ACTIVE: docker
+      
+      # Database configuration
+      DB_HOST: postgres-partner
+      DB_PORT: 5432
+      DB_NAME: partner_order_db
+      DB_USERNAME: partner_order_user
+      DB_PASSWORD: partner_order_pass
+      
+      # Kafka configuration
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      
+      # JVM configuration
+      JAVA_OPTS: >-
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=75.0
+        -XX:+UseG1GC
+        -XX:+UseStringDeduplication
+        -Djava.security.egd=file:/dev/./urandom
+        -Dspring.profiles.active=docker
+        
+      # Application configuration
+      SERVER_PORT: 8090
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: always
+      
+      # Logging configuration
+      LOG_LEVEL_APP: DEBUG
+      LOG_LEVEL_KAFKA: INFO
+      LOGGING_PATTERN_CONSOLE: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId:-}] %logger{36} - %msg%n"
+    ports:
+      - "8090:8090"
+    depends_on:
+      postgres-partner:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - exception-collector-network
+    volumes:
+      - partner_app_logs:/app/logs
+
   # Prometheus for metrics collection (optional for development)
   prometheus:
     image: prom/prometheus:latest
@@ -231,6 +311,8 @@ services:
 volumes:
   postgres_data:
     driver: local
+  postgres_partner_data:
+    driver: local
   redis_data:
     driver: local
   kafka_data:
@@ -240,6 +322,8 @@ volumes:
   grafana_data:
     driver: local
   app_logs:
+    driver: local
+  partner_app_logs:
     driver: local
 
 networks:
