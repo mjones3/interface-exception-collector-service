@@ -125,7 +125,7 @@ app:
         password: ${TLS_TRUSTSTORE_PASSWORD:}
   source-services:
     order:
-      base-url: http://order-service:8080
+      base-url: http://partner-order-service:8090
       api-key: ${ORDER_SERVICE_API_KEY:}
       auth-header: X-API-Key
     collection:

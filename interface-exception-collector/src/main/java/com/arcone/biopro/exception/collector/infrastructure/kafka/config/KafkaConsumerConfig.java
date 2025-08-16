@@ -88,7 +88,7 @@ public class KafkaConsumerConfig {
                                 JsonDeserializer.class);
 
                 // Configure JsonDeserializer to use our custom ObjectMapper
-                configProps.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Object.class);
+                configProps.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "java.lang.Object");
                 configProps.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
 
                 // JSON deserializer configuration for trusted packages - allow all packages for
@@ -301,5 +301,73 @@ public class KafkaConsumerConfig {
                 configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
                 return new DefaultKafkaConsumerFactory<>(configProps);
+        }
+
+        /**
+         * Specific listener container factory for OrderRejected events with proper
+         * error handling.
+         *
+         * @return ConcurrentKafkaListenerContainerFactory for OrderRejectedEvent
+         */
+        @Bean
+        public ConcurrentKafkaListenerContainerFactory<String, OrderRejectedEvent> orderRejectedKafkaListenerContainerFactory(
+                        KafkaTemplate<String, Object> kafkaTemplate) {
+                ConcurrentKafkaListenerContainerFactory<String, OrderRejectedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+                factory.setConsumerFactory(orderRejectedConsumerFactory());
+                factory.setConcurrency(concurrency);
+                factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+
+                // Configure dead letter queue error handling
+                DeadLetterPublishingRecoverer deadLetterRecoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
+                                (consumerRecord, exception) -> {
+                                        String originalTopic = consumerRecord.topic();
+                                        String deadLetterTopic = originalTopic + ".DLT";
+                                        log.error("Publishing message to dead letter topic: {} due to error: {}",
+                                                        deadLetterTopic, exception.getMessage());
+                                        return new org.apache.kafka.common.TopicPartition(deadLetterTopic, 0);
+                                });
+
+                ExponentialBackOff exponentialBackOff = new ExponentialBackOff(1000L, 2.0);
+                exponentialBackOff.setMaxAttempts(5);
+                exponentialBackOff.setMaxInterval(30000L);
+
+                DefaultErrorHandler errorHandler = new DefaultErrorHandler(deadLetterRecoverer, exponentialBackOff);
+                factory.setCommonErrorHandler(errorHandler);
+
+                return factory;
+        }
+
+        /**
+         * Specific listener container factory for OrderCancelled events with proper
+         * error handling.
+         *
+         * @return ConcurrentKafkaListenerContainerFactory for OrderCancelledEvent
+         */
+        @Bean
+        public ConcurrentKafkaListenerContainerFactory<String, OrderCancelledEvent> orderCancelledKafkaListenerContainerFactory(
+                        KafkaTemplate<String, Object> kafkaTemplate) {
+                ConcurrentKafkaListenerContainerFactory<String, OrderCancelledEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+                factory.setConsumerFactory(orderCancelledConsumerFactory());
+                factory.setConcurrency(concurrency);
+                factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+
+                // Configure dead letter queue error handling
+                DeadLetterPublishingRecoverer deadLetterRecoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
+                                (consumerRecord, exception) -> {
+                                        String originalTopic = consumerRecord.topic();
+                                        String deadLetterTopic = originalTopic + ".DLT";
+                                        log.error("Publishing message to dead letter topic: {} due to error: {}",
+                                                        deadLetterTopic, exception.getMessage());
+                                        return new org.apache.kafka.common.TopicPartition(deadLetterTopic, 0);
+                                });
+
+                ExponentialBackOff exponentialBackOff = new ExponentialBackOff(1000L, 2.0);
+                exponentialBackOff.setMaxAttempts(5);
+                exponentialBackOff.setMaxInterval(30000L);
+
+                DefaultErrorHandler errorHandler = new DefaultErrorHandler(deadLetterRecoverer, exponentialBackOff);
+                factory.setCommonErrorHandler(errorHandler);
+
+                return factory;
         }
 }
