@@ -1,0 +1,37 @@
+# Subscription event types for real-time updates
+
+# Exception update event for subscriptions
+type ExceptionUpdateEvent {
+    eventType: ExceptionEventType!
+    exception: Exception!
+    timestamp: DateTime!
+    triggeredBy: String
+}
+
+# Retry status event for subscriptions
+type RetryStatusEvent {
+    transactionId: String!
+    retryAttempt: RetryAttempt!
+    eventType: RetryEventType!
+    timestamp: DateTime!
+}
+
+# Exception event types
+enum ExceptionEventType {
+    CREATED
+    UPDATED
+    ACKNOWLEDGED
+    RETRY_INITIATED
+    RETRY_COMPLETED
+    RESOLVED
+    CANCELLED
+}
+
+# Retry event types
+enum RetryEventType {
+    INITIATED
+    IN_PROGRESS
+    COMPLETED
+    FAILED
+    CANCELLED
+}

@@ -1,0 +1,7 @@
+# Custom scalar types for GraphQL schema
+
+# DateTime scalar for timestamp fields
+scalar DateTime
+
+# JSON scalar for flexible data structures
+scalar JSON

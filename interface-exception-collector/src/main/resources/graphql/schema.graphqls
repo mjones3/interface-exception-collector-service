@@ -1,0 +1,186 @@
+# Root GraphQL schema definition
+
+# Root Query type
+type Query {
+    # Exception queries
+    exceptions(
+        filters: ExceptionFilters
+        pagination: PaginationInput
+        sorting: SortingInput
+    ): ExceptionConnection!
+    
+    exception(transactionId: String!): Exception
+    
+    # Summary and statistics queries
+    exceptionSummary(
+        timeRange: TimeRange!
+        filters: ExceptionFilters
+    ): ExceptionSummary!
+    
+    # Search functionality
+    searchExceptions(
+        search: SearchInput!
+        pagination: PaginationInput
+        sorting: SortingInput
+    ): ExceptionConnection!
+    
+    # Health and system queries
+    systemHealth: SystemHealth!
+}
+
+# Root Mutation type
+type Mutation {
+    # Retry operations
+    retryException(input: RetryExceptionInput!): RetryExceptionResult!
+    
+    bulkRetryExceptions(input: BulkRetryInput!): BulkRetryResult!
+    
+    # Acknowledgment operations
+    acknowledgeException(input: AcknowledgeExceptionInput!): AcknowledgeExceptionResult!
+    
+    bulkAcknowledgeExceptions(input: BulkAcknowledgeInput!): BulkAcknowledgeResult!
+    
+    # Status management
+    resolveException(
+        transactionId: String!
+        resolutionMethod: ResolutionMethod!
+        notes: String
+    ): ResolveExceptionResult!
+    
+    cancelRetry(
+        transactionId: String!
+        reason: String!
+    ): CancelRetryResult!
+}
+
+# Root Subscription type
+type Subscription {
+    # Real-time exception updates
+    exceptionUpdated(filters: SubscriptionFilters): ExceptionUpdateEvent!
+    
+    # System-wide statistics updates
+    summaryUpdated(timeRange: TimeRange!): ExceptionSummary!
+    
+    # Retry operation updates
+    retryStatusUpdated(transactionId: String): RetryStatusEvent!
+}
+
+# Mutation result types
+type RetryExceptionResult {
+    success: Boolean!
+    exception: Exception
+    retryAttempt: RetryAttempt
+    errors: [GraphQLError!]!
+}
+
+type BulkRetryResult {
+    successCount: Int!
+    failureCount: Int!
+    results: [RetryExceptionResult!]!
+    errors: [GraphQLError!]!
+}
+
+type AcknowledgeExceptionResult {
+    success: Boolean!
+    exception: Exception
+    errors: [GraphQLError!]!
+}
+
+type BulkAcknowledgeResult {
+    successCount: Int!
+    failureCount: Int!
+    results: [AcknowledgeExceptionResult!]!
+    errors: [GraphQLError!]!
+}
+
+type ResolveExceptionResult {
+    success: Boolean!
+    exception: Exception
+    errors: [GraphQLError!]!
+}
+
+type CancelRetryResult {
+    success: Boolean!
+    exception: Exception
+    errors: [GraphQLError!]!
+}
+
+# Event types for subscriptions
+type ExceptionUpdateEvent {
+    eventType: ExceptionEventType!
+    exception: Exception!
+    timestamp: DateTime!
+    triggeredBy: String
+}
+
+enum ExceptionEventType {
+    CREATED
+    UPDATED
+    ACKNOWLEDGED
+    RETRY_INITIATED
+    RETRY_COMPLETED
+    RESOLVED
+    CANCELLED
+}
+
+type RetryStatusEvent {
+    transactionId: String!
+    retryAttempt: RetryAttempt!
+    eventType: RetryEventType!
+    timestamp: DateTime!
+}
+
+enum RetryEventType {
+    INITIATED
+    IN_PROGRESS
+    COMPLETED
+    FAILED
+    CANCELLED
+}
+
+# System health type
+type SystemHealth {
+    status: HealthStatus!
+    database: ComponentHealth!
+    cache: ComponentHealth!
+    externalServices: [ServiceHealth!]!
+    lastUpdated: DateTime!
+}
+
+enum HealthStatus {
+    UP
+    DOWN
+    DEGRADED
+}
+
+type ComponentHealth {
+    status: HealthStatus!
+    responseTime: Float
+    details: JSON
+}
+
+type ServiceHealth {
+    serviceName: String!
+    status: HealthStatus!
+    responseTime: Float
+    lastChecked: DateTime!
+}
+
+# Error handling
+type GraphQLError {
+    message: String!
+    code: ErrorCode!
+    path: [String!]
+    extensions: JSON
+}
+
+enum ErrorCode {
+    VALIDATION_ERROR
+    AUTHORIZATION_ERROR
+    NOT_FOUND
+    EXTERNAL_SERVICE_ERROR
+    BUSINESS_RULE_ERROR
+    INTERNAL_ERROR
+    RATE_LIMIT_EXCEEDED
+    QUERY_COMPLEXITY_EXCEEDED
+}

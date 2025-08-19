@@ -3,16 +3,44 @@ spring:
     name: interface-exception-collector-service
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/exception_collector_db?sslmode=${DB_SSL_MODE:disable}&sslcert=${DB_SSL_CERT:}&sslkey=${DB_SSL_KEY:}&sslrootcert=${DB_SSL_ROOT_CERT:}
+    url: jdbc:postgresql://localhost:5432/exception_collector_db?sslmode=${DB_SSL_MODE:disable}&sslcert=${DB_SSL_CERT:}&sslkey=${DB_SSL_KEY:}&sslrootcert=${DB_SSL_ROOT_CERT:}&prepareThreshold=${DB_PREPARE_THRESHOLD:5}&preparedStatementCacheQueries=${DB_PREPARED_STATEMENT_CACHE_QUERIES:256}&preparedStatementCacheSizeMiB=${DB_PREPARED_STATEMENT_CACHE_SIZE:5}&defaultRowFetchSize=${DB_DEFAULT_ROW_FETCH_SIZE:1000}
     username: exception_user
     password: exception_pass
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+      # Connection pool sizing optimized for GraphQL workloads
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:50}
+      minimum-idle: ${DB_MIN_IDLE:10}
+      
+      # Connection timing optimized for performance
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:20000}
+      idle-timeout: ${DB_IDLE_TIMEOUT:300000}
+      max-lifetime: ${DB_MAX_LIFETIME:1200000}
+      
+      # Performance and monitoring settings
+      leak-detection-threshold: ${DB_LEAK_DETECTION_THRESHOLD:60000}
+      validation-timeout: ${DB_VALIDATION_TIMEOUT:5000}
+      initialization-fail-timeout: ${DB_INIT_FAIL_TIMEOUT:1}
+      
+      # Connection pool behavior
+      isolate-internal-queries: true
+      allow-pool-suspension: false
+      read-only: false
+      register-mbeans: true
+      pool-name: "GraphQLExceptionCollectorCP"
+      
+      # Connection properties for performance
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 256
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
   
   jpa:
     hibernate:
@@ -24,6 +52,33 @@ spring:
         format_sql: true
         jdbc:
           time_zone: UTC
+          # Performance optimizations for GraphQL queries
+          batch_size: ${HIBERNATE_BATCH_SIZE:100}
+          fetch_size: ${HIBERNATE_FETCH_SIZE:1000}
+          batch_versioned_data: true
+        # Query optimization settings
+        query:
+          plan_cache_max_size: ${HIBERNATE_QUERY_PLAN_CACHE_SIZE:1000}
+          plan_parameter_metadata_max_size: ${HIBERNATE_QUERY_PLAN_PARAMETER_CACHE_SIZE:128}
+        # Cache settings
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        # Connection and statement settings
+        connection:
+          provider_disables_autocommit: true
+        statement:
+          batch_size: ${HIBERNATE_STATEMENT_BATCH_SIZE:100}
+        order_inserts: true
+        order_updates: true
+        # Statistics for monitoring
+        generate_statistics: ${HIBERNATE_GENERATE_STATISTICS:true}
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: ${HIBERNATE_LOG_SLOW_QUERIES_MS:1000}
   
   flyway:
     enabled: true
@@ -33,18 +88,26 @@ spring:
     table: flyway_schema_history
     validate-on-migrate: true
 
-  # Redis Cache Configuration
+  # Redis Cache Configuration - Optimized for GraphQL
   data:
     redis:
       host: localhost
       port: 6379
-      timeout: 2000ms
+      timeout: ${REDIS_TIMEOUT:3000ms}
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT:2000ms}
       lettuce:
         pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
-          max-wait: -1ms
+          # Connection pool sizing optimized for GraphQL caching
+          max-active: ${REDIS_MAX_ACTIVE:20}
+          max-idle: ${REDIS_MAX_IDLE:10}
+          min-idle: ${REDIS_MIN_IDLE:5}
+          max-wait: ${REDIS_MAX_WAIT:5000ms}
+          time-between-eviction-runs: ${REDIS_EVICTION_RUNS:30000ms}
+        shutdown-timeout: ${REDIS_SHUTDOWN_TIMEOUT:100ms}
+        cluster:
+          refresh:
+            adaptive: true
+            period: ${REDIS_CLUSTER_REFRESH_PERIOD:30s}
   
   cache:
     type: redis
@@ -94,6 +157,150 @@ spring:
     listener:
       ack-mode: manual_immediate
       concurrency: 3
+
+  # GraphQL Configuration
+  graphql:
+    websocket:
+      path: /subscriptions
+    schema:
+      locations: classpath:graphql/**/*.graphqls
+      printer:
+        enabled: true
+    query:
+      max-query-depth: 10
+      max-query-complexity: 1000
+    graphiql:
+      enabled: ${GRAPHIQL_ENABLED:true}
+      path: /graphiql
+
+# Custom GraphQL Configuration
+graphql:
+  max-query-complexity: ${GRAPHQL_MAX_COMPLEXITY:1000}
+  max-query-depth: ${GRAPHQL_MAX_DEPTH:10}
+  query-timeout-seconds: ${GRAPHQL_QUERY_TIMEOUT:30}
+  enable-complexity-analysis: ${GRAPHQL_ENABLE_COMPLEXITY:true}
+  enable-depth-analysis: ${GRAPHQL_ENABLE_DEPTH:true}
+  websocket:
+    heartbeat:
+      interval: ${GRAPHQL_WS_HEARTBEAT_INTERVAL:30}
+    max-connections: ${GRAPHQL_WS_MAX_CONNECTIONS:1000}
+    connection-timeout: ${GRAPHQL_WS_CONNECTION_TIMEOUT:30}
+    subscription:
+      buffer-size: ${GRAPHQL_WS_BUFFER_SIZE:1000}
+      latency-threshold-ms: ${GRAPHQL_WS_LATENCY_THRESHOLD:2000}
+  
+  # Rate Limiting Configuration
+  rate-limiting:
+    enabled: ${GRAPHQL_RATE_LIMITING_ENABLED:true}
+    roles:
+      ADMIN:
+        requests-per-minute: ${GRAPHQL_ADMIN_RPM:300}
+        requests-per-hour: ${GRAPHQL_ADMIN_RPH:10000}
+        max-query-complexity: ${GRAPHQL_ADMIN_COMPLEXITY:5000}
+      OPERATIONS:
+        requests-per-minute: ${GRAPHQL_OPS_RPM:120}
+        requests-per-hour: ${GRAPHQL_OPS_RPH:3600}
+        max-query-complexity: ${GRAPHQL_OPS_COMPLEXITY:2000}
+      VIEWER:
+        requests-per-minute: ${GRAPHQL_VIEWER_RPM:60}
+        requests-per-hour: ${GRAPHQL_VIEWER_RPH:1800}
+        max-query-complexity: ${GRAPHQL_VIEWER_COMPLEXITY:1000}
+  
+  # Security Configuration
+  security:
+    query-allowlist:
+      enabled: ${GRAPHQL_QUERY_ALLOWLIST_ENABLED:false}
+      allowed-query-hashes:
+        - "a1b2c3d4e5f6"  # exceptions query
+        - "f6e5d4c3b2a1"  # exception by ID query
+        - "1a2b3c4d5e6f"  # exception summary query
+        - "6f5e4d3c2b1a"  # retry exception mutation
+        - "b1c2d3e4f5a6"  # acknowledge exception mutation
+    audit-logging:
+      enabled: ${GRAPHQL_AUDIT_LOGGING_ENABLED:true}
+      log-queries: ${GRAPHQL_AUDIT_LOG_QUERIES:false}
+      log-variables: ${GRAPHQL_AUDIT_LOG_VARIABLES:false}
+  
+  # DataLoader Performance Configuration
+  dataloader:
+    exception:
+      batch-size: ${GRAPHQL_DATALOADER_EXCEPTION_BATCH_SIZE:200}
+    payload:
+      batch-size: ${GRAPHQL_DATALOADER_PAYLOAD_BATCH_SIZE:25}
+    retry-history:
+      batch-size: ${GRAPHQL_DATALOADER_RETRY_HISTORY_BATCH_SIZE:150}
+    status-change:
+      batch-size: ${GRAPHQL_DATALOADER_STATUS_CHANGE_BATCH_SIZE:150}
+    cache-ttl-seconds: ${GRAPHQL_DATALOADER_CACHE_TTL:300}
+    batch-delay-ms: ${GRAPHQL_DATALOADER_BATCH_DELAY:10}
+
+  # Query Result Caching Configuration
+  query-cache:
+    enabled: ${GRAPHQL_QUERY_CACHE_ENABLED:true}
+    default-ttl-seconds: ${GRAPHQL_QUERY_CACHE_TTL:300}
+    max-size: ${GRAPHQL_QUERY_CACHE_MAX_SIZE:10000}
+    cache-keys:
+      exception-list: "exceptions:list:{filters_hash}:{pagination_hash}"
+      exception-summary: "exceptions:summary:{time_range}:{filters_hash}"
+      exception-detail: "exceptions:detail:{transaction_id}"
+      retry-history: "retry:history:{transaction_id}"
+      status-history: "status:history:{transaction_id}"
+    ttl-by-type:
+      exception-list: ${GRAPHQL_CACHE_EXCEPTION_LIST_TTL:180}
+      exception-summary: ${GRAPHQL_CACHE_EXCEPTION_SUMMARY_TTL:300}
+      exception-detail: ${GRAPHQL_CACHE_EXCEPTION_DETAIL_TTL:600}
+      retry-history: ${GRAPHQL_CACHE_RETRY_HISTORY_TTL:900}
+      status-history: ${GRAPHQL_CACHE_STATUS_HISTORY_TTL:900}
+
+  # Performance Optimization Configuration
+  performance:
+    connection-pool:
+      database:
+        max-pool-size: ${GRAPHQL_DB_MAX_POOL_SIZE:50}
+        min-idle: ${GRAPHQL_DB_MIN_IDLE:10}
+        connection-timeout-ms: ${GRAPHQL_DB_CONNECTION_TIMEOUT:20000}
+        idle-timeout-ms: ${GRAPHQL_DB_IDLE_TIMEOUT:300000}
+        max-lifetime-ms: ${GRAPHQL_DB_MAX_LIFETIME:1200000}
+        leak-detection-threshold-ms: ${GRAPHQL_DB_LEAK_DETECTION:60000}
+      redis:
+        max-active: ${GRAPHQL_REDIS_MAX_ACTIVE:20}
+        max-idle: ${GRAPHQL_REDIS_MAX_IDLE:10}
+        min-idle: ${GRAPHQL_REDIS_MIN_IDLE:5}
+        max-wait-ms: ${GRAPHQL_REDIS_MAX_WAIT:5000}
+    query-optimization:
+      enable-query-plan-cache: ${GRAPHQL_ENABLE_QUERY_PLAN_CACHE:true}
+      query-plan-cache-size: ${GRAPHQL_QUERY_PLAN_CACHE_SIZE:1000}
+      enable-prepared-statements: ${GRAPHQL_ENABLE_PREPARED_STATEMENTS:true}
+      fetch-size: ${GRAPHQL_FETCH_SIZE:1000}
+      batch-fetch-size: ${GRAPHQL_BATCH_FETCH_SIZE:100}
+
+  # Monitoring and Observability Configuration
+  monitoring:
+    metrics:
+      enabled: ${GRAPHQL_METRICS_ENABLED:true}
+      detailed-field-metrics: ${GRAPHQL_DETAILED_FIELD_METRICS:false}
+      cache-metrics: ${GRAPHQL_CACHE_METRICS:true}
+      dataloader-metrics: ${GRAPHQL_DATALOADER_METRICS:true}
+    alerting:
+      enabled: ${GRAPHQL_ALERTING_ENABLED:true}
+      check-interval-seconds: ${GRAPHQL_ALERT_CHECK_INTERVAL:30}
+      cooldown-minutes: ${GRAPHQL_ALERT_COOLDOWN:5}
+      thresholds:
+        query-response-time-ms: ${GRAPHQL_ALERT_QUERY_RESPONSE_TIME:500}
+        mutation-response-time-ms: ${GRAPHQL_ALERT_MUTATION_RESPONSE_TIME:3000}
+        error-rate-percent: ${GRAPHQL_ALERT_ERROR_RATE:5.0}
+        cache-miss-rate-percent: ${GRAPHQL_ALERT_CACHE_MISS_RATE:20.0}
+        throughput-per-minute: ${GRAPHQL_ALERT_THROUGHPUT:1000}
+    health-checks:
+      enabled: ${GRAPHQL_HEALTH_CHECKS_ENABLED:true}
+      database-timeout-ms: ${GRAPHQL_HEALTH_DB_TIMEOUT:1000}
+      cache-timeout-ms: ${GRAPHQL_HEALTH_CACHE_TIMEOUT:100}
+    logging:
+      structured: ${GRAPHQL_STRUCTURED_LOGGING:true}
+      correlation-id: ${GRAPHQL_CORRELATION_ID:true}
+      performance-warnings: ${GRAPHQL_PERFORMANCE_WARNINGS:true}
+      slow-query-threshold-ms: ${GRAPHQL_SLOW_QUERY_THRESHOLD:1000}
+      slow-field-threshold-ms: ${GRAPHQL_SLOW_FIELD_THRESHOLD:100}
 
 server:
   port: 8080
@@ -209,7 +416,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,loggers
+        include: health,info,metrics,prometheus,loggers,graphql-health,graphql-alerts
       base-path: /actuator
   endpoint:
     health:
@@ -226,6 +433,8 @@ management:
       enabled: true
     redis:
       enabled: true
+    graphql:
+      enabled: true
   metrics:
     export:
       prometheus:
@@ -240,6 +449,10 @@ management:
         "[api.response.duration]": true
         "[database.operation.duration]": true
         "[external.service.call.duration]": true
+        "[graphql.query.duration]": true
+        "[graphql.mutation.duration]": true
+        "[graphql.subscription.duration]": true
+        "[graphql.field.fetch.duration]": true
       percentiles:
         "[http.server.requests]": 0.5, 0.95, 0.99
         "[exception.processing.duration]": 0.5, 0.95, 0.99
@@ -247,6 +460,10 @@ management:
         "[api.response.duration]": 0.5, 0.95, 0.99
         "[database.operation.duration]": 0.5, 0.95, 0.99
         "[external.service.call.duration]": 0.5, 0.95, 0.99
+        "[graphql.query.duration]": 0.5, 0.95, 0.99
+        "[graphql.mutation.duration]": 0.5, 0.95, 0.99
+        "[graphql.subscription.duration]": 0.5, 0.95, 0.99
+        "[graphql.field.fetch.duration]": 0.5, 0.95, 0.99
     tags:
       application: interface-exception-collector-service
       environment: ${ENVIRONMENT:local}

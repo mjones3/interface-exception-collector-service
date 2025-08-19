@@ -1,0 +1,193 @@
+# Exception domain types
+
+type Exception {
+    id: ID!
+    transactionId: String!
+    externalId: String
+    interfaceType: InterfaceType!
+    exceptionReason: String!
+    operation: String!
+    status: ExceptionStatus!
+    severity: ExceptionSeverity!
+    category: ExceptionCategory!
+    customerId: String
+    locationCode: String
+    timestamp: DateTime!
+    processedAt: DateTime!
+    retryable: Boolean!
+    retryCount: Int!
+    maxRetries: Int!
+    lastRetryAt: DateTime
+    acknowledgedBy: String
+    acknowledgedAt: DateTime
+    
+    # Nested objects (lazy loaded)
+    originalPayload: OriginalPayload
+    retryHistory: [RetryAttempt!]!
+    statusHistory: [StatusChange!]!
+}
+
+type OriginalPayload {
+    content: JSON!
+    contentType: String!
+    retrievedAt: DateTime!
+    sourceService: String!
+}
+
+type RetryAttempt {
+    id: ID!
+    attemptNumber: Int!
+    status: RetryStatus!
+    initiatedBy: String!
+    initiatedAt: DateTime!
+    completedAt: DateTime
+    resultSuccess: Boolean
+    resultMessage: String
+    resultResponseCode: Int
+    resultErrorDetails: JSON
+}
+
+type StatusChange {
+    id: ID!
+    fromStatus: ExceptionStatus!
+    toStatus: ExceptionStatus!
+    changedBy: String!
+    changedAt: DateTime!
+    reason: String
+    notes: String
+}
+
+# Connection types for pagination
+type ExceptionConnection {
+    edges: [ExceptionEdge!]!
+    pageInfo: PageInfo!
+    totalCount: Int!
+}
+
+type ExceptionEdge {
+    node: Exception!
+    cursor: String!
+}
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+}
+
+# Summary and statistics types
+type ExceptionSummary {
+    totalExceptions: Int!
+    byInterfaceType: [InterfaceTypeSummary!]!
+    bySeverity: [SeveritySummary!]!
+    byStatus: [StatusSummary!]!
+    trends: [TrendDataPoint!]!
+    keyMetrics: KeyMetrics!
+}
+
+type InterfaceTypeSummary {
+    interfaceType: InterfaceType!
+    count: Int!
+    percentage: Float!
+}
+
+type SeveritySummary {
+    severity: ExceptionSeverity!
+    count: Int!
+    percentage: Float!
+}
+
+type StatusSummary {
+    status: ExceptionStatus!
+    count: Int!
+    percentage: Float!
+}
+
+type TrendDataPoint {
+    timestamp: DateTime!
+    count: Int!
+    interfaceType: InterfaceType
+}
+
+type KeyMetrics {
+    retrySuccessRate: Float!
+    averageResolutionTime: Float!
+    customerImpactCount: Int!
+    criticalExceptionCount: Int!
+}
+
+# Enums
+enum InterfaceType {
+    ORDER_COLLECTION
+    ORDER_DISTRIBUTION
+    CUSTOMER_SYNC
+    INVENTORY_UPDATE
+    PAYMENT_PROCESSING
+    NOTIFICATION_DELIVERY
+}
+
+enum ExceptionStatus {
+    NEW
+    ACKNOWLEDGED
+    IN_PROGRESS
+    RESOLVED
+    FAILED
+    CANCELLED
+}
+
+enum ExceptionSeverity {
+    LOW
+    MEDIUM
+    HIGH
+    CRITICAL
+}
+
+enum ExceptionCategory {
+    VALIDATION_ERROR
+    CONNECTIVITY_ERROR
+    TIMEOUT_ERROR
+    AUTHENTICATION_ERROR
+    BUSINESS_RULE_ERROR
+    DATA_FORMAT_ERROR
+    EXTERNAL_SERVICE_ERROR
+}
+
+enum RetryStatus {
+    PENDING
+    IN_PROGRESS
+    SUCCESS
+    FAILED
+    CANCELLED
+}
+
+enum ResolutionMethod {
+    AUTOMATIC_RETRY
+    MANUAL_INTERVENTION
+    CONFIGURATION_CHANGE
+    DATA_CORRECTION
+    EXTERNAL_SERVICE_FIX
+}
+
+enum EstimatedImpact {
+    NONE
+    LOW
+    MEDIUM
+    HIGH
+    CRITICAL
+}
+
+enum AlertLevel {
+    INFO
+    WARNING
+    ERROR
+    CRITICAL
+}
+
+enum AlertReason {
+    HIGH_VOLUME
+    CRITICAL_SEVERITY
+    RETRY_EXHAUSTED
+    CUSTOMER_IMPACT
+    SERVICE_DEGRADATION
+}

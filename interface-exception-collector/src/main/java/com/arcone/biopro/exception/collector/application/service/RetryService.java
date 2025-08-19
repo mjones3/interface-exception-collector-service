@@ -10,9 +10,7 @@ import com.arcone.biopro.exception.collector.domain.enums.RetryStatus;
 import com.arcone.biopro.exception.collector.infrastructure.kafka.publisher.RetryEventPublisher;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
 import com.arcone.biopro.exception.collector.infrastructure.repository.RetryAttemptRepository;
-import com.arcone.biopro.exception.collector.config.LoggingConfig;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +39,6 @@ public class RetryService {
     private final PayloadRetrievalService payloadRetrievalService;
     private final RetryEventPublisher retryEventPublisher;
     private final MetricsService metricsService;
-    private final ObjectMapper objectMapper;
 
     /**
      * Initiates a retry operation for the specified exception.
@@ -133,7 +130,7 @@ public class RetryService {
                     handleRetryFailure(exception, retryAttempt,
                             "Retry failed with status: " + retryResponse.getStatusCode(),
                             retryResponse.getStatusCode().value(),
-                            retryResponse.getBody() != null ? retryResponse.getBody().toString() : null);
+                            retryResponse.getBody() != null ? retryResponse.getBody().toString() : "No response body");
                 }
 
             } catch (Exception e) {
@@ -153,37 +150,29 @@ public class RetryService {
     @Transactional
     public void handleRetrySuccess(InterfaceException exception, RetryAttempt retryAttempt,
             String message, Integer responseCode) {
-        // Set logging context
-        LoggingConfig.LoggingContext.setTransactionId(exception.getTransactionId());
-        LoggingConfig.LoggingContext.setInterfaceType(exception.getInterfaceType().name());
-
         log.info("Retry succeeded for transaction: {}, attempt: {}",
                 exception.getTransactionId(), retryAttempt.getAttemptNumber());
 
-        try {
-            // Calculate retry duration
-            Duration retryDuration = Duration.between(retryAttempt.getInitiatedAt().toInstant(), Instant.now());
+        // Calculate retry duration
+        Duration retryDuration = Duration.between(retryAttempt.getInitiatedAt().toInstant(), Instant.now());
 
-            // Update retry attempt
-            retryAttempt.markAsSuccess(message, responseCode);
-            retryAttemptRepository.save(retryAttempt);
+        // Update retry attempt
+        retryAttempt.markAsSuccess(message, responseCode);
+        retryAttemptRepository.save(retryAttempt);
 
-            // Update exception status
-            exception.setStatus(ExceptionStatus.RETRIED_SUCCESS);
-            exception.setResolvedAt(OffsetDateTime.now());
-            exceptionRepository.save(exception);
+        // Update exception status
+        exception.setStatus(ExceptionStatus.RETRIED_SUCCESS);
+        exception.setResolvedAt(OffsetDateTime.now());
+        exceptionRepository.save(exception);
 
-            // Record metrics
-            metricsService.recordRetryOperation(exception.getInterfaceType(), true);
-            metricsService.recordRetryOperationTime(retryDuration, exception.getInterfaceType(), true);
+        // Record metrics
+        metricsService.recordRetryOperation(exception.getInterfaceType(), true);
+        metricsService.recordRetryOperationTime(retryDuration, exception.getInterfaceType(), true);
 
-            // Publish retry completed event
-            publishRetryCompletedEvent(exception, retryAttempt, RetryStatus.SUCCESS);
+        // Publish retry completed event
+        publishRetryCompletedEvent(exception, retryAttempt, RetryStatus.SUCCESS);
 
-            log.info("Retry success handling completed for transaction: {}", exception.getTransactionId());
-        } finally {
-            LoggingConfig.LoggingContext.clearKeys("transactionId", "interfaceType");
-        }
+        log.info("Retry success handling completed for transaction: {}", exception.getTransactionId());
     }
 
     /**
@@ -192,36 +181,28 @@ public class RetryService {
     @Transactional
     public void handleRetryFailure(InterfaceException exception, RetryAttempt retryAttempt,
             String message, Integer responseCode, String errorDetails) {
-        // Set logging context
-        LoggingConfig.LoggingContext.setTransactionId(exception.getTransactionId());
-        LoggingConfig.LoggingContext.setInterfaceType(exception.getInterfaceType().name());
-
         log.warn("Retry failed for transaction: {}, attempt: {}, message: {}",
                 exception.getTransactionId(), retryAttempt.getAttemptNumber(), message);
 
-        try {
-            // Calculate retry duration
-            Duration retryDuration = Duration.between(retryAttempt.getInitiatedAt().toInstant(), Instant.now());
+        // Calculate retry duration
+        Duration retryDuration = Duration.between(retryAttempt.getInitiatedAt().toInstant(), Instant.now());
 
-            // Update retry attempt
-            retryAttempt.markAsFailed(message, responseCode, errorDetails);
-            retryAttemptRepository.save(retryAttempt);
+        // Update retry attempt
+        retryAttempt.markAsFailed(message, responseCode, errorDetails);
+        retryAttemptRepository.save(retryAttempt);
 
-            // Update exception status
-            exception.setStatus(ExceptionStatus.RETRIED_FAILED);
-            exceptionRepository.save(exception);
+        // Update exception status
+        exception.setStatus(ExceptionStatus.RETRIED_FAILED);
+        exceptionRepository.save(exception);
 
-            // Record metrics
-            metricsService.recordRetryOperation(exception.getInterfaceType(), false);
-            metricsService.recordRetryOperationTime(retryDuration, exception.getInterfaceType(), false);
+        // Record metrics
+        metricsService.recordRetryOperation(exception.getInterfaceType(), false);
+        metricsService.recordRetryOperationTime(retryDuration, exception.getInterfaceType(), false);
 
-            // Publish retry completed event
-            publishRetryCompletedEvent(exception, retryAttempt, RetryStatus.FAILED);
+        // Publish retry completed event
+        publishRetryCompletedEvent(exception, retryAttempt, RetryStatus.FAILED);
 
-            log.info("Retry failure handling completed for transaction: {}", exception.getTransactionId());
-        } finally {
-            LoggingConfig.LoggingContext.clearKeys("transactionId", "interfaceType");
-        }
+        log.info("Retry failure handling completed for transaction: {}", exception.getTransactionId());
     }
 
     /**

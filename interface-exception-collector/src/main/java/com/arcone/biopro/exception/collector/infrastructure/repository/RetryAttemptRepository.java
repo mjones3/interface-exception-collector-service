@@ -225,4 +225,34 @@ public interface RetryAttemptRepository extends JpaRepository<RetryAttempt, Long
          * @return true if there are successful retry attempts, false otherwise
          */
         boolean existsByInterfaceExceptionAndStatus(InterfaceException interfaceException, RetryStatus status);
+
+        /**
+         * Find retry attempts for a collection of exceptions.
+         * Used for batch loading in DataLoader pattern.
+         * 
+         * @param exceptions collection of exceptions to find retry attempts for
+         * @return List of retry attempts for the given exceptions
+         */
+        List<RetryAttempt> findByInterfaceExceptionIn(List<InterfaceException> exceptions);
+
+        /**
+         * Count retry attempts within a date range.
+         * 
+         * @param fromDate start date (inclusive)
+         * @param toDate   end date (inclusive)
+         * @return count of retry attempts within the date range
+         */
+        long countByInitiatedAtBetween(OffsetDateTime fromDate, OffsetDateTime toDate);
+
+        /**
+         * Count successful retry attempts within a date range.
+         * 
+         * @param fromDate      start date (inclusive)
+         * @param toDate        end date (inclusive)
+         * @param resultSuccess whether the retry was successful
+         * @return count of retry attempts with the specified success status within the
+         *         date range
+         */
+        long countByInitiatedAtBetweenAndResultSuccess(OffsetDateTime fromDate, OffsetDateTime toDate,
+                        Boolean resultSuccess);
 }

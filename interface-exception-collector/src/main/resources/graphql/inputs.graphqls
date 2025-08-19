@@ -1,0 +1,119 @@
+# Input types for GraphQL operations
+
+# Filtering input for exception queries
+input ExceptionFilters {
+    interfaceTypes: [InterfaceType!]
+    statuses: [ExceptionStatus!]
+    severities: [ExceptionSeverity!]
+    categories: [ExceptionCategory!]
+    dateRange: DateRangeInput
+    customerIds: [String!]
+    locationCodes: [String!]
+    searchTerm: String
+    excludeResolved: Boolean
+    retryable: Boolean
+    acknowledgedBy: String
+    hasRetries: Boolean
+}
+
+# Date range filtering
+input DateRangeInput {
+    from: DateTime!
+    to: DateTime!
+}
+
+# Pagination input using cursor-based pagination
+input PaginationInput {
+    first: Int
+    after: String
+    last: Int
+    before: String
+}
+
+# Sorting configuration
+input SortingInput {
+    field: String!
+    direction: SortDirection!
+}
+
+enum SortDirection {
+    ASC
+    DESC
+}
+
+# Time range for summary queries
+input TimeRange {
+    period: TimePeriod!
+    customRange: DateRangeInput
+}
+
+enum TimePeriod {
+    LAST_HOUR
+    LAST_24_HOURS
+    LAST_7_DAYS
+    LAST_30_DAYS
+    CUSTOM
+}
+
+# Retry operation inputs
+input RetryExceptionInput {
+    transactionId: String!
+    reason: String!
+    priority: RetryPriority
+    notes: String
+}
+
+enum RetryPriority {
+    LOW
+    NORMAL
+    HIGH
+    URGENT
+}
+
+# Acknowledgment input
+input AcknowledgeExceptionInput {
+    transactionId: String!
+    reason: String!
+    notes: String
+    estimatedResolutionTime: DateTime
+    assignedTo: String
+}
+
+# Bulk operation inputs
+input BulkRetryInput {
+    transactionIds: [String!]!
+    reason: String!
+    priority: RetryPriority
+}
+
+input BulkAcknowledgeInput {
+    transactionIds: [String!]!
+    reason: String!
+    notes: String
+    assignedTo: String
+}
+
+# Search input for advanced filtering
+input SearchInput {
+    query: String!
+    fields: [SearchField!]
+    fuzzy: Boolean
+}
+
+enum SearchField {
+    EXCEPTION_REASON
+    TRANSACTION_ID
+    EXTERNAL_ID
+    CUSTOMER_ID
+    LOCATION_CODE
+    OPERATION
+}
+
+# Subscription filter input
+input SubscriptionFilters {
+    interfaceTypes: [InterfaceType!]
+    severities: [ExceptionSeverity!]
+    customerIds: [String!]
+    locationCodes: [String!]
+    includeResolved: Boolean
+}

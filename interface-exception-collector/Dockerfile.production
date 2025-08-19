@@ -1,0 +1,80 @@
+# Multi-stage Dockerfile optimized for production GraphQL performance
+FROM eclipse-temurin:17-jdk-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache curl
+
+# Set working directory
+WORKDIR /app
+
+# Copy Maven files for dependency caching
+COPY pom.xml .
+COPY ../pom.xml ../pom.xml
+
+# Copy source code
+COPY src ./src
+
+# Build the application
+RUN ./mvnw clean package -DskipTests -Dspring.profiles.active=prod
+
+# Production runtime stage
+FROM eclipse-temurin:17-jre-alpine AS runtime
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    curl \
+    jq \
+    bash \
+    tzdata \
+    && rm -rf /var/cache/apk/*
+
+# Create application user
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
+# Set timezone
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Create necessary directories
+RUN mkdir -p /app /var/log/app /var/log/gc /var/log/jfr /var/log/heapdumps && \
+    chown -R appuser:appgroup /app /var/log/app /var/log/gc /var/log/jfr /var/log/heapdumps
+
+# Set working directory
+WORKDIR /app
+
+# Copy application JAR from builder stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Copy JVM configuration and startup script
+COPY jvm-production.conf .
+COPY start-production.sh .
+
+# Make startup script executable
+RUN chmod +x start-production.sh
+
+# Switch to application user
+USER appuser
+
+# Environment variables for production
+ENV SPRING_PROFILES_ACTIVE=prod
+ENV JAVA_TOOL_OPTIONS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+ENV MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics,prometheus
+ENV MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=when-authorized
+
+# Health check configuration
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Expose ports
+EXPOSE 8080
+
+# Labels for metadata
+LABEL maintainer="BioPro Development Team"
+LABEL version="1.0.0"
+LABEL description="Interface Exception Collector Service - Production Build"
+LABEL org.opencontainers.image.source="https://github.com/biopro/interface-exception-collector"
+
+# Use startup script as entrypoint
+ENTRYPOINT ["./start-production.sh"]
+CMD ["start"]

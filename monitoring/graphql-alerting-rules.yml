@@ -1,0 +1,238 @@
+# Prometheus alerting rules for GraphQL API monitoring
+# These rules define when alerts should be triggered based on GraphQL metrics
+
+groups:
+  - name: graphql_performance_alerts
+    rules:
+      # GraphQL Query Response Time Alert
+      - alert: GraphQLQueryResponseTimeHigh
+        expr: histogram_quantile(0.95, rate(graphql_query_duration_seconds_bucket[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL query response time is high"
+          description: "GraphQL query P95 response time is {{ $value }}s, which exceeds the 500ms threshold for {{ $labels.operation }}."
+          runbook_url: "https://docs.company.com/runbooks/graphql-performance"
+
+      # GraphQL Mutation Response Time Alert
+      - alert: GraphQLMutationResponseTimeHigh
+        expr: histogram_quantile(0.95, rate(graphql_mutation_duration_seconds_bucket[5m])) > 3.0
+        for: 2m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL mutation response time is high"
+          description: "GraphQL mutation P95 response time is {{ $value }}s, which exceeds the 3s threshold for {{ $labels.operation }}."
+          runbook_url: "https://docs.company.com/runbooks/graphql-performance"
+
+      # GraphQL Field Fetch Time Alert
+      - alert: GraphQLFieldFetchTimeHigh
+        expr: histogram_quantile(0.95, rate(graphql_field_fetch_duration_seconds_bucket[5m])) > 0.1
+        for: 1m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL field fetch time is high"
+          description: "GraphQL field fetch P95 time is {{ $value }}s, which exceeds the 100ms threshold for {{ $labels.field }} in {{ $labels.parentType }}."
+          runbook_url: "https://docs.company.com/runbooks/graphql-performance"
+
+  - name: graphql_error_alerts
+    rules:
+      # GraphQL Error Rate Alert
+      - alert: GraphQLErrorRateHigh
+        expr: (rate(graphql_error_count_total[5m]) / rate(graphql_query_count_total[5m])) * 100 > 5
+        for: 2m
+        labels:
+          severity: critical
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL error rate is high"
+          description: "GraphQL error rate is {{ $value }}%, which exceeds the 5% threshold."
+          runbook_url: "https://docs.company.com/runbooks/graphql-errors"
+
+      # GraphQL Validation Errors
+      - alert: GraphQLValidationErrorsHigh
+        expr: rate(graphql_error_count_total{errorType="ValidationError"}[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "High rate of GraphQL validation errors"
+          description: "GraphQL validation error rate is {{ $value }} errors/second, indicating potential client issues."
+          runbook_url: "https://docs.company.com/runbooks/graphql-validation"
+
+      # GraphQL Authorization Errors
+      - alert: GraphQLAuthorizationErrorsHigh
+        expr: rate(graphql_error_count_total{errorType="AuthorizationError"}[5m]) > 5
+        for: 1m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "High rate of GraphQL authorization errors"
+          description: "GraphQL authorization error rate is {{ $value }} errors/second, indicating potential security issues."
+          runbook_url: "https://docs.company.com/runbooks/graphql-security"
+
+  - name: graphql_throughput_alerts
+    rules:
+      # GraphQL High Throughput Alert
+      - alert: GraphQLThroughputHigh
+        expr: rate(graphql_query_count_total[1m]) * 60 > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL throughput is high"
+          description: "GraphQL query rate is {{ $value }} queries/minute, which exceeds the 1000 queries/minute threshold."
+          runbook_url: "https://docs.company.com/runbooks/graphql-scaling"
+
+      # GraphQL Subscription Connections High
+      - alert: GraphQLSubscriptionConnectionsHigh
+        expr: graphql_subscription_connections_active > 1000
+        for: 2m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL subscription connections are high"
+          description: "Active GraphQL subscription connections ({{ $value }}) exceed the 1000 connection threshold."
+          runbook_url: "https://docs.company.com/runbooks/graphql-websockets"
+
+  - name: graphql_cache_alerts
+    rules:
+      # GraphQL Cache Miss Rate High
+      - alert: GraphQLCacheMissRateHigh
+        expr: (rate(graphql_cache_access_total{result="miss"}[5m]) / rate(graphql_cache_access_total[5m])) * 100 > 20
+        for: 3m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL cache miss rate is high"
+          description: "GraphQL cache miss rate is {{ $value }}%, which exceeds the 20% threshold for {{ $labels.cache }}."
+          runbook_url: "https://docs.company.com/runbooks/graphql-caching"
+
+      # GraphQL DataLoader Batch Size Low
+      - alert: GraphQLDataLoaderBatchSizeLow
+        expr: avg_over_time(graphql_dataloader_batch_size[5m]) < 2
+        for: 5m
+        labels:
+          severity: info
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL DataLoader batch size is low"
+          description: "Average DataLoader batch size is {{ $value }}, indicating potential N+1 query issues for {{ $labels.loader }}."
+          runbook_url: "https://docs.company.com/runbooks/graphql-dataloader"
+
+  - name: graphql_health_alerts
+    rules:
+      # GraphQL Health Check Failed
+      - alert: GraphQLHealthCheckFailed
+        expr: up{job="interface-exception-collector", endpoint="/actuator/health/graphql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL health check failed"
+          description: "GraphQL health check endpoint is not responding."
+          runbook_url: "https://docs.company.com/runbooks/graphql-health"
+
+      # Database Connectivity Issues
+      - alert: GraphQLDatabaseConnectivityIssue
+        expr: graphql_health_database_response_time_ms > 1000
+        for: 2m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL database connectivity is slow"
+          description: "GraphQL database health check response time is {{ $value }}ms, exceeding 1000ms threshold."
+          runbook_url: "https://docs.company.com/runbooks/database-performance"
+
+      # Cache Connectivity Issues
+      - alert: GraphQLCacheConnectivityIssue
+        expr: graphql_health_cache_response_time_ms > 100
+        for: 2m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL cache connectivity is slow"
+          description: "GraphQL cache health check response time is {{ $value }}ms, exceeding 100ms threshold."
+          runbook_url: "https://docs.company.com/runbooks/cache-performance"
+
+  - name: graphql_security_alerts
+    rules:
+      # GraphQL Query Complexity High
+      - alert: GraphQLQueryComplexityHigh
+        expr: graphql_query_complexity > 800
+        for: 1m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL query complexity is high"
+          description: "GraphQL query complexity score is {{ $value }}, approaching the 1000 limit."
+          runbook_url: "https://docs.company.com/runbooks/graphql-security"
+
+      # GraphQL Rate Limiting Triggered
+      - alert: GraphQLRateLimitingTriggered
+        expr: rate(graphql_rate_limit_exceeded_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: info
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "GraphQL rate limiting is being triggered"
+          description: "GraphQL rate limiting is being triggered at {{ $value }} requests/second."
+          runbook_url: "https://docs.company.com/runbooks/graphql-rate-limiting"
+
+  - name: graphql_business_alerts
+    rules:
+      # Exception Processing Rate High
+      - alert: ExceptionProcessingRateHigh
+        expr: rate(graphql_business_exception_processing_total[5m]) > 50
+        for: 3m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "Exception processing rate is high"
+          description: "Exception processing rate via GraphQL is {{ $value }} exceptions/second, indicating potential system issues."
+          runbook_url: "https://docs.company.com/runbooks/exception-processing"
+
+      # Retry Operation Failure Rate High
+      - alert: RetryOperationFailureRateHigh
+        expr: (rate(graphql_business_retry_operation_total{status="error"}[5m]) / rate(graphql_business_retry_operation_total[5m])) * 100 > 10
+        for: 2m
+        labels:
+          severity: warning
+          component: graphql-api
+          service: interface-exception-collector
+        annotations:
+          summary: "Retry operation failure rate is high"
+          description: "Retry operation failure rate is {{ $value }}%, exceeding 10% threshold."
+          runbook_url: "https://docs.company.com/runbooks/retry-operations"

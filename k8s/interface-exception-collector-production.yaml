@@ -1,0 +1,484 @@
+# Kubernetes deployment configuration for production with blue-green deployment support
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: interface-exception-collector-jvm-config
+  namespace: biopro-production
+data:
+  jvm-production.conf: |
+    # JVM Configuration for Production GraphQL Performance
+    -Xms2g
+    -Xmx4g
+    -XX:NewRatio=1
+    -XX:SurvivorRatio=8
+    -XX:MaxMetaspaceSize=512m
+    -XX:CompressedClassSpaceSize=128m
+    -XX:+UseG1GC
+    -XX:MaxGCPauseMillis=100
+    -XX:G1HeapRegionSize=16m
+    -XX:G1NewSizePercent=30
+    -XX:G1MaxNewSizePercent=40
+    -XX:G1MixedGCCountTarget=8
+    -XX:InitiatingHeapOccupancyPercent=45
+    -XX:G1MixedGCLiveThresholdPercent=85
+    -XX:G1HeapWastePercent=5
+    -XX:+UseStringDeduplication
+    -XX:+OptimizeStringConcat
+    -XX:+UseCompressedOops
+    -XX:+UseCompressedClassPointers
+    -XX:+TieredCompilation
+    -XX:TieredStopAtLevel=4
+    -XX:+UseCodeCacheFlushing
+    -XX:ReservedCodeCacheSize=256m
+    -XX:InitialCodeCacheSize=64m
+    -XX:+UseFastAccessorMethods
+    -XX:+UseFastEmptyMethods
+    -XX:+AggressiveOpts
+    -XX:+DoEscapeAnalysis
+    -XX:+EliminateAllocations
+    -XX:+EliminateLocks
+    -XX:+OptimizeFill
+    -Djava.net.preferIPv4Stack=true
+    -Djava.awt.headless=true
+    -Dfile.encoding=UTF-8
+    -Duser.timezone=UTC
+    -Djava.security.egd=file:/dev/./urandom
+    -XX:+UnlockExperimentalVMOptions
+    -XX:+UseCGroupMemoryLimitForHeap
+    -XX:+UseContainerSupport
+    -XX:MaxRAMPercentage=75.0
+    -XX:+PrintGC
+    -XX:+PrintGCDetails
+    -XX:+PrintGCTimeStamps
+    -XX:+PrintGCApplicationStoppedTime
+    -XX:+PrintStringDeduplicationStatistics
+    -Xloggc:/var/log/gc/gc.log
+    -XX:+UseGCLogFileRotation
+    -XX:NumberOfGCLogFiles=5
+    -XX:GCLogFileSize=100M
+    -XX:+FlightRecorder
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:HeapDumpPath=/var/log/heapdumps/
+    -XX:OnOutOfMemoryError="kill -9 %p"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interface-exception-collector-blue
+  namespace: biopro-production
+  labels:
+    app: interface-exception-collector
+    version: blue
+    component: graphql-api
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: interface-exception-collector
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: interface-exception-collector
+        version: blue
+        component: graphql-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      serviceAccountName: interface-exception-collector
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+      - name: interface-exception-collector
+        image: biopro/interface-exception-collector:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: JAVA_TOOL_OPTIONS
+          value: "@/app/jvm-production.conf"
+        - name: BLUE_GREEN_ENABLED
+          value: "true"
+        - name: TLS_ENABLED
+          value: "true"
+        - name: GRAPHIQL_ENABLED
+          value: "false"
+        - name: GRAPHQL_QUERY_ALLOWLIST_ENABLED
+          value: "true"
+        - name: GRAPHQL_RATE_LIMITING_ENABLED
+          value: "true"
+        - name: GRAPHQL_AUDIT_LOGGING_ENABLED
+          value: "true"
+        - name: GRAPHQL_METRICS_ENABLED
+          value: "true"
+        - name: GRAPHQL_ALERTING_ENABLED
+          value: "true"
+        - name: GRAPHQL_HEALTH_CHECKS_ENABLED
+          value: "true"
+        - name: GRAPHQL_STRUCTURED_LOGGING
+          value: "true"
+        - name: GRAPHQL_CORRELATION_ID
+          value: "true"
+        - name: GRAPHQL_PERFORMANCE_WARNINGS
+          value: "true"
+        envFrom:
+        - secretRef:
+            name: interface-exception-collector-secrets
+        - configMapRef:
+            name: interface-exception-collector-config
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        startupProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 12
+          successThreshold: 1
+        volumeMounts:
+        - name: jvm-config
+          mountPath: /app/jvm-production.conf
+          subPath: jvm-production.conf
+          readOnly: true
+        - name: logs
+          mountPath: /var/log
+        - name: tmp
+          mountPath: /tmp
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/bash
+              - -c
+              - |
+                # Graceful shutdown for WebSocket connections
+                curl -X POST http://localhost:8080/actuator/shutdown || true
+                sleep 30
+      volumes:
+      - name: jvm-config
+        configMap:
+          name: interface-exception-collector-jvm-config
+      - name: logs
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+      terminationGracePeriodSeconds: 60
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interface-exception-collector-green
+  namespace: biopro-production
+  labels:
+    app: interface-exception-collector
+    version: green
+    component: graphql-api
+spec:
+  replicas: 0  # Initially scaled to 0 for blue-green deployment
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: interface-exception-collector
+      version: green
+  template:
+    metadata:
+      labels:
+        app: interface-exception-collector
+        version: green
+        component: graphql-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      serviceAccountName: interface-exception-collector
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+      - name: interface-exception-collector
+        image: biopro/interface-exception-collector:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: JAVA_TOOL_OPTIONS
+          value: "@/app/jvm-production.conf"
+        - name: BLUE_GREEN_ENABLED
+          value: "true"
+        - name: TLS_ENABLED
+          value: "true"
+        - name: GRAPHIQL_ENABLED
+          value: "false"
+        - name: GRAPHQL_QUERY_ALLOWLIST_ENABLED
+          value: "true"
+        - name: GRAPHQL_RATE_LIMITING_ENABLED
+          value: "true"
+        - name: GRAPHQL_AUDIT_LOGGING_ENABLED
+          value: "true"
+        - name: GRAPHQL_METRICS_ENABLED
+          value: "true"
+        - name: GRAPHQL_ALERTING_ENABLED
+          value: "true"
+        - name: GRAPHQL_HEALTH_CHECKS_ENABLED
+          value: "true"
+        - name: GRAPHQL_STRUCTURED_LOGGING
+          value: "true"
+        - name: GRAPHQL_CORRELATION_ID
+          value: "true"
+        - name: GRAPHQL_PERFORMANCE_WARNINGS
+          value: "true"
+        envFrom:
+        - secretRef:
+            name: interface-exception-collector-secrets
+        - configMapRef:
+            name: interface-exception-collector-config
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        startupProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 12
+          successThreshold: 1
+        volumeMounts:
+        - name: jvm-config
+          mountPath: /app/jvm-production.conf
+          subPath: jvm-production.conf
+          readOnly: true
+        - name: logs
+          mountPath: /var/log
+        - name: tmp
+          mountPath: /tmp
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/bash
+              - -c
+              - |
+                # Graceful shutdown for WebSocket connections
+                curl -X POST http://localhost:8080/actuator/shutdown || true
+                sleep 30
+      volumes:
+      - name: jvm-config
+        configMap:
+          name: interface-exception-collector-jvm-config
+      - name: logs
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+      terminationGracePeriodSeconds: 60
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interface-exception-collector-service
+  namespace: biopro-production
+  labels:
+    app: interface-exception-collector
+    component: graphql-api
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/actuator/health"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "10"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "5"
+    service.beta.kubernetes.io/aws-load-balancer-healthy-threshold: "2"
+    service.beta.kubernetes.io/aws-load-balancer-unhealthy-threshold: "3"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 443
+    targetPort: 8080
+    protocol: TCP
+    name: https
+  selector:
+    app: interface-exception-collector
+    version: blue  # Initially points to blue deployment
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interface-exception-collector-blue
+  namespace: biopro-production
+  labels:
+    app: interface-exception-collector
+    version: blue
+    component: graphql-api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: interface-exception-collector
+    version: blue
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interface-exception-collector-green
+  namespace: biopro-production
+  labels:
+    app: interface-exception-collector
+    version: green
+    component: graphql-api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: interface-exception-collector
+    version: green
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: interface-exception-collector-pdb
+  namespace: biopro-production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: interface-exception-collector
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: interface-exception-collector-hpa
+  namespace: biopro-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: interface-exception-collector-blue
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60

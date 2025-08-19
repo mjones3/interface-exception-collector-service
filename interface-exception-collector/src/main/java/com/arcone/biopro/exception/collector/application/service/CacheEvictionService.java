@@ -1,6 +1,6 @@
 package com.arcone.biopro.exception.collector.application.service;
 
-import com.arcone.biopro.exception.collector.config.CacheConfig;
+import com.arcone.biopro.exception.collector.infrastructure.config.CacheConfig;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

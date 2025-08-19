@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Repository interface for InterfaceException entity providing data access
@@ -41,6 +42,15 @@ public interface InterfaceExceptionRepository
          * @return true if exception exists, false otherwise
          */
         boolean existsByTransactionId(String transactionId);
+
+        /**
+         * Find exceptions by a collection of transaction IDs.
+         * Used for batch loading in DataLoader pattern.
+         * 
+         * @param transactionIds collection of transaction IDs to find
+         * @return List of exceptions matching the transaction IDs
+         */
+        List<InterfaceException> findByTransactionIdIn(Set<String> transactionIds);
 
         /**
          * Find all exceptions with pagination and sorting support.
@@ -295,4 +305,81 @@ public interface InterfaceExceptionRepository
          */
         @Query("SELECT ie FROM InterfaceException ie WHERE ie.resolvedAt IS NOT NULL AND ie.resolvedAt >= :resolvedAfter")
         List<InterfaceException> findByResolvedAtAfter(@Param("resolvedAfter") java.time.Instant resolvedAfter);
+
+        /**
+         * Get aggregated summary statistics from materialized view for optimal
+         * performance.
+         * 
+         * @param fromDate start date for the summary
+         * @param toDate   end date for the summary
+         * @return List of summary statistics grouped by interface type, status, and
+         *         severity
+         */
+        @Query(value = "SELECT " +
+                        "interface_type, " +
+                        "status, " +
+                        "severity, " +
+                        "SUM(exception_count) as total_count, " +
+                        "SUM(unique_customers) as unique_customers, " +
+                        "SUM(critical_count) as critical_count, " +
+                        "AVG(avg_resolution_hours) as avg_resolution_hours " +
+                        "FROM exception_summary_mv " +
+                        "WHERE day_bucket >= :fromDate AND day_bucket <= :toDate " +
+                        "GROUP BY interface_type, status, severity " +
+                        "ORDER BY interface_type, status, severity", nativeQuery = true)
+        List<Object[]> getSummaryStatisticsFromMaterializedView(
+                        @Param("fromDate") OffsetDateTime fromDate,
+                        @Param("toDate") OffsetDateTime toDate);
+
+        /**
+         * Get trend data from materialized view for time-series analysis.
+         * 
+         * @param fromDate start date for trends
+         * @param toDate   end date for trends
+         * @param interval time interval ('hour', 'day', 'week', 'month')
+         * @return List of trend data points with timestamp and count
+         */
+        @Query(value = "SELECT " +
+                        "CASE " +
+                        "  WHEN :interval = 'hour' THEN hour_bucket " +
+                        "  WHEN :interval = 'day' THEN day_bucket " +
+                        "  WHEN :interval = 'week' THEN week_bucket " +
+                        "  ELSE month_bucket " +
+                        "END as time_bucket, " +
+                        "SUM(exception_count) as total_count " +
+                        "FROM exception_summary_mv " +
+                        "WHERE day_bucket >= :fromDate AND day_bucket <= :toDate " +
+                        "GROUP BY time_bucket " +
+                        "ORDER BY time_bucket", nativeQuery = true)
+        List<Object[]> getTrendDataFromMaterializedView(
+                        @Param("fromDate") OffsetDateTime fromDate,
+                        @Param("toDate") OffsetDateTime toDate,
+                        @Param("interval") String interval);
+
+        /**
+         * Count unique customers impacted within a date range.
+         * 
+         * @param fromDate start date (inclusive)
+         * @param toDate   end date (inclusive)
+         * @return count of unique customers impacted
+         */
+        @Query("SELECT COUNT(DISTINCT ie.customerId) FROM InterfaceException ie " +
+                        "WHERE ie.timestamp BETWEEN :fromDate AND :toDate " +
+                        "AND ie.customerId IS NOT NULL")
+        long countUniqueCustomersImpacted(@Param("fromDate") OffsetDateTime fromDate,
+                        @Param("toDate") OffsetDateTime toDate);
+
+        /**
+         * Calculate average resolution time in hours for resolved exceptions.
+         * 
+         * @param fromDate start date (inclusive)
+         * @param toDate   end date (inclusive)
+         * @return List containing average resolution time in hours
+         */
+        @Query("SELECT AVG(EXTRACT(EPOCH FROM (ie.resolvedAt - ie.timestamp))/3600) " +
+                        "FROM InterfaceException ie " +
+                        "WHERE ie.timestamp BETWEEN :fromDate AND :toDate " +
+                        "AND ie.resolvedAt IS NOT NULL")
+        List<Object[]> getAverageResolutionTime(@Param("fromDate") OffsetDateTime fromDate,
+                        @Param("toDate") OffsetDateTime toDate);
 }

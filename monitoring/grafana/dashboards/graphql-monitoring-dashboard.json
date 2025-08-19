@@ -1,0 +1,415 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "GraphQL API Monitoring - Interface Exception Collector",
+    "tags": ["graphql", "api", "monitoring", "interface-exception-collector"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "GraphQL Query Performance",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(graphql_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "P95 Query Time",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(graphql_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "P50 Query Time",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 0.3},
+                {"color": "red", "value": 0.5}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "GraphQL Error Rate",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "(rate(graphql_error_count_total[5m]) / rate(graphql_query_count_total[5m])) * 100",
+            "legendFormat": "Error Rate %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 2},
+                {"color": "red", "value": 5}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "GraphQL Throughput",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "rate(graphql_query_count_total[1m]) * 60",
+            "legendFormat": "Queries/min - {{operation}}",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(graphql_mutation_count_total[1m]) * 60",
+            "legendFormat": "Mutations/min - {{operation}}",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(graphql_subscription_count_total[1m]) * 60",
+            "legendFormat": "Subscriptions/min - {{operation}}",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Requests per minute",
+            "min": 0
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "GraphQL Response Time Distribution",
+        "type": "heatmap",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "rate(graphql_query_duration_seconds_bucket[5m])",
+            "legendFormat": "{{le}}",
+            "refId": "A"
+          }
+        ],
+        "heatmap": {
+          "xBucketSize": null,
+          "yBucketSize": null,
+          "yBucketNumber": null
+        }
+      },
+      {
+        "id": 5,
+        "title": "Cache Performance",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "targets": [
+          {
+            "expr": "rate(graphql_cache_access_total{result=\"hit\"}[5m])",
+            "legendFormat": "Cache Hits - {{cache}}",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(graphql_cache_access_total{result=\"miss\"}[5m])",
+            "legendFormat": "Cache Misses - {{cache}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Cache operations/sec",
+            "min": 0
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Cache Hit Rate",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "targets": [
+          {
+            "expr": "(rate(graphql_cache_access_total{result=\"hit\"}[5m]) / rate(graphql_cache_access_total[5m])) * 100",
+            "legendFormat": "Hit Rate % - {{cache}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "green", "value": 80}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "DataLoader Performance",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 32},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(graphql_dataloader_batch_seconds_bucket[5m]))",
+            "legendFormat": "P95 Batch Time - {{loader}}",
+            "refId": "A"
+          },
+          {
+            "expr": "avg_over_time(graphql_dataloader_batch_size[5m])",
+            "legendFormat": "Avg Batch Size - {{loader}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Time (s) / Batch Size",
+            "min": 0
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Field Fetch Performance",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 40},
+        "targets": [
+          {
+            "expr": "topk(10, histogram_quantile(0.95, rate(graphql_field_fetch_duration_seconds_bucket[5m])))",
+            "legendFormat": "{{parentType}}.{{field}}",
+            "refId": "A",
+            "format": "table"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {},
+              "renameByName": {
+                "Value": "P95 Response Time (s)"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Error Breakdown",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48},
+        "targets": [
+          {
+            "expr": "sum by (errorType) (rate(graphql_error_count_total[5m]))",
+            "legendFormat": "{{errorType}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Active Subscriptions",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 48},
+        "targets": [
+          {
+            "expr": "graphql_subscription_connections_active",
+            "legendFormat": "Active Connections",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 800},
+                {"color": "red", "value": 1000}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "Health Check Status",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 8, "x": 0, "y": 56},
+        "targets": [
+          {
+            "expr": "up{job=\"interface-exception-collector\", endpoint=\"/actuator/health/graphql\"}",
+            "legendFormat": "GraphQL Health",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"options": {"0": {"text": "DOWN"}}, "type": "value"},
+              {"options": {"1": {"text": "UP"}}, "type": "value"}
+            ],
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 12,
+        "title": "Database Response Time",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 8, "x": 8, "y": 56},
+        "targets": [
+          {
+            "expr": "graphql_health_database_response_time_ms",
+            "legendFormat": "DB Response Time",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 500},
+                {"color": "red", "value": 1000}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 13,
+        "title": "Cache Response Time",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 8, "x": 16, "y": 56},
+        "targets": [
+          {
+            "expr": "graphql_health_cache_response_time_ms",
+            "legendFormat": "Cache Response Time",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 50},
+                {"color": "red", "value": 100}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 14,
+        "title": "Business Metrics - Exception Processing",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 60},
+        "targets": [
+          {
+            "expr": "rate(graphql_business_exception_processing_total[5m])",
+            "legendFormat": "Exception Processing Rate - {{status}}",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(graphql_business_retry_operation_total[5m])",
+            "legendFormat": "Retry Operations Rate - {{status}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Operations per second",
+            "min": 0
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Alert Status",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 68},
+        "targets": [
+          {
+            "expr": "ALERTS{alertname=~\"GraphQL.*\"}",
+            "legendFormat": "{{alertname}}",
+            "refId": "A",
+            "format": "table"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"__name__": true, "job": true, "instance": true},
+              "indexByName": {},
+              "renameByName": {
+                "alertname": "Alert Name",
+                "alertstate": "State",
+                "severity": "Severity"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "operation",
+          "type": "query",
+          "query": "label_values(graphql_query_count_total, operation)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        },
+        {
+          "name": "cache",
+          "type": "query",
+          "query": "label_values(graphql_cache_access_total, cache)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "name": "Deployments",
+          "datasource": "prometheus",
+          "expr": "changes(up{job=\"interface-exception-collector\"}[1m])",
+          "titleFormat": "Deployment",
+          "textFormat": "Service restarted"
+        }
+      ]
+    }
+  }
+}

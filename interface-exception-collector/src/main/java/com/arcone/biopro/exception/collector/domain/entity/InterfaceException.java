@@ -145,6 +145,10 @@ public class InterfaceException {
     @Column(name = "retry_count", nullable = false)
     private Integer retryCount = 0;
 
+    @Builder.Default
+    @Column(name = "max_retries", nullable = false)
+    private Integer maxRetries = 3;
+
     @Column(name = "last_retry_at")
     private OffsetDateTime lastRetryAt;
 
@@ -165,6 +169,11 @@ public class InterfaceException {
     @JsonManagedReference("exception-orderItems")
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "interfaceException", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference("exception-statusChanges")
+    @Builder.Default
+    private List<StatusChange> statusChanges = new ArrayList<>();
 
     /**
      * Convenience method to add a retry attempt to this exception.
@@ -200,5 +209,23 @@ public class InterfaceException {
     public void removeOrderItem(OrderItem orderItem) {
         orderItems.remove(orderItem);
         orderItem.setInterfaceException(null);
+    }
+
+    /**
+     * Convenience method to add a status change to this exception.
+     * Maintains bidirectional relationship consistency.
+     */
+    public void addStatusChange(StatusChange statusChange) {
+        statusChanges.add(statusChange);
+        statusChange.setInterfaceException(this);
+    }
+
+    /**
+     * Convenience method to remove a status change from this exception.
+     * Maintains bidirectional relationship consistency.
+     */
+    public void removeStatusChange(StatusChange statusChange) {
+        statusChanges.remove(statusChange);
+        statusChange.setInterfaceException(null);
     }
 }

@@ -1,11 +1,14 @@
 package com.arcone.biopro.exception.collector.application.service;
 
 import com.arcone.biopro.exception.collector.api.dto.PayloadResponse;
-import com.arcone.biopro.exception.collector.config.CacheConfig;
+import com.arcone.biopro.exception.collector.infrastructure.config.CacheConfig;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.InterfaceType;
 import com.arcone.biopro.exception.collector.infrastructure.client.SourceServiceClient;
 import com.arcone.biopro.exception.collector.infrastructure.client.SourceServiceClientRegistry;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -37,6 +40,9 @@ public class PayloadRetrievalService {
      * @param exception the interface exception to retrieve payload for
      * @return CompletableFuture containing the payload response
      */
+    @CircuitBreaker(name = "payload-retrieval", fallbackMethod = "getOriginalPayloadFallback")
+    @TimeLimiter(name = "payload-retrieval")
+    @Retry(name = "payload-retrieval")
     @Cacheable(value = CacheConfig.PAYLOAD_CACHE, key = "#exception.transactionId + ':' + #exception.interfaceType.name()", condition = "#exception.transactionId != null")
     public CompletableFuture<PayloadResponse> getOriginalPayload(InterfaceException exception) {
         log.info("Retrieving original payload for transaction: {}, interface: {}",
@@ -59,12 +65,32 @@ public class PayloadRetrievalService {
     }
 
     /**
+     * Fallback method for payload retrieval when circuit breaker is open.
+     */
+    public CompletableFuture<PayloadResponse> getOriginalPayloadFallback(InterfaceException exception, Exception ex) {
+        log.error("Payload retrieval circuit breaker activated for transaction: {}, interface: {}, error: {}",
+                exception.getTransactionId(), exception.getInterfaceType(), ex.getMessage());
+
+        return CompletableFuture.completedFuture(
+                PayloadResponse.builder()
+                        .transactionId(exception.getTransactionId())
+                        .interfaceType(exception.getInterfaceType().name())
+                        .sourceService("fallback")
+                        .retrieved(false)
+                        .errorMessage("Payload retrieval service is temporarily unavailable: " + ex.getMessage())
+                        .build());
+    }
+
+    /**
      * Submits a retry request to the appropriate source service.
      *
      * @param exception the interface exception to retry
      * @param payload   the original payload to resubmit
      * @return CompletableFuture containing the retry result
      */
+    @CircuitBreaker(name = "retry-submission", fallbackMethod = "submitRetryFallback")
+    @TimeLimiter(name = "retry-submission")
+    @Retry(name = "retry-submission")
     public CompletableFuture<ResponseEntity<Object>> submitRetry(InterfaceException exception, Object payload) {
         log.info("Submitting retry for transaction: {}, interface: {}",
                 exception.getTransactionId(), exception.getInterfaceType());
@@ -77,6 +103,18 @@ public class PayloadRetrievalService {
             return CompletableFuture.failedFuture(
                     new RuntimeException("No client available for interface type: " + exception.getInterfaceType(), e));
         }
+    }
+
+    /**
+     * Fallback method for retry submission when circuit breaker is open.
+     */
+    public CompletableFuture<ResponseEntity<Object>> submitRetryFallback(
+            InterfaceException exception, Object payload, Exception ex) {
+        log.error("Retry submission circuit breaker activated for transaction: {}, interface: {}, error: {}",
+                exception.getTransactionId(), exception.getInterfaceType(), ex.getMessage());
+
+        return CompletableFuture.failedFuture(
+                new RuntimeException("Retry submission service is temporarily unavailable: " + ex.getMessage(), ex));
     }
 
     /**

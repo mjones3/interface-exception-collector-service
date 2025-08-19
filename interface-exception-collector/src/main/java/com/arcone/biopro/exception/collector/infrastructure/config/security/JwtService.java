@@ -1,4 +1,4 @@
-package com.arcone.biopro.exception.collector.config.security;
+package com.arcone.biopro.exception.collector.infrastructure.config.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
