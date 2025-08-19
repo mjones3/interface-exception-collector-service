@@ -1,7 +1,8 @@
 package com.arcone.biopro.exception.collector.infrastructure.health;
 
 import com.arcone.biopro.exception.collector.infrastructure.monitoring.DynatraceBusinessMetricsService;
-import com.dynatrace.oneagent.sdk.OneAgentSDK;
+import com.dynatrace.oneagent.sdk.OneAgentSDKFactory;
+import com.dynatrace.oneagent.sdk.api.OneAgentSDK;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.health.Health;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = true)
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = false)
 public class DynatraceHealthIndicator implements HealthIndicator {
 
     private final OneAgentSDK oneAgentSDK;

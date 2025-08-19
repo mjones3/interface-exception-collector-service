@@ -14,13 +14,15 @@ import java.time.OffsetDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Scheduled service for monitoring system health and updating Dynatrace business metrics.
- * Provides periodic health checks and metric updates to ensure comprehensive monitoring.
+ * Scheduled service for monitoring system health and updating Dynatrace
+ * business metrics.
+ * Provides periodic health checks and metric updates to ensure comprehensive
+ * monitoring.
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = false)
 public class DynatraceHealthMonitoringService {
 
     private final DynatraceBusinessMetricsService businessMetricsService;
@@ -38,30 +40,30 @@ public class DynatraceHealthMonitoringService {
     public void performHealthCheck() {
         long startTime = System.currentTimeMillis();
         long checkNumber = healthCheckCount.incrementAndGet();
-        
+
         try {
             log.debug("Starting Dynatrace health check #{}", checkNumber);
-            
+
             // Update current exception counts by status
             updateExceptionStatusCounts();
-            
+
             // Update current exception counts by severity
             updateExceptionSeverityCounts();
-            
+
             // Update interface-specific metrics
             updateInterfaceMetrics();
-            
+
             // Update age-based metrics
             updateAgeBasedMetrics();
-            
+
             // Record system performance metrics
             recordSystemPerformanceMetrics();
-            
+
             long duration = System.currentTimeMillis() - startTime;
             lastHealthCheckDuration.set(duration);
-            
+
             log.debug("Completed Dynatrace health check #{} in {}ms", checkNumber, duration);
-            
+
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
             lastHealthCheckDuration.set(duration);
@@ -77,27 +79,27 @@ public class DynatraceHealthMonitoringService {
     public void performHourlyHealthSummary() {
         try {
             log.info("Starting hourly Dynatrace health summary");
-            
-            DynatraceBusinessMetricsService.BusinessMetricsSummary summary = 
-                    businessMetricsService.getBusinessMetricsSummary();
-            
+
+            DynatraceBusinessMetricsService.BusinessMetricsSummary summary = businessMetricsService
+                    .getBusinessMetricsSummary();
+
             // Log comprehensive health summary
             log.info("=== HOURLY HEALTH SUMMARY ===");
-            log.info("Exception Status - Pending: {}, Failed: {}, Resolved: {}", 
+            log.info("Exception Status - Pending: {}, Failed: {}, Resolved: {}",
                     summary.getPendingExceptions(), summary.getFailedExceptions(), summary.getResolvedExceptions());
-            log.info("Exception Severity - Critical: {}, High: {}, Medium: {}, Low: {}", 
-                    summary.getCriticalExceptions(), summary.getHighSeverityExceptions(), 
+            log.info("Exception Severity - Critical: {}, High: {}, Medium: {}, Low: {}",
+                    summary.getCriticalExceptions(), summary.getHighSeverityExceptions(),
                     summary.getMediumSeverityExceptions(), summary.getLowSeverityExceptions());
-            log.info("Processing Metrics - Received: {}, Processed: {}, Retry Success Rate: {}%", 
-                    summary.getTotalExceptionsReceived(), summary.getTotalExceptionsProcessed(), 
+            log.info("Processing Metrics - Received: {}, Processed: {}, Retry Success Rate: {}%",
+                    summary.getTotalExceptionsReceived(), summary.getTotalExceptionsProcessed(),
                     String.format("%.2f", summary.getRetrySuccessRate()));
-            log.info("Health Checks - Total: {}, Last Duration: {}ms", 
+            log.info("Health Checks - Total: {}, Last Duration: {}ms",
                     healthCheckCount.get(), lastHealthCheckDuration.get());
             log.info("=== END HEALTH SUMMARY ===");
-            
+
             // Record the summary as a lifecycle event
             businessMetricsService.recordExceptionReceived(null); // This will be handled gracefully
-            
+
         } catch (Exception e) {
             log.error("Hourly health summary failed", e);
         }
@@ -109,14 +111,14 @@ public class DynatraceHealthMonitoringService {
     private void updateExceptionStatusCounts() {
         try {
             // Get current counts from database
-            long pendingCount = exceptionRepository.countByStatus(ExceptionStatus.PENDING);
-            long failedCount = exceptionRepository.countByStatus(ExceptionStatus.FAILED);
+            long pendingCount = exceptionRepository.countByStatus(ExceptionStatus.NEW);
+            long failedCount = exceptionRepository.countByStatus(ExceptionStatus.RETRIED_FAILED);
             long resolvedCount = exceptionRepository.countByStatus(ExceptionStatus.RESOLVED);
             long acknowledgedCount = exceptionRepository.countByStatus(ExceptionStatus.ACKNOWLEDGED);
-            
-            log.debug("Status counts - Pending: {}, Failed: {}, Resolved: {}, Acknowledged: {}", 
+
+            log.debug("Status counts - Pending: {}, Failed: {}, Resolved: {}, Acknowledged: {}",
                     pendingCount, failedCount, resolvedCount, acknowledgedCount);
-            
+
         } catch (Exception e) {
             log.error("Failed to update exception status counts", e);
         }
@@ -132,10 +134,10 @@ public class DynatraceHealthMonitoringService {
             long highCount = exceptionRepository.countBySeverity(ExceptionSeverity.HIGH);
             long mediumCount = exceptionRepository.countBySeverity(ExceptionSeverity.MEDIUM);
             long lowCount = exceptionRepository.countBySeverity(ExceptionSeverity.LOW);
-            
-            log.debug("Severity counts - Critical: {}, High: {}, Medium: {}, Low: {}", 
+
+            log.debug("Severity counts - Critical: {}, High: {}, Medium: {}, Low: {}",
                     criticalCount, highCount, mediumCount, lowCount);
-            
+
         } catch (Exception e) {
             log.error("Failed to update exception severity counts", e);
         }
@@ -148,11 +150,12 @@ public class DynatraceHealthMonitoringService {
         try {
             for (InterfaceType interfaceType : InterfaceType.values()) {
                 long count = exceptionRepository.countByInterfaceType(interfaceType);
-                long unresolvedCount = exceptionRepository.countByInterfaceTypeAndStatusNot(interfaceType, ExceptionStatus.RESOLVED);
-                
+                long unresolvedCount = exceptionRepository.countByInterfaceTypeAndStatusNot(interfaceType,
+                        ExceptionStatus.RESOLVED);
+
                 log.debug("Interface {} - Total: {}, Unresolved: {}", interfaceType, count, unresolvedCount);
             }
-            
+
         } catch (Exception e) {
             log.error("Failed to update interface metrics", e);
         }
@@ -165,15 +168,16 @@ public class DynatraceHealthMonitoringService {
         try {
             OffsetDateTime oneDayAgo = OffsetDateTime.now().minusDays(1);
             OffsetDateTime oneHourAgo = OffsetDateTime.now().minusHours(1);
-            
+
             // Count exceptions older than 1 day that are still unresolved
-            long oldUnresolvedCount = exceptionRepository.countByCreatedAtBeforeAndStatusNot(oneDayAgo, ExceptionStatus.RESOLVED);
-            
+            long oldUnresolvedCount = exceptionRepository.countByCreatedAtBeforeAndStatusNot(oneDayAgo,
+                    ExceptionStatus.RESOLVED);
+
             // Count recent exceptions (last hour)
             long recentCount = exceptionRepository.countByCreatedAtAfter(oneHourAgo);
-            
+
             log.debug("Age-based metrics - Old unresolved: {}, Recent (1h): {}", oldUnresolvedCount, recentCount);
-            
+
         } catch (Exception e) {
             log.error("Failed to update age-based metrics", e);
         }
@@ -185,19 +189,19 @@ public class DynatraceHealthMonitoringService {
     private void recordSystemPerformanceMetrics() {
         try {
             // Record health check performance
-            log.debug("System performance - Health checks: {}, Last duration: {}ms", 
+            log.debug("System performance - Health checks: {}, Last duration: {}ms",
                     healthCheckCount.get(), lastHealthCheckDuration.get());
-            
+
             // Record JVM metrics if available
             Runtime runtime = Runtime.getRuntime();
             long totalMemory = runtime.totalMemory();
             long freeMemory = runtime.freeMemory();
             long usedMemory = totalMemory - freeMemory;
             double memoryUsagePercent = (double) usedMemory / totalMemory * 100.0;
-            
-            log.debug("JVM metrics - Memory usage: {}% ({}/{} bytes)", 
+
+            log.debug("JVM metrics - Memory usage: {}% ({}/{} bytes)",
                     String.format("%.2f", memoryUsagePercent), usedMemory, totalMemory);
-            
+
         } catch (Exception e) {
             log.error("Failed to record system performance metrics", e);
         }
@@ -210,12 +214,12 @@ public class DynatraceHealthMonitoringService {
     public void performDailyCleanup() {
         try {
             log.info("Starting daily Dynatrace metrics cleanup");
-            
+
             // Reset counters for daily reporting
             long totalHealthChecks = healthCheckCount.get();
-            
+
             log.info("Daily cleanup completed - Total health checks: {}", totalHealthChecks);
-            
+
         } catch (Exception e) {
             log.error("Daily cleanup failed", e);
         }
@@ -228,14 +232,14 @@ public class DynatraceHealthMonitoringService {
     public void performEmergencyHealthCheck() {
         try {
             log.warn("Performing emergency Dynatrace health check");
-            
+
             // Perform immediate health assessment
             performHealthCheck();
-            
+
             // Get current business metrics summary
-            DynatraceBusinessMetricsService.BusinessMetricsSummary summary = 
-                    businessMetricsService.getBusinessMetricsSummary();
-            
+            DynatraceBusinessMetricsService.BusinessMetricsSummary summary = businessMetricsService
+                    .getBusinessMetricsSummary();
+
             // Log emergency status
             log.warn("=== EMERGENCY HEALTH CHECK ===");
             log.warn("Critical Exceptions: {}", summary.getCriticalExceptions());
@@ -243,7 +247,7 @@ public class DynatraceHealthMonitoringService {
             log.warn("Failed Exceptions: {}", summary.getFailedExceptions());
             log.warn("Retry Success Rate: {}%", String.format("%.2f", summary.getRetrySuccessRate()));
             log.warn("=== END EMERGENCY CHECK ===");
-            
+
         } catch (Exception e) {
             log.error("Emergency health check failed", e);
         }

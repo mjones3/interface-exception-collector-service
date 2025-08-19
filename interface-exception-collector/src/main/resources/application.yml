@@ -2,6 +2,23 @@ spring:
   application:
     name: interface-exception-collector-service
   
+  # Allow bean definition overriding and circular references to prevent conflicts
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  
+  # Exclude Dynatrace and Redis auto-configuration completely
+  autoconfigure:
+    exclude:
+      - io.micrometer.dynatrace.DynatraceConfig
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+  
+  # Lifecycle management for proper shutdown
+  lifecycle:
+    timeout-per-shutdown-phase: 45s
+  
   datasource:
     url: jdbc:postgresql://localhost:5432/exception_collector_db?sslmode=${DB_SSL_MODE:disable}&sslcert=${DB_SSL_CERT:}&sslkey=${DB_SSL_KEY:}&sslrootcert=${DB_SSL_ROOT_CERT:}&prepareThreshold=${DB_PREPARE_THRESHOLD:5}&preparedStatementCacheQueries=${DB_PREPARED_STATEMENT_CACHE_QUERIES:256}&preparedStatementCacheSizeMiB=${DB_PREPARED_STATEMENT_CACHE_SIZE:5}&defaultRowFetchSize=${DB_DEFAULT_ROW_FETCH_SIZE:1000}
     username: exception_user
@@ -60,12 +77,12 @@ spring:
         query:
           plan_cache_max_size: ${HIBERNATE_QUERY_PLAN_CACHE_SIZE:1000}
           plan_parameter_metadata_max_size: ${HIBERNATE_QUERY_PLAN_PARAMETER_CACHE_SIZE:128}
-        # Cache settings
+        # Cache settings - Disabled JCache to fix startup issue
         cache:
-          use_second_level_cache: true
-          use_query_cache: true
-          region:
-            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+          use_second_level_cache: false
+          use_query_cache: false
+          # region:
+          #   factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
         # Connection and statement settings
         connection:
           provider_disables_autocommit: true
@@ -88,34 +105,40 @@ spring:
     table: flyway_schema_history
     validate-on-migrate: true
 
-  # Redis Cache Configuration - Optimized for GraphQL
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      timeout: ${REDIS_TIMEOUT:3000ms}
-      connect-timeout: ${REDIS_CONNECT_TIMEOUT:2000ms}
-      lettuce:
-        pool:
-          # Connection pool sizing optimized for GraphQL caching
-          max-active: ${REDIS_MAX_ACTIVE:20}
-          max-idle: ${REDIS_MAX_IDLE:10}
-          min-idle: ${REDIS_MIN_IDLE:5}
-          max-wait: ${REDIS_MAX_WAIT:5000ms}
-          time-between-eviction-runs: ${REDIS_EVICTION_RUNS:30000ms}
-        shutdown-timeout: ${REDIS_SHUTDOWN_TIMEOUT:100ms}
-        cluster:
-          refresh:
-            adaptive: true
-            period: ${REDIS_CLUSTER_REFRESH_PERIOD:30s}
+  # Redis Cache Configuration - DISABLED to prevent Lettuce memory leaks
+  # data:
+  #   redis:
+  #     host: localhost
+  #     port: 6379
+  #     timeout: ${REDIS_TIMEOUT:3000ms}
+  #     connect-timeout: ${REDIS_CONNECT_TIMEOUT:2000ms}
+  #     lettuce:
+  #       pool:
+  #         # Connection pool sizing optimized for GraphQL caching
+  #         max-active: ${REDIS_MAX_ACTIVE:20}
+  #         max-idle: ${REDIS_MAX_IDLE:10}
+  #         min-idle: ${REDIS_MIN_IDLE:5}
+  #         max-wait: ${REDIS_MAX_WAIT:5000ms}
+  #         time-between-eviction-runs: ${REDIS_EVICTION_RUNS:30000ms}
+  #       # Enhanced shutdown configuration to prevent memory leaks
+  #       shutdown-timeout: ${REDIS_SHUTDOWN_TIMEOUT:5000ms}
+  #       shutdown-quiet-period: ${REDIS_SHUTDOWN_QUIET_PERIOD:1000ms}
+  #       cluster:
+  #         refresh:
+  #           adaptive: true
+  #           period: ${REDIS_CLUSTER_REFRESH_PERIOD:30s}
+  #       # Additional Netty configuration for proper thread cleanup
+  #       client-resources:
+  #         # Use custom client resources bean for proper shutdown
+  #         use-custom: true
   
   cache:
-    type: redis
-    redis:
-      time-to-live: 300000  # 5 minutes default TTL
-      cache-null-values: false
-      use-key-prefix: true
-      key-prefix: "exception-collector:"
+    type: simple  # Disabled Redis, using simple in-memory cache
+    # redis:
+    #   time-to-live: 300000  # 5 minutes default TTL
+    #   cache-null-values: false
+    #   use-key-prefix: true
+    #   key-prefix: "exception-collector:"
 
   kafka:
     bootstrap-servers: localhost:9092
@@ -304,6 +327,8 @@ graphql:
 
 server:
   port: 8080
+  # Graceful shutdown configuration to prevent memory leaks
+  shutdown: graceful
   ssl:
     enabled: ${app.security.tls.enabled:false}
     key-store: ${app.security.tls.keystore.path:}
@@ -411,9 +436,10 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"
 
+
 # Dynatrace Configuration
 dynatrace:
-  enabled: ${DYNATRACE_ENABLED:true}
+  enabled: ${DYNATRACE_ENABLED:false}
   api-token: ${DYNATRACE_API_TOKEN:}
   uri: ${DYNATRACE_URI:}
   device-id: ${DYNATRACE_DEVICE_ID:interface-exception-collector}
@@ -423,7 +449,7 @@ dynatrace:
   
   # Business Metrics Configuration
   business-metrics:
-    enabled: ${DYNATRACE_BUSINESS_METRICS_ENABLED:true}
+    enabled: ${DYNATRACE_BUSINESS_METRICS_ENABLED:false}  # Disabled for local development
     exception-thresholds:
       critical-count: ${DYNATRACE_CRITICAL_THRESHOLD:10}
       pending-count: ${DYNATRACE_PENDING_THRESHOLD:100}
@@ -461,7 +487,7 @@ otel:
     jdbc:
       enabled: true
     redis:
-      enabled: true
+      enabled: false  # Disabled Redis instrumentation
     http-client:
       enabled: true
 
@@ -470,7 +496,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,loggers,graphql-health,graphql-alerts,dynatrace
+        include: health,info,metrics,prometheus,loggers,graphql-health,graphql-alerts
       base-path: /actuator
   endpoint:
     health:
@@ -481,24 +507,26 @@ management:
     prometheus:
       enabled: true
     dynatrace:
-      enabled: ${DYNATRACE_ENABLED:true}
+      enabled: ${DYNATRACE_ENABLED:false}  # Disabled for local development
   health:
     circuitbreakers:
       enabled: true
     kafka:
       enabled: true
     redis:
-      enabled: true
+      enabled: false  # Disabled Redis health check
     graphql:
       enabled: true
     dynatrace:
-      enabled: ${DYNATRACE_ENABLED:true}
+      enabled: ${DYNATRACE_ENABLED:false}  # Disabled for local development
   metrics:
     export:
       prometheus:
         enabled: true
         step: 10s
         descriptions: true
+      dynatrace:
+        enabled: false  # Completely disable Dynatrace metrics export
     distribution:
       percentiles-histogram:
         "[http.server.requests]": true

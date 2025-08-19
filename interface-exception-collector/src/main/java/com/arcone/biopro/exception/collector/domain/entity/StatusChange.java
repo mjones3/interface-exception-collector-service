@@ -102,13 +102,16 @@ public class StatusChange {
                 return 1;
             case ACKNOWLEDGED:
                 return 2;
-            case IN_PROGRESS:
+            case ESCALATED:
                 return 3;
             case RESOLVED:
                 return 4;
-            case FAILED:
-            case CANCELLED:
-                return 0; // Failed/Cancelled can happen at any point
+            case CLOSED:
+                return 5;
+            case RETRIED_SUCCESS:
+                return 6;
+            case RETRIED_FAILED:
+                return 0; // Failed can happen at any point
             default:
                 return 0;
         }

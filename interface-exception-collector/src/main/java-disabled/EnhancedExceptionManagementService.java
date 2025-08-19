@@ -24,7 +24,7 @@ import java.util.Optional;
 @Primary
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = false)
 public class EnhancedExceptionManagementService {
 
     private final ExceptionManagementService originalManagementService;

@@ -1,7 +1,8 @@
 package com.arcone.biopro.exception.collector.api.actuator;
 
 import com.arcone.biopro.exception.collector.infrastructure.monitoring.DynatraceBusinessMetricsService;
-import com.dynatrace.oneagent.sdk.OneAgentSDK;
+import com.dynatrace.oneagent.sdk.OneAgentSDKFactory;
+import com.dynatrace.oneagent.sdk.api.OneAgentSDK;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
@@ -22,7 +23,7 @@ import java.util.Map;
 @Endpoint(id = "dynatrace")
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = true)
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = false)
 public class DynatraceBusinessMetricsEndpoint {
 
     private final DynatraceBusinessMetricsService businessMetricsService;
@@ -36,7 +37,7 @@ public class DynatraceBusinessMetricsEndpoint {
     @ReadOperation
     public Map<String, Object> dynatraceStatus() {
         Map<String, Object> status = new HashMap<>();
-        
+
         try {
             // Dynatrace SDK Status
             status.put("timestamp", LocalDateTime.now());
@@ -45,8 +46,8 @@ public class DynatraceBusinessMetricsEndpoint {
             status.put("dynatrace_version", oneAgentSDK.getVersionInfo());
 
             // Business Metrics Summary
-            DynatraceBusinessMetricsService.BusinessMetricsSummary businessMetrics = 
-                    businessMetricsService.getBusinessMetricsSummary();
+            DynatraceBusinessMetricsService.BusinessMetricsSummary businessMetrics = businessMetricsService
+                    .getBusinessMetricsSummary();
             status.put("business_metrics", businessMetrics);
 
             // Exception Management KPIs
@@ -62,7 +63,7 @@ public class DynatraceBusinessMetricsEndpoint {
             // Performance Indicators
             status.put("performance_indicators", getPerformanceIndicators(businessMetrics));
 
-            log.debug("Generated Dynatrace status report with {} business metrics", 
+            log.debug("Generated Dynatrace status report with {} business metrics",
                     businessMetrics != null ? "valid" : "null");
 
         } catch (Exception e) {
@@ -86,19 +87,23 @@ public class DynatraceBusinessMetricsEndpoint {
         }
 
         // Exception Resolution Rate
-        double totalExceptions = metrics.getPendingExceptions() + metrics.getFailedExceptions() + metrics.getResolvedExceptions();
+        double totalExceptions = metrics.getPendingExceptions() + metrics.getFailedExceptions()
+                + metrics.getResolvedExceptions();
         double resolutionRate = totalExceptions > 0 ? (metrics.getResolvedExceptions() / totalExceptions) * 100.0 : 0.0;
         kpis.put("exception_resolution_rate_percent", Math.round(resolutionRate * 100.0) / 100.0);
 
         // Critical Exception Ratio
-        double totalSeverityExceptions = metrics.getCriticalExceptions() + metrics.getHighSeverityExceptions() + 
-                                       metrics.getMediumSeverityExceptions() + metrics.getLowSeverityExceptions();
-        double criticalRatio = totalSeverityExceptions > 0 ? (metrics.getCriticalExceptions() / totalSeverityExceptions) * 100.0 : 0.0;
+        double totalSeverityExceptions = metrics.getCriticalExceptions() + metrics.getHighSeverityExceptions() +
+                metrics.getMediumSeverityExceptions() + metrics.getLowSeverityExceptions();
+        double criticalRatio = totalSeverityExceptions > 0
+                ? (metrics.getCriticalExceptions() / totalSeverityExceptions) * 100.0
+                : 0.0;
         kpis.put("critical_exception_ratio_percent", Math.round(criticalRatio * 100.0) / 100.0);
 
         // Processing Efficiency
-        double processingEfficiency = metrics.getTotalExceptionsReceived() > 0 ? 
-                (metrics.getTotalExceptionsProcessed() / metrics.getTotalExceptionsReceived()) * 100.0 : 0.0;
+        double processingEfficiency = metrics.getTotalExceptionsReceived() > 0
+                ? (metrics.getTotalExceptionsProcessed() / metrics.getTotalExceptionsReceived()) * 100.0
+                : 0.0;
         kpis.put("processing_efficiency_percent", Math.round(processingEfficiency * 100.0) / 100.0);
 
         // Retry Success Rate
@@ -128,9 +133,9 @@ public class DynatraceBusinessMetricsEndpoint {
      */
     private Map<String, Object> getMonitoringCapabilities() {
         Map<String, Object> capabilities = new HashMap<>();
-        
+
         boolean sdkActive = oneAgentSDK.getCurrentState() == OneAgentSDK.State.ACTIVE;
-        
+
         capabilities.put("distributed_tracing", sdkActive);
         capabilities.put("custom_metrics", true);
         capabilities.put("business_metrics", true);
@@ -170,7 +175,8 @@ public class DynatraceBusinessMetricsEndpoint {
         // Check retry success rate
         if (metrics.getRetrySuccessRate() < 70.0) {
             overallHealth = "WARNING";
-            healthReasons.append("Low retry success rate (").append(String.format("%.1f%%", metrics.getRetrySuccessRate())).append("); ");
+            healthReasons.append("Low retry success rate (")
+                    .append(String.format("%.1f%%", metrics.getRetrySuccessRate())).append("); ");
         }
 
         // Check pending exceptions
@@ -180,16 +186,19 @@ public class DynatraceBusinessMetricsEndpoint {
         }
 
         // Check processing efficiency
-        double processingEfficiency = metrics.getTotalExceptionsReceived() > 0 ? 
-                (metrics.getTotalExceptionsProcessed() / metrics.getTotalExceptionsReceived()) * 100.0 : 100.0;
+        double processingEfficiency = metrics.getTotalExceptionsReceived() > 0
+                ? (metrics.getTotalExceptionsProcessed() / metrics.getTotalExceptionsReceived()) * 100.0
+                : 100.0;
         if (processingEfficiency < 80.0) {
             overallHealth = "CRITICAL";
-            healthReasons.append("Low processing efficiency (").append(String.format("%.1f%%", processingEfficiency)).append("); ");
+            healthReasons.append("Low processing efficiency (").append(String.format("%.1f%%", processingEfficiency))
+                    .append("); ");
         }
 
         indicators.put("overall_health", overallHealth);
-        indicators.put("health_reasons", healthReasons.length() > 0 ? healthReasons.toString().trim() : "All indicators normal");
-        
+        indicators.put("health_reasons",
+                healthReasons.length() > 0 ? healthReasons.toString().trim() : "All indicators normal");
+
         // Individual indicators
         indicators.put("critical_exceptions_status", metrics.getCriticalExceptions() <= 10 ? "HEALTHY" : "WARNING");
         indicators.put("retry_success_rate_status", metrics.getRetrySuccessRate() >= 70.0 ? "HEALTHY" : "WARNING");
@@ -202,7 +211,8 @@ public class DynatraceBusinessMetricsEndpoint {
     /**
      * Gets performance indicators based on business metrics.
      */
-    private Map<String, Object> getPerformanceIndicators(DynatraceBusinessMetricsService.BusinessMetricsSummary metrics) {
+    private Map<String, Object> getPerformanceIndicators(
+            DynatraceBusinessMetricsService.BusinessMetricsSummary metrics) {
         Map<String, Object> indicators = new HashMap<>();
 
         if (metrics == null) {
@@ -216,8 +226,9 @@ public class DynatraceBusinessMetricsEndpoint {
         indicators.put("retry_attempts_total", metrics.getTotalRetryAttempts());
 
         // Efficiency indicators
-        double processingEfficiency = metrics.getTotalExceptionsReceived() > 0 ? 
-                (metrics.getTotalExceptionsProcessed() / metrics.getTotalExceptionsReceived()) * 100.0 : 100.0;
+        double processingEfficiency = metrics.getTotalExceptionsReceived() > 0
+                ? (metrics.getTotalExceptionsProcessed() / metrics.getTotalExceptionsReceived()) * 100.0
+                : 100.0;
         indicators.put("processing_efficiency_percent", Math.round(processingEfficiency * 100.0) / 100.0);
         indicators.put("retry_success_rate_percent", Math.round(metrics.getRetrySuccessRate() * 100.0) / 100.0);
 

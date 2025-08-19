@@ -5,8 +5,8 @@ import com.arcone.biopro.exception.collector.domain.entity.RetryAttempt;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionSeverity;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionStatus;
 import com.arcone.biopro.exception.collector.domain.enums.InterfaceType;
-import com.dynatrace.oneagent.sdk.OneAgentSDK;
-import com.dynatrace.oneagent.sdk.api.CustomRequestAttributes;
+import com.dynatrace.oneagent.sdk.OneAgentSDKFactory;
+import com.dynatrace.oneagent.sdk.api.OneAgentSDK;
 import com.dynatrace.oneagent.sdk.api.IncomingWebRequestTracer;
 import com.dynatrace.oneagent.sdk.api.OutgoingWebRequestTracer;
 import io.micrometer.core.instrument.Counter;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = true)
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = false)
 public class DynatraceBusinessMetricsService {
 
     private final MeterRegistry meterRegistry;

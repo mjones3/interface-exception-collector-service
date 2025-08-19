@@ -374,12 +374,38 @@ public interface InterfaceExceptionRepository
          * 
          * @param fromDate start date (inclusive)
          * @param toDate   end date (inclusive)
-         * @return List containing average resolution time in hours
+         * @return Average resolution time in hours, or null if no resolved exceptions
          */
-        @Query("SELECT AVG(EXTRACT(EPOCH FROM (ie.resolvedAt - ie.timestamp))/3600) " +
-                        "FROM InterfaceException ie " +
-                        "WHERE ie.timestamp BETWEEN :fromDate AND :toDate " +
-                        "AND ie.resolvedAt IS NOT NULL")
-        List<Object[]> getAverageResolutionTime(@Param("fromDate") OffsetDateTime fromDate,
+        @Query(value = "SELECT AVG(EXTRACT(EPOCH FROM (resolved_at - timestamp))/3600) " +
+                        "FROM interface_exceptions " +
+                        "WHERE timestamp BETWEEN :fromDate AND :toDate " +
+                        "AND resolved_at IS NOT NULL", nativeQuery = true)
+        Double getAverageResolutionTime(@Param("fromDate") OffsetDateTime fromDate,
                         @Param("toDate") OffsetDateTime toDate);
+
+        /**
+         * Count exceptions by interface type excluding a specific status.
+         * 
+         * @param interfaceType the interface type
+         * @param status        the status to exclude
+         * @return count of exceptions for the interface type excluding the status
+         */
+        long countByInterfaceTypeAndStatusNot(InterfaceType interfaceType, ExceptionStatus status);
+
+        /**
+         * Count exceptions created before a date excluding a specific status.
+         * 
+         * @param date   the date threshold
+         * @param status the status to exclude
+         * @return count of exceptions created before the date excluding the status
+         */
+        long countByCreatedAtBeforeAndStatusNot(OffsetDateTime date, ExceptionStatus status);
+
+        /**
+         * Count exceptions created after a specific date.
+         * 
+         * @param date the date threshold
+         * @return count of exceptions created after the date
+         */
+        long countByCreatedAtAfter(OffsetDateTime date);
 }

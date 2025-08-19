@@ -2,10 +2,12 @@ package com.arcone.biopro.exception.collector.infrastructure.monitoring;
 
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.entity.RetryAttempt;
-import com.dynatrace.oneagent.sdk.OneAgentSDK;
+import com.dynatrace.oneagent.sdk.OneAgentSDKFactory;
+import com.dynatrace.oneagent.sdk.api.OneAgentSDK;
 import com.dynatrace.oneagent.sdk.api.CustomServiceTracer;
 import com.dynatrace.oneagent.sdk.api.IncomingWebRequestTracer;
-import lombok.RequiredArgsConstructor;import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,7 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = true)
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "dynatrace.enabled", havingValue = "true", matchIfMissing = false)
 public class DynatraceInstrumentationAspect {
 
     private final OneAgentSDK oneAgentSDK;
@@ -48,9 +50,9 @@ public class DynatraceInstrumentationAspect {
 
         try {
             Object result = joinPoint.proceed();
-            
+
             long processingTime = System.currentTimeMillis() - startTime;
-            
+
             // Record business metrics if result is an InterfaceException
             if (result instanceof InterfaceException) {
                 InterfaceException exception = (InterfaceException) result;
@@ -59,15 +61,15 @@ public class DynatraceInstrumentationAspect {
 
             tracer.addCustomAttribute("processing_time_ms", String.valueOf(processingTime));
             tracer.end();
-            
+
             log.debug("Instrumented exception processing for transaction: {} ({}ms)", transactionId, processingTime);
-            
+
             return result;
         } catch (Exception e) {
             tracer.addCustomAttribute("error", e.getMessage());
             tracer.markFailed(e.getMessage());
             tracer.end();
-            
+
             log.error("Exception processing failed for transaction: {}", transactionId, e);
             throw e;
         }
@@ -94,10 +96,10 @@ public class DynatraceInstrumentationAspect {
 
         try {
             Object result = joinPoint.proceed();
-            
+
             long retryTime = System.currentTimeMillis() - startTime;
             boolean success = determineRetrySuccess(result);
-            
+
             // Record business metrics if result is a RetryAttempt
             if (result instanceof RetryAttempt) {
                 RetryAttempt retryAttempt = (RetryAttempt) result;
@@ -107,16 +109,16 @@ public class DynatraceInstrumentationAspect {
             tracer.addCustomAttribute("retry_time_ms", String.valueOf(retryTime));
             tracer.addCustomAttribute("retry_success", String.valueOf(success));
             tracer.end();
-            
-            log.debug("Instrumented retry operation for transaction: {} ({}ms, success: {})", 
+
+            log.debug("Instrumented retry operation for transaction: {} ({}ms, success: {})",
                     transactionId, retryTime, success);
-            
+
             return result;
         } catch (Exception e) {
             tracer.addCustomAttribute("error", e.getMessage());
             tracer.markFailed(e.getMessage());
             tracer.end();
-            
+
             log.error("Retry operation failed for transaction: {}", transactionId, e);
             throw e;
         }
@@ -143,34 +145,33 @@ public class DynatraceInstrumentationAspect {
 
         try {
             Object result = joinPoint.proceed();
-            
+
             long retrievalTime = System.currentTimeMillis() - startTime;
             boolean success = result != null;
-            
+
             // Extract interface type from arguments if available
             if (args.length > 0 && args[0] instanceof InterfaceException) {
                 InterfaceException exception = (InterfaceException) args[0];
                 businessMetricsService.recordPayloadRetrieval(
-                    exception.getTransactionId(), 
-                    exception.getInterfaceType(), 
-                    success, 
-                    retrievalTime
-                );
+                        exception.getTransactionId(),
+                        exception.getInterfaceType(),
+                        success,
+                        retrievalTime);
             }
 
             tracer.addCustomAttribute("retrieval_time_ms", String.valueOf(retrievalTime));
             tracer.addCustomAttribute("retrieval_success", String.valueOf(success));
             tracer.end();
-            
-            log.debug("Instrumented payload retrieval for transaction: {} ({}ms, success: {})", 
+
+            log.debug("Instrumented payload retrieval for transaction: {} ({}ms, success: {})",
                     transactionId, retrievalTime, success);
-            
+
             return result;
         } catch (Exception e) {
             tracer.addCustomAttribute("error", e.getMessage());
             tracer.markFailed(e.getMessage());
             tracer.end();
-            
+
             log.error("Payload retrieval failed for transaction: {}", transactionId, e);
             throw e;
         }
@@ -198,21 +199,21 @@ public class DynatraceInstrumentationAspect {
 
         try {
             Object result = joinPoint.proceed();
-            
+
             long queryTime = System.currentTimeMillis() - startTime;
-            
+
             tracer.addCustomAttribute("query_time_ms", String.valueOf(queryTime));
             tracer.addCustomAttribute("result_size", String.valueOf(getResultSize(result)));
             tracer.end();
-            
+
             log.debug("Instrumented GraphQL query: {}.{} ({}ms)", className, methodName, queryTime);
-            
+
             return result;
         } catch (Exception e) {
             tracer.addCustomAttribute("error", e.getMessage());
             tracer.markFailed(e.getMessage());
             tracer.end();
-            
+
             log.error("GraphQL query failed: {}.{}", className, methodName, e);
             throw e;
         }
@@ -240,20 +241,20 @@ public class DynatraceInstrumentationAspect {
 
         try {
             Object result = joinPoint.proceed();
-            
+
             long mutationTime = System.currentTimeMillis() - startTime;
-            
+
             tracer.addCustomAttribute("mutation_time_ms", String.valueOf(mutationTime));
             tracer.end();
-            
+
             log.debug("Instrumented GraphQL mutation: {}.{} ({}ms)", className, methodName, mutationTime);
-            
+
             return result;
         } catch (Exception e) {
             tracer.addCustomAttribute("error", e.getMessage());
             tracer.markFailed(e.getMessage());
             tracer.end();
-            
+
             log.error("GraphQL mutation failed: {}.{}", className, methodName, e);
             throw e;
         }
@@ -281,20 +282,20 @@ public class DynatraceInstrumentationAspect {
 
         try {
             Object result = joinPoint.proceed();
-            
+
             long processingTime = System.currentTimeMillis() - startTime;
-            
+
             tracer.addCustomAttribute("processing_time_ms", String.valueOf(processingTime));
             tracer.end();
-            
+
             log.debug("Instrumented Kafka message processing: {}.{} ({}ms)", className, methodName, processingTime);
-            
+
             return result;
         } catch (Exception e) {
             tracer.addCustomAttribute("error", e.getMessage());
             tracer.markFailed(e.getMessage());
             tracer.end();
-            
+
             log.error("Kafka message processing failed: {}.{}", className, methodName, e);
             throw e;
         }

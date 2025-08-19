@@ -102,13 +102,13 @@ public class GraphQLMicrometerConfig {
      * HTTP metrics
      * since we have custom GraphQL metrics
      */
-    @Bean
-    public WebMvcMetricsFilter webMvcMetricsFilter(MeterRegistry meterRegistry) {
-        return new WebMvcMetricsFilter(meterRegistry,
-                new GraphQLWebMvcTagsProvider(),
-                "http.server.requests",
-                true);
-    }
+    // @Bean
+    // public WebMvcMetricsFilter webMvcMetricsFilter(MeterRegistry meterRegistry) {
+    // return new WebMvcMetricsFilter(meterRegistry,
+    // new GraphQLWebMvcTagsProvider(),
+    // "http.server.requests",
+    // true);
+    // }
 
     /**
      * Custom tags provider for WebMVC metrics that handles GraphQL endpoints
