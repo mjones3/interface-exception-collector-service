@@ -158,6 +158,34 @@
             <artifactId>micrometer-core</artifactId>
         </dependency>
         
+        <!-- Dynatrace Monitoring -->
+        <dependency>
+            <groupId>com.dynatrace.oneagent.sdk.java</groupId>
+            <artifactId>oneagent-sdk</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-dynatrace</artifactId>
+        </dependency>
+        
+        <!-- OpenTelemetry for Dynatrace -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+            <version>1.32.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+            <version>1.32.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-spring-boot-starter</artifactId>
+            <version>1.32.0-alpha</version>
+        </dependency>
+        
         <!-- Structured Logging -->
         <dependency>
             <groupId>net.logstash.logback</groupId>
