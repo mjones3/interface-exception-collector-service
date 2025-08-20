@@ -25,9 +25,9 @@ import java.util.List;
  * Configures Spring Security for GraphQL endpoint protection with JWT
  * authentication.
  */
-@Configuration
-@EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+// @Configuration // Disabled to avoid conflict with main SecurityConfig
+// @EnableWebSecurity // Disabled to avoid conflict with main SecurityConfig
+// @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class GraphQLSecurityConfig {
 
@@ -38,7 +38,7 @@ public class GraphQLSecurityConfig {
          * Sets up JWT authentication, role-based access control, and CORS
          * configuration.
          */
-        @Bean
+        // @Bean // Disabled to avoid conflict with main SecurityConfig
         public SecurityFilterChain graphqlSecurityFilterChain(HttpSecurity http) throws Exception {
                 return http
                                 // Disable CSRF for stateless GraphQL API
@@ -99,7 +99,7 @@ public class GraphQLSecurityConfig {
          * Configures CORS for GraphQL endpoints to allow cross-origin requests
          * from the BioPro Operations Dashboard with enhanced security settings.
          */
-        @Bean
+        // @Bean // Disabled to avoid conflict with main SecurityConfig
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
 

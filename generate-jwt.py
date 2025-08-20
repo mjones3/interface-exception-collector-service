@@ -12,8 +12,8 @@ def base64url_encode(data):
     return base64.urlsafe_b64encode(data).decode('utf-8').rstrip('=')
 
 def generate_jwt(username='test-user', roles=['ADMIN'], expiration_hours=1):
-    # Configuration
-    secret = 'dev-secret-key-1234567890123456789012345678901234567890'
+    # Configuration - use same secret as application.yml
+    secret = 'mySecretKey1234567890123456789012345678901234567890'
     
     # Create header
     header = {

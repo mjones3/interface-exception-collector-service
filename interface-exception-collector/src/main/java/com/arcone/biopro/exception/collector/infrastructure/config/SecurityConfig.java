@@ -1,7 +1,7 @@
 package com.arcone.biopro.exception.collector.infrastructure.config;
 
 import com.arcone.biopro.exception.collector.infrastructure.config.security.JwtAuthenticationFilter;
-// import com.arcone.biopro.exception.collector.config.security.RateLimitingFilter;
+// import com.arcone.biopro.exception.collector.infrastructure.config.security.RateLimitingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

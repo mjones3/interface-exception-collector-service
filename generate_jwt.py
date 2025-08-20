@@ -1,8 +1,8 @@
 import jwt
 import datetime
 
-# JWT secret from your config
-secret = "dev-secret-key-1234567890123456789012345678901234567890"
+# JWT secret from application.yml config
+secret = "mySecretKey1234567890123456789012345678901234567890"
 
 # Create payload
 payload = {

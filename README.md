@@ -500,24 +500,24 @@ Authorization: Bearer <your-jwt-token>
 
 ```bash
 # Generate VIEWER token (read-only access)
-node generate-jwt.js "viewer-user" "VIEWER"
+node generate-jwt-correct-secret.js "viewer-user" "VIEWER"
 
 # Generate OPERATOR token (can perform retries and management)
-node generate-jwt.js "operator-user" "OPERATOR"
+node generate-jwt-correct-secret.js "operator-user" "OPERATOR"
 
 # Generate ADMIN token (full access to all endpoints)
-node generate-jwt.js "admin-user" "ADMIN"
+node generate-jwt-correct-secret.js "admin-user" "ADMIN"
 ```
 
 **Example Token Generation:**
 ```bash
-# Create a viewer token
-$ node generate-jwt.js "john.doe" "VIEWER"
+# Create an admin token
+$ node generate-jwt-correct-secret.js "test-user" "ADMIN"
 🔑 JWT Token Generated
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 Username: john.doe
-🛡️  Roles: VIEWER
-⏰ Expires: 8/14/2025, 8:26:39 PM
+👤 Username: test-user
+🛡️  Roles: ADMIN
+⏰ Expires: 8/20/2025, 1:30:00 PM
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📋 For Bruno Authorization Header:

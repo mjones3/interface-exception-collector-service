@@ -45,6 +45,7 @@ spring:
       read-only: false
       register-mbeans: true
       pool-name: "GraphQLExceptionCollectorCP"
+      auto-commit: false
       
       # Connection properties for performance
       data-source-properties:
@@ -426,12 +427,16 @@ resilience4j:
 
 logging:
   level:
-    com.arcone.biopro: INFO
+    com.arcone.biopro: DEBUG
     org.flywaydb: INFO
-    org.springframework.kafka: INFO
+    org.springframework.kafka: ERROR
+    org.apache.kafka: ERROR
     io.github.resilience4j: DEBUG
     org.springframework.retry: DEBUG
     org.springframework.boot.actuator.health: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.web.access: DEBUG
+    org.springframework.security.access: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"

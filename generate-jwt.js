@@ -2,8 +2,8 @@
 
 const crypto = require('crypto');
 
-// Configuration
-const secret = 'dev-secret-key-1234567890123456789012345678901234567890';
+// Configuration - use same secret as application.yml
+const secret = 'mySecretKey1234567890123456789012345678901234567890';
 const expirationHours = 1;
 
 // Get command line arguments
@@ -24,7 +24,7 @@ const payload = {
   'exp': Math.floor(Date.now() / 1000) + (60 * 60 * expirationHours)
 };
 
-// Base64 encode
+// Base64url encode (JJWT expects base64url format)
 const encodedHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
 const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
 
