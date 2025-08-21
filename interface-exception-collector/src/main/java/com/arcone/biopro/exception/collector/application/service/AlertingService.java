@@ -4,7 +4,7 @@ import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.*;
 import com.arcone.biopro.exception.collector.infrastructure.kafka.publisher.AlertPublisher;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
-import com.arcone.biopro.exception.collector.config.LoggingConfig;
+import com.arcone.biopro.exception.collector.infrastructure.config.LoggingConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -338,7 +338,8 @@ public class AlertingService {
                 null, // any customer
                 oneHourAgo,
                 OffsetDateTime.now(),
-                org.springframework.data.domain.Pageable.unpaged()).getContent();
+                org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC,
+                        "timestamp"));
 
         // Estimate customers affected based on similar exceptions
         return Math.min(recentSimilarExceptions.size(), 100); // Cap at 100 for safety

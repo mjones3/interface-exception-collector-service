@@ -4,9 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.validation.annotation.Validated;
 
-import java.time.Duration;
 import java.util.Map;
 
 /**
@@ -14,7 +12,6 @@ import java.util.Map;
  * This class provides type-safe configuration binding and validation.
  */
 @ConfigurationProperties(prefix = "app")
-@Validated
 public record ApplicationProperties(
         @Valid @NestedConfigurationProperty Features features,
 

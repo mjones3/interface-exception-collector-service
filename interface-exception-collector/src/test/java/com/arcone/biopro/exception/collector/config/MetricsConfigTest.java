@@ -1,5 +1,6 @@
 package com.arcone.biopro.exception.collector.config;
 
+import com.arcone.biopro.exception.collector.infrastructure.config.MetricsConfig;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;

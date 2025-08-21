@@ -1,0 +1,928 @@
+openapi: 3.0.3
+info:
+  title: Interface Exception Collector REST API
+  description: |
+    REST API for the Interface Exception Collector Service.
+    
+    This API provides comprehensive exception management capabilities including:
+    - Exception retrieval and filtering
+    - Exception search and summary statistics
+    - Retry operations and management
+    - Exception acknowledgment and resolution
+    
+    ## Authentication
+    All endpoints require JWT Bearer token authentication.
+    
+    ## Test Data
+    Use these transaction IDs for testing:
+    - `test-transaction-123`
+    - `test-transaction-456`
+    - `test-transaction-789`
+    
+    ## Generate JWT Token
+    ```bash
+    node generate-jwt-correct-secret.js "test-user" "ADMIN"
+    ```
+  version: 1.0.0
+  contact:
+    name: Interface Exception Collector API
+    email: dev-team@company.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://dev-api.company.com
+    description: Development server
+  - url: https://staging-api.company.com
+    description: Staging server
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from generate-jwt-correct-secret.js
+
+  schemas:
+    # Exception Types
+    ExceptionListResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        transactionId:
+          type: string
+        externalId:
+          type: string
+        interfaceType:
+          $ref: '#/components/schemas/InterfaceType'
+        exceptionReason:
+          type: string
+        operation:
+          type: string
+        status:
+          $ref: '#/components/schemas/ExceptionStatus'
+        severity:
+          $ref: '#/components/schemas/ExceptionSeverity'
+        category:
+          $ref: '#/components/schemas/ExceptionCategory'
+        customerId:
+          type: string
+        locationCode:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        processedAt:
+          type: string
+          format: date-time
+        retryable:
+          type: boolean
+        retryCount:
+          type: integer
+        maxRetries:
+          type: integer
+        lastRetryAt:
+          type: string
+          format: date-time
+        acknowledgedBy:
+          type: string
+        acknowledgedAt:
+          type: string
+          format: date-time
+
+    ExceptionDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ExceptionListResponse'
+        - type: object
+          properties:
+            originalPayload:
+              type: object
+            retryHistory:
+              type: array
+              items:
+                $ref: '#/components/schemas/RetryAttempt'
+            relatedExceptions:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExceptionListResponse'
+
+    RetryAttempt:
+      type: object
+      properties:
+        id:
+          type: string
+        attemptNumber:
+          type: integer
+        status:
+          $ref: '#/components/schemas/RetryStatus'
+        initiatedBy:
+          type: string
+        initiatedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        resultSuccess:
+          type: boolean
+        resultMessage:
+          type: string
+        resultResponseCode:
+          type: integer
+        resultErrorDetails:
+          type: object
+
+    ExceptionSummaryResponse:
+      type: object
+      properties:
+        totalExceptions:
+          type: integer
+        byInterfaceType:
+          type: object
+          additionalProperties:
+            type: integer
+        bySeverity:
+          type: object
+          additionalProperties:
+            type: integer
+        byStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        trends:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+              count:
+                type: integer
+
+    # Request/Response Types
+    CreateExceptionRequest:
+      type: object
+      required:
+        - externalId
+        - operation
+        - rejectedReason
+      properties:
+        externalId:
+          type: string
+          maxLength: 255
+          example: "ORDER-123456"
+        operation:
+          $ref: '#/components/schemas/OrderOperation'
+        rejectedReason:
+          type: string
+          example: "Insufficient inventory for blood type O-negative"
+        customerId:
+          type: string
+          maxLength: 255
+          example: "CUST-MOUNT-SINAI-001"
+        locationCode:
+          type: string
+          maxLength: 100
+          example: "HOSP-NYC-001"
+        orderItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+
+    OrderItem:
+      type: object
+      required:
+        - bloodType
+        - productFamily
+        - quantity
+      properties:
+        bloodType:
+          type: string
+          example: "O-"
+        productFamily:
+          type: string
+          example: "RED_BLOOD_CELLS"
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+
+    CreateExceptionResponse:
+      type: object
+      properties:
+        transactionId:
+          type: string
+        eventId:
+          type: string
+        correlationId:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        topic:
+          type: string
+        status:
+          type: string
+        message:
+          type: string
+
+    RetryRequest:
+      type: object
+      required:
+        - initiatedBy
+        - reason
+      properties:
+        initiatedBy:
+          type: string
+          maxLength: 255
+          example: "user@company.com"
+        reason:
+          type: string
+          maxLength: 500
+          example: "Customer requested retry after fixing data issue"
+
+    RetryResponse:
+      type: object
+      properties:
+        retryId:
+          type: integer
+        status:
+          type: string
+        message:
+          type: string
+        estimatedCompletionTime:
+          type: string
+          format: date-time
+        attemptNumber:
+          type: integer
+
+    AcknowledgeRequest:
+      type: object
+      required:
+        - acknowledgedBy
+        - reason
+      properties:
+        acknowledgedBy:
+          type: string
+          maxLength: 255
+          example: "user@company.com"
+        reason:
+          type: string
+          maxLength: 500
+          example: "Reviewed and assigned to development team"
+        notes:
+          type: string
+          maxLength: 1000
+          example: "Issue appears to be related to timeout configuration"
+
+    AcknowledgeResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        acknowledgedAt:
+          type: string
+          format: date-time
+        acknowledgedBy:
+          type: string
+        notes:
+          type: string
+        transactionId:
+          type: string
+
+    ResolveRequest:
+      type: object
+      required:
+        - resolvedBy
+        - resolutionMethod
+      properties:
+        resolvedBy:
+          type: string
+          maxLength: 255
+          example: "user@company.com"
+        resolutionMethod:
+          $ref: '#/components/schemas/ResolutionMethod'
+        resolutionNotes:
+          type: string
+          maxLength: 1000
+          example: "Fixed timeout configuration and verified with customer"
+
+    ResolveResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        resolvedAt:
+          type: string
+          format: date-time
+        resolvedBy:
+          type: string
+        resolutionMethod:
+          $ref: '#/components/schemas/ResolutionMethod'
+        resolutionNotes:
+          type: string
+        transactionId:
+          type: string
+        totalRetryAttempts:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        fieldErrors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+    # Enums
+    InterfaceType:
+      type: string
+      enum:
+        - ORDER
+        - COLLECTION
+        - DISTRIBUTION
+        - CUSTOMER_SYNC
+        - INVENTORY_UPDATE
+        - PAYMENT_PROCESSING
+        - NOTIFICATION_DELIVERY
+
+    ExceptionStatus:
+      type: string
+      enum:
+        - NEW
+        - ACKNOWLEDGED
+        - ESCALATED
+        - RESOLVED
+        - CLOSED
+        - RETRIED_SUCCESS
+        - RETRIED_FAILED
+
+    ExceptionSeverity:
+      type: string
+      enum:
+        - LOW
+        - MEDIUM
+        - HIGH
+        - CRITICAL
+
+    ExceptionCategory:
+      type: string
+      enum:
+        - BUSINESS_RULE
+        - VALIDATION
+        - SYSTEM_ERROR
+        - NETWORK_ERROR
+        - TIMEOUT
+        - AUTHENTICATION
+        - AUTHORIZATION
+        - DATA_INTEGRITY
+        - EXTERNAL_SERVICE
+
+    RetryStatus:
+      type: string
+      enum:
+        - PENDING
+        - IN_PROGRESS
+        - SUCCESS
+        - FAILED
+        - CANCELLED
+
+    OrderOperation:
+      type: string
+      enum:
+        - CREATE_ORDER
+        - MODIFY_ORDER
+        - CANCEL_ORDER
+
+    ResolutionMethod:
+      type: string
+      enum:
+        - RETRY_SUCCESS
+        - MANUAL_RESOLUTION
+        - CUSTOMER_RESOLVED
+        - AUTOMATED
+
+paths:
+  # Exception Management Endpoints
+  /api/v1/exceptions:
+    post:
+      summary: Create and publish exception event
+      description: Creates and publishes an OrderRejected event to Kafka for testing the end-to-end flow
+      tags:
+        - Exception Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExceptionRequest'
+            example:
+              externalId: "ORDER-123456"
+              operation: "CREATE_ORDER"
+              rejectedReason: "Insufficient inventory for blood type O-negative"
+              customerId: "CUST-MOUNT-SINAI-001"
+              locationCode: "HOSP-NYC-001"
+              orderItems:
+                - bloodType: "O-"
+                  productFamily: "RED_BLOOD_CELLS"
+                  quantity: 2
+      responses:
+        '201':
+          description: Exception event created and published successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateExceptionResponse'
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to publish event to Kafka
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      summary: List exceptions with filtering
+      description: Retrieves a list of exceptions with optional filtering by interface type, status, severity, customer, and date range
+      tags:
+        - Exception Management
+      parameters:
+        - name: interfaceType
+          in: query
+          description: Filter by interface type
+          schema:
+            $ref: '#/components/schemas/InterfaceType'
+        - name: status
+          in: query
+          description: Filter by exception status
+          schema:
+            $ref: '#/components/schemas/ExceptionStatus'
+        - name: severity
+          in: query
+          description: Filter by exception severity
+          schema:
+            $ref: '#/components/schemas/ExceptionSeverity'
+        - name: customerId
+          in: query
+          description: Filter by customer ID
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          description: Filter by start date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: toDate
+          in: query
+          description: Filter by end date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: sort
+          in: query
+          description: Sort criteria (format: field,direction)
+          schema:
+            type: string
+            default: "timestamp,desc"
+      responses:
+        '200':
+          description: Successfully retrieved exceptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExceptionListResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exceptions/{transactionId}:
+    get:
+      summary: Get exception details
+      description: Retrieves detailed information for a specific exception including retry history and related exceptions
+      tags:
+        - Exception Management
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique transaction identifier
+          schema:
+            type: string
+          example: "test-transaction-123"
+        - name: includePayload
+          in: query
+          description: Whether to include original payload from source system
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successfully retrieved exception details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionDetailResponse'
+        '404':
+          description: Exception not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exceptions/search:
+    get:
+      summary: Search exceptions by text
+      description: Performs full-text search across exception fields (reason, external ID, operation)
+      tags:
+        - Exception Management
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: Search query string
+          schema:
+            type: string
+          example: "timeout"
+        - name: fields
+          in: query
+          description: Fields to search in (exceptionReason, externalId, operation)
+          schema:
+            type: array
+            items:
+              type: string
+            default: ["exceptionReason"]
+        - name: sort
+          in: query
+          description: Sort criteria (format: field,direction)
+          schema:
+            type: string
+            default: "timestamp,desc"
+      responses:
+        '200':
+          description: Successfully performed search
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExceptionListResponse'
+        '400':
+          description: Invalid search parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exceptions/summary:
+    get:
+      summary: Get exception summary statistics
+      description: Retrieves aggregated exception statistics for the specified time range with optional grouping
+      tags:
+        - Exception Management
+      parameters:
+        - name: timeRange
+          in: query
+          description: Time range for statistics (today, week, month, quarter)
+          schema:
+            type: string
+            enum: [today, week, month, quarter]
+            default: "week"
+        - name: groupBy
+          in: query
+          description: Group statistics by (interfaceType, severity, status)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved summary statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionSummaryResponse'
+        '400':
+          description: Invalid summary parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Retry Operations
+  /api/v1/exceptions/{transactionId}/retry:
+    post:
+      summary: Initiate retry operation
+      description: Initiates a retry operation for a failed interface request
+      tags:
+        - Retry Operations
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique transaction identifier
+          schema:
+            type: string
+          example: "test-transaction-123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetryRequest'
+            example:
+              initiatedBy: "user@company.com"
+              reason: "Customer requested retry after fixing data issue"
+      responses:
+        '200':
+          description: Retry operation initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetryResponse'
+        '400':
+          description: Invalid request or retry not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Exception not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exceptions/{transactionId}/retry-history:
+    get:
+      summary: Get retry history
+      description: Retrieves the complete retry history for an exception
+      tags:
+        - Retry Operations
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique transaction identifier
+          schema:
+            type: string
+          example: "test-transaction-123"
+      responses:
+        '200':
+          description: Successfully retrieved retry history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RetryAttempt'
+        '404':
+          description: Exception not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exceptions/{transactionId}/retry/latest:
+    get:
+      summary: Get latest retry attempt
+      description: Retrieves the most recent retry attempt for an exception
+      tags:
+        - Retry Operations
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique transaction identifier
+          schema:
+            type: string
+          example: "test-transaction-123"
+      responses:
+        '200':
+          description: Successfully retrieved latest retry attempt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetryAttempt'
+        '404':
+          description: Exception or retry attempt not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exceptions/{transactionId}/retry/statistics:
+    get:
+      summary: Get retry statistics
+      description: Retrieves retry statistics for an exception
+      tags:
+        - Retry Operations
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique transaction identifier
+          schema:
+            type: string
+          example: "test-transaction-123"
+      responses:
+        '200':
+          description: Successfully retrieved retry statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalAttempts:
+                    type: integer
+                  successfulAttempts:
+                    type: integer
+                  failedAttempts:
+                    type: integer
+                  averageRetryTime:
+                    type: number
+                  lastAttemptAt:
+                    type: string
+                    format: date-time
+        '404':
+          description: Exception not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exceptions/{transactionId}/retry/{attemptNumber}:
+    delete:
+      summary: Cancel retry attempt
+      description: Cancels a pending retry attempt
+      tags:
+        - Retry Operations
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique transaction identifier
+          schema:
+            type: string
+          example: "test-transaction-123"
+        - name: attemptNumber
+          in: path
+          required: true
+          description: Retry attempt number to cancel
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Retry attempt cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  cancelledAt:
+                    type: string
+                    format: date-time
+        '400':
+          description: Cannot cancel retry attempt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Exception or retry attempt not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Management Operations
+  /api/v1/exceptions/{transactionId}/acknowledge:
+    put:
+      summary: Acknowledge exception
+      description: Acknowledges an exception by updating its status to ACKNOWLEDGED and recording audit information
+      tags:
+        - Management Operations
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique transaction identifier
+          schema:
+            type: string
+          example: "test-transaction-123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcknowledgeRequest'
+            example:
+              acknowledgedBy: "user@company.com"
+              reason: "Reviewed and assigned to development team"
+              notes: "Issue appears to be related to timeout configuration"
+      responses:
+        '200':
+          description: Exception acknowledged successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcknowledgeResponse'
+        '400':
+          description: Invalid request or acknowledgment not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Exception not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exceptions/{transactionId}/resolve:
+    put:
+      summary: Resolve exception
+      description: Resolves an exception by updating its status to RESOLVED and recording resolution information
+      tags:
+        - Management Operations
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique transaction identifier
+          schema:
+            type: string
+          example: "test-transaction-123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveRequest'
+            example:
+              resolvedBy: "user@company.com"
+              resolutionMethod: "MANUAL_RESOLUTION"
+              resolutionNotes: "Fixed timeout configuration and verified with customer"
+      responses:
+        '200':
+          description: Exception resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolveResponse'
+        '400':
+          description: Invalid request or resolution not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Exception not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: Exception Management
+    description: Core exception management operations
+  - name: Retry Operations
+    description: Exception retry and retry management operations
+  - name: Management Operations
+    description: Exception acknowledgment and resolution operations

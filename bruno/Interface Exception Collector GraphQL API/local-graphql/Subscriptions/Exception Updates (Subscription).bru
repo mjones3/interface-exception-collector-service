@@ -1,0 +1,22 @@
+meta {
+  name: Exception Updates (Subscription)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/graphql/subscription/exception-updated
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "query": "",
+    "variables": {}
+  }
+}

@@ -3,6 +3,7 @@ package com.arcone.biopro.exception.collector.application.service;
 import com.arcone.biopro.exception.collector.api.dto.PayloadResponse;
 import com.arcone.biopro.exception.collector.api.dto.RetryRequest;
 import com.arcone.biopro.exception.collector.api.dto.RetryResponse;
+import com.arcone.biopro.exception.collector.api.graphql.service.SubscriptionEventBridge;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.entity.RetryAttempt;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionStatus;
@@ -13,6 +14,7 @@ import com.arcone.biopro.exception.collector.infrastructure.repository.RetryAtte
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,7 @@ public class RetryService {
     private final PayloadRetrievalService payloadRetrievalService;
     private final RetryEventPublisher retryEventPublisher;
     private final MetricsService metricsService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * Initiates a retry operation for the specified exception.
@@ -79,6 +82,16 @@ public class RetryService {
         exception.setRetryCount(exception.getRetryCount() + 1);
         exception.setLastRetryAt(OffsetDateTime.now());
         exceptionRepository.save(exception);
+
+        // Publish application event for GraphQL subscriptions
+        try {
+            applicationEventPublisher.publishEvent(
+                    new SubscriptionEventBridge.RetryInitiatedEvent(exception, retryAttempt,
+                            retryRequest.getInitiatedBy()));
+            log.debug("Published RetryInitiated event for GraphQL subscriptions: {}", transactionId);
+        } catch (Exception e) {
+            log.error("Failed to publish RetryInitiated event for GraphQL subscriptions: {}", e.getMessage(), e);
+        }
 
         // Perform retry asynchronously
         performRetryAsync(exception, retryAttempt, retryRequest);
@@ -172,6 +185,15 @@ public class RetryService {
         // Publish retry completed event
         publishRetryCompletedEvent(exception, retryAttempt, RetryStatus.SUCCESS);
 
+        // Publish application event for GraphQL subscriptions
+        try {
+            applicationEventPublisher.publishEvent(
+                    new SubscriptionEventBridge.RetryCompletedEvent(exception, retryAttempt, true));
+            log.debug("Published RetryCompleted event for GraphQL subscriptions: {}", exception.getTransactionId());
+        } catch (Exception e) {
+            log.error("Failed to publish RetryCompleted event for GraphQL subscriptions: {}", e.getMessage(), e);
+        }
+
         log.info("Retry success handling completed for transaction: {}", exception.getTransactionId());
     }
 
@@ -201,6 +223,15 @@ public class RetryService {
 
         // Publish retry completed event
         publishRetryCompletedEvent(exception, retryAttempt, RetryStatus.FAILED);
+
+        // Publish application event for GraphQL subscriptions
+        try {
+            applicationEventPublisher.publishEvent(
+                    new SubscriptionEventBridge.RetryCompletedEvent(exception, retryAttempt, false));
+            log.debug("Published RetryCompleted event for GraphQL subscriptions: {}", exception.getTransactionId());
+        } catch (Exception e) {
+            log.error("Failed to publish RetryCompleted event for GraphQL subscriptions: {}", e.getMessage(), e);
+        }
 
         log.info("Retry failure handling completed for transaction: {}", exception.getTransactionId());
     }

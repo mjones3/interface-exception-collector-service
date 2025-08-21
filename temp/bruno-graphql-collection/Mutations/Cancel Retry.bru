@@ -1,0 +1,46 @@
+meta {
+  name: Cancel Retry
+  type: graphql
+  seq: 6
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+mutation CancelRetry($transactionId: String!, $reason: String!) {
+  cancelRetry(transactionId: $transactionId, reason: $reason) {
+    success
+    exception {
+      id
+      transactionId
+      status
+      retryCount
+    }
+    errors {
+      message
+      code
+      path
+      extensions
+    }
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "transactionId": "test-transaction-123",
+  "reason": "Customer requested cancellation - issue resolved externally"
+}
+}
+
+docs {
+  Cancels an ongoing retry operation for an exception.
+}

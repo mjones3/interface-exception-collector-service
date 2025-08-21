@@ -1,0 +1,22 @@
+meta {
+  name: Retry Exception (Mutation)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/graphql/mutation/retry-exception
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "query": "",
+    "variables": {}
+  }
+}

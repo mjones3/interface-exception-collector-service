@@ -1,4 +1,4 @@
-package com.arcone.biopro.exception.collector.config;
+package com.arcone.biopro.exception.collector.infrastructure.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

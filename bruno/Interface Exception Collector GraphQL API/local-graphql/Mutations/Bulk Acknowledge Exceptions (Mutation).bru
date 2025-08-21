@@ -1,0 +1,22 @@
+meta {
+  name: Bulk Acknowledge Exceptions (Mutation)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/graphql/mutation/bulk-acknowledge-exceptions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "query": "",
+    "variables": {}
+  }
+}

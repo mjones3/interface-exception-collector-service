@@ -1,0 +1,22 @@
+meta {
+  name: Acknowledge Exception (Mutation)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/graphql/mutation/acknowledge-exception
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "query": "",
+    "variables": {}
+  }
+}

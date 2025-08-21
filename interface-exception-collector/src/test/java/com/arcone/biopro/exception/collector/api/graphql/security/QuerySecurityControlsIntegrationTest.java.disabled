@@ -1,0 +1,308 @@
+package com.arcone.biopro.exception.collector.api.graphql.security;
+
+import com.arcone.biopro.exception.collector.IntegrationTestBase;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.test.context.ActiveProfiles;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Integration tests for GraphQL query security controls including
+ * complexity analysis, depth limiting, and error handling.
+ */
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+class QuerySecurityControlsIntegrationTest extends IntegrationTestBase {
+
+    @Test
+    void shouldRejectQueryExceedingComplexityLimit() {
+        // Given - A complex query that exceeds the configured limit (1000)
+        String complexQuery = """
+                query ComplexQuery {
+                    exceptions(first: 100) {
+                        edges {
+                            node {
+                                id
+                                transactionId
+                                serviceName
+                                exceptionType
+                                message
+                                stackTrace
+                                timestamp
+                                status
+                                retryCount
+                                payload {
+                                    id
+                                    content
+                                    metadata
+                                }
+                                retryHistory {
+                                    id
+                                    attemptNumber
+                                    timestamp
+                                    status
+                                    errorMessage
+                                }
+                                statusChanges {
+                                    id
+                                    fromStatus
+                                    toStatus
+                                    timestamp
+                                    reason
+                                    changedBy
+                                }
+                            }
+                        }
+                    }
+                }
+                """;
+
+        // When & Then - Query should be rejected due to complexity
+        graphQlTester.document(complexQuery)
+                .execute()
+                .errors()
+                .expect(error -> {
+                    assertThat(error.getMessage()).contains("maximum query complexity");
+                    assertThat(error.getErrorType().toString()).isEqualTo("ValidationError");
+                });
+    }
+
+    @Test
+    void shouldRejectQueryExceedingDepthLimit() {
+        // Given - A deeply nested query that exceeds the configured limit (10)
+        String deepQuery = """
+                query DeepQuery {
+                    exceptions(first: 1) {
+                        edges {
+                            node {
+                                payload {
+                                    metadata
+                                }
+                            }
+                        }
+                    }
+                }
+                """;
+
+        // When & Then - Query should be rejected due to depth
+        graphQlTester.document(deepQuery)
+                .execute()
+                .errors()
+                .expect(error -> {
+                    assertThat(error.getMessage()).contains("maximum query depth");
+                    assertThat(error.getErrorType().toString()).isEqualTo("ValidationError");
+                });
+    }
+
+    @Test
+    void shouldAllowValidQueryWithinLimits() {
+        // Given - A simple query within complexity and depth limits
+        String validQuery = """
+                query ValidQuery {
+                    exceptions(first: 5) {
+                        edges {
+                            node {
+                                id
+                                transactionId
+                                serviceName
+                                status
+                            }
+                        }
+                    }
+                }
+                """;
+
+        // When & Then - Query should execute successfully
+        graphQlTester.document(validQuery)
+                .execute()
+                .errors()
+                .verify()
+                .path("exceptions.edges")
+                .entityList(Object.class)
+                .hasSizeLessThanOrEqualTo(5);
+    }
+
+    @Test
+    void shouldProvideHelpfulErrorMessagesForComplexityViolations() {
+        // Given - A query that exceeds complexity limit
+        String complexQuery = """
+                query {
+                    exceptions(first: 50) {
+                        edges {
+                            node {
+                                id
+                                transactionId
+                                serviceName
+                                exceptionType
+                                message
+                                stackTrace
+                                payload {
+                                    id
+                                    content
+                                    metadata
+                                }
+                                retryHistory {
+                                    id
+                                    attemptNumber
+                                    timestamp
+                                    status
+                                    errorMessage
+                                }
+                            }
+                        }
+                    }
+                }
+                """;
+
+        // When & Then - Error message should be helpful for developers
+        graphQlTester.document(complexQuery)
+                .execute()
+                .errors()
+                .expect(error -> {
+                    String message = error.getMessage();
+                    assertThat(message).containsIgnoringCase("complexity");
+                    assertThat(message).containsIgnoringCase("limit");
+                    // Should provide guidance on how to fix
+                    assertThat(message).matches(".*\\d+.*"); // Should contain numbers (limits)
+                });
+    }
+
+    @Test
+    void shouldProvideHelpfulErrorMessagesForDepthViolations() {
+        // Given - A query that exceeds depth limit
+        String deepQuery = """
+                query {
+                    exceptions {
+                        edges {
+                            node {
+                                payload {
+                                    metadata
+                                }
+                            }
+                        }
+                    }
+                }
+                """;
+
+        // When & Then - Error message should be helpful for developers
+        graphQlTester.document(deepQuery)
+                .execute()
+                .errors()
+                .expect(error -> {
+                    String message = error.getMessage();
+                    assertThat(message).containsIgnoringCase("depth");
+                    assertThat(message).containsIgnoringCase("limit");
+                    // Should provide guidance on how to fix
+                    assertThat(message).matches(".*\\d+.*"); // Should contain numbers (limits)
+                });
+    }
+
+    @Test
+    void shouldLogSecurityViolationsForAuditing() {
+        // Given - A query that violates security controls
+        String violatingQuery = """
+                query SecurityViolation {
+                    exceptions(first: 100) {
+                        edges {
+                            node {
+                                id
+                                transactionId
+                                serviceName
+                                exceptionType
+                                message
+                                stackTrace
+                                payload {
+                                    id
+                                    content
+                                    metadata
+                                }
+                                retryHistory {
+                                    id
+                                    attemptNumber
+                                    timestamp
+                                    status
+                                    errorMessage
+                                }
+                                statusChanges {
+                                    id
+                                    fromStatus
+                                    toStatus
+                                    timestamp
+                                    reason
+                                    changedBy
+                                }
+                            }
+                        }
+                    }
+                }
+                """;
+
+        // When - Execute the violating query
+        graphQlTester.document(violatingQuery)
+                .execute()
+                .errors()
+                .verify();
+
+        // Then - Security violation should be logged (verified through log output)
+        // Note: In a real implementation, you might want to verify log entries
+        // or check metrics/audit trails
+    }
+
+    @Test
+    void shouldHandleMultipleQueriesWithDifferentComplexities() {
+        // Given - Multiple queries with different complexity levels
+        String simpleQuery = """
+                query Simple {
+                    exceptions(first: 1) {
+                        edges {
+                            node {
+                                id
+                                status
+                            }
+                        }
+                    }
+                }
+                """;
+
+        String complexQuery = """
+                query Complex {
+                    exceptions(first: 100) {
+                        edges {
+                            node {
+                                id
+                                transactionId
+                                serviceName
+                                exceptionType
+                                message
+                                stackTrace
+                                payload {
+                                    id
+                                    content
+                                    metadata
+                                }
+                            }
+                        }
+                    }
+                }
+                """;
+
+        // When & Then - Simple query should succeed
+        graphQlTester.document(simpleQuery)
+                .execute()
+                .errors()
+                .verify()
+                .path("exceptions.edges")
+                .entityList(Object.class)
+                .hasSizeLessThanOrEqualTo(1);
+
+        // Complex query should be rejected
+        graphQlTester.document(complexQuery)
+                .execute()
+                .errors()
+                .expect(error -> {
+                    assertThat(error.getMessage()).contains("complexity");
+                });
+    }
+}

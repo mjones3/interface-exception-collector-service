@@ -11,7 +11,7 @@ import com.arcone.biopro.exception.collector.domain.event.inbound.OrderCancelled
 import com.arcone.biopro.exception.collector.domain.event.inbound.OrderRejectedEvent;
 import com.arcone.biopro.exception.collector.domain.event.inbound.ValidationErrorEvent;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
-import com.arcone.biopro.exception.collector.config.LoggingConfig;
+import com.arcone.biopro.exception.collector.infrastructure.config.LoggingConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ExceptionProcessingService {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ExceptionProcessingService.class);
 
     private final InterfaceExceptionRepository exceptionRepository;
     private final CacheEvictionService cacheEvictionService;

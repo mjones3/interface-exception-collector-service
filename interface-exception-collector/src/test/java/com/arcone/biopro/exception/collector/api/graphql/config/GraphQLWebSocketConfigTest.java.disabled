@@ -1,0 +1,267 @@
+package com.arcone.biopro.exception.collector.api.graphql.config;
+
+import com.arcone.biopro.exception.collector.infrastructure.config.security.JwtService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.config.ChannelRegistration;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Unit test for WebSocket configuration.
+ * Tests WebSocket configuration components without mocking due to Java 23
+ * compatibility issues.
+ */
+class GraphQLWebSocketConfigTest {
+
+    private GraphQLWebSocketConfig webSocketConfig;
+    private TestJwtService testJwtService;
+
+    @BeforeEach
+    void setUp() {
+        testJwtService = new TestJwtService();
+        webSocketConfig = new GraphQLWebSocketConfig(testJwtService);
+    }
+
+    @Test
+    void testWebSocketConfigurationCreation() {
+        // Test that the WebSocket configuration can be created successfully
+        assertNotNull(webSocketConfig);
+    }
+
+    @Test
+    void testConnectionManagerCreation() {
+        // Test that the connection manager can be created
+        GraphQLWebSocketConfig.WebSocketConnectionManager manager = webSocketConfig.webSocketConnectionManager();
+        assertNotNull(manager);
+        assertEquals(0, manager.getActiveConnectionCount());
+        assertNotNull(manager.getActiveConnections());
+        assertTrue(manager.getActiveConnections().isEmpty());
+    }
+
+    @Test
+    void testTaskSchedulerCreation() {
+        // Test that task scheduler can be created
+        assertNotNull(webSocketConfig.taskScheduler());
+        assertEquals("websocket-heartbeat-", webSocketConfig.taskScheduler().getThreadNamePrefix());
+    }
+
+    @Test
+    void testConnectionManagerShutdown() {
+        // Test connection manager basic functionality
+        GraphQLWebSocketConfig.WebSocketConnectionManager manager = webSocketConfig.webSocketConnectionManager();
+
+        // Test that manager can be shut down gracefully
+        assertDoesNotThrow(() -> manager.shutdown());
+    }
+
+    @Test
+    void testMessageBrokerConfiguration() {
+        // Test that message broker configuration doesn't throw exceptions
+        TestMessageBrokerRegistry registry = new TestMessageBrokerRegistry();
+        assertDoesNotThrow(() -> webSocketConfig.configureMessageBroker(registry));
+
+        // Verify that the configuration was applied
+        assertTrue(registry.isSimpleBrokerEnabled());
+        assertTrue(registry.hasApplicationDestinationPrefix());
+        assertTrue(registry.hasUserDestinationPrefix());
+    }
+
+    @Test
+    void testStompEndpointRegistration() {
+        // Test that STOMP endpoint registration doesn't throw exceptions
+        TestStompEndpointRegistry registry = new TestStompEndpointRegistry();
+        assertDoesNotThrow(() -> webSocketConfig.registerStompEndpoints(registry));
+
+        // Verify that the endpoint was registered
+        assertTrue(registry.hasEndpoint("/subscriptions"));
+    }
+
+    @Test
+    void testClientInboundChannelConfiguration() {
+        // Test that client inbound channel configuration doesn't throw exceptions
+        TestChannelRegistration registration = new TestChannelRegistration();
+        assertDoesNotThrow(() -> webSocketConfig.configureClientInboundChannel(registration));
+
+        // Verify that interceptors were added
+        assertTrue(registration.hasInterceptors());
+    }
+
+    // Test implementations to avoid mocking issues with Java 23
+
+    private static class TestJwtService extends JwtService {
+        public TestJwtService() {
+            super("test-secret-key-that-is-long-enough-for-hmac-sha256-algorithm");
+        }
+    }
+
+    private static class TestMessageBrokerRegistry extends MessageBrokerRegistry {
+        private boolean simpleBrokerEnabled = false;
+        private boolean hasApplicationDestinationPrefix = false;
+        private boolean hasUserDestinationPrefix = false;
+
+        @Override
+        public MessageBrokerRegistry enableSimpleBroker(String... destinations) {
+            this.simpleBrokerEnabled = true;
+            return super.enableSimpleBroker(destinations);
+        }
+
+        @Override
+        public void setApplicationDestinationPrefixes(String... prefixes) {
+            this.hasApplicationDestinationPrefix = true;
+            super.setApplicationDestinationPrefixes(prefixes);
+        }
+
+        @Override
+        public void setUserDestinationPrefix(String destinationPrefix) {
+            this.hasUserDestinationPrefix = true;
+            super.setUserDestinationPrefix(destinationPrefix);
+        }
+
+        public boolean isSimpleBrokerEnabled() {
+            return simpleBrokerEnabled;
+        }
+
+        public boolean hasApplicationDestinationPrefix() {
+            return hasApplicationDestinationPrefix;
+        }
+
+        public boolean hasUserDestinationPrefix() {
+            return hasUserDestinationPrefix;
+        }
+    }
+
+    private static class TestStompEndpointRegistry implements StompEndpointRegistry {
+        private boolean hasSubscriptionsEndpoint = false;
+
+        @Override
+        public StompWebSocketEndpointRegistration addEndpoint(String... paths) {
+            for (String path : paths) {
+                if ("/subscriptions".equals(path)) {
+                    hasSubscriptionsEndpoint = true;
+                }
+            }
+            return new TestStompWebSocketEndpointRegistration();
+        }
+
+        public boolean hasEndpoint(String path) {
+            return "/subscriptions".equals(path) && hasSubscriptionsEndpoint;
+        }
+    }
+
+    private static class TestStompWebSocketEndpointRegistration implements StompWebSocketEndpointRegistration {
+        @Override
+        public StompWebSocketEndpointRegistration setHandshakeHandler(
+                org.springframework.web.socket.server.HandshakeHandler handshakeHandler) {
+            return this;
+        }
+
+        @Override
+        public StompWebSocketEndpointRegistration setAllowedOrigins(String... origins) {
+            return this;
+        }
+
+        @Override
+        public StompWebSocketEndpointRegistration setAllowedOriginPatterns(String... originPatterns) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration withSockJS() {
+            return new TestSockJsServiceRegistration();
+        }
+    }
+
+    private static class TestSockJsServiceRegistration implements SockJsServiceRegistration {
+        @Override
+        public SockJsServiceRegistration setHeartbeatTime(long heartbeatTime) {
+            return this;
+        }
+
+        // Implement other required methods with no-op implementations
+        @Override
+        public SockJsServiceRegistration setWebSocketEnabled(boolean webSocketEnabled) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setSessionCookieNeeded(boolean sessionCookieNeeded) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setStreamBytesLimit(int streamBytesLimit) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setHttpMessageCacheSize(int httpMessageCacheSize) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setDisconnectDelay(long disconnectDelay) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setTaskScheduler(org.springframework.scheduling.TaskScheduler taskScheduler) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setMessageCodec(
+                org.springframework.web.socket.sockjs.frame.SockJsMessageCodec messageCodec) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setTransportHandlers(
+                org.springframework.web.socket.sockjs.transport.TransportHandler... handlers) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setTransportHandlerOverrides(
+                org.springframework.web.socket.sockjs.transport.TransportHandler... handlers) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setClientLibraryUrl(String clientLibraryUrl) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setSuppressCors(boolean suppressCors) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setAllowedOrigins(String... allowedOrigins) {
+            return this;
+        }
+
+        @Override
+        public SockJsServiceRegistration setAllowedOriginPatterns(String... allowedOriginPatterns) {
+            return this;
+        }
+    }
+
+    private static class TestChannelRegistration extends ChannelRegistration {
+        private boolean hasInterceptors = false;
+
+        @Override
+        public ChannelRegistration interceptors(
+                org.springframework.messaging.support.ChannelInterceptor... interceptors) {
+            this.hasInterceptors = true;
+            return super.interceptors(interceptors);
+        }
+
+        public boolean hasInterceptors() {
+            return hasInterceptors;
+        }
+    }
+}

@@ -1,0 +1,48 @@
+meta {
+  name: Resolve Exception
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+mutation ResolveException($transactionId: String!, $resolutionMethod: ResolutionMethod!, $notes: String) {
+  resolveException(transactionId: $transactionId, resolutionMethod: $resolutionMethod, notes: $notes) {
+    success
+    exception {
+      id
+      transactionId
+      status
+      acknowledgedBy
+      acknowledgedAt
+    }
+    errors {
+      message
+      code
+      path
+      extensions
+    }
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "transactionId": "test-transaction-123",
+  "resolutionMethod": "MANUAL_INTERVENTION",
+  "notes": "Fixed timeout configuration and verified with customer"
+}
+}
+
+docs {
+  Marks an exception as resolved with specified resolution method.
+}

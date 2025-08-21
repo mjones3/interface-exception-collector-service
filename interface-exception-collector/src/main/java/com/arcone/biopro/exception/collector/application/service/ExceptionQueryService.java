@@ -71,6 +71,57 @@ public class ExceptionQueryService {
     }
 
     /**
+     * Retrieves exceptions with filters and eager loading for GraphQL.
+     * This method ensures all lazy collections are loaded to prevent
+     * LazyInitializationException during JSON serialization.
+     *
+     * @param interfaceType optional interface type filter
+     * @param status        optional status filter
+     * @param severity      optional severity filter
+     * @param customerId    optional customer ID filter
+     * @param fromDate      optional start date filter
+     * @param toDate        optional end date filter
+     * @param sort          sorting parameters
+     * @return list of exceptions with eager-loaded collections
+     */
+    public List<InterfaceException> findExceptionsWithFiltersEager(
+            InterfaceType interfaceType,
+            ExceptionStatus status,
+            ExceptionSeverity severity,
+            String customerId,
+            OffsetDateTime fromDate,
+            OffsetDateTime toDate,
+            Sort sort) {
+
+        log.debug("Finding exceptions with eager loading for GraphQL");
+
+        // Get exceptions with basic filters
+        List<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
+                interfaceType, status, severity, customerId, fromDate, toDate, sort);
+
+        // Force initialization of lazy collections within transaction
+        for (InterfaceException exception : exceptions) {
+            try {
+                // Initialize collections to prevent lazy loading issues
+                if (exception.getRetryAttempts() != null) {
+                    exception.getRetryAttempts().size(); // Force initialization
+                }
+                if (exception.getOrderItems() != null) {
+                    exception.getOrderItems().size(); // Force initialization
+                }
+                if (exception.getStatusChanges() != null) {
+                    exception.getStatusChanges().size(); // Force initialization
+                }
+            } catch (Exception e) {
+                log.warn("Failed to initialize collections for exception {}: {}",
+                        exception.getTransactionId(), e.getMessage());
+            }
+        }
+
+        return exceptions;
+    }
+
+    /**
      * Retrieves detailed exception information by transaction ID.
      * Implements requirement US-008 for detailed exception retrieval.
      * Results are cached for 10 minutes to improve performance.
@@ -82,6 +133,45 @@ public class ExceptionQueryService {
     public Optional<InterfaceException> findExceptionByTransactionId(String transactionId) {
         log.debug("Finding exception by transaction ID: {}", transactionId);
         return exceptionRepository.findByTransactionId(transactionId);
+    }
+
+    /**
+     * Retrieves detailed exception information by transaction ID with eager
+     * loading.
+     * This method ensures all lazy collections are loaded to prevent
+     * LazyInitializationException during GraphQL JSON serialization.
+     * Uses multiple queries to avoid Hibernate's MultipleBagFetchException.
+     *
+     * @param transactionId the unique transaction identifier
+     * @return optional containing the exception with eager-loaded collections if
+     *         found
+     */
+    public Optional<InterfaceException> findExceptionByTransactionIdEager(String transactionId) {
+        log.debug("Finding exception by transaction ID with eager loading: {}", transactionId);
+
+        // First, get the exception with retry attempts (to avoid
+        // MultipleBagFetchException)
+        Optional<InterfaceException> exceptionOpt = exceptionRepository
+                .findByTransactionIdWithEagerLoading(transactionId);
+
+        if (exceptionOpt.isPresent()) {
+            InterfaceException exception = exceptionOpt.get();
+
+            // Force initialization of other collections within transaction
+            try {
+                if (exception.getOrderItems() != null) {
+                    exception.getOrderItems().size(); // Force initialization
+                }
+                if (exception.getStatusChanges() != null) {
+                    exception.getStatusChanges().size(); // Force initialization
+                }
+            } catch (Exception e) {
+                log.warn("Failed to initialize collections for exception {}: {}",
+                        transactionId, e.getMessage());
+            }
+        }
+
+        return exceptionOpt;
     }
 
     /**
@@ -291,4 +381,5 @@ public class ExceptionQueryService {
                 })
                 .collect(Collectors.toList());
     }
+
 }

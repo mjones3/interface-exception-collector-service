@@ -1,0 +1,22 @@
+meta {
+  name: Cancel Retry (Mutation)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/graphql/mutation/cancel-retry
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "query": "",
+    "variables": {}
+  }
+}

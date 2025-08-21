@@ -1,0 +1,54 @@
+meta {
+  name: Exception Updates
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+subscription ExceptionUpdated($filters: SubscriptionFilters) {
+  exceptionUpdated(filters: $filters) {
+    eventType
+    exception {
+      id
+      transactionId
+      externalId
+      interfaceType
+      exceptionReason
+      status
+      severity
+      category
+      customerId
+      locationCode
+      timestamp
+      retryCount
+    }
+    timestamp
+    triggeredBy
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "filters": {
+    "interfaceTypes": ["ORDER_COLLECTION", "ORDER_DISTRIBUTION"],
+    "severities": ["HIGH", "CRITICAL"],
+    "customerIds": ["CUST-001", "CUST-002"],
+    "includeResolved": false
+  }
+}
+}
+
+docs {
+  Real-time updates for exception events with optional filtering.
+}

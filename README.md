@@ -185,6 +185,21 @@ For advanced development with hot reload:
 
 ## API Documentation
 
+The service provides both REST and GraphQL APIs for comprehensive exception management.
+
+### GraphQL API
+
+For modern, flexible API access with real-time subscriptions:
+
+📖 **[GraphQL Developer Guide](docs/GRAPHQL_DEVELOPER_GUIDE.md)** - Complete guide with all queries, mutations, and subscriptions
+
+- **GraphQL Endpoint**: `POST /graphql`
+- **GraphiQL Interface**: `GET /graphiql` (development only)
+- **WebSocket Subscriptions**: `wss://your-domain.com/subscriptions`
+- **Schema Documentation**: `GET /graphql/schema` (development only)
+
+### REST API
+
 ### Interface Exception Collector Service (Port 8080)
 
 #### Exception Management

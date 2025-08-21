@@ -1,7 +1,7 @@
 package com.arcone.biopro.exception.collector.performance;
 
 import com.arcone.biopro.exception.collector.application.service.ExceptionQueryService;
-import com.arcone.biopro.exception.collector.config.CacheConfig;
+import com.arcone.biopro.exception.collector.infrastructure.config.CacheConfig;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.InterfaceType;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;

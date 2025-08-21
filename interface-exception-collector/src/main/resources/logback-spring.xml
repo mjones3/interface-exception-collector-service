@@ -90,6 +90,35 @@
         <appender-ref ref="ASYNC_FILE"/>
     </logger>
 
+    <!-- GraphQL specific loggers -->
+    <logger name="com.arcone.biopro.exception.collector.api.graphql" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+    
+    <!-- GraphQL logging instrumentation - detailed logging -->
+    <logger name="com.arcone.biopro.exception.collector.api.graphql.logging" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+    
+    <!-- GraphQL monitoring and alerting - important for operations -->
+    <logger name="com.arcone.biopro.exception.collector.api.graphql.monitoring" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+    
+    <!-- GraphQL security audit logging - critical for security -->
+    <logger name="com.arcone.biopro.exception.collector.api.graphql.security" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+
+    <!-- Spring GraphQL framework loggers -->
+    <logger name="org.springframework.graphql" level="INFO"/>
+    <logger name="graphql.execution" level="INFO"/>
+    <logger name="graphql.GraphQL" level="INFO"/>
+
     <!-- Kafka loggers -->
     <logger name="org.apache.kafka" level="WARN"/>
     <logger name="org.springframework.kafka" level="INFO"/>

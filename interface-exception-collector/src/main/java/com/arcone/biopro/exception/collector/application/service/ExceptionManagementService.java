@@ -4,12 +4,14 @@ import com.arcone.biopro.exception.collector.api.dto.AcknowledgeRequest;
 import com.arcone.biopro.exception.collector.api.dto.AcknowledgeResponse;
 import com.arcone.biopro.exception.collector.api.dto.ResolveRequest;
 import com.arcone.biopro.exception.collector.api.dto.ResolveResponse;
+import com.arcone.biopro.exception.collector.api.graphql.service.SubscriptionEventBridge;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionStatus;
 import com.arcone.biopro.exception.collector.infrastructure.kafka.publisher.ExceptionEventPublisher;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class ExceptionManagementService {
 
     private final InterfaceExceptionRepository exceptionRepository;
     private final ExceptionEventPublisher eventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * Acknowledges an exception by updating its status and audit information.
@@ -62,6 +65,16 @@ public class ExceptionManagementService {
 
         log.info("Exception acknowledged successfully - transaction ID: {}, acknowledged by: {}, at: {}",
                 transactionId, savedException.getAcknowledgedBy(), savedException.getAcknowledgedAt());
+
+        // Publish application event for GraphQL subscriptions
+        try {
+            applicationEventPublisher.publishEvent(
+                    new SubscriptionEventBridge.ExceptionAcknowledgedEvent(savedException,
+                            request.getAcknowledgedBy()));
+            log.debug("Published ExceptionAcknowledged event for GraphQL subscriptions: {}", transactionId);
+        } catch (Exception e) {
+            log.error("Failed to publish ExceptionAcknowledged event for GraphQL subscriptions: {}", e.getMessage(), e);
+        }
 
         // Build and return response
         return AcknowledgeResponse.builder()
@@ -119,6 +132,15 @@ public class ExceptionManagementService {
             log.error("Failed to publish ExceptionResolved event for transaction ID: {}, error: {}",
                     transactionId, e.getMessage(), e);
             // Continue processing - event publishing failure should not fail the resolution
+        }
+
+        // Publish application event for GraphQL subscriptions
+        try {
+            applicationEventPublisher.publishEvent(
+                    new SubscriptionEventBridge.ExceptionResolvedEvent(savedException, request.getResolvedBy()));
+            log.debug("Published ExceptionResolved event for GraphQL subscriptions: {}", transactionId);
+        } catch (Exception e) {
+            log.error("Failed to publish ExceptionResolved event for GraphQL subscriptions: {}", e.getMessage(), e);
         }
 
         // Build and return response

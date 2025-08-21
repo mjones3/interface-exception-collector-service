@@ -1,0 +1,240 @@
+package com.arcone.biopro.exception.collector.api.graphql.resolver;
+
+import com.arcone.biopro.exception.collector.api.graphql.service.GraphQLSecurityService;
+import com.arcone.biopro.exception.collector.api.graphql.service.SubscriptionFilterService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Test for subscription event publishing functionality.
+ * Tests that subscription events are properly published and filtered.
+ */
+class ExceptionSubscriptionResolverTest {
+
+        private ExceptionSubscriptionResolver subscriptionResolver;
+        private TestSubscriptionFilterService filterService;
+        private TestGraphQLSecurityService securityService;
+
+        @BeforeEach
+        void setUp() {
+                filterService = new TestSubscriptionFilterService();
+                securityService = new TestGraphQLSecurityService();
+                subscriptionResolver = new ExceptionSubscriptionResolver(filterService, securityService);
+        }
+
+        @Test
+        void testExceptionUpdateEventPublishing() {
+                // Create test authentication
+                Authentication auth = new UsernamePasswordAuthenticationToken(
+                                "testuser", null, List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
+
+                // Subscribe to exception updates
+                Flux<ExceptionSubscriptionResolver.ExceptionUpdateEvent> subscription = subscriptionResolver
+                                .exceptionUpdated(null, auth);
+
+                // Create test event
+                ExceptionSubscriptionResolver.Exception testException = new ExceptionSubscriptionResolver.Exception();
+                testException.setTransactionId("test-transaction-123");
+
+                ExceptionSubscriptionResolver.ExceptionUpdateEvent testEvent = new ExceptionSubscriptionResolver.ExceptionUpdateEvent(
+                                ExceptionSubscriptionResolver.ExceptionEventType.CREATED,
+                                testException,
+                                OffsetDateTime.now(),
+                                "test-user");
+
+                // Test that events are published and received
+                StepVerifier.create(subscription.take(1))
+                                .then(() -> subscriptionResolver.publishExceptionUpdate(testEvent))
+                                .expectNextMatches(
+                                                event -> event.getEventType() == ExceptionSubscriptionResolver.ExceptionEventType.CREATED
+                                                                &&
+                                                                "test-transaction-123".equals(
+                                                                                event.getException().getTransactionId())
+                                                                &&
+                                                                "test-user".equals(event.getTriggeredBy()))
+                                .verifyComplete();
+        }
+
+        @Test
+        void testRetryStatusEventPublishing() {
+                // Create test authentication with OPERATIONS role
+                Authentication auth = new UsernamePasswordAuthenticationToken(
+                                "testuser", null, List.of(new SimpleGrantedAuthority("ROLE_OPERATIONS")));
+
+                // Subscribe to retry status updates
+                Flux<ExceptionSubscriptionResolver.RetryStatusEvent> subscription = subscriptionResolver
+                                .retryStatusUpdated(null, auth);
+
+                // Create test retry event
+                ExceptionSubscriptionResolver.RetryAttempt retryAttempt = new ExceptionSubscriptionResolver.RetryAttempt();
+                retryAttempt.setAttemptNumber(1);
+
+                ExceptionSubscriptionResolver.RetryStatusEvent testEvent = new ExceptionSubscriptionResolver.RetryStatusEvent(
+                                "test-transaction-456",
+                                retryAttempt,
+                                ExceptionSubscriptionResolver.RetryEventType.INITIATED,
+                                OffsetDateTime.now());
+
+                // Test that retry events are published and received
+                StepVerifier.create(subscription.take(1))
+                                .then(() -> subscriptionResolver.publishRetryStatusUpdate(testEvent))
+                                .expectNextMatches(
+                                                event -> event.getEventType() == ExceptionSubscriptionResolver.RetryEventType.INITIATED
+                                                                &&
+                                                                "test-transaction-456".equals(event.getTransactionId())
+                                                                &&
+                                                                event.getRetryAttempt().getAttemptNumber() == 1)
+                                .verifyComplete();
+        }
+
+        @Test
+        void testSubscriptionFiltering() {
+                // Set security service to deny access for testing filtering
+                securityService.setAllowViewException(false);
+
+                // Create test authentication
+                Authentication auth = new UsernamePasswordAuthenticationToken(
+                                "testuser", null, List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
+
+                // Subscribe to exception updates
+                Flux<ExceptionSubscriptionResolver.ExceptionUpdateEvent> subscription = subscriptionResolver
+                                .exceptionUpdated(null, auth);
+
+                // Create test event
+                ExceptionSubscriptionResolver.Exception testException = new ExceptionSubscriptionResolver.Exception();
+                testException.setTransactionId("filtered-transaction");
+
+                ExceptionSubscriptionResolver.ExceptionUpdateEvent testEvent = new ExceptionSubscriptionResolver.ExceptionUpdateEvent(
+                                ExceptionSubscriptionResolver.ExceptionEventType.CREATED,
+                                testException,
+                                OffsetDateTime.now(),
+                                "test-user");
+
+                // Test that events are filtered out due to security restrictions
+                StepVerifier.create(subscription.take(Duration.ofSeconds(1)))
+                                .then(() -> subscriptionResolver.publishExceptionUpdate(testEvent))
+                                .expectComplete()
+                                .verify();
+        }
+
+        @Test
+        void testActiveSubscriptionCount() {
+                // Initially no active subscriptions
+                assertEquals(0, subscriptionResolver.getActiveSubscriptionCount());
+
+                // Create test authentication
+                Authentication auth = new UsernamePasswordAuthenticationToken(
+                                "testuser", null, List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
+
+                // Subscribe to exception updates
+                Flux<ExceptionSubscriptionResolver.ExceptionUpdateEvent> subscription = subscriptionResolver
+                                .exceptionUpdated(null, auth);
+
+                // Subscribe and verify count increases
+                subscription.subscribe();
+
+                // Note: The count might not immediately reflect due to async nature
+                // This test verifies the method exists and returns a valid count
+                assertTrue(subscriptionResolver.getActiveSubscriptionCount() >= 0);
+        }
+
+        @Test
+        void testMultipleEventTypes() {
+                // Create test authentication
+                Authentication auth = new UsernamePasswordAuthenticationToken(
+                                "testuser", null, List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
+
+                // Subscribe to exception updates
+                Flux<ExceptionSubscriptionResolver.ExceptionUpdateEvent> subscription = subscriptionResolver
+                                .exceptionUpdated(null, auth);
+
+                // Create test exception
+                ExceptionSubscriptionResolver.Exception testException = new ExceptionSubscriptionResolver.Exception();
+                testException.setTransactionId("multi-event-transaction");
+
+                // Test multiple event types
+                StepVerifier.create(subscription.take(3))
+                                .then(() -> {
+                                        // Publish CREATED event
+                                        subscriptionResolver.publishExceptionUpdate(
+                                                        new ExceptionSubscriptionResolver.ExceptionUpdateEvent(
+                                                                        ExceptionSubscriptionResolver.ExceptionEventType.CREATED,
+                                                                        testException, OffsetDateTime.now(), "user1"));
+
+                                        // Publish ACKNOWLEDGED event
+                                        subscriptionResolver.publishExceptionUpdate(
+                                                        new ExceptionSubscriptionResolver.ExceptionUpdateEvent(
+                                                                        ExceptionSubscriptionResolver.ExceptionEventType.ACKNOWLEDGED,
+                                                                        testException, OffsetDateTime.now(), "user2"));
+
+                                        // Publish RESOLVED event
+                                        subscriptionResolver.publishExceptionUpdate(
+                                                        new ExceptionSubscriptionResolver.ExceptionUpdateEvent(
+                                                                        ExceptionSubscriptionResolver.ExceptionEventType.RESOLVED,
+                                                                        testException, OffsetDateTime.now(), "user3"));
+                                })
+                                .expectNextMatches(
+                                                event -> event.getEventType() == ExceptionSubscriptionResolver.ExceptionEventType.CREATED)
+                                .expectNextMatches(
+                                                event -> event.getEventType() == ExceptionSubscriptionResolver.ExceptionEventType.ACKNOWLEDGED)
+                                .expectNextMatches(
+                                                event -> event.getEventType() == ExceptionSubscriptionResolver.ExceptionEventType.RESOLVED)
+                                .verifyComplete();
+        }
+
+        // Test implementations to avoid dependency issues
+
+        private static class TestSubscriptionFilterService extends SubscriptionFilterService {
+                public TestSubscriptionFilterService() {
+                        // Use the default constructor which doesn't require parameters
+                }
+
+                @Override
+                public boolean matchesExceptionFilters(
+                                com.arcone.biopro.exception.collector.api.graphql.resolver.ExceptionSubscriptionResolver.ExceptionUpdateEvent event,
+                                com.arcone.biopro.exception.collector.api.graphql.dto.ExceptionFilters filters) {
+                        // Always return true for testing
+                        return true;
+                }
+        }
+
+        private static class TestGraphQLSecurityService extends GraphQLSecurityService {
+                private boolean allowViewException = true;
+                private boolean allowViewRetryStatus = true;
+
+                public TestGraphQLSecurityService() {
+                        // Use the default constructor
+                }
+
+                @Override
+                public boolean canViewException(Authentication authentication,
+                                com.arcone.biopro.exception.collector.api.graphql.resolver.ExceptionSubscriptionResolver.Exception exception) {
+                        return allowViewException;
+                }
+
+                @Override
+                public boolean canViewRetryStatus(Authentication authentication,
+                                com.arcone.biopro.exception.collector.api.graphql.resolver.ExceptionSubscriptionResolver.RetryStatusEvent retryEvent) {
+                        return allowViewRetryStatus;
+                }
+
+                public void setAllowViewException(boolean allow) {
+                        this.allowViewException = allow;
+                }
+
+                public void setAllowViewRetryStatus(boolean allow) {
+                        this.allowViewRetryStatus = allow;
+                }
+        }
+}

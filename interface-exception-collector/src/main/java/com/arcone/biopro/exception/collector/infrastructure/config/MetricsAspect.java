@@ -1,4 +1,4 @@
-package com.arcone.biopro.exception.collector.config;
+package com.arcone.biopro.exception.collector.infrastructure.config;
 
 import com.arcone.biopro.exception.collector.application.service.MetricsService;
 import lombok.RequiredArgsConstructor;

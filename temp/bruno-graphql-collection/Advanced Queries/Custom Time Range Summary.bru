@@ -1,0 +1,69 @@
+meta {
+  name: Custom Time Range Summary
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+query GetSummaryCustomRange($timeRange: TimeRange!, $filters: ExceptionFilters) {
+  exceptionSummary(timeRange: $timeRange, filters: $filters) {
+    totalExceptions
+    byInterfaceType {
+      interfaceType
+      count
+      percentage
+    }
+    bySeverity {
+      severity
+      count
+      percentage
+    }
+    byStatus {
+      status
+      count
+      percentage
+    }
+    trends {
+      timestamp
+      count
+      interfaceType
+    }
+    keyMetrics {
+      retrySuccessRate
+      averageResolutionTime
+      customerImpactCount
+      criticalExceptionCount
+    }
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "timeRange": {
+    "period": "CUSTOM",
+    "customRange": {
+      "from": "2025-08-01T00:00:00Z",
+      "to": "2025-08-20T23:59:59Z"
+    }
+  },
+  "filters": {
+    "interfaceTypes": ["ORDER_COLLECTION"],
+    "customerIds": ["CUST-MOUNT-SINAI-001"]
+  }
+}
+}
+
+docs {
+  Exception summary with custom date range and specific customer filtering.
+}

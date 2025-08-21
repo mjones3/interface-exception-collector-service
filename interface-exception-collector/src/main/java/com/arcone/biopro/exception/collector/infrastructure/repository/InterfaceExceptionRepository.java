@@ -36,6 +36,21 @@ public interface InterfaceExceptionRepository
         Optional<InterfaceException> findByTransactionId(String transactionId);
 
         /**
+         * Find an exception by its transaction ID with eager loading of retry attempts.
+         * This prevents LazyInitializationException during GraphQL serialization.
+         * Note: We fetch only retry attempts to avoid Hibernate's
+         * MultipleBagFetchException.
+         * 
+         * @param transactionId the unique transaction identifier
+         * @return Optional containing the exception with eager-loaded retry attempts if
+         *         found
+         */
+        @Query("SELECT ie FROM InterfaceException ie " +
+                        "LEFT JOIN FETCH ie.retryAttempts " +
+                        "WHERE ie.transactionId = :transactionId")
+        Optional<InterfaceException> findByTransactionIdWithEagerLoading(@Param("transactionId") String transactionId);
+
+        /**
          * Check if an exception exists with the given transaction ID.
          * 
          * @param transactionId the unique transaction identifier

@@ -2,6 +2,7 @@ package com.arcone.biopro.exception.collector;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -21,6 +22,7 @@ import java.util.Optional;
 @EnableJpaAuditing(dateTimeProviderRef = "offsetDateTimeProvider")
 @EnableKafka
 @EnableScheduling
+@EnableConfigurationProperties(com.arcone.biopro.exception.collector.infrastructure.config.ApplicationProperties.class)
 public class InterfaceExceptionCollectorApplication {
 
     public static void main(String[] args) {

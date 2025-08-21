@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.core.RedisTemplate;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,9 +32,6 @@ public class GraphQLTestConfiguration {
 
     @MockBean
     private RetryAttemptRepository retryAttemptRepository;
-
-    @MockBean
-    private RedisTemplate<String, Object> redisTemplate;
 
     @Bean
     @Primary
@@ -65,9 +62,8 @@ public class GraphQLTestConfiguration {
     public DataLoader<String, com.arcone.biopro.exception.collector.domain.entity.InterfaceException> testExceptionLoader() {
         DataLoaderOptions options = DataLoaderOptions.newOptions()
                 .setCachingEnabled(true)
-                .setBatchingEnabled(true)
-                .build();
-        return DataLoader.newDataLoader(testExceptionDataLoader(), options);
+                .setBatchingEnabled(true);
+        return DataLoader.newMappedDataLoader(testExceptionDataLoader(), options);
     }
 
     @Bean
@@ -75,9 +71,8 @@ public class GraphQLTestConfiguration {
     public DataLoader<String, java.util.List<com.arcone.biopro.exception.collector.domain.entity.RetryAttempt>> testRetryHistoryLoader() {
         DataLoaderOptions options = DataLoaderOptions.newOptions()
                 .setCachingEnabled(true)
-                .setBatchingEnabled(true)
-                .build();
-        return DataLoader.newDataLoader(testRetryHistoryDataLoader(), options);
+                .setBatchingEnabled(true);
+        return DataLoader.newMappedDataLoader(testRetryHistoryDataLoader(), options);
     }
 
     /**
@@ -88,7 +83,8 @@ public class GraphQLTestConfiguration {
         when(authentication.getName()).thenReturn(username);
         when(authentication.isAuthenticated()).thenReturn(true);
 
-        java.util.List<org.springframework.security.core.GrantedAuthority> authorities = java.util.Arrays.stream(roles)
+        java.util.Collection<org.springframework.security.core.GrantedAuthority> authorities = java.util.Arrays
+                .stream(roles)
                 .map(role -> new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role))
                 .collect(java.util.stream.Collectors.toList());
         when(authentication.getAuthorities()).thenReturn(authorities);

@@ -1,0 +1,46 @@
+meta {
+  name: Retry Status Updates
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+subscription RetryStatusUpdated($transactionId: String) {
+  retryStatusUpdated(transactionId: $transactionId) {
+    transactionId
+    retryAttempt {
+      id
+      attemptNumber
+      status
+      initiatedBy
+      initiatedAt
+      completedAt
+      resultSuccess
+      resultMessage
+      resultResponseCode
+    }
+    eventType
+    timestamp
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "transactionId": "test-transaction-123"
+}
+}
+
+docs {
+  Real-time updates for retry operation status changes.
+}

@@ -1,0 +1,859 @@
+openapi: 3.0.3
+info:
+  title: Interface Exception Collector GraphQL API
+  description: |
+    GraphQL API for the Interface Exception Collector Service.
+    
+    This OpenAPI spec represents GraphQL operations as REST endpoints for easier testing in API clients.
+    All operations use POST method to the `/graphql` endpoint with different request bodies.
+    
+    ## Authentication
+    All endpoints require JWT Bearer token authentication.
+    
+    ## Usage
+    - **Queries**: Use POST /graphql with query in request body
+    - **Mutations**: Use POST /graphql with mutation in request body  
+    - **Subscriptions**: Use WebSocket connection to /graphql (not fully supported in REST clients)
+    
+    ## Test Data
+    Use these transaction IDs for testing:
+    - `test-transaction-123`
+    - `test-transaction-456`
+    - `test-transaction-789`
+  version: 1.0.0
+  contact:
+    name: Interface Exception Collector API
+    email: dev-team@company.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://dev-api.company.com
+    description: Development server
+  - url: https://staging-api.company.com
+    description: Staging server
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from generate-jwt-correct-secret.js
+
+  schemas:
+    GraphQLRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: GraphQL query, mutation, or subscription
+        variables:
+          type: object
+          description: Variables for the GraphQL operation
+        operationName:
+          type: string
+          description: Name of the operation (optional)
+
+    GraphQLResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          description: The result data
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphQLError'
+        extensions:
+          type: object
+          description: Additional metadata
+
+    GraphQLError:
+      type: object
+      properties:
+        message:
+          type: string
+        locations:
+          type: array
+          items:
+            type: object
+            properties:
+              line:
+                type: integer
+              column:
+                type: integer
+        path:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - type: integer
+        extensions:
+          type: object
+
+    # Exception Types
+    Exception:
+      type: object
+      properties:
+        id:
+          type: string
+        transactionId:
+          type: string
+        externalId:
+          type: string
+        interfaceType:
+          $ref: '#/components/schemas/InterfaceType'
+        exceptionReason:
+          type: string
+        operation:
+          type: string
+        status:
+          $ref: '#/components/schemas/ExceptionStatus'
+        severity:
+          $ref: '#/components/schemas/ExceptionSeverity'
+        category:
+          $ref: '#/components/schemas/ExceptionCategory'
+        customerId:
+          type: string
+        locationCode:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        processedAt:
+          type: string
+          format: date-time
+        retryable:
+          type: boolean
+        retryCount:
+          type: integer
+        maxRetries:
+          type: integer
+        lastRetryAt:
+          type: string
+          format: date-time
+        acknowledgedBy:
+          type: string
+        acknowledgedAt:
+          type: string
+          format: date-time
+
+    # Enums
+    InterfaceType:
+      type: string
+      enum:
+        - ORDER_COLLECTION
+        - ORDER_DISTRIBUTION
+        - CUSTOMER_SYNC
+        - INVENTORY_UPDATE
+        - PAYMENT_PROCESSING
+        - NOTIFICATION_DELIVERY
+
+    ExceptionStatus:
+      type: string
+      enum:
+        - NEW
+        - ACKNOWLEDGED
+        - IN_PROGRESS
+        - RESOLVED
+        - FAILED
+        - CANCELLED
+
+    ExceptionSeverity:
+      type: string
+      enum:
+        - LOW
+        - MEDIUM
+        - HIGH
+        - CRITICAL
+
+    ExceptionCategory:
+      type: string
+      enum:
+        - VALIDATION_ERROR
+        - CONNECTIVITY_ERROR
+        - TIMEOUT_ERROR
+        - AUTHENTICATION_ERROR
+        - BUSINESS_RULE_ERROR
+        - DATA_FORMAT_ERROR
+        - EXTERNAL_SERVICE_ERROR
+
+    RetryStatus:
+      type: string
+      enum:
+        - PENDING
+        - IN_PROGRESS
+        - SUCCESS
+        - FAILED
+        - CANCELLED
+
+    ResolutionMethod:
+      type: string
+      enum:
+        - AUTOMATIC_RETRY
+        - MANUAL_INTERVENTION
+        - CONFIGURATION_CHANGE
+        - DATA_CORRECTION
+        - EXTERNAL_SERVICE_FIX
+
+paths:
+  /graphql:
+    post:
+      summary: GraphQL Endpoint
+      description: |
+        Main GraphQL endpoint for all queries, mutations, and subscriptions.
+        
+        **Important**: This is the ONLY endpoint for GraphQL. All operations use POST to /graphql
+        with different request bodies containing the GraphQL query, variables, and operation name.
+        
+        The examples below show different GraphQL operations you can send to this endpoint.
+      tags:
+        - GraphQL Operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphQLRequest'
+            examples:
+              get-exceptions:
+                summary: Get Exceptions Query
+                description: Retrieve paginated list of exceptions with filtering
+                value:
+                  query: |
+                    query GetExceptions($filters: ExceptionFilters, $pagination: PaginationInput, $sorting: SortingInput) {
+                      exceptions(filters: $filters, pagination: $pagination, sorting: $sorting) {
+                        edges {
+                          node {
+                            id
+                            transactionId
+                            externalId
+                            interfaceType
+                            exceptionReason
+                            operation
+                            status
+                            severity
+                            category
+                            customerId
+                            locationCode
+                            timestamp
+                            processedAt
+                            retryable
+                            retryCount
+                            maxRetries
+                            lastRetryAt
+                            acknowledgedBy
+                            acknowledgedAt
+                          }
+                          cursor
+                        }
+                        pageInfo {
+                          hasNextPage
+                          hasPreviousPage
+                          startCursor
+                          endCursor
+                        }
+                        totalCount
+                      }
+                    }
+                  variables:
+                    filters:
+                      interfaceTypes: ["ORDER_COLLECTION"]
+                      statuses: ["NEW", "ACKNOWLEDGED"]
+                      severities: ["HIGH", "CRITICAL"]
+                      excludeResolved: true
+                      retryable: true
+                    pagination:
+                      first: 10
+                    sorting:
+                      field: "timestamp"
+                      direction: "DESC"
+                  operationName: "GetExceptions"
+              
+              get-exception-by-id:
+                summary: Get Exception by ID Query
+                description: Retrieve detailed information for a specific exception
+                value:
+                  query: |
+                    query GetException($transactionId: String!) {
+                      exception(transactionId: $transactionId) {
+                        id
+                        transactionId
+                        externalId
+                        interfaceType
+                        exceptionReason
+                        operation
+                        status
+                        severity
+                        category
+                        customerId
+                        locationCode
+                        timestamp
+                        processedAt
+                        retryable
+                        retryCount
+                        maxRetries
+                        lastRetryAt
+                        acknowledgedBy
+                        acknowledgedAt
+                        originalPayload {
+                          content
+                          contentType
+                          retrievedAt
+                          sourceService
+                        }
+                        retryHistory {
+                          id
+                          attemptNumber
+                          status
+                          initiatedBy
+                          initiatedAt
+                          completedAt
+                          resultSuccess
+                          resultMessage
+                          resultResponseCode
+                          resultErrorDetails
+                        }
+                        statusHistory {
+                          id
+                          fromStatus
+                          toStatus
+                          changedBy
+                          changedAt
+                          reason
+                          notes
+                        }
+                      }
+                    }
+                  variables:
+                    transactionId: "test-transaction-123"
+                  operationName: "GetException"
+              
+              get-exception-summary:
+                summary: Get Exception Summary Query
+                description: Retrieve aggregated exception statistics and trends
+                value:
+                  query: |
+                    query GetExceptionSummary($timeRange: TimeRange!, $filters: ExceptionFilters) {
+                      exceptionSummary(timeRange: $timeRange, filters: $filters) {
+                        totalExceptions
+                        byInterfaceType {
+                          interfaceType
+                          count
+                          percentage
+                        }
+                        bySeverity {
+                          severity
+                          count
+                          percentage
+                        }
+                        byStatus {
+                          status
+                          count
+                          percentage
+                        }
+                        trends {
+                          timestamp
+                          count
+                          interfaceType
+                        }
+                        keyMetrics {
+                          retrySuccessRate
+                          averageResolutionTime
+                          customerImpactCount
+                          criticalExceptionCount
+                        }
+                      }
+                    }
+                  variables:
+                    timeRange:
+                      period: "LAST_7_DAYS"
+                    filters:
+                      severities: ["HIGH", "CRITICAL"]
+                  operationName: "GetExceptionSummary"
+              
+              search-exceptions:
+                summary: Search Exceptions Query
+                description: Perform full-text search across exception fields
+                value:
+                  query: |
+                    query SearchExceptions($search: SearchInput!, $pagination: PaginationInput, $sorting: SortingInput) {
+                      searchExceptions(search: $search, pagination: $pagination, sorting: $sorting) {
+                        edges {
+                          node {
+                            id
+                            transactionId
+                            externalId
+                            interfaceType
+                            exceptionReason
+                            operation
+                            status
+                            severity
+                            category
+                            customerId
+                            locationCode
+                            timestamp
+                            retryCount
+                          }
+                          cursor
+                        }
+                        pageInfo {
+                          hasNextPage
+                          hasPreviousPage
+                          startCursor
+                          endCursor
+                        }
+                        totalCount
+                      }
+                    }
+                  variables:
+                    search:
+                      query: "timeout"
+                      fields: ["EXCEPTION_REASON", "OPERATION"]
+                      fuzzy: true
+                    pagination:
+                      first: 20
+                    sorting:
+                      field: "timestamp"
+                      direction: "DESC"
+                  operationName: "SearchExceptions"
+              
+              get-system-health:
+                summary: Get System Health Query
+                description: Retrieve current system health status
+                value:
+                  query: |
+                    query GetSystemHealth {
+                      systemHealth {
+                        status
+                        database {
+                          status
+                          responseTime
+                          details
+                        }
+                        cache {
+                          status
+                          responseTime
+                          details
+                        }
+                        externalServices {
+                          serviceName
+                          status
+                          responseTime
+                          lastChecked
+                        }
+                        lastUpdated
+                      }
+                    }
+                  variables: {}
+                  operationName: "GetSystemHealth"
+              
+              retry-exception:
+                summary: Retry Exception Mutation
+                description: Initiate a retry operation for a specific exception
+                value:
+                  query: |
+                    mutation RetryException($input: RetryExceptionInput!) {
+                      retryException(input: $input) {
+                        success
+                        exception {
+                          id
+                          transactionId
+                          status
+                          retryCount
+                          lastRetryAt
+                        }
+                        retryAttempt {
+                          id
+                          attemptNumber
+                          status
+                          initiatedBy
+                          initiatedAt
+                        }
+                        errors {
+                          message
+                          code
+                          path
+                          extensions
+                        }
+                      }
+                    }
+                  variables:
+                    input:
+                      transactionId: "test-transaction-123"
+                      reason: "Customer requested retry after fixing data issue"
+                      priority: "HIGH"
+                      notes: "Retrying after customer confirmed data correction"
+                  operationName: "RetryException"
+              
+              bulk-retry-exceptions:
+                summary: Bulk Retry Exceptions Mutation
+                description: Initiate retry operations for multiple exceptions
+                value:
+                  query: |
+                    mutation BulkRetryExceptions($input: BulkRetryInput!) {
+                      bulkRetryExceptions(input: $input) {
+                        successCount
+                        failureCount
+                        results {
+                          success
+                          exception {
+                            transactionId
+                            status
+                            retryCount
+                          }
+                          errors {
+                            message
+                            code
+                          }
+                        }
+                        errors {
+                          message
+                          code
+                          path
+                        }
+                      }
+                    }
+                  variables:
+                    input:
+                      transactionIds: ["test-transaction-123", "test-transaction-456", "test-transaction-789"]
+                      reason: "Bulk retry after system maintenance"
+                      priority: "NORMAL"
+                  operationName: "BulkRetryExceptions"
+              
+              acknowledge-exception:
+                summary: Acknowledge Exception Mutation
+                description: Acknowledge an exception and assign it for resolution
+                value:
+                  query: |
+                    mutation AcknowledgeException($input: AcknowledgeExceptionInput!) {
+                      acknowledgeException(input: $input) {
+                        success
+                        exception {
+                          id
+                          transactionId
+                          status
+                          acknowledgedBy
+                          acknowledgedAt
+                        }
+                        errors {
+                          message
+                          code
+                          path
+                          extensions
+                        }
+                      }
+                    }
+                  variables:
+                    input:
+                      transactionId: "test-transaction-123"
+                      reason: "Reviewed and assigned to development team"
+                      notes: "Issue appears to be related to timeout configuration"
+                      estimatedResolutionTime: "2025-08-21T10:00:00Z"
+                      assignedTo: "dev-team@company.com"
+                  operationName: "AcknowledgeException"
+              
+              bulk-acknowledge-exceptions:
+                summary: Bulk Acknowledge Exceptions Mutation
+                description: Acknowledge multiple exceptions simultaneously
+                value:
+                  query: |
+                    mutation BulkAcknowledgeExceptions($input: BulkAcknowledgeInput!) {
+                      bulkAcknowledgeExceptions(input: $input) {
+                        successCount
+                        failureCount
+                        results {
+                          success
+                          exception {
+                            transactionId
+                            status
+                            acknowledgedBy
+                          }
+                          errors {
+                            message
+                            code
+                          }
+                        }
+                        errors {
+                          message
+                          code
+                          path
+                        }
+                      }
+                    }
+                  variables:
+                    input:
+                      transactionIds: ["test-transaction-123", "test-transaction-456"]
+                      reason: "Bulk acknowledgment for similar timeout issues"
+                      notes: "All related to external service timeout - investigating"
+                      assignedTo: "ops-team@company.com"
+                  operationName: "BulkAcknowledgeExceptions"
+              
+              resolve-exception:
+                summary: Resolve Exception Mutation
+                description: Mark an exception as resolved with specified resolution method
+                value:
+                  query: |
+                    mutation ResolveException($transactionId: String!, $resolutionMethod: ResolutionMethod!, $notes: String) {
+                      resolveException(transactionId: $transactionId, resolutionMethod: $resolutionMethod, notes: $notes) {
+                        success
+                        exception {
+                          id
+                          transactionId
+                          status
+                          acknowledgedBy
+                          acknowledgedAt
+                        }
+                        errors {
+                          message
+                          code
+                          path
+                          extensions
+                        }
+                      }
+                    }
+                  variables:
+                    transactionId: "test-transaction-123"
+                    resolutionMethod: "MANUAL_INTERVENTION"
+                    notes: "Fixed timeout configuration and verified with customer"
+                  operationName: "ResolveException"
+              
+              cancel-retry:
+                summary: Cancel Retry Mutation
+                description: Cancel an ongoing retry operation for an exception
+                value:
+                  query: |
+                    mutation CancelRetry($transactionId: String!, $reason: String!) {
+                      cancelRetry(transactionId: $transactionId, reason: $reason) {
+                        success
+                        exception {
+                          id
+                          transactionId
+                          status
+                          retryCount
+                        }
+                        errors {
+                          message
+                          code
+                          path
+                          extensions
+                        }
+                      }
+                    }
+                  variables:
+                    transactionId: "test-transaction-123"
+                    reason: "Customer requested cancellation - issue resolved externally"
+                  operationName: "CancelRetry"
+              
+              exception-updated-subscription:
+                summary: Exception Updates Subscription
+                description: Real-time updates for exception events (WebSocket required)
+                value:
+                  query: |
+                    subscription ExceptionUpdated($filters: SubscriptionFilters) {
+                      exceptionUpdated(filters: $filters) {
+                        eventType
+                        exception {
+                          id
+                          transactionId
+                          externalId
+                          interfaceType
+                          exceptionReason
+                          status
+                          severity
+                          category
+                          customerId
+                          locationCode
+                          timestamp
+                          retryCount
+                        }
+                        timestamp
+                        triggeredBy
+                      }
+                    }
+                  variables:
+                    filters:
+                      interfaceTypes: ["ORDER_COLLECTION", "ORDER_DISTRIBUTION"]
+                      severities: ["HIGH", "CRITICAL"]
+                      customerIds: ["CUST-001", "CUST-002"]
+                      includeResolved: false
+                  operationName: "ExceptionUpdated"
+              
+              summary-updated-subscription:
+                summary: Summary Updates Subscription
+                description: Real-time updates for exception summary statistics (WebSocket required)
+                value:
+                  query: |
+                    subscription SummaryUpdated($timeRange: TimeRange!) {
+                      summaryUpdated(timeRange: $timeRange) {
+                        totalExceptions
+                        byInterfaceType {
+                          interfaceType
+                          count
+                          percentage
+                        }
+                        bySeverity {
+                          severity
+                          count
+                          percentage
+                        }
+                        byStatus {
+                          status
+                          count
+                          percentage
+                        }
+                        keyMetrics {
+                          retrySuccessRate
+                          averageResolutionTime
+                          customerImpactCount
+                          criticalExceptionCount
+                        }
+                      }
+                    }
+                  variables:
+                    timeRange:
+                      period: "LAST_24_HOURS"
+                  operationName: "SummaryUpdated"
+              
+              retry-status-updated-subscription:
+                summary: Retry Status Updates Subscription
+                description: Real-time updates for retry operation status changes (WebSocket required)
+                value:
+                  query: |
+                    subscription RetryStatusUpdated($transactionId: String) {
+                      retryStatusUpdated(transactionId: $transactionId) {
+                        transactionId
+                        retryAttempt {
+                          id
+                          attemptNumber
+                          status
+                          initiatedBy
+                          initiatedAt
+                          completedAt
+                          resultSuccess
+                          resultMessage
+                          resultResponseCode
+                        }
+                        eventType
+                        timestamp
+                      }
+                    }
+                  variables:
+                    transactionId: "test-transaction-123"
+                  operationName: "RetryStatusUpdated"
+      responses:
+        '200':
+          description: GraphQL response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphQLResponse'
+              examples:
+                successful-query:
+                  summary: Successful Query Response
+                  value:
+                    data:
+                      exceptions:
+                        edges:
+                          - node:
+                              id: "1"
+                              transactionId: "test-transaction-123"
+                              externalId: "ORDER-123456"
+                              interfaceType: "ORDER_COLLECTION"
+                              exceptionReason: "Timeout connecting to external service"
+                              operation: "CREATE_ORDER"
+                              status: "NEW"
+                              severity: "HIGH"
+                              category: "TIMEOUT_ERROR"
+                              customerId: "CUST-001"
+                              locationCode: "HOSP-NYC-001"
+                              timestamp: "2025-08-20T10:30:00Z"
+                              processedAt: "2025-08-20T10:30:01Z"
+                              retryable: true
+                              retryCount: 0
+                              maxRetries: 3
+                              lastRetryAt: null
+                              acknowledgedBy: null
+                              acknowledgedAt: null
+                            cursor: "Y3Vyc29yMQ=="
+                        pageInfo:
+                          hasNextPage: false
+                          hasPreviousPage: false
+                          startCursor: "Y3Vyc29yMQ=="
+                          endCursor: "Y3Vyc29yMQ=="
+                        totalCount: 1
+                
+                error-response:
+                  summary: Error Response
+                  value:
+                    errors:
+                      - message: "Variable '$transactionId' of required type 'String!' was not provided."
+                        locations:
+                          - line: 1
+                            column: 32
+                        extensions:
+                          code: "VALIDATION_ERROR"
+                    data: null
+        '400':
+          description: Bad Request - Invalid GraphQL query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphQLResponse'
+              example:
+                errors:
+                  - message: "Syntax Error: Expected Name, found }"
+                    locations:
+                      - line: 1
+                        column: 10
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+                  message:
+                    type: string
+                    example: "JWT token is invalid or expired"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphQLResponse'
+              example:
+                errors:
+                  - message: "Internal server error"
+                    extensions:
+                      code: "INTERNAL_ERROR"
+
+
+
+tags:
+  - name: GraphQL Operations
+    description: |
+      All GraphQL operations use POST to /graphql endpoint.
+      
+      **Important**: There is only ONE endpoint (/graphql) for all GraphQL operations.
+      The examples in this spec show different GraphQL queries, mutations, and subscriptions
+      that you can send to the /graphql endpoint.
+      
+      **How to use**:
+      1. Always POST to /graphql
+      2. Include your GraphQL query in the request body
+      3. Include variables as needed
+      4. Set Content-Type: application/json
+      5. Include Authorization: Bearer <your-jwt-token>

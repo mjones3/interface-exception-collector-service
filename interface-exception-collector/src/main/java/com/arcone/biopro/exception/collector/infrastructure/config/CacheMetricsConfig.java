@@ -1,4 +1,4 @@
-package com.arcone.biopro.exception.collector.config;
+package com.arcone.biopro.exception.collector.infrastructure.config;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class CacheMetricsConfig {
     @PostConstruct
     public void registerCacheMetrics() {
         log.info("Registering cache metrics for monitoring");
-        
+
         // Register basic cache information
         cacheManager.getCacheNames().forEach(cacheName -> {
             try {
@@ -37,7 +37,7 @@ public class CacheMetricsConfig {
                 log.warn("Failed to register metrics for cache: {}, error: {}", cacheName, e.getMessage());
             }
         });
-        
+
         log.info("Cache metrics registration completed for {} caches", cacheManager.getCacheNames().size());
     }
 }

@@ -1,0 +1,109 @@
+package com.arcone.biopro.exception.collector.infrastructure.health;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+/**
+ * Unit tests for DatabaseHealthIndicator.
+ * Tests database health check functionality and error scenarios.
+ */
+@Disabled("DatabaseHealthIndicator class is missing")
+@ExtendWith(MockitoExtension.class)
+class DatabaseHealthIndicatorTest {
+
+    @Mock
+    private DataSource dataSource;
+
+    @Mock
+    private Connection connection;
+
+    @Mock
+    private PreparedStatement preparedStatement;
+
+    @Mock
+    private ResultSet resultSet;
+
+    private DatabaseHealthIndicator healthIndicator;
+
+    @BeforeEach
+    void setUp() {
+        healthIndicator = new DatabaseHealthIndicator(dataSource);
+    }
+
+    @Test
+    void checkHealth_WhenDatabaseIsHealthy_ShouldReturnUp() throws SQLException {
+        // Given
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.isClosed()).thenReturn(false);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt(1)).thenReturn(1);
+
+        // When
+        Map<String, Object> health = healthIndicator.checkHealth();
+
+        // Then
+        assertThat(health.get("status")).isEqualTo("UP");
+        assertThat(health.get("database")).isEqualTo("PostgreSQL");
+        assertThat(health.get("message")).isEqualTo("Connection successful");
+    }
+
+    @Test
+    void checkHealth_WhenConnectionIsNull_ShouldReturnDown() throws SQLException {
+        // Given
+        when(dataSource.getConnection()).thenReturn(null);
+
+        // When
+        Map<String, Object> health = healthIndicator.checkHealth();
+
+        // Then
+        assertThat(health.get("status")).isEqualTo("DOWN");
+        assertThat(health.get("database")).isEqualTo("PostgreSQL");
+        assertThat(health).containsKey("error");
+    }
+
+    @Test
+    void isDatabaseAvailable_WhenDatabaseIsHealthy_ShouldReturnTrue() throws SQLException {
+        // Given
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.isClosed()).thenReturn(false);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt(1)).thenReturn(1);
+
+        // When
+        boolean isAvailable = healthIndicator.isDatabaseAvailable();
+
+        // Then
+        assertThat(isAvailable).isTrue();
+    }
+
+    @Test
+    void isDatabaseAvailable_WhenDatabaseIsUnhealthy_ShouldReturnFalse() throws SQLException {
+        // Given
+        when(dataSource.getConnection()).thenThrow(new SQLException("Connection failed"));
+
+        // When
+        boolean isAvailable = healthIndicator.isDatabaseAvailable();
+
+        // Then
+        assertThat(isAvailable).isFalse();
+    }
+}

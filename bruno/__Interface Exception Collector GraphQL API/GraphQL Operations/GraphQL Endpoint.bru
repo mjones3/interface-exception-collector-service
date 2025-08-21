@@ -1,0 +1,23 @@
+meta {
+  name: GraphQL Endpoint
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "query": "",
+    "variables": {},
+    "operationName": ""
+  }
+}

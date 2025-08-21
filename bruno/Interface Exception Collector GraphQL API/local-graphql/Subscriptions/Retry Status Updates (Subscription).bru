@@ -1,0 +1,22 @@
+meta {
+  name: Retry Status Updates (Subscription)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/graphql/subscription/retry-status-updated
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "query": "",
+    "variables": {}
+  }
+}

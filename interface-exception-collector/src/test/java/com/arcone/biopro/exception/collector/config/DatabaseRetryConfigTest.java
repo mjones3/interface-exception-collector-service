@@ -1,5 +1,6 @@
 package com.arcone.biopro.exception.collector.config;
 
+import com.arcone.biopro.exception.collector.infrastructure.config.DatabaseRetryConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.TransientDataAccessException;

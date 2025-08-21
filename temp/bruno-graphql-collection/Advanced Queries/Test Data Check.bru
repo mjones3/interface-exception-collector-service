@@ -1,0 +1,46 @@
+meta {
+  name: Test Data Check
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+query CheckTestData {
+  exceptions(
+    filters: { 
+      searchTerm: "test-transaction",
+      excludeResolved: false 
+    },
+    pagination: { first: 5 }
+  ) {
+    edges {
+      node {
+        transactionId
+        exceptionReason
+        status
+        severity
+        interfaceType
+      }
+    }
+    totalCount
+  }
+}
+}
+
+body:graphql:vars {
+{}
+}
+
+docs {
+  Checks if test data exists in the system for testing GraphQL operations.
+}

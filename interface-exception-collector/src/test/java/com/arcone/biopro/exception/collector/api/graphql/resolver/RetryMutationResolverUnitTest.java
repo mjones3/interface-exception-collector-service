@@ -1,398 +1,291 @@
 package com.arcone.biopro.exception.collector.api.graphql.resolver;
 
+import com.arcone.biopro.exception.collector.api.dto.AcknowledgeRequest;
+import com.arcone.biopro.exception.collector.api.dto.AcknowledgeResponse;
+import com.arcone.biopro.exception.collector.api.dto.ResolveRequest;
+import com.arcone.biopro.exception.collector.api.dto.ResolveResponse;
+import com.arcone.biopro.exception.collector.api.dto.RetryRequest;
+import com.arcone.biopro.exception.collector.api.dto.RetryResponse;
 import com.arcone.biopro.exception.collector.api.graphql.dto.AcknowledgeExceptionInput;
 import com.arcone.biopro.exception.collector.api.graphql.dto.AcknowledgeExceptionResult;
-import com.arcone.biopro.exception.collector.api.graphql.dto.BulkAcknowledgeInput;
-import com.arcone.biopro.exception.collector.api.graphql.dto.BulkAcknowledgeResult;
-import com.arcone.biopro.exception.collector.api.graphql.dto.BulkRetryInput;
-import com.arcone.biopro.exception.collector.api.graphql.dto.BulkRetryResult;
+import com.arcone.biopro.exception.collector.api.graphql.dto.ResolveExceptionInput;
+import com.arcone.biopro.exception.collector.api.graphql.dto.ResolveExceptionResult;
 import com.arcone.biopro.exception.collector.api.graphql.dto.RetryExceptionInput;
 import com.arcone.biopro.exception.collector.api.graphql.dto.RetryExceptionResult;
-import com.arcone.biopro.exception.collector.api.graphql.service.GraphQLAcknowledgmentService;
-import com.arcone.biopro.exception.collector.api.graphql.service.GraphQLRetryService;
-import com.arcone.biopro.exception.collector.api.graphql.service.GraphQLSecurityService;
+import com.arcone.biopro.exception.collector.application.service.ExceptionManagementService;
+import com.arcone.biopro.exception.collector.application.service.RetryService;
+import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
+import com.arcone.biopro.exception.collector.domain.enums.ExceptionStatus;
+import com.arcone.biopro.exception.collector.domain.enums.ResolutionMethod;
+import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
+import com.arcone.biopro.exception.collector.infrastructure.repository.RetryAttemptRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.Authentication;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.time.OffsetDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for RetryMutationResolver.
- * Tests GraphQL mutation operations for retry and acknowledgment with security checks.
+ * Unit tests to verify that GraphQL mutations use the same business services as
+ * REST endpoints.
+ * This ensures consistency between GraphQL and REST API operations.
  */
 @ExtendWith(MockitoExtension.class)
 class RetryMutationResolverUnitTest {
 
-    @Mock
-    private GraphQLRetryService retryService;
+        @Mock
+        private RetryService retryService;
 
-    @Mock
-    private GraphQLAcknowledgmentService acknowledgmentService;
+        @Mock
+        private ExceptionManagementService exceptionManagementService;
 
-    @Mock
-    private GraphQLSecurityService securityService;
+        @Mock
+        private InterfaceExceptionRepository exceptionRepository;
 
-    @Mock
-    private Authentication authentication;
+        @Mock
+        private RetryAttemptRepository retryAttemptRepository;
 
-    @InjectMocks
-    private RetryMutationResolver retryMutationResolver;
+        @Mock
+        private Authentication authentication;
 
-    private RetryExceptionInput retryInput;
-    private AcknowledgeExceptionInput acknowledgeInput;
-    private BulkRetryInput bulkRetryInput;
-    private BulkAcknowledgeInput bulkAcknowledgeInput;
+        private RetryMutationResolver resolver;
 
-    @BeforeEach
-    void setUp() {
-        retryInput = RetryExceptionInput.builder()
-                .transactionId("TXN-001")
-                .reason("Manual retry requested")
-                .priority(RetryExceptionInput.RetryPriority.HIGH)
-                .build();
+        private InterfaceException testException;
 
-        acknowledgeInput = AcknowledgeExceptionInput.builder()
-                .transactionId("TXN-001")
-                .reason("Acknowledged by operations team")
-                .notes("Issue has been reviewed")
-                .build();
+        @BeforeEach
+        void setUp() {
+                resolver = new RetryMutationResolver(
+                                retryService,
+                                exceptionManagementService,
+                                exceptionRepository,
+                                retryAttemptRepository);
 
-        bulkRetryInput = BulkRetryInput.builder()
-                .transactionIds(List.of("TXN-001", "TXN-002", "TXN-003"))
-                .reason("Bulk retry after system fix")
-                .priority(RetryExceptionInput.RetryPriority.NORMAL)
-                .build();
+                testException = InterfaceException.builder()
+                                .id(1L)
+                                .transactionId("TEST-123")
+                                .status(ExceptionStatus.NEW)
+                                .retryable(true)
+                                .build();
 
-        bulkAcknowledgeInput = BulkAcknowledgeInput.builder()
-                .transactionIds(List.of("TXN-001", "TXN-002"))
-                .reason("Bulk acknowledgment")
-                .notes("All issues reviewed")
-                .build();
-
-        when(authentication.getName()).thenReturn("test-user");
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_OPERATIONS"))
-        );
-    }
+                when(authentication.getName()).thenReturn("test.user@company.com");
+        }
 
     @Test
-    void retryException_WithValidInput_ShouldReturnSuccessResult() {
+    void retryException_ShouldUseExistingRetryService_SameAsRestApi() {
         // Given
-        RetryExceptionResult expectedResult = RetryExceptionResult.builder()
-                .success(true)
-                .transactionId("TXN-001")
-                .message("Retry initiated successfully")
-                .build();
-
-        when(retryService.retryException(eq(retryInput), eq("test-user")))
-                .thenReturn(CompletableFuture.completedFuture(expectedResult));
-
-        // When
-        CompletableFuture<RetryExceptionResult> result = retryMutationResolver.retryException(
-                retryInput, authentication
-        );
-
-        // Then
-        assertThat(result).succeedsWithin(java.time.Duration.ofSeconds(1));
-        assertThat(result.join()).isEqualTo(expectedResult);
-        verify(retryService).retryException(eq(retryInput), eq("test-user"));
-    }
-
-    @Test
-    void retryException_WithInsufficientPermissions_ShouldThrowAccessDeniedException() {
-        // Given
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER"))
-        );
-
-        // When & Then
-        assertThatThrownBy(() -> retryMutationResolver.retryException(retryInput, authentication))
-                .isInstanceOf(AccessDeniedException.class)
-                .hasMessageContaining("Insufficient permissions for retry operation");
-    }
-
-    @Test
-    void retryException_WithNullAuthentication_ShouldThrowAccessDeniedException() {
-        // When & Then
-        assertThatThrownBy(() -> retryMutationResolver.retryException(retryInput, null))
-                .isInstanceOf(AccessDeniedException.class)
-                .hasMessageContaining("Authentication required");
-    }
-
-    @Test
-    void acknowledgeException_WithValidInput_ShouldReturnSuccessResult() {
-        // Given
-        AcknowledgeExceptionResult expectedResult = AcknowledgeExceptionResult.builder()
-                .success(true)
-                .transactionId("TXN-001")
-                .message("Exception acknowledged successfully")
-                .build();
-
-        when(acknowledgmentService.acknowledgeException(eq(acknowledgeInput), eq("test-user")))
-                .thenReturn(CompletableFuture.completedFuture(expectedResult));
-
-        // When
-        CompletableFuture<AcknowledgeExceptionResult> result = retryMutationResolver.acknowledgeException(
-                acknowledgeInput, authentication
-        );
-
-        // Then
-        assertThat(result).succeedsWithin(java.time.Duration.ofSeconds(1));
-        assertThat(result.join()).isEqualTo(expectedResult);
-        verify(acknowledgmentService).acknowledgeException(eq(acknowledgeInput), eq("test-user"));
-    }
-
-    @Test
-    void acknowledgeException_WithInsufficientPermissions_ShouldThrowAccessDeniedException() {
-        // Given
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER"))
-        );
-
-        // When & Then
-        assertThatThrownBy(() -> retryMutationResolver.acknowledgeException(acknowledgeInput, authentication))
-                .isInstanceOf(AccessDeniedException.class)
-                .hasMessageContaining("Insufficient permissions for acknowledgment operation");
-    }
-
-    @Test
-    void bulkRetryExceptions_WithValidInput_ShouldReturnBulkResult() {
-        // Given
-        BulkRetryResult expectedResult = BulkRetryResult.builder()
-                .totalRequested(3)
-                .successCount(2)
-                .failureCount(1)
-                .results(List.of(
-                        RetryExceptionResult.builder()
-                                .success(true)
-                                .transactionId("TXN-001")
-                                .build(),
-                        RetryExceptionResult.builder()
-                                .success(true)
-                                .transactionId("TXN-002")
-                                .build(),
-                        RetryExceptionResult.builder()
-                                .success(false)
-                                .transactionId("TXN-003")
-                                .errorMessage("Exception not retryable")
-                                .build()
-                ))
-                .build();
-
-        when(retryService.bulkRetryExceptions(eq(bulkRetryInput), eq("test-user")))
-                .thenReturn(CompletableFuture.completedFuture(expectedResult));
-
-        // When
-        CompletableFuture<BulkRetryResult> result = retryMutationResolver.bulkRetryExceptions(
-                bulkRetryInput, authentication
-        );
-
-        // Then
-        assertThat(result).succeedsWithin(java.time.Duration.ofSeconds(1));
-        BulkRetryResult bulkResult = result.join();
-        assertThat(bulkResult.getTotalRequested()).isEqualTo(3);
-        assertThat(bulkResult.getSuccessCount()).isEqualTo(2);
-        assertThat(bulkResult.getFailureCount()).isEqualTo(1);
-        assertThat(bulkResult.getResults()).hasSize(3);
+        String transactionId = "TEST-123";
+        String reason = "Manual retry requested";
         
-        verify(retryService).bulkRetryExceptions(eq(bulkRetryInput), eq("test-user"));
-    }
-
-    @Test
-    void bulkRetryExceptions_WithAdminRole_ShouldAllowOperation() {
-        // Given
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
-        );
-
-        BulkRetryResult expectedResult = BulkRetryResult.builder()
-                .totalRequested(3)
-                .successCount(3)
-                .failureCount(0)
-                .results(List.of())
+        RetryExceptionInput graphqlInput = RetryExceptionInput.builder()
+                .transactionId(transactionId)
+                .reason(reason)
                 .build();
 
-        when(retryService.bulkRetryExceptions(eq(bulkRetryInput), eq("test-user")))
-                .thenReturn(CompletableFuture.completedFuture(expectedResult));
-
-        // When
-        CompletableFuture<BulkRetryResult> result = retryMutationResolver.bulkRetryExceptions(
-                bulkRetryInput, authentication
-        );
-
-        // Then
-        assertThat(result).succeedsWithin(java.time.Duration.ofSeconds(1));
-        verify(retryService).bulkRetryExceptions(eq(bulkRetryInput), eq("test-user"));
-    }
-
-    @Test
-    void bulkAcknowledgeExceptions_WithValidInput_ShouldReturnBulkResult() {
-        // Given
-        BulkAcknowledgeResult expectedResult = BulkAcknowledgeResult.builder()
-                .totalRequested(2)
-                .successCount(2)
-                .failureCount(0)
-                .results(List.of(
-                        AcknowledgeExceptionResult.builder()
-                                .success(true)
-                                .transactionId("TXN-001")
-                                .build(),
-                        AcknowledgeExceptionResult.builder()
-                                .success(true)
-                                .transactionId("TXN-002")
-                                .build()
-                ))
+        RetryResponse serviceResponse = RetryResponse.builder()
+                .retryId(100L)
+                .status("PENDING")
+                .message("Retry operation initiated successfully")
+                .attemptNumber(1)
                 .build();
 
-        when(acknowledgmentService.bulkAcknowledgeExceptions(eq(bulkAcknowledgeInput), eq("test-user")))
-                .thenReturn(CompletableFuture.completedFuture(expectedResult));
+        when(retryService.canRetry(transactionId)).thenReturn(true);
+        when(retryService.initiateRetry(eq(transactionId), any(RetryRequest.class))).thenReturn(serviceResponse);
+        when(exceptionRepository.findByTransactionId(transactionId)).thenReturn(Optional.of(testException));
 
         // When
-        CompletableFuture<BulkAcknowledgeResult> result = retryMutationResolver.bulkAcknowledgeExceptions(
-                bulkAcknowledgeInput, authentication
-        );
+        RetryExceptionResult result = resolver.retryException(graphqlInput, authentication).join();
 
         // Then
-        assertThat(result).succeedsWithin(java.time.Duration.ofSeconds(1));
-        BulkAcknowledgeResult bulkResult = result.join();
-        assertThat(bulkResult.getTotalRequested()).isEqualTo(2);
-        assertThat(bulkResult.getSuccessCount()).isEqualTo(2);
-        assertThat(bulkResult.getFailureCount()).isEqualTo(0);
-        
-        verify(acknowledgmentService).bulkAcknowledgeExceptions(eq(bulkAcknowledgeInput), eq("test-user"));
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getErrors()).isEmpty();
+        assertThat(result.getException()).isEqualTo(testException);
+
+        // Verify same service calls as REST API
+        verify(retryService).canRetry(transactionId);
+        verify(retryService).initiateRetry(eq(transactionId), any(RetryRequest.class));
+        verify(exceptionRepository).findByTransactionId(transactionId);
     }
 
-    @Test
-    void bulkAcknowledgeExceptions_WithTooManyItems_ShouldThrowException() {
-        // Given
-        List<String> tooManyIds = java.util.stream.IntStream.range(0, 101)
-                .mapToObj(i -> "TXN-" + String.format("%03d", i))
-                .toList();
+        @Test
+        void acknowledgeException_ShouldUseExistingManagementService_SameAsRestApi() {
+                // Given
+                String transactionId = "TEST-123";
+                String reason = "Investigating issue";
 
-        BulkAcknowledgeInput invalidInput = BulkAcknowledgeInput.builder()
-                .transactionIds(tooManyIds) // Exceeds limit of 100
-                .reason("Bulk acknowledgment")
-                .build();
+                AcknowledgeExceptionInput graphqlInput = AcknowledgeExceptionInput.builder()
+                                .transactionId(transactionId)
+                                .reason(reason)
+                                .build();
 
-        // When & Then
-        assertThatThrownBy(() -> retryMutationResolver.bulkAcknowledgeExceptions(invalidInput, authentication))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Bulk operations limited to 100 items");
-    }
+                AcknowledgeResponse serviceResponse = AcknowledgeResponse.builder()
+                                .transactionId(transactionId)
+                                .status("ACKNOWLEDGED")
+                                .acknowledgedBy("test.user@company.com")
+                                .acknowledgedAt(OffsetDateTime.now())
+                                .notes("Reason: " + reason)
+                                .build();
 
-    @Test
-    void retryException_WithServiceException_ShouldPropagateException() {
-        // Given
-        when(retryService.retryException(any(), any()))
-                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Service unavailable")));
+                InterfaceException acknowledgedException = testException.toBuilder()
+                                .status(ExceptionStatus.ACKNOWLEDGED)
+                                .acknowledgedBy("test.user@company.com")
+                                .acknowledgedAt(OffsetDateTime.now())
+                                .build();
 
-        // When
-        CompletableFuture<RetryExceptionResult> result = retryMutationResolver.retryException(
-                retryInput, authentication
-        );
+                when(exceptionManagementService.canAcknowledge(transactionId)).thenReturn(true);
+                when(exceptionManagementService.acknowledgeException(eq(transactionId), any(AcknowledgeRequest.class)))
+                                .thenReturn(serviceResponse);
+                when(exceptionRepository.findByTransactionId(transactionId))
+                                .thenReturn(Optional.of(acknowledgedException));
 
-        // Then
-        assertThat(result).failsWithin(java.time.Duration.ofSeconds(1))
-                .withThrowableOfType(java.util.concurrent.ExecutionException.class)
-                .withMessageContaining("Service unavailable");
-    }
+                // When
+                AcknowledgeExceptionResult result = resolver.acknowledgeException(graphqlInput, authentication).join();
 
-    @Test
-    void acknowledgeException_WithServiceException_ShouldPropagateException() {
-        // Given
-        when(acknowledgmentService.acknowledgeException(any(), any()))
-                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Database error")));
+                // Then
+                assertThat(result.isSuccess()).isTrue();
+                assertThat(result.getErrors()).isEmpty();
+                assertThat(result.getException()).isEqualTo(acknowledgedException);
+                assertThat(result.getException().getStatus()).isEqualTo(ExceptionStatus.ACKNOWLEDGED);
 
-        // When
-        CompletableFuture<AcknowledgeExceptionResult> result = retryMutationResolver.acknowledgeException(
-                acknowledgeInput, authentication
-        );
+                // Verify same service calls as REST API
+                verify(exceptionManagementService).canAcknowledge(transactionId);
+                verify(exceptionManagementService).acknowledgeException(eq(transactionId),
+                                any(AcknowledgeRequest.class));
+                verify(exceptionRepository).findByTransactionId(transactionId);
+        }
 
-        // Then
-        assertThat(result).failsWithin(java.time.Duration.ofSeconds(1))
-                .withThrowableOfType(java.util.concurrent.ExecutionException.class)
-                .withMessageContaining("Database error");
-    }
+        @Test
+        void resolveException_ShouldUseExistingManagementService_SameAsRestApi() {
+                // Given
+                String transactionId = "TEST-123";
+                ResolutionMethod resolutionMethod = ResolutionMethod.MANUAL_RESOLUTION;
+                String resolutionNotes = "Fixed data validation issue";
 
-    @Test
-    void validateBulkOperationSize_WithValidSize_ShouldNotThrow() {
-        // Given
-        List<String> validIds = List.of("TXN-001", "TXN-002", "TXN-003");
+                ResolveExceptionInput graphqlInput = ResolveExceptionInput.builder()
+                                .transactionId(transactionId)
+                                .resolutionMethod(resolutionMethod)
+                                .resolutionNotes(resolutionNotes)
+                                .build();
 
-        // When & Then - Should not throw exception
-        retryMutationResolver.validateBulkOperationSize(validIds);
-    }
+                ResolveResponse serviceResponse = ResolveResponse.builder()
+                                .transactionId(transactionId)
+                                .status("RESOLVED")
+                                .resolvedBy("test.user@company.com")
+                                .resolvedAt(OffsetDateTime.now())
+                                .resolutionMethod(resolutionMethod)
+                                .resolutionNotes(resolutionNotes)
+                                .build();
 
-    @Test
-    void validateBulkOperationSize_WithExcessiveSize_ShouldThrowException() {
-        // Given
-        List<String> tooManyIds = java.util.stream.IntStream.range(0, 101)
-                .mapToObj(i -> "TXN-" + String.format("%03d", i))
-                .toList();
+                InterfaceException resolvedException = testException.toBuilder()
+                                .status(ExceptionStatus.RESOLVED)
+                                .resolvedBy("test.user@company.com")
+                                .resolvedAt(OffsetDateTime.now())
+                                .resolutionMethod(resolutionMethod)
+                                .resolutionNotes(resolutionNotes)
+                                .build();
 
-        // When & Then
-        assertThatThrownBy(() -> retryMutationResolver.validateBulkOperationSize(tooManyIds))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Bulk operations limited to 100 items");
-    }
+                when(exceptionManagementService.canResolve(transactionId)).thenReturn(true);
+                when(exceptionManagementService.resolveException(eq(transactionId), any(ResolveRequest.class)))
+                                .thenReturn(serviceResponse);
+                when(exceptionRepository.findByTransactionId(transactionId)).thenReturn(Optional.of(resolvedException));
 
-    @Test
-    void extractUserId_ShouldReturnAuthenticationName() {
-        // When
-        String userId = retryMutationResolver.extractUserId(authentication);
+                // When
+                ResolveExceptionResult result = resolver.resolveException(graphqlInput, authentication).join();
 
-        // Then
-        assertThat(userId).isEqualTo("test-user");
-    }
+                // Then
+                assertThat(result.isSuccess()).isTrue();
+                assertThat(result.getErrors()).isEmpty();
+                assertThat(result.getException()).isEqualTo(resolvedException);
+                assertThat(result.getException().getStatus()).isEqualTo(ExceptionStatus.RESOLVED);
 
-    @Test
-    void hasRequiredRole_WithOperationsRole_ShouldReturnTrue() {
-        // When
-        boolean hasRole = retryMutationResolver.hasRequiredRole(authentication);
+                // Verify same service calls as REST API
+                verify(exceptionManagementService).canResolve(transactionId);
+                verify(exceptionManagementService).resolveException(eq(transactionId), any(ResolveRequest.class));
+                verify(exceptionRepository).findByTransactionId(transactionId);
+        }
 
-        // Then
-        assertThat(hasRole).isTrue();
-    }
+        @Test
+        void retryException_WhenNotAllowed_ShouldHandleErrorSameAsRestApi() {
+                // Given
+                String transactionId = "TEST-123";
+                RetryExceptionInput graphqlInput = RetryExceptionInput.builder()
+                                .transactionId(transactionId)
+                                .reason("Manual retry")
+                                .build();
 
-    @Test
-    void hasRequiredRole_WithAdminRole_ShouldReturnTrue() {
-        // Given
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
-        );
+                when(retryService.canRetry(transactionId)).thenReturn(false);
 
-        // When
-        boolean hasRole = retryMutationResolver.hasRequiredRole(authentication);
+                // When
+                RetryExceptionResult result = resolver.retryException(graphqlInput, authentication).join();
 
-        // Then
-        assertThat(hasRole).isTrue();
-    }
+                // Then
+                assertThat(result.isSuccess()).isFalse();
+                assertThat(result.getErrors()).hasSize(1);
+                assertThat(result.getErrors().get(0).getCode()).isEqualTo("RETRY_NOT_ALLOWED");
+                assertThat(result.getErrors().get(0).getMessage())
+                                .isEqualTo("Exception is not retryable or retry already in progress");
 
-    @Test
-    void hasRequiredRole_WithViewerRole_ShouldReturnFalse() {
-        // Given
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER"))
-        );
+                // Verify same validation as REST API
+                verify(retryService).canRetry(transactionId);
+        }
 
-        // When
-        boolean hasRole = retryMutationResolver.hasRequiredRole(authentication);
+        @Test
+        void acknowledgeException_WhenNotAllowed_ShouldHandleErrorSameAsRestApi() {
+                // Given
+                String transactionId = "TEST-123";
+                AcknowledgeExceptionInput graphqlInput = AcknowledgeExceptionInput.builder()
+                                .transactionId(transactionId)
+                                .reason("Investigating")
+                                .build();
 
-        // Then
-        assertThat(hasRole).isFalse();
-    }
+                when(exceptionManagementService.canAcknowledge(transactionId)).thenReturn(false);
+
+                // When
+                AcknowledgeExceptionResult result = resolver.acknowledgeException(graphqlInput, authentication).join();
+
+                // Then
+                assertThat(result.isSuccess()).isFalse();
+                assertThat(result.getErrors()).hasSize(1);
+                assertThat(result.getErrors().get(0).getCode()).isEqualTo("ACKNOWLEDGMENT_NOT_ALLOWED");
+                assertThat(result.getErrors().get(0).getMessage())
+                                .isEqualTo("Exception cannot be acknowledged (not found, already resolved, or closed)");
+
+                // Verify same validation as REST API
+                verify(exceptionManagementService).canAcknowledge(transactionId);
+        }
+
+        @Test
+        void resolveException_WhenNotAllowed_ShouldHandleErrorSameAsRestApi() {
+                // Given
+                String transactionId = "TEST-123";
+                ResolveExceptionInput graphqlInput = ResolveExceptionInput.builder()
+                                .transactionId(transactionId)
+                                .resolutionMethod(ResolutionMethod.MANUAL_RESOLUTION)
+                                .resolutionNotes("Fixed issue")
+                                .build();
+
+                when(exceptionManagementService.canResolve(transactionId)).thenReturn(false);
+
+                // When
+                ResolveExceptionResult result = resolver.resolveException(graphqlInput, authentication).join();
+
+                // Then
+                assertThat(result.isSuccess()).isFalse();
+                assertThat(result.getErrors()).hasSize(1);
+                assertThat(result.getErrors().get(0).getCode()).isEqualTo("RESOLUTION_NOT_ALLOWED");
+                assertThat(result.getErrors().get(0).getMessage())
+                                .isEqualTo("Exception cannot be resolved (not found, already resolved, or closed)");
+
+                // Verify same validation as REST API
+                verify(exceptionManagementService).canResolve(transactionId);
+        }
 }

@@ -1,0 +1,52 @@
+meta {
+  name: Acknowledge Exception
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+mutation AcknowledgeException($input: AcknowledgeExceptionInput!) {
+  acknowledgeException(input: $input) {
+    success
+    exception {
+      id
+      transactionId
+      status
+      acknowledgedBy
+      acknowledgedAt
+    }
+    errors {
+      message
+      code
+      path
+      extensions
+    }
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "input": {
+    "transactionId": "test-transaction-123",
+    "reason": "Reviewed and assigned to development team",
+    "notes": "Issue appears to be related to timeout configuration",
+    "estimatedResolutionTime": "2025-08-21T10:00:00Z",
+    "assignedTo": "dev-team@company.com"
+  }
+}
+}
+
+docs {
+  Acknowledges an exception and assigns it for resolution.
+}

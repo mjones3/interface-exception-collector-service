@@ -1,0 +1,56 @@
+meta {
+  name: Summary Updates
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+subscription SummaryUpdated($timeRange: TimeRange!) {
+  summaryUpdated(timeRange: $timeRange) {
+    totalExceptions
+    byInterfaceType {
+      interfaceType
+      count
+      percentage
+    }
+    bySeverity {
+      severity
+      count
+      percentage
+    }
+    byStatus {
+      status
+      count
+      percentage
+    }
+    keyMetrics {
+      retrySuccessRate
+      averageResolutionTime
+      customerImpactCount
+      criticalExceptionCount
+    }
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "timeRange": {
+    "period": "LAST_24_HOURS"
+  }
+}
+}
+
+docs {
+  Real-time updates for exception summary statistics.
+}

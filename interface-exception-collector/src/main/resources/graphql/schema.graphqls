@@ -40,12 +40,8 @@ type Mutation {
     
     bulkAcknowledgeExceptions(input: BulkAcknowledgeInput!): BulkAcknowledgeResult!
     
-    # Status management
-    resolveException(
-        transactionId: String!
-        resolutionMethod: ResolutionMethod!
-        notes: String
-    ): ResolveExceptionResult!
+    # Resolution operations
+    resolveException(input: ResolveExceptionInput!): ResolveExceptionResult!
     
     cancelRetry(
         transactionId: String!

@@ -184,6 +184,10 @@ spring:
 
   # GraphQL Configuration
   graphql:
+    path: /graphql
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
     websocket:
       path: /subscriptions
     schema:
@@ -197,13 +201,33 @@ spring:
       enabled: ${GRAPHIQL_ENABLED:true}
       path: /graphiql
 
-# Custom GraphQL Configuration
+# Custom GraphQL Feature Configuration
 graphql:
+  features:
+    enabled: ${GRAPHQL_ENABLED:true}
+    query-enabled: ${GRAPHQL_QUERY_ENABLED:true}
+    mutation-enabled: ${GRAPHQL_MUTATION_ENABLED:true}
+    subscription-enabled: ${GRAPHQL_SUBSCRIPTION_ENABLED:true}
+    graphiql-enabled: ${GRAPHQL_GRAPHIQL_ENABLED:true}
+    introspection-enabled: ${GRAPHQL_INTROSPECTION_ENABLED:true}
+    data-loader-enabled: ${GRAPHQL_DATALOADER_ENABLED:true}
+    complexity-analysis-enabled: ${GRAPHQL_COMPLEXITY_ANALYSIS_ENABLED:true}
+    depth-analysis-enabled: ${GRAPHQL_DEPTH_ANALYSIS_ENABLED:true}
+    metrics-enabled: ${GRAPHQL_METRICS_ENABLED:true}
+    audit-logging-enabled: ${GRAPHQL_AUDIT_LOGGING_ENABLED:true}
+    query-cache-enabled: ${GRAPHQL_QUERY_CACHE_ENABLED:true}
+    rate-limiting-enabled: ${GRAPHQL_RATE_LIMITING_ENABLED:true}
+    query-allowlist-enabled: ${GRAPHQL_QUERY_ALLOWLIST_ENABLED:false}
+    websocket-heartbeat-enabled: ${GRAPHQL_WEBSOCKET_HEARTBEAT_ENABLED:true}
+    health-checks-enabled: ${GRAPHQL_HEALTH_CHECKS_ENABLED:true}
+    alerting-enabled: ${GRAPHQL_ALERTING_ENABLED:true}
+    performance-optimizations-enabled: ${GRAPHQL_PERFORMANCE_OPTIMIZATIONS_ENABLED:true}
+    cors-enabled: ${GRAPHQL_CORS_ENABLED:true}
+    development-tools-enabled: ${GRAPHQL_DEVELOPMENT_TOOLS_ENABLED:true}
+  
   max-query-complexity: ${GRAPHQL_MAX_COMPLEXITY:1000}
   max-query-depth: ${GRAPHQL_MAX_DEPTH:10}
   query-timeout-seconds: ${GRAPHQL_QUERY_TIMEOUT:30}
-  enable-complexity-analysis: ${GRAPHQL_ENABLE_COMPLEXITY:true}
-  enable-depth-analysis: ${GRAPHQL_ENABLE_DEPTH:true}
   websocket:
     heartbeat:
       interval: ${GRAPHQL_WS_HEARTBEAT_INTERVAL:30}
@@ -428,6 +452,18 @@ resilience4j:
 logging:
   level:
     com.arcone.biopro: DEBUG
+    # GraphQL specific logging levels
+    com.arcone.biopro.exception.collector.api.graphql: INFO
+    com.arcone.biopro.exception.collector.api.graphql.logging: INFO
+    com.arcone.biopro.exception.collector.api.graphql.monitoring: INFO
+    com.arcone.biopro.exception.collector.api.graphql.security: INFO
+    # Spring GraphQL framework - enabled for debugging
+    org.springframework.graphql: DEBUG
+    org.springframework.boot.autoconfigure.graphql: DEBUG
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    graphql.execution: INFO
+    graphql.GraphQL: INFO
+    # Other loggers
     org.flywaydb: INFO
     org.springframework.kafka: ERROR
     org.apache.kafka: ERROR
@@ -438,8 +474,8 @@ logging:
     org.springframework.security.web.access: DEBUG
     org.springframework.security.access: DEBUG
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] [%X{operationType:-}] [%X{operationName:-}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] [%X{operationType:-}] [%X{operationName:-}] %logger{36} - %msg%n"
 
 
 # Dynatrace Configuration
@@ -501,7 +537,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,loggers,graphql-health,graphql-alerts
+        include: health,info,metrics,prometheus,loggers,graphql-health
       base-path: /actuator
   endpoint:
     health:

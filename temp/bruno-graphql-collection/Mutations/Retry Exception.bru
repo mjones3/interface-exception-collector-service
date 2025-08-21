@@ -1,0 +1,58 @@
+meta {
+  name: Retry Exception
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+mutation RetryException($input: RetryExceptionInput!) {
+  retryException(input: $input) {
+    success
+    exception {
+      id
+      transactionId
+      status
+      retryCount
+      lastRetryAt
+    }
+    retryAttempt {
+      id
+      attemptNumber
+      status
+      initiatedBy
+      initiatedAt
+    }
+    errors {
+      message
+      code
+      path
+      extensions
+    }
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "input": {
+    "transactionId": "test-transaction-123",
+    "reason": "Customer requested retry after fixing data issue",
+    "priority": "HIGH",
+    "notes": "Retrying after customer confirmed data correction"
+  }
+}
+}
+
+docs {
+  Initiates a retry operation for a specific exception.
+}

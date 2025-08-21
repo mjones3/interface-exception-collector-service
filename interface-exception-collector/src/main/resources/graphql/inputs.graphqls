@@ -79,6 +79,13 @@ input AcknowledgeExceptionInput {
     assignedTo: String
 }
 
+# Resolution input
+input ResolveExceptionInput {
+    transactionId: String!
+    resolutionMethod: ResolutionMethod!
+    resolutionNotes: String
+}
+
 # Bulk operation inputs
 input BulkRetryInput {
     transactionIds: [String!]!

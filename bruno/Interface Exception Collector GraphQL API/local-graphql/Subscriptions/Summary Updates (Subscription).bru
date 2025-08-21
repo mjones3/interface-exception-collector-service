@@ -1,0 +1,22 @@
+meta {
+  name: Summary Updates (Subscription)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/graphql/subscription/summary-updated
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "query": "",
+    "variables": {}
+  }
+}

@@ -1,0 +1,64 @@
+meta {
+  name: Get Exception Summary
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+query GetExceptionSummary($timeRange: TimeRange!, $filters: ExceptionFilters) {
+  exceptionSummary(timeRange: $timeRange, filters: $filters) {
+    totalExceptions
+    byInterfaceType {
+      interfaceType
+      count
+      percentage
+    }
+    bySeverity {
+      severity
+      count
+      percentage
+    }
+    byStatus {
+      status
+      count
+      percentage
+    }
+    trends {
+      timestamp
+      count
+      interfaceType
+    }
+    keyMetrics {
+      retrySuccessRate
+      averageResolutionTime
+      customerImpactCount
+      criticalExceptionCount
+    }
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "timeRange": {
+    "period": "LAST_7_DAYS"
+  },
+  "filters": {
+    "severities": ["HIGH", "CRITICAL"]
+  }
+}
+}
+
+docs {
+  Retrieves aggregated exception statistics and trends for a specified time range.
+}

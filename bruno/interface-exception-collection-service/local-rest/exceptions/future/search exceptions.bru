@@ -1,0 +1,23 @@
+meta {
+  name: search exceptions
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8080/api/v1/exceptions/search?query=suspended
+  body: json
+  auth: bearer
+}
+
+params:query {
+  query: suspended
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+}

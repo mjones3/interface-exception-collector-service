@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
-import static com.arcone.biopro.exception.collector.config.LoggingConfig.LoggingContext;
+import static com.arcone.biopro.exception.collector.infrastructure.config.LoggingConfig.LoggingContext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

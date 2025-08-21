@@ -1,0 +1,78 @@
+meta {
+  name: Get Exception by ID
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+query GetException($transactionId: String!) {
+  exception(transactionId: $transactionId) {
+    id
+    transactionId
+    externalId
+    interfaceType
+    exceptionReason
+    operation
+    status
+    severity
+    category
+    customerId
+    locationCode
+    timestamp
+    processedAt
+    retryable
+    retryCount
+    maxRetries
+    lastRetryAt
+    acknowledgedBy
+    acknowledgedAt
+    originalPayload {
+      content
+      contentType
+      retrievedAt
+      sourceService
+    }
+    retryHistory {
+      id
+      attemptNumber
+      status
+      initiatedBy
+      initiatedAt
+      completedAt
+      resultSuccess
+      resultMessage
+      resultResponseCode
+      resultErrorDetails
+    }
+    statusHistory {
+      id
+      fromStatus
+      toStatus
+      changedBy
+      changedAt
+      reason
+      notes
+    }
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "transactionId": "test-transaction-123"
+}
+}
+
+docs {
+  Retrieves detailed information for a specific exception including retry history and status changes.
+}

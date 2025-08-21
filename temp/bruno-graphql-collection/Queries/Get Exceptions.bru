@@ -1,0 +1,76 @@
+meta {
+  name: Get Exceptions
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+query GetExceptions($filters: ExceptionFilters, $pagination: PaginationInput, $sorting: SortingInput) {
+  exceptions(filters: $filters, pagination: $pagination, sorting: $sorting) {
+    edges {
+      node {
+        id
+        transactionId
+        externalId
+        interfaceType
+        exceptionReason
+        operation
+        status
+        severity
+        category
+        customerId
+        locationCode
+        timestamp
+        processedAt
+        retryable
+        retryCount
+        maxRetries
+        lastRetryAt
+        acknowledgedBy
+        acknowledgedAt
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "filters": {
+    "interfaceTypes": ["ORDER_COLLECTION"],
+    "statuses": ["NEW", "ACKNOWLEDGED"],
+    "severities": ["HIGH", "CRITICAL"],
+    "excludeResolved": true,
+    "retryable": true
+  },
+  "pagination": {
+    "first": 10
+  },
+  "sorting": {
+    "field": "timestamp",
+    "direction": "DESC"
+  }
+}
+}
+
+docs {
+  Retrieves a paginated list of exceptions with optional filtering and sorting.
+}

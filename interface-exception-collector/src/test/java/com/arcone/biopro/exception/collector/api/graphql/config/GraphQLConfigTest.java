@@ -1,5 +1,6 @@
 package com.arcone.biopro.exception.collector.api.graphql.config;
 
+import com.arcone.biopro.exception.collector.infrastructure.config.GraphQLConfig;
 import graphql.analysis.MaxQueryComplexityInstrumentation;
 import graphql.analysis.MaxQueryDepthInstrumentation;
 import graphql.execution.instrumentation.ChainedInstrumentation;

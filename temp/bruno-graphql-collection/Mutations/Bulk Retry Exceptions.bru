@@ -1,0 +1,55 @@
+meta {
+  name: Bulk Retry Exceptions
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{graphql-endpoint}}
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:graphql {
+mutation BulkRetryExceptions($input: BulkRetryInput!) {
+  bulkRetryExceptions(input: $input) {
+    successCount
+    failureCount
+    results {
+      success
+      exception {
+        transactionId
+        status
+        retryCount
+      }
+      errors {
+        message
+        code
+      }
+    }
+    errors {
+      message
+      code
+      path
+    }
+  }
+}
+}
+
+body:graphql:vars {
+{
+  "input": {
+    "transactionIds": ["test-transaction-123", "test-transaction-456", "test-transaction-789"],
+    "reason": "Bulk retry after system maintenance",
+    "priority": "NORMAL"
+  }
+}
+}
+
+docs {
+  Initiates retry operations for multiple exceptions simultaneously.
+}

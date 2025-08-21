@@ -1,975 +1,874 @@
-# GraphQL Developer Guide
+# GraphQL API Developer Guide
 
-## Interface Exception Collector GraphQL API
+## Overview
 
-### Table of Contents
+The Interface Exception Collector Service provides a comprehensive GraphQL API for managing and monitoring interface exceptions across various business systems. This guide covers all available operations, authentication, and usage examples for developers consuming the GraphQL API.
 
-1. [Getting Started](#getting-started)
-2. [Authentication Setup](#authentication-setup)
-3. [Client Integration Examples](#client-integration-examples)
-4. [Common Query Patterns](#common-query-patterns)
-5. [Real-time Subscriptions](#real-time-subscriptions)
-6. [Error Handling](#error-handling)
-7. [Performance Optimization](#performance-optimization)
-8. [Testing Strategies](#testing-strategies)
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Authentication](#authentication)
+- [Endpoints](#endpoints)
+- [Queries](#queries)
+- [Mutations](#mutations)
+- [Subscriptions](#subscriptions)
+- [Types and Enums](#types-and-enums)
+- [Error Handling](#error-handling)
+- [Rate Limiting](#rate-limiting)
+- [Examples](#examples)
 
 ## Getting Started
 
-### Prerequisites
+### GraphQL Endpoint
+- **URL**: `https://your-domain.com/graphql`
+- **Method**: POST
+- **Content-Type**: `application/json`
 
-- Node.js 16+ or equivalent runtime
-- Valid JWT token with appropriate roles
-- Network access to the GraphQL endpoint
+### GraphiQL Interface (Development Only)
+- **URL**: `https://your-domain.com/graphiql`
+- Interactive query interface for testing and exploration
 
-### Quick Start
+### WebSocket Subscriptions
+- **URL**: `wss://your-domain.com/subscriptions`
+- Real-time updates via WebSocket connection
 
-1. **Install Apollo Client** (recommended GraphQL client):
+## Authentication
 
-```bash
-npm install @apollo/client graphql
+All GraphQL operations require JWT authentication via the `Authorization` header:
+
+```
+Authorization: Bearer <your-jwt-token>
 ```
 
-2. **Basic Client Setup**:
+### Role-Based Access Control
 
-```javascript
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
+- **VIEWER**: Can query exception data and subscribe to updates
+- **OPERATIONS**: Can perform retry and acknowledgment operations
+- **ADMIN**: Full access to all operations including resolution and cancellation
 
-const httpLink = createHttpLink({
-    uri: 'https://your-domain.com/graphql',
-});
+## Endpoints
 
-const authLink = setContext((_, { headers }) => {
-    const token = localStorage.getItem('jwt-token');
-    return {
-        headers: {
-            ...headers,
-            authorization: token ? `Bearer ${token}` : "",
-        }
-    };
-});
+### Schema Documentation
+- **GET** `/graphql/schema` - Returns the complete GraphQL schema (development only)
+- **GET** `/graphql/info` - API documentation and examples (development only)
+- **GET** `/graphql/examples` - Query examples in JSON format (development only)
 
-const client = new ApolloClient({
-    link: authLink.concat(httpLink),
-    cache: new InMemoryCache(),
-    defaultOptions: {
-        watchQuery: {
-            errorPolicy: 'all'
-        },
-        query: {
-            errorPolicy: 'all'
-        }
+## Queries
+
+### 1. List Exceptions with Filtering and Pagination
+
+Retrieve a paginated list of exceptions with comprehensive filtering options.
+
+**Operation**: `exceptions`
+
+**Parameters**:
+- `filters` (ExceptionFilters, optional): Filtering criteria
+- `pagination` (PaginationInput, optional): Cursor-based pagination
+- `sorting` (SortingInput, optional): Sort configuration
+
+**Example**:
+```graphql
+query ListExceptions($filters: ExceptionFilters, $pagination: PaginationInput, $sorting: SortingInput) {
+  exceptions(filters: $filters, pagination: $pagination, sorting: $sorting) {
+    edges {
+      node {
+        id
+        transactionId
+        interfaceType
+        exceptionReason
+        status
+        severity
+        category
+        timestamp
+        retryCount
+        maxRetries
+        customerId
+        locationCode
+      }
+      cursor
     }
-});
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}
 ```
 
-## Authentication Setup
-
-### JWT Token Requirements
-
-Your JWT token must include these claims:
-
+**Variables**:
 ```json
 {
-    "sub": "user123",
-    "roles": ["OPERATIONS", "VIEWER"],
-    "exp": 1640995200,
-    "iat": 1640908800,
-    "iss": "biopro-auth-service",
-    "aud": "interface-exception-api"
-}
-```
-
-### Role-Based Access
-
-| Role | Permissions |
-|------|-------------|
-| `VIEWER` | Read-only access to exceptions and summaries |
-| `OPERATIONS` | VIEWER + retry/acknowledge operations + payload access |
-| `ADMIN` | Full access including system health and configuration |
-
-### Token Refresh Example
-
-```javascript
-import { from } from '@apollo/client';
-import { onError } from '@apollo/client/link/error';
-
-const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
-    if (graphQLErrors) {
-        for (let err of graphQLErrors) {
-            if (err.extensions?.code === 'AUTHORIZATION_ERROR') {
-                // Token expired, refresh it
-                return from(
-                    refreshToken().then(newToken => {
-                        localStorage.setItem('jwt-token', newToken);
-                        // Retry the operation
-                        const oldHeaders = operation.getContext().headers;
-                        operation.setContext({
-                            headers: {
-                                ...oldHeaders,
-                                authorization: `Bearer ${newToken}`,
-                            },
-                        });
-                        return forward(operation);
-                    })
-                );
-            }
-        }
-    }
-});
-```
-
-## Client Integration Examples
-
-### React Hook Example
-
-```javascript
-import { useQuery, useMutation, useSubscription } from '@apollo/client';
-import { gql } from '@apollo/client';
-
-// Query hook for exception list
-const GET_EXCEPTIONS = gql`
-    query GetExceptions($filters: ExceptionFilters, $pagination: PaginationInput) {
-        exceptions(filters: $filters, pagination: $pagination) {
-            edges {
-                node {
-                    id
-                    transactionId
-                    interfaceType
-                    exceptionReason
-                    status
-                    severity
-                    timestamp
-                    customerId
-                }
-                cursor
-            }
-            pageInfo {
-                hasNextPage
-                hasPreviousPage
-                startCursor
-                endCursor
-            }
-            totalCount
-        }
-    }
-`;
-
-function ExceptionList({ filters }) {
-    const { loading, error, data, fetchMore } = useQuery(GET_EXCEPTIONS, {
-        variables: {
-            filters,
-            pagination: { first: 20 }
-        },
-        pollInterval: 30000, // Poll every 30 seconds
-    });
-
-    const loadMore = () => {
-        fetchMore({
-            variables: {
-                pagination: {
-                    first: 20,
-                    after: data.exceptions.pageInfo.endCursor
-                }
-            },
-            updateQuery: (prev, { fetchMoreResult }) => {
-                if (!fetchMoreResult) return prev;
-                return {
-                    exceptions: {
-                        ...fetchMoreResult.exceptions,
-                        edges: [
-                            ...prev.exceptions.edges,
-                            ...fetchMoreResult.exceptions.edges
-                        ]
-                    }
-                };
-            }
-        });
-    };
-
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
-
-    return (
-        <div>
-            {data.exceptions.edges.map(({ node }) => (
-                <ExceptionCard key={node.id} exception={node} />
-            ))}
-            {data.exceptions.pageInfo.hasNextPage && (
-                <button onClick={loadMore}>Load More</button>
-            )}
-        </div>
-    );
-}
-```
-
-### Mutation Hook Example
-
-```javascript
-const RETRY_EXCEPTION = gql`
-    mutation RetryException($input: RetryExceptionInput!) {
-        retryException(input: $input) {
-            success
-            exception {
-                id
-                transactionId
-                status
-                retryCount
-            }
-            retryAttempt {
-                attemptNumber
-                status
-                initiatedAt
-            }
-            errors {
-                message
-                code
-                path
-            }
-        }
-    }
-`;
-
-function RetryButton({ transactionId }) {
-    const [retryException, { loading, error }] = useMutation(RETRY_EXCEPTION, {
-        onCompleted: (data) => {
-            if (data.retryException.success) {
-                toast.success('Retry initiated successfully');
-            } else {
-                toast.error('Retry failed: ' + data.retryException.errors[0]?.message);
-            }
-        },
-        // Update cache after successful retry
-        update: (cache, { data }) => {
-            if (data.retryException.success) {
-                cache.modify({
-                    id: cache.identify(data.retryException.exception),
-                    fields: {
-                        status: () => data.retryException.exception.status,
-                        retryCount: () => data.retryException.exception.retryCount,
-                    },
-                });
-            }
-        }
-    });
-
-    const handleRetry = () => {
-        retryException({
-            variables: {
-                input: {
-                    transactionId,
-                    reason: 'Manual retry from dashboard',
-                    priority: 'NORMAL'
-                }
-            }
-        });
-    };
-
-    return (
-        <button 
-            onClick={handleRetry} 
-            disabled={loading}
-            className="retry-button"
-        >
-            {loading ? 'Retrying...' : 'Retry'}
-        </button>
-    );
-}
-```
-
-### Subscription Hook Example
-
-```javascript
-const EXCEPTION_UPDATES = gql`
-    subscription ExceptionUpdates($filters: SubscriptionFilters) {
-        exceptionUpdated(filters: $filters) {
-            eventType
-            exception {
-                id
-                transactionId
-                interfaceType
-                status
-                severity
-                timestamp
-            }
-            timestamp
-            triggeredBy
-        }
-    }
-`;
-
-function RealTimeExceptionMonitor({ filters }) {
-    const { data, loading, error } = useSubscription(EXCEPTION_UPDATES, {
-        variables: { filters },
-        onSubscriptionData: ({ subscriptionData }) => {
-            const update = subscriptionData.data.exceptionUpdated;
-            
-            // Show notification for critical exceptions
-            if (update.exception.severity === 'CRITICAL') {
-                showNotification({
-                    title: 'Critical Exception',
-                    message: `${update.exception.interfaceType}: ${update.exception.transactionId}`,
-                    type: 'error'
-                });
-            }
-            
-            // Update dashboard counters
-            updateDashboardCounters(update);
-        }
-    });
-
-    if (error) {
-        console.error('Subscription error:', error);
-        return <div>Real-time updates unavailable</div>;
-    }
-
-    return (
-        <div className="real-time-monitor">
-            <div className={`status ${loading ? 'connecting' : 'connected'}`}>
-                {loading ? 'Connecting...' : 'Live Updates Active'}
-            </div>
-        </div>
-    );
-}
-```
-
-## Common Query Patterns
-
-### 1. Dashboard Summary Query
-
-```javascript
-const DASHBOARD_SUMMARY = gql`
-    query DashboardSummary($timeRange: TimeRange!) {
-        exceptionSummary(timeRange: $timeRange) {
-            totalExceptions
-            
-            byInterfaceType {
-                interfaceType
-                count
-                percentage
-            }
-            
-            bySeverity {
-                severity
-                count
-                percentage
-            }
-            
-            byStatus {
-                status
-                count
-                percentage
-            }
-            
-            keyMetrics {
-                retrySuccessRate
-                averageResolutionTime
-                customerImpactCount
-                criticalExceptionCount
-            }
-            
-            trends {
-                timestamp
-                count
-                interfaceType
-            }
-        }
-    }
-`;
-
-// Usage with caching
-function DashboardSummary() {
-    const { data, loading, error } = useQuery(DASHBOARD_SUMMARY, {
-        variables: {
-            timeRange: { period: 'LAST_24_HOURS' }
-        },
-        fetchPolicy: 'cache-and-network',
-        pollInterval: 60000, // Refresh every minute
-    });
-
-    return (
-        <div className="dashboard-summary">
-            <MetricsCards metrics={data?.exceptionSummary.keyMetrics} />
-            <StatusChart data={data?.exceptionSummary.byStatus} />
-            <TrendChart data={data?.exceptionSummary.trends} />
-        </div>
-    );
-}
-```
-
-### 2. Exception Detail with Lazy Loading
-
-```javascript
-const EXCEPTION_DETAIL = gql`
-    query ExceptionDetail($transactionId: String!) {
-        exception(transactionId: $transactionId) {
-            id
-            transactionId
-            externalId
-            interfaceType
-            exceptionReason
-            operation
-            status
-            severity
-            category
-            customerId
-            locationCode
-            timestamp
-            processedAt
-            retryable
-            retryCount
-            maxRetries
-            
-            # Lazy load these expensive fields
-            originalPayload @include(if: $includePayload) {
-                content
-                contentType
-                retrievedAt
-                sourceService
-            }
-            
-            retryHistory @include(if: $includeHistory) {
-                id
-                attemptNumber
-                status
-                initiatedBy
-                initiatedAt
-                completedAt
-                resultSuccess
-                resultMessage
-            }
-        }
-    }
-`;
-
-function ExceptionDetail({ transactionId }) {
-    const [includePayload, setIncludePayload] = useState(false);
-    const [includeHistory, setIncludeHistory] = useState(false);
-
-    const { data, loading, error, refetch } = useQuery(EXCEPTION_DETAIL, {
-        variables: {
-            transactionId,
-            includePayload,
-            includeHistory
-        }
-    });
-
-    const loadPayload = () => {
-        setIncludePayload(true);
-        refetch();
-    };
-
-    const loadHistory = () => {
-        setIncludeHistory(true);
-        refetch();
-    };
-
-    return (
-        <div className="exception-detail">
-            <ExceptionInfo exception={data?.exception} />
-            
-            {!includePayload ? (
-                <button onClick={loadPayload}>Load Original Payload</button>
-            ) : (
-                <PayloadViewer payload={data?.exception.originalPayload} />
-            )}
-            
-            {!includeHistory ? (
-                <button onClick={loadHistory}>Load Retry History</button>
-            ) : (
-                <RetryHistory history={data?.exception.retryHistory} />
-            )}
-        </div>
-    );
-}
-```
-
-### 3. Advanced Search with Debouncing
-
-```javascript
-const SEARCH_EXCEPTIONS = gql`
-    query SearchExceptions($search: SearchInput!, $pagination: PaginationInput) {
-        searchExceptions(search: $search, pagination: $pagination) {
-            edges {
-                node {
-                    id
-                    transactionId
-                    interfaceType
-                    exceptionReason
-                    status
-                    severity
-                    timestamp
-                }
-                cursor
-            }
-            pageInfo {
-                hasNextPage
-                hasPreviousPage
-            }
-            totalCount
-        }
-    }
-`;
-
-function ExceptionSearch() {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
-
-    const { data, loading, error } = useQuery(SEARCH_EXCEPTIONS, {
-        variables: {
-            search: {
-                query: debouncedSearchTerm,
-                fields: ['EXCEPTION_REASON', 'TRANSACTION_ID', 'CUSTOMER_ID'],
-                fuzzy: true
-            },
-            pagination: { first: 20 }
-        },
-        skip: !debouncedSearchTerm || debouncedSearchTerm.length < 3,
-    });
-
-    return (
-        <div className="exception-search">
-            <input
-                type="text"
-                placeholder="Search exceptions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            
-            {loading && <div>Searching...</div>}
-            {error && <div>Search error: {error.message}</div>}
-            
-            {data?.searchExceptions.edges.map(({ node }) => (
-                <SearchResult key={node.id} exception={node} />
-            ))}
-        </div>
-    );
-}
-```
-
-## Real-time Subscriptions
-
-### WebSocket Connection Management
-
-```javascript
-import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-import { createClient } from 'graphql-ws';
-
-const wsLink = new GraphQLWsLink(createClient({
-    url: 'wss://your-domain.com/subscriptions',
-    connectionParams: () => ({
-        authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
-    }),
-    on: {
-        connected: () => console.log('WebSocket connected'),
-        closed: () => console.log('WebSocket closed'),
-        error: (error) => console.error('WebSocket error:', error),
+  "filters": {
+    "interfaceTypes": ["ORDER_COLLECTION", "ORDER_DISTRIBUTION"],
+    "statuses": ["NEW", "ACKNOWLEDGED"],
+    "severities": ["HIGH", "CRITICAL"],
+    "dateRange": {
+      "from": "2024-01-01T00:00:00Z",
+      "to": "2024-12-31T23:59:59Z"
     },
-    retryAttempts: 5,
-    retryWait: async (retries) => {
-        await new Promise(resolve => setTimeout(resolve, 2 ** retries * 1000));
-    },
-}));
-
-// Split link for HTTP queries and WebSocket subscriptions
-import { split } from '@apollo/client';
-import { getMainDefinition } from '@apollo/client/utilities';
-
-const splitLink = split(
-    ({ query }) => {
-        const definition = getMainDefinition(query);
-        return (
-            definition.kind === 'OperationDefinition' &&
-            definition.operation === 'subscription'
-        );
-    },
-    wsLink,
-    authLink.concat(httpLink),
-);
-
-const client = new ApolloClient({
-    link: splitLink,
-    cache: new InMemoryCache(),
-});
+    "customerIds": ["CUST001", "CUST002"],
+    "excludeResolved": true
+  },
+  "pagination": {
+    "first": 20
+  },
+  "sorting": {
+    "field": "timestamp",
+    "direction": "DESC"
+  }
+}
 ```
 
-### Subscription with Filtering
+### 2. Get Single Exception Details
 
-```javascript
-function LiveExceptionFeed({ filters }) {
-    const { data, loading, error } = useSubscription(EXCEPTION_UPDATES, {
-        variables: {
-            filters: {
-                severities: ['HIGH', 'CRITICAL'],
-                interfaceTypes: filters.interfaceTypes,
-                includeResolved: false
-            }
-        },
-        shouldResubscribe: true, // Resubscribe on variable changes
-    });
+Retrieve detailed information about a specific exception.
 
-    useEffect(() => {
-        if (data?.exceptionUpdated) {
-            const update = data.exceptionUpdated;
-            
-            // Add to live feed
-            addToLiveFeed(update);
-            
-            // Play sound for critical exceptions
-            if (update.exception.severity === 'CRITICAL') {
-                playAlertSound();
-            }
-            
-            // Update browser title with count
-            updateBrowserTitle(getCurrentExceptionCount());
-        }
-    }, [data]);
+**Operation**: `exception`
 
-    return (
-        <div className="live-feed">
-            <div className="connection-status">
-                {loading ? 'Connecting...' : 'Live'}
-                {error && <span className="error">Disconnected</span>}
-            </div>
-            <LiveFeedItems />
-        </div>
-    );
+**Parameters**:
+- `transactionId` (String!, required): Unique transaction identifier
+
+**Example**:
+```graphql
+query GetException($transactionId: String!) {
+  exception(transactionId: $transactionId) {
+    id
+    transactionId
+    externalId
+    interfaceType
+    exceptionReason
+    operation
+    status
+    severity
+    category
+    customerId
+    locationCode
+    timestamp
+    processedAt
+    retryable
+    retryCount
+    maxRetries
+    lastRetryAt
+    acknowledgedBy
+    acknowledgedAt
+    originalPayload {
+      content
+      contentType
+      retrievedAt
+      sourceService
+    }
+    retryHistory {
+      id
+      attemptNumber
+      status
+      initiatedBy
+      initiatedAt
+      completedAt
+      resultSuccess
+      resultMessage
+      resultResponseCode
+    }
+    statusHistory {
+      id
+      fromStatus
+      toStatus
+      changedBy
+      changedAt
+      reason
+      notes
+    }
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "transactionId": "TXN-12345-67890"
+}
+```
+
+### 3. Exception Summary Statistics
+
+Get aggregated statistics and trends for dashboard displays.
+
+**Operation**: `exceptionSummary`
+
+**Parameters**:
+- `timeRange` (TimeRange!, required): Time period for statistics
+- `filters` (ExceptionFilters, optional): Additional filtering
+
+**Example**:
+```graphql
+query ExceptionSummary($timeRange: TimeRange!, $filters: ExceptionFilters) {
+  exceptionSummary(timeRange: $timeRange, filters: $filters) {
+    totalExceptions
+    byInterfaceType {
+      interfaceType
+      count
+      percentage
+    }
+    bySeverity {
+      severity
+      count
+      percentage
+    }
+    byStatus {
+      status
+      count
+      percentage
+    }
+    trends {
+      timestamp
+      count
+      interfaceType
+    }
+    keyMetrics {
+      retrySuccessRate
+      averageResolutionTime
+      customerImpactCount
+      criticalExceptionCount
+    }
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "timeRange": {
+    "period": "LAST_7_DAYS"
+  },
+  "filters": {
+    "interfaceTypes": ["ORDER_COLLECTION"]
+  }
+}
+```
+
+### 4. Search Exceptions
+
+Advanced search functionality with fuzzy matching.
+
+**Operation**: `searchExceptions`
+
+**Parameters**:
+- `search` (SearchInput!, required): Search criteria
+- `pagination` (PaginationInput, optional): Pagination
+- `sorting` (SortingInput, optional): Sort configuration
+
+**Example**:
+```graphql
+query SearchExceptions($search: SearchInput!, $pagination: PaginationInput) {
+  searchExceptions(search: $search, pagination: $pagination) {
+    edges {
+      node {
+        transactionId
+        exceptionReason
+        interfaceType
+        status
+        severity
+        timestamp
+      }
+    }
+    totalCount
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "search": {
+    "query": "timeout error",
+    "fields": ["EXCEPTION_REASON", "OPERATION"],
+    "fuzzy": true
+  },
+  "pagination": {
+    "first": 10
+  }
+}
+```
+
+### 5. System Health
+
+Check the health status of the system and its components.
+
+**Operation**: `systemHealth`
+
+**Example**:
+```graphql
+query SystemHealth {
+  systemHealth {
+    status
+    database {
+      status
+      responseTime
+      details
+    }
+    cache {
+      status
+      responseTime
+      details
+    }
+    externalServices {
+      serviceName
+      status
+      responseTime
+      lastChecked
+    }
+    lastUpdated
+  }
+}
+```
+
+## Mutations
+
+### 1. Retry Single Exception
+
+Initiate a retry operation for a specific exception.
+
+**Operation**: `retryException`
+
+**Parameters**:
+- `input` (RetryExceptionInput!, required): Retry configuration
+
+**Example**:
+```graphql
+mutation RetryException($input: RetryExceptionInput!) {
+  retryException(input: $input) {
+    success
+    exception {
+      transactionId
+      status
+      retryCount
+      lastRetryAt
+    }
+    retryAttempt {
+      id
+      attemptNumber
+      status
+      initiatedBy
+      initiatedAt
+    }
+    errors {
+      message
+      code
+      path
+    }
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "input": {
+    "transactionId": "TXN-12345-67890",
+    "reason": "Manual retry after system fix",
+    "priority": "HIGH",
+    "notes": "Retrying after resolving connectivity issue"
+  }
+}
+```
+
+### 2. Bulk Retry Exceptions
+
+Retry multiple exceptions in a single operation.
+
+**Operation**: `bulkRetryExceptions`
+
+**Parameters**:
+- `input` (BulkRetryInput!, required): Bulk retry configuration
+
+**Example**:
+```graphql
+mutation BulkRetryExceptions($input: BulkRetryInput!) {
+  bulkRetryExceptions(input: $input) {
+    successCount
+    failureCount
+    results {
+      success
+      exception {
+        transactionId
+        status
+      }
+      errors {
+        message
+        code
+      }
+    }
+    errors {
+      message
+      code
+    }
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "input": {
+    "transactionIds": ["TXN-001", "TXN-002", "TXN-003"],
+    "reason": "Bulk retry after system maintenance",
+    "priority": "NORMAL"
+  }
+}
+```
+
+### 3. Acknowledge Exception
+
+Acknowledge an exception to indicate it's being handled.
+
+**Operation**: `acknowledgeException`
+
+**Parameters**:
+- `input` (AcknowledgeExceptionInput!, required): Acknowledgment details
+
+**Example**:
+```graphql
+mutation AcknowledgeException($input: AcknowledgeExceptionInput!) {
+  acknowledgeException(input: $input) {
+    success
+    exception {
+      transactionId
+      status
+      acknowledgedBy
+      acknowledgedAt
+    }
+    errors {
+      message
+      code
+    }
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "input": {
+    "transactionId": "TXN-12345-67890",
+    "reason": "Issue acknowledged by operations team",
+    "notes": "Investigating root cause with external service provider",
+    "estimatedResolutionTime": "2024-01-15T14:00:00Z",
+    "assignedTo": "ops-team-lead"
+  }
+}
+```
+
+### 4. Bulk Acknowledge Exceptions
+
+Acknowledge multiple exceptions simultaneously.
+
+**Operation**: `bulkAcknowledgeExceptions`
+
+**Parameters**:
+- `input` (BulkAcknowledgeInput!, required): Bulk acknowledgment details
+
+**Example**:
+```graphql
+mutation BulkAcknowledgeExceptions($input: BulkAcknowledgeInput!) {
+  bulkAcknowledgeExceptions(input: $input) {
+    successCount
+    failureCount
+    results {
+      success
+      exception {
+        transactionId
+        status
+        acknowledgedBy
+      }
+      errors {
+        message
+        code
+      }
+    }
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "input": {
+    "transactionIds": ["TXN-001", "TXN-002", "TXN-003"],
+    "reason": "Bulk acknowledgment for maintenance window",
+    "notes": "All exceptions related to scheduled maintenance",
+    "assignedTo": "maintenance-team"
+  }
+}
+```
+
+### 5. Resolve Exception
+
+Mark an exception as resolved with resolution details.
+
+**Operation**: `resolveException`
+
+**Parameters**:
+- `input` (ResolveExceptionInput!, required): Resolution details
+
+**Example**:
+```graphql
+mutation ResolveException($input: ResolveExceptionInput!) {
+  resolveException(input: $input) {
+    success
+    exception {
+      transactionId
+      status
+    }
+    errors {
+      message
+      code
+    }
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "input": {
+    "transactionId": "TXN-12345-67890",
+    "resolutionMethod": "MANUAL_RESOLUTION",
+    "resolutionNotes": "Issue resolved by updating customer data in external system"
+  }
+}
+```
+
+### 6. Cancel Retry
+
+Cancel a pending retry operation.
+
+**Operation**: `cancelRetry`
+
+**Parameters**:
+- `transactionId` (String!, required): Transaction identifier
+- `reason` (String!, required): Cancellation reason
+
+**Example**:
+```graphql
+mutation CancelRetry($transactionId: String!, $reason: String!) {
+  cancelRetry(transactionId: $transactionId, reason: $reason) {
+    success
+    exception {
+      transactionId
+      status
+      retryCount
+    }
+    errors {
+      message
+      code
+    }
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "transactionId": "TXN-12345-67890",
+  "reason": "Retry cancelled due to business rule change"
+}
+```
+
+## Subscriptions
+
+### 1. Real-time Exception Updates
+
+Subscribe to real-time exception events with filtering.
+
+**Operation**: `exceptionUpdated`
+
+**Parameters**:
+- `filters` (SubscriptionFilters, optional): Event filtering criteria
+
+**Example**:
+```graphql
+subscription ExceptionUpdates($filters: SubscriptionFilters) {
+  exceptionUpdated(filters: $filters) {
+    eventType
+    exception {
+      transactionId
+      interfaceType
+      status
+      severity
+      timestamp
+    }
+    timestamp
+    triggeredBy
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "filters": {
+    "interfaceTypes": ["ORDER_COLLECTION"],
+    "severities": ["HIGH", "CRITICAL"],
+    "includeResolved": false
+  }
+}
+```
+
+### 2. Retry Status Updates
+
+Subscribe to retry operation status changes.
+
+**Operation**: `retryStatusUpdated`
+
+**Parameters**:
+- `transactionId` (String, optional): Filter by specific transaction
+
+**Example**:
+```graphql
+subscription RetryStatusUpdates($transactionId: String) {
+  retryStatusUpdated(transactionId: $transactionId) {
+    transactionId
+    retryAttempt {
+      attemptNumber
+      status
+      initiatedBy
+      initiatedAt
+      completedAt
+      resultSuccess
+    }
+    eventType
+    timestamp
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "transactionId": "TXN-12345-67890"
+}
+```
+
+### 3. Summary Statistics Updates
+
+Subscribe to real-time summary statistics updates.
+
+**Operation**: `summaryUpdated`
+
+**Parameters**:
+- `timeRange` (TimeRange!, required): Time range for statistics
+
+**Example**:
+```graphql
+subscription SummaryUpdates($timeRange: TimeRange!) {
+  summaryUpdated(timeRange: $timeRange) {
+    totalExceptions
+    byInterfaceType {
+      interfaceType
+      count
+      percentage
+    }
+    keyMetrics {
+      retrySuccessRate
+      criticalExceptionCount
+    }
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "timeRange": {
+    "period": "LAST_HOUR"
+  }
+}
+```
+
+## Types and Enums
+
+### Interface Types
+```graphql
+enum InterfaceType {
+  ORDER_COLLECTION
+  ORDER_DISTRIBUTION
+  CUSTOMER_SYNC
+  INVENTORY_UPDATE
+  PAYMENT_PROCESSING
+  NOTIFICATION_DELIVERY
+}
+```
+
+### Exception Status
+```graphql
+enum ExceptionStatus {
+  NEW
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  FAILED
+  CANCELLED
+}
+```
+
+### Exception Severity
+```graphql
+enum ExceptionSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+```
+
+### Exception Categories
+```graphql
+enum ExceptionCategory {
+  VALIDATION_ERROR
+  CONNECTIVITY_ERROR
+  TIMEOUT_ERROR
+  AUTHENTICATION_ERROR
+  BUSINESS_RULE_ERROR
+  DATA_FORMAT_ERROR
+  EXTERNAL_SERVICE_ERROR
+}
+```
+
+### Retry Priority
+```graphql
+enum RetryPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+```
+
+### Time Periods
+```graphql
+enum TimePeriod {
+  LAST_HOUR
+  LAST_24_HOURS
+  LAST_7_DAYS
+  LAST_30_DAYS
+  CUSTOM
 }
 ```
 
 ## Error Handling
 
-### Comprehensive Error Handler
+### Error Codes
+- `VALIDATION_ERROR`: Input validation failed
+- `AUTHORIZATION_ERROR`: Insufficient permissions
+- `NOT_FOUND`: Resource not found
+- `EXTERNAL_SERVICE_ERROR`: External service unavailable
+- `BUSINESS_RULE_ERROR`: Business rule violation
+- `INTERNAL_ERROR`: Internal system error
+- `RATE_LIMIT_EXCEEDED`: Rate limit exceeded
+- `QUERY_COMPLEXITY_EXCEEDED`: Query too complex
 
-```javascript
-function GraphQLErrorHandler({ error, operation }) {
-    const handleError = (error) => {
-        if (error.networkError) {
-            // Network errors
-            if (error.networkError.statusCode === 401) {
-                // Redirect to login
-                window.location.href = '/login';
-                return;
-            }
-            
-            if (error.networkError.statusCode >= 500) {
-                showNotification({
-                    title: 'Server Error',
-                    message: 'The server is experiencing issues. Please try again later.',
-                    type: 'error'
-                });
-                return;
-            }
-        }
-
-        if (error.graphQLErrors) {
-            error.graphQLErrors.forEach(gqlError => {
-                switch (gqlError.extensions?.code) {
-                    case 'VALIDATION_ERROR':
-                        showFieldValidationError(gqlError);
-                        break;
-                    case 'AUTHORIZATION_ERROR':
-                        showNotification({
-                            title: 'Access Denied',
-                            message: 'You do not have permission to perform this action.',
-                            type: 'warning'
-                        });
-                        break;
-                    case 'NOT_FOUND':
-                        showNotification({
-                            title: 'Not Found',
-                            message: 'The requested exception could not be found.',
-                            type: 'info'
-                        });
-                        break;
-                    case 'RATE_LIMIT_EXCEEDED':
-                        showNotification({
-                            title: 'Rate Limit Exceeded',
-                            message: 'Too many requests. Please wait before trying again.',
-                            type: 'warning'
-                        });
-                        break;
-                    default:
-                        console.error('GraphQL Error:', gqlError);
-                        showNotification({
-                            title: 'Operation Failed',
-                            message: gqlError.message,
-                            type: 'error'
-                        });
-                }
-            });
-        }
-    };
-
-    useEffect(() => {
-        if (error) {
-            handleError(error);
-        }
-    }, [error]);
-
-    return null;
+### Error Response Format
+```json
+{
+  "errors": [
+    {
+      "message": "Exception not found",
+      "code": "NOT_FOUND",
+      "path": ["exception"],
+      "extensions": {
+        "transactionId": "TXN-12345-67890"
+      }
+    }
+  ]
 }
 ```
 
-### Retry Logic for Failed Operations
+## Rate Limiting
 
+### Limits by Role
+- **ADMIN**: 300 requests/minute, 10,000 requests/hour
+- **OPERATIONS**: 120 requests/minute, 3,600 requests/hour
+- **VIEWER**: 60 requests/minute, 1,800 requests/hour
+
+### Query Complexity Limits
+- **Development**: Maximum depth 15, complexity 2000
+- **Production**: Maximum depth 10, complexity 1000
+
+## Performance Guidelines
+
+### Response Time Targets
+- **List queries**: 500ms (95th percentile)
+- **Detail queries**: 1s (95th percentile)
+- **Summary queries**: 200ms (95th percentile)
+- **Mutations**: 2s (95th percentile)
+
+### Best Practices
+1. Use pagination for large result sets
+2. Apply filters to reduce data volume
+3. Request only needed fields
+4. Use subscriptions for real-time updates
+5. Cache summary data when possible
+
+## WebSocket Connection
+
+### Connection Setup
 ```javascript
-import { RetryLink } from '@apollo/client/link/retry';
-
-const retryLink = new RetryLink({
-    delay: {
-        initial: 300,
-        max: Infinity,
-        jitter: true
-    },
-    attempts: {
-        max: 5,
-        retryIf: (error, _operation) => {
-            // Retry on network errors and 5xx server errors
-            return !!error && (
-                error.networkError?.statusCode >= 500 ||
-                !error.networkError // Network connectivity issues
-            );
-        }
-    }
+const client = new ApolloClient({
+  uri: 'https://your-domain.com/graphql',
+  wsUri: 'wss://your-domain.com/subscriptions',
+  connectionParams: {
+    Authorization: 'Bearer your-jwt-token'
+  }
 });
 ```
 
-## Performance Optimization
+### Subscription Lifecycle
+1. Establish WebSocket connection
+2. Send subscription query
+3. Receive real-time events
+4. Handle connection errors and reconnection
+5. Clean up on component unmount
 
-### Query Optimization Strategies
+## Development Tools
 
-```javascript
-// 1. Use fragments for reusable field sets
-const EXCEPTION_FRAGMENT = gql`
-    fragment ExceptionBasicInfo on Exception {
-        id
-        transactionId
-        interfaceType
-        status
-        severity
-        timestamp
-        exceptionReason
+### GraphiQL Interface
+Access the interactive GraphiQL interface at `/graphiql` for:
+- Schema exploration
+- Query testing
+- Documentation browsing
+- Real-time query execution
+
+### Schema Introspection
+Query the schema programmatically:
+```graphql
+query IntrospectionQuery {
+  __schema {
+    types {
+      name
+      description
+      fields {
+        name
+        type {
+          name
+        }
+      }
     }
-`;
-
-// 2. Implement field-level caching
-const typePolicies = {
-    Exception: {
-        fields: {
-            originalPayload: {
-                merge: false, // Don't merge, replace entirely
-            },
-            retryHistory: {
-                merge(existing = [], incoming) {
-                    return [...existing, ...incoming];
-                }
-            }
-        }
-    },
-    Query: {
-        fields: {
-            exceptionSummary: {
-                keyArgs: ['timeRange', 'filters'],
-                merge: false,
-            }
-        }
-    }
-};
-
-// 3. Batch multiple queries
-const GET_DASHBOARD_DATA = gql`
-    query GetDashboardData($timeRange: TimeRange!, $filters: ExceptionFilters) {
-        summary: exceptionSummary(timeRange: $timeRange, filters: $filters) {
-            totalExceptions
-            keyMetrics {
-                retrySuccessRate
-                criticalExceptionCount
-            }
-        }
-        
-        recentExceptions: exceptions(
-            filters: $filters
-            pagination: { first: 10 }
-            sorting: { field: "timestamp", direction: DESC }
-        ) {
-            edges {
-                node {
-                    ...ExceptionBasicInfo
-                }
-            }
-        }
-        
-        systemHealth {
-            status
-            database { status }
-            cache { status }
-        }
-    }
-    ${EXCEPTION_FRAGMENT}
-`;
+  }
+}
 ```
 
-### Caching Strategies
+## Support and Resources
 
-```javascript
-// Custom cache configuration
-const cache = new InMemoryCache({
-    typePolicies: {
-        Query: {
-            fields: {
-                exceptions: {
-                    keyArgs: ['filters', 'sorting'],
-                    merge(existing, incoming, { args }) {
-                        if (args?.pagination?.after) {
-                            // Append for pagination
-                            return {
-                                ...incoming,
-                                edges: [
-                                    ...(existing?.edges || []),
-                                    ...incoming.edges
-                                ]
-                            };
-                        }
-                        return incoming;
-                    }
-                }
-            }
-        }
-    }
-});
+### Documentation Endpoints
+- **Schema**: `GET /graphql/schema`
+- **API Info**: `GET /graphql/info`
+- **Examples**: `GET /graphql/examples`
 
-// Cache persistence
-import { persistCache, LocalStorageWrapper } from 'apollo3-cache-persist';
+### Monitoring
+- Query performance metrics available via `/actuator/metrics`
+- Health checks at `/actuator/health`
+- GraphQL-specific metrics at `/actuator/graphql`
 
-await persistCache({
-    cache,
-    storage: new LocalStorageWrapper(window.localStorage),
-    maxSize: 1048576, // 1MB
-    debug: process.env.NODE_ENV === 'development',
-});
-```
-
-## Testing Strategies
-
-### Unit Testing with Mock Provider
-
-```javascript
-import { MockedProvider } from '@apollo/client/testing';
-import { render, screen, waitFor } from '@testing-library/react';
-
-const mocks = [
-    {
-        request: {
-            query: GET_EXCEPTIONS,
-            variables: {
-                filters: { severities: ['HIGH'] },
-                pagination: { first: 20 }
-            }
-        },
-        result: {
-            data: {
-                exceptions: {
-                    edges: [
-                        {
-                            node: {
-                                id: '1',
-                                transactionId: 'TXN-001',
-                                interfaceType: 'ORDER_COLLECTION',
-                                status: 'NEW',
-                                severity: 'HIGH',
-                                timestamp: '2024-01-01T10:00:00Z'
-                            },
-                            cursor: 'cursor1'
-                        }
-                    ],
-                    pageInfo: {
-                        hasNextPage: false,
-                        hasPreviousPage: false
-                    },
-                    totalCount: 1
-                }
-            }
-        }
-    }
-];
-
-test('renders exception list', async () => {
-    render(
-        <MockedProvider mocks={mocks} addTypename={false}>
-            <ExceptionList filters={{ severities: ['HIGH'] }} />
-        </MockedProvider>
-    );
-
-    await waitFor(() => {
-        expect(screen.getByText('TXN-001')).toBeInTheDocument();
-    });
-});
-```
-
-### Integration Testing
-
-```javascript
-import { createTestClient } from 'apollo-server-testing';
-import { server } from '../src/server';
-
-const { query, mutate } = createTestClient(server);
-
-describe('GraphQL Integration Tests', () => {
-    test('should fetch exceptions with filters', async () => {
-        const GET_EXCEPTIONS = gql`
-            query GetExceptions($filters: ExceptionFilters) {
-                exceptions(filters: $filters) {
-                    totalCount
-                    edges {
-                        node {
-                            id
-                            transactionId
-                        }
-                    }
-                }
-            }
-        `;
-
-        const result = await query({
-            query: GET_EXCEPTIONS,
-            variables: {
-                filters: { severities: ['CRITICAL'] }
-            }
-        });
-
-        expect(result.errors).toBeUndefined();
-        expect(result.data.exceptions.totalCount).toBeGreaterThan(0);
-    });
-
-    test('should retry exception successfully', async () => {
-        const RETRY_EXCEPTION = gql`
-            mutation RetryException($input: RetryExceptionInput!) {
-                retryException(input: $input) {
-                    success
-                    exception {
-                        status
-                        retryCount
-                    }
-                }
-            }
-        `;
-
-        const result = await mutate({
-            mutation: RETRY_EXCEPTION,
-            variables: {
-                input: {
-                    transactionId: 'TXN-001',
-                    reason: 'Test retry',
-                    priority: 'NORMAL'
-                }
-            }
-        });
-
-        expect(result.errors).toBeUndefined();
-        expect(result.data.retryException.success).toBe(true);
-    });
-});
-```
-
-This developer guide provides comprehensive examples and patterns for integrating with the GraphQL API effectively. Use these patterns as starting points and adapt them to your specific use cases.
+For additional support, contact the API team or refer to the main project documentation.

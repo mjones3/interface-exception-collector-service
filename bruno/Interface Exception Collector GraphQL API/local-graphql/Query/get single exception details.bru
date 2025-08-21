@@ -1,0 +1,77 @@
+meta {
+  name: get single exception details
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:graphql {
+  query GetException($transactionId: String!) {
+    exception(transactionId: $transactionId) {
+      id
+      transactionId
+      externalId
+      interfaceType
+      exceptionReason
+      operation
+      status
+      severity
+      category
+      customerId
+      locationCode
+      timestamp
+      processedAt
+      retryable
+      retryCount
+      maxRetries
+      lastRetryAt
+      acknowledgedBy
+      acknowledgedAt
+      originalPayload {
+        content
+        contentType
+        retrievedAt
+        sourceService
+      }
+      retryHistory {
+        id
+        attemptNumber
+        status
+        initiatedBy
+        initiatedAt
+        completedAt
+        resultSuccess
+        resultMessage
+        resultResponseCode
+      }
+      statusHistory {
+        id
+        fromStatus
+        toStatus
+        changedBy
+        changedAt
+        reason
+        notes
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "transactionId": "a7152060-5ba7-4cf4-823f-778023a5b3ac"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
