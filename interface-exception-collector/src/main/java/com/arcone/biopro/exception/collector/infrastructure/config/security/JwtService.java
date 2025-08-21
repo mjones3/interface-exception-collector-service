@@ -30,14 +30,23 @@ public class JwtService {
     private final SecretKey secretKey;
 
     public JwtService(@Value("${app.security.jwt.secret}") String secret) {
+        System.out.println("=== JWT SERVICE INITIALIZATION ===");
         System.out.println("JWT Secret being used: '" + secret + "'");
         System.out.println("JWT Secret length: " + secret.length());
+        System.out.println("JWT Secret first 10 chars: '" + (secret.length() >= 10 ? secret.substring(0, 10) : secret) + "...'");
+        System.out.println("JWT Secret last 10 chars: '..." + (secret.length() >= 10 ? secret.substring(secret.length() - 10) : secret) + "'");
+        
+        log.info("=== JWT SERVICE INITIALIZATION ===");
         log.info("JWT Secret: '{}'", secret);
         log.info("JWT Secret length: {}", secret.length());
+        log.info("JWT Secret first 10 chars: '{}'", secret.length() >= 10 ? secret.substring(0, 10) + "..." : secret);
+        log.info("JWT Secret last 10 chars: '{}'", secret.length() >= 10 ? "..." + secret.substring(secret.length() - 10) : secret);
 
         // Use Keys.hmacShaKeyFor() with shorter secret to ensure HmacSHA256
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         log.info("Using secret key algorithm: {}", this.secretKey.getAlgorithm());
+        System.out.println("Using secret key algorithm: " + this.secretKey.getAlgorithm());
+        System.out.println("=====================================");
     }
 
     /**
@@ -78,6 +87,16 @@ public class JwtService {
         try {
             log.debug("[JWT-AUTH] Validating JWT token with length: {}", trimmedToken.length());
             log.debug("[JWT-AUTH] Secret key algorithm: {}", secretKey.getAlgorithm());
+            log.debug("[JWT-AUTH] Token parts: header={}, payload={}, signature={}",
+                    tokenParts[0].length(), tokenParts[1].length(), tokenParts[2].length());
+            
+            // Log token structure for debugging
+            try {
+                String headerJson = new String(java.util.Base64.getUrlDecoder().decode(tokenParts[0]));
+                log.debug("[JWT-AUTH] Token header: {}", headerJson);
+            } catch (Exception e) {
+                log.debug("[JWT-AUTH] Could not decode token header: {}", e.getMessage());
+            }
 
             Claims claims = Jwts.parser()
                     .verifyWith(secretKey)
@@ -101,7 +120,15 @@ public class JwtService {
             throw new InvalidJwtTokenException("JWT token has expired", JwtValidationError.TOKEN_EXPIRED, e);
 
         } catch (SignatureException e) {
-            log.warn("[JWT-AUTH] Token validation failed: Invalid signature - {}", e.getMessage());
+            log.error("[JWT-AUTH] ❌ SIGNATURE VALIDATION FAILED ❌");
+            log.error("[JWT-AUTH] Token signature does not match expected signature");
+            log.error("[JWT-AUTH] This usually means:");
+            log.error("[JWT-AUTH]   1. Token was signed with a different secret");
+            log.error("[JWT-AUTH]   2. Token was modified after signing");
+            log.error("[JWT-AUTH]   3. Secret key mismatch between token generator and validator");
+            log.error("[JWT-AUTH] Error details: {}", e.getMessage());
+            log.error("[JWT-AUTH] Token length: {}", trimmedToken.length());
+            log.error("[JWT-AUTH] Expected secret algorithm: {}", secretKey.getAlgorithm());
             throw new InvalidJwtTokenException("JWT token signature is invalid", JwtValidationError.INVALID_SIGNATURE,
                     e);
 

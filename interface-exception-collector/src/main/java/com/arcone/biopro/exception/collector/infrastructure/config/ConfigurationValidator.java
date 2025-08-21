@@ -59,8 +59,7 @@ public class ConfigurationValidator {
         // Validate Kafka configuration
         validateKafkaConfiguration(validationErrors);
 
-        // Validate Redis configuration
-        validateRedisConfiguration(validationErrors);
+        // Redis validation disabled - using simple cache
 
         // Validate external services configuration
         validateExternalServicesConfiguration(validationErrors);
@@ -153,18 +152,7 @@ public class ConfigurationValidator {
         }
     }
 
-    private void validateRedisConfiguration(List<String> errors) {
-        String redisHost = environment.getProperty("spring.data.redis.host");
-        Integer redisPort = environment.getProperty("spring.data.redis.port", Integer.class);
-
-        if (!StringUtils.hasText(redisHost)) {
-            errors.add("Redis host is required (spring.data.redis.host)");
-        }
-
-        if (redisPort == null || redisPort <= 0 || redisPort > 65535) {
-            errors.add("Redis port must be a valid port number (1-65535)");
-        }
-    }
+    // Redis validation removed - using simple in-memory cache
 
     private void validateExternalServicesConfiguration(List<String> errors) {
         validateServiceConfig("order", applicationProperties.sourceServices().order(), errors);
@@ -271,9 +259,7 @@ public class ConfigurationValidator {
         logger.info("  Server Port: {}", environment.getProperty("server.port"));
         logger.info("  Database URL: {}", maskSensitiveUrl(environment.getProperty("spring.datasource.url")));
         logger.info("  Kafka Bootstrap Servers: {}", environment.getProperty("spring.kafka.bootstrap-servers"));
-        logger.info("  Redis Host: {}:{}",
-                environment.getProperty("spring.data.redis.host"),
-                environment.getProperty("spring.data.redis.port"));
+        logger.info("  Cache Type: Simple (Redis disabled)");
         logger.info("  TLS Enabled: {}", applicationProperties.security().tls().enabled());
         logger.info("  Rate Limiting Enabled: {}", applicationProperties.security().rateLimit().enabled());
 

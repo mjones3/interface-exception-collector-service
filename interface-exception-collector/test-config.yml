@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: interface-exception-collector-service
+  
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  
+  autoconfigure:
+    exclude:
+      - io.micrometer.dynatrace.DynatraceConfig
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/exception_collector_db
+    username: exception_user
+    password: exception_pass
+    driver-class-name: org.postgresql.Driver
+  
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: interface-exception-collector
+  
+  cache:
+    type: simple
+
+app:
+  features:
+    enhanced-logging: true
+    debug-mode: false
+    payload-caching: true
+    circuit-breaker: true
+    retry-mechanism: true
+    hot-reload: false
+    metrics-collection: true
+    audit-logging: true
+
+  security:
+    jwt:
+      secret: mySecretKey1234567890123456789012345678901234567890
+      expiration: 3600000
+    rate-limit:
+      enabled: true
+      requests-per-minute: 60
+      burst-capacity: 10
+    tls:
+      enabled: false
+
+  source-services:
+    order:
+      base-url: http://partner-order-service:8090
+      api-key: default-order-api-key
+      auth-header: X-API-Key
+    collection:
+      base-url: http://collection-service:8080
+      api-key: default-collection-api-key
+      auth-header: X-API-Key
+    distribution:
+      base-url: http://distribution-service:8080
+      api-key: default-distribution-api-key
+      auth-header: X-API-Key
+    timeout: 5000
+    connection-timeout: 3000
+
+  database:
+    retry:
+      enabled: true
+      max-attempts: 5
+      initial-interval: 1000
+      multiplier: 2.0
+      max-interval: 30000
+
+  kafka:
+    dead-letter:
+      enabled: true
+      suffix: ".DLT"
+      max-retries: 5
+      retry-interval: 1000
+
+  exception:
+    processing:
+      batch-size: 100
+      timeout: 30000
+      max-concurrent: 10
+    retry:
+      max-attempts: 5
+      backoff-delay: 1000
+    alert:
+      critical-threshold: 5
+      escalation-timeout: 300
+    cleanup:
+      enabled: true
+      retention-days: 90
+      batch-size: 1000
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.arcone.biopro: INFO

@@ -6,6 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
+import jakarta.validation.Validator;
+
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -18,6 +21,9 @@ class ConfigurationValidatorTest {
 
     @Mock
     private Environment environment;
+
+    @Mock
+    private jakarta.validation.Validator validator;
 
     @InjectMocks
     private ConfigurationValidator configurationValidator;
@@ -124,6 +130,9 @@ class ConfigurationValidatorTest {
     }
 
     private void setupValidConfiguration() {
+        // Mock validator to return no violations
+        when(validator.validate(any())).thenReturn(Collections.emptySet());
+        
         // Database configuration
         when(environment.getProperty("spring.datasource.url"))
                 .thenReturn("jdbc:postgresql://localhost:5432/test_db");
@@ -142,11 +151,7 @@ class ConfigurationValidatorTest {
         when(environment.getProperty("spring.kafka.consumer.properties.security.protocol"))
                 .thenReturn("PLAINTEXT");
 
-        // Redis configuration
-        when(environment.getProperty("spring.data.redis.host"))
-                .thenReturn("localhost");
-        when(environment.getProperty("spring.data.redis.port", Integer.class))
-                .thenReturn(6379);
+        // Redis configuration removed - using simple cache
 
         // Application properties
         var features = new ApplicationProperties.Features(

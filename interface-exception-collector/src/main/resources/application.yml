@@ -141,6 +141,8 @@ spring:
     #   use-key-prefix: true
     #   key-prefix: "exception-collector:"
 
+
+
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -365,11 +367,26 @@ server:
 
 # Application specific configuration
 app:
+  # Feature flags configuration - Required by ConfigurationValidator
+  features:
+    enhanced-logging: ${ENHANCED_LOGGING:true}
+    debug-mode: ${DEBUG_MODE:false}
+    payload-caching: ${PAYLOAD_CACHING:true}
+    circuit-breaker: ${CIRCUIT_BREAKER:true}
+    retry-mechanism: ${RETRY_MECHANISM:true}
+    hot-reload: ${HOT_RELOAD:false}
+    metrics-collection: ${METRICS_COLLECTION:true}
+    audit-logging: ${AUDIT_LOGGING:true}
+
   # Security configuration
   security:
     jwt:
-      secret: ${JWT_SECRET:mySecretKey1234567890123456789012345678901234567890}
+      secret: ${JWT_SECRET:dev-secret-key-1234567890123456789012345678901234567890}
+      expiration: ${JWT_EXPIRATION:3600000}
+      issuer: ${JWT_ISSUER:interface-exception-collector}
+      audience: ${JWT_AUDIENCE:biopro-services}
     rate-limit:
+      enabled: ${RATE_LIMIT_ENABLED:true}
       requests-per-minute: ${RATE_LIMIT_RPM:60}
       burst-capacity: ${RATE_LIMIT_BURST:10}
     tls:
@@ -380,21 +397,27 @@ app:
       truststore:
         path: ${TLS_TRUSTSTORE_PATH:}
         password: ${TLS_TRUSTSTORE_PASSWORD:}
+    audit:
+      enabled: ${AUDIT_ENABLED:true}
+      log-successful-requests: ${AUDIT_LOG_SUCCESS:false}
+      log-failed-requests: ${AUDIT_LOG_FAILED:true}
+
   source-services:
     order:
       base-url: http://partner-order-service:8090
-      api-key: ${ORDER_SERVICE_API_KEY:}
+      api-key: ${ORDER_SERVICE_API_KEY:default-order-api-key}
       auth-header: X-API-Key
     collection:
       base-url: http://collection-service:8080
-      api-key: ${COLLECTION_SERVICE_API_KEY:}
+      api-key: ${COLLECTION_SERVICE_API_KEY:default-collection-api-key}
       auth-header: X-API-Key
     distribution:
       base-url: http://distribution-service:8080
-      api-key: ${DISTRIBUTION_SERVICE_API_KEY:}
+      api-key: ${DISTRIBUTION_SERVICE_API_KEY:default-distribution-api-key}
       auth-header: X-API-Key
     timeout: 5000
     connection-timeout: 3000
+    read-timeout: 5000
   
   # Database retry configuration
   database:
@@ -412,6 +435,29 @@ app:
       suffix: ".DLT"
       max-retries: 5
       retry-interval: 1000
+    topics:
+      order-rejected: "order.rejected"
+      order-cancelled: "order.cancelled"
+      collection-rejected: "collection.rejected"
+      distribution-failed: "distribution.failed"
+      validation-error: "validation.error"
+
+  # Exception processing configuration
+  exception:
+    processing:
+      batch-size: ${EXCEPTION_BATCH_SIZE:100}
+      timeout: ${EXCEPTION_TIMEOUT:30000}
+      max-concurrent: ${EXCEPTION_MAX_CONCURRENT:10}
+    retry:
+      max-attempts: ${EXCEPTION_RETRY_MAX_ATTEMPTS:5}
+      backoff-delay: ${EXCEPTION_RETRY_BACKOFF:1000}
+    alert:
+      critical-threshold: ${EXCEPTION_ALERT_THRESHOLD:5}
+      escalation-timeout: ${EXCEPTION_ALERT_ESCALATION:300}
+    cleanup:
+      enabled: ${EXCEPTION_CLEANUP_ENABLED:true}
+      retention-days: ${EXCEPTION_RETENTION_DAYS:90}
+      batch-size: ${EXCEPTION_CLEANUP_BATCH_SIZE:1000}
 
 # Resilience4j configuration
 resilience4j:
@@ -452,11 +498,26 @@ resilience4j:
 logging:
   level:
     com.arcone.biopro: DEBUG
+    # JWT and Security specific logging - ENABLED FOR DEBUGGING
+    com.arcone.biopro.exception.collector.api.security: DEBUG
+    com.arcone.biopro.exception.collector.infrastructure.security: DEBUG
+    com.arcone.biopro.exception.collector.api.security.jwt: DEBUG
+    com.arcone.biopro.exception.collector.infrastructure.security.jwt: DEBUG
     # GraphQL specific logging levels
     com.arcone.biopro.exception.collector.api.graphql: INFO
     com.arcone.biopro.exception.collector.api.graphql.logging: INFO
     com.arcone.biopro.exception.collector.api.graphql.monitoring: INFO
-    com.arcone.biopro.exception.collector.api.graphql.security: INFO
+    com.arcone.biopro.exception.collector.api.graphql.security: DEBUG
+    # Spring Security - ENABLED FOR JWT DEBUGGING
+    org.springframework.security: DEBUG
+    org.springframework.security.web: DEBUG
+    org.springframework.security.web.access: DEBUG
+    org.springframework.security.access: DEBUG
+    org.springframework.security.authentication: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.jwt: DEBUG
+    # JWT specific libraries
+    io.jsonwebtoken: DEBUG
     # Spring GraphQL framework - enabled for debugging
     org.springframework.graphql: DEBUG
     org.springframework.boot.autoconfigure.graphql: DEBUG
@@ -470,9 +531,6 @@ logging:
     io.github.resilience4j: DEBUG
     org.springframework.retry: DEBUG
     org.springframework.boot.actuator.health: INFO
-    org.springframework.security: DEBUG
-    org.springframework.security.web.access: DEBUG
-    org.springframework.security.access: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] [%X{operationType:-}] [%X{operationName:-}] %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] [%X{transactionId:-}] [%X{interfaceType:-}] [%X{operationType:-}] [%X{operationName:-}] %logger{36} - %msg%n"
@@ -528,7 +586,7 @@ otel:
     jdbc:
       enabled: true
     redis:
-      enabled: false  # Disabled Redis instrumentation
+      enabled: false  # Redis completely disabled
     http-client:
       enabled: true
 
@@ -555,7 +613,7 @@ management:
     kafka:
       enabled: true
     redis:
-      enabled: false  # Disabled Redis health check
+      enabled: false  # Redis completely disabled
     graphql:
       enabled: true
     dynatrace:
