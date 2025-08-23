@@ -1,0 +1,73 @@
+meta {
+  name: system health
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:graphql {
+  query ListExceptions($filters: ExceptionFilters, $pagination: PaginationInput, $sorting: SortingInput) {
+    exceptions(filters: $filters, pagination: $pagination, sorting: $sorting) {
+      edges {
+        node {
+          id
+          transactionId
+          interfaceType
+          exceptionReason
+          status
+          severity
+          category
+          timestamp
+          retryCount
+          maxRetries
+          customerId
+          locationCode
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "filters": {
+      "interfaceTypes": ["ORDER_COLLECTION", "ORDER_DISTRIBUTION"],
+      "statuses": ["NEW", "ACKNOWLEDGED"],
+      "severities": ["HIGH", "CRITICAL"],
+      "dateRange": {
+        "from": "2024-01-01T00:00:00Z",
+        "to": "2024-12-31T23:59:59Z"
+      },
+      "customerIds": ["CUST001", "CUST002"],
+      "excludeResolved": true
+    },
+    "pagination": {
+      "first": 20
+    },
+    "sorting": {
+      "field": "timestamp",
+      "direction": "DESC"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+}

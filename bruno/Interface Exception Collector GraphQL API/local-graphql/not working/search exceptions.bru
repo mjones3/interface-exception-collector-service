@@ -1,0 +1,66 @@
+meta {
+  name: search exceptions
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:graphql {
+  query SearchExceptions($search: SearchInput!, $pagination: PaginationInput, $sorting: SortingInput) {
+    searchExceptions(search: $search, pagination: $pagination, sorting: $sorting) {
+      edges {
+        node {
+          transactionId
+          exceptionReason
+          interfaceType
+          status
+          severity
+          timestamp
+          customerId
+          operation
+          externalId
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "search": {
+      "query": "HOSP-CHI-001",
+      "fields": ["TRANSACTION_ID", "EXTERNAL_ID", "EXCEPTION_REASON"],
+      "fuzzy": false
+    },
+    "pagination": {
+      "first": 20
+    },
+    "sorting": {
+      "field": "timestamp",
+      "direction": "DESC"
+    }
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+}

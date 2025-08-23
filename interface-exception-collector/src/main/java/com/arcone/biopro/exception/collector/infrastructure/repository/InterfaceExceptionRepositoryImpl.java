@@ -9,6 +9,9 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
@@ -96,6 +99,121 @@ public class InterfaceExceptionRepositoryImpl implements InterfaceExceptionRepos
 
         TypedQuery<InterfaceException> typedQuery = entityManager.createQuery(query);
         return typedQuery.getResultList();
+    }
+
+    @Override
+    public Page<InterfaceException> findWithFiltersTypeSafePageable(
+            InterfaceType interfaceType,
+            ExceptionStatus status,
+            ExceptionSeverity severity,
+            String customerId,
+            OffsetDateTime fromDate,
+            OffsetDateTime toDate,
+            Pageable pageable) {
+
+        log.debug(
+                "Finding exceptions with type-safe filters (pageable): interfaceType={}, status={}, severity={}, customerId={}, fromDate={}, toDate={}",
+                interfaceType, status, severity, customerId, fromDate, toDate);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<InterfaceException> query = cb.createQuery(InterfaceException.class);
+        Root<InterfaceException> root = query.from(InterfaceException.class);
+
+        // Build predicates
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (interfaceType != null) {
+            predicates.add(cb.equal(root.get("interfaceType"), interfaceType));
+        }
+
+        if (status != null) {
+            predicates.add(cb.equal(root.get("status"), status));
+        }
+
+        if (severity != null) {
+            predicates.add(cb.equal(root.get("severity"), severity));
+        }
+
+        if (customerId != null && !customerId.trim().isEmpty()) {
+            predicates.add(cb.equal(root.get("customerId"), customerId));
+        }
+
+        if (fromDate != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get("timestamp"), fromDate));
+        }
+
+        if (toDate != null) {
+            predicates.add(cb.lessThanOrEqualTo(root.get("timestamp"), toDate));
+        }
+
+        // Apply predicates
+        if (!predicates.isEmpty()) {
+            query.where(cb.and(predicates.toArray(new Predicate[0])));
+        }
+
+        // Apply sorting from pageable
+        if (pageable.getSort().isSorted()) {
+            List<Order> orders = new ArrayList<>();
+            for (Sort.Order sortOrder : pageable.getSort()) {
+                String property = sortOrder.getProperty();
+                if (sortOrder.isAscending()) {
+                    orders.add(cb.asc(root.get(property)));
+                } else {
+                    orders.add(cb.desc(root.get(property)));
+                }
+            }
+            query.orderBy(orders);
+        } else {
+            // Default sorting by timestamp descending
+            query.orderBy(cb.desc(root.get("timestamp")));
+        }
+
+        // Execute query with pagination
+        TypedQuery<InterfaceException> typedQuery = entityManager.createQuery(query);
+        typedQuery.setFirstResult((int) pageable.getOffset());
+        typedQuery.setMaxResults(pageable.getPageSize());
+        List<InterfaceException> content = typedQuery.getResultList();
+
+        // Get total count for pagination
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<InterfaceException> countRoot = countQuery.from(InterfaceException.class);
+        countQuery.select(cb.count(countRoot));
+
+        // Apply same predicates to count query
+        if (!predicates.isEmpty()) {
+            // Rebuild predicates for count query with the new root
+            List<Predicate> countPredicates = new ArrayList<>();
+
+            if (interfaceType != null) {
+                countPredicates.add(cb.equal(countRoot.get("interfaceType"), interfaceType));
+            }
+
+            if (status != null) {
+                countPredicates.add(cb.equal(countRoot.get("status"), status));
+            }
+
+            if (severity != null) {
+                countPredicates.add(cb.equal(countRoot.get("severity"), severity));
+            }
+
+            if (customerId != null && !customerId.trim().isEmpty()) {
+                countPredicates.add(cb.equal(countRoot.get("customerId"), customerId));
+            }
+
+            if (fromDate != null) {
+                countPredicates.add(cb.greaterThanOrEqualTo(countRoot.get("timestamp"), fromDate));
+            }
+
+            if (toDate != null) {
+                countPredicates.add(cb.lessThanOrEqualTo(countRoot.get("timestamp"), toDate));
+            }
+
+            countQuery.where(cb.and(countPredicates.toArray(new Predicate[0])));
+        }
+
+        Long totalElements = entityManager.createQuery(countQuery).getSingleResult();
+
+        return new PageImpl<>(content, pageable, totalElements);
     }
 
     @Override

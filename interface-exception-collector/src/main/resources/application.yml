@@ -7,13 +7,15 @@ spring:
     allow-bean-definition-overriding: true
     allow-circular-references: true
   
-  # Exclude Dynatrace and Redis auto-configuration completely
+  # Exclude Dynatrace, Redis, and GraphQL WebSocket auto-configuration completely
   autoconfigure:
     exclude:
       - io.micrometer.dynatrace.DynatraceConfig
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.graphql.webmvc.GraphQlWebMvcTransportConfigurer
+      - org.springframework.boot.autoconfigure.graphql.GraphQlWebMvcAutoConfiguration
   
   # Lifecycle management for proper shutdown
   lifecycle:
@@ -190,8 +192,6 @@ spring:
     cors:
       allowed-origins: "*"
       allowed-methods: "*"
-    websocket:
-      path: /subscriptions
     schema:
       locations: classpath:graphql/**/*.graphqls
       printer:

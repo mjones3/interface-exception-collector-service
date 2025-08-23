@@ -266,7 +266,7 @@ public class GraphQLExceptionService {
             }
         }
 
-        return exceptionRepository.findWithFilters(
+        return exceptionRepository.findWithFiltersTypeSafePageable(
                 interfaceType, status, severity, customerId, fromDate, toDate, pageable);
     }
 

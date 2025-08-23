@@ -29,8 +29,9 @@ The Interface Exception Collector Service provides a comprehensive GraphQL API f
 - Interactive query interface for testing and exploration
 
 ### WebSocket Subscriptions
-- **URL**: `wss://your-domain.com/subscriptions`
+- **URL**: `wss://your-domain.com/graphql-subscriptions`
 - Real-time updates via WebSocket connection
+- Uses native WebSocket protocol (not SockJS)
 
 ## Authentication
 

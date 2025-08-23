@@ -121,7 +121,8 @@
 
     <!-- Kafka loggers -->
     <logger name="org.apache.kafka" level="WARN"/>
-    <logger name="org.springframework.kafka" level="INFO"/>
+    <logger name="org.springframework.kafka" level="WARN"/>
+    <logger name="org.springframework.kafka.listener.KafkaMessageListenerContainer" level="WARN"/>
 
     <!-- Database loggers -->
     <logger name="org.hibernate.SQL" level="DEBUG"/>

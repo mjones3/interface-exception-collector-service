@@ -29,23 +29,35 @@ public record ApplicationProperties(
      * Feature flags configuration
      */
     public record Features(
-            @NotNull Boolean enhancedLogging,
+            Boolean enhancedLogging,
 
-            @NotNull Boolean debugMode,
+            Boolean debugMode,
 
-            @NotNull Boolean payloadCaching,
+            Boolean payloadCaching,
 
-            @NotNull Boolean circuitBreaker,
+            Boolean circuitBreaker,
 
-            @NotNull Boolean retryMechanism,
+            Boolean retryMechanism,
 
-            @NotNull Boolean hotReload,
+            Boolean hotReload,
 
             Boolean metricsCollection,
 
             Boolean auditLogging) {
         public Features {
-            // Set defaults for optional fields
+            // Set defaults for all fields
+            if (enhancedLogging == null)
+                enhancedLogging = true;
+            if (debugMode == null)
+                debugMode = false;
+            if (payloadCaching == null)
+                payloadCaching = true;
+            if (circuitBreaker == null)
+                circuitBreaker = true;
+            if (retryMechanism == null)
+                retryMechanism = true;
+            if (hotReload == null)
+                hotReload = false;
             if (metricsCollection == null)
                 metricsCollection = true;
             if (auditLogging == null)
@@ -79,12 +91,14 @@ public record ApplicationProperties(
         }
 
         public record RateLimit(
-                @NotNull Boolean enabled,
+                Boolean enabled,
 
                 @Positive @Max(value = 10000, message = "Rate limit cannot exceed 10000 requests per minute") Integer requestsPerMinute,
 
                 @Positive @Max(value = 1000, message = "Burst capacity cannot exceed 1000") Integer burstCapacity) {
             public RateLimit {
+                if (enabled == null)
+                    enabled = true;
                 if (requestsPerMinute == null)
                     requestsPerMinute = 60;
                 if (burstCapacity == null)
@@ -93,11 +107,16 @@ public record ApplicationProperties(
         }
 
         public record Tls(
-                @NotNull Boolean enabled,
+                Boolean enabled,
 
                 @NestedConfigurationProperty KeyStore keystore,
 
                 @NestedConfigurationProperty KeyStore truststore) {
+            public Tls {
+                if (enabled == null)
+                    enabled = false;
+            }
+
             public record KeyStore(
                     String path,
                     String password) {
@@ -158,7 +177,7 @@ public record ApplicationProperties(
     public record Database(
             @Valid @NestedConfigurationProperty Retry retry) {
         public record Retry(
-                @NotNull Boolean enabled,
+                Boolean enabled,
 
                 @Positive @Max(value = 10, message = "Max retry attempts cannot exceed 10") Integer maxAttempts,
 
@@ -168,6 +187,8 @@ public record ApplicationProperties(
 
                 @Positive Long maxInterval) {
             public Retry {
+                if (enabled == null)
+                    enabled = true;
                 if (maxAttempts == null)
                     maxAttempts = 5;
                 if (initialInterval == null)
@@ -188,14 +209,16 @@ public record ApplicationProperties(
 
             @NestedConfigurationProperty Map<String, String> topics) {
         public record DeadLetter(
-                @NotNull Boolean enabled,
+                Boolean enabled,
 
-                @NotBlank String suffix,
+                String suffix,
 
                 @Positive @Max(value = 10, message = "Max retries cannot exceed 10") Integer maxRetries,
 
                 @Positive Long retryInterval) {
             public DeadLetter {
+                if (enabled == null)
+                    enabled = true;
                 if (suffix == null)
                     suffix = ".DLT";
                 if (maxRetries == null)

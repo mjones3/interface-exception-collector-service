@@ -122,34 +122,10 @@ public interface InterfaceExceptionRepository
         Page<InterfaceException> findByTimestampBetween(OffsetDateTime fromDate, OffsetDateTime toDate,
                         Pageable pageable);
 
-        /**
-         * Complex filtering query supporting multiple optional filters.
-         * Uses simple JPQL with proper null handling to avoid parameter type issues.
-         * 
-         * @param interfaceType optional interface type filter
-         * @param status        optional status filter
-         * @param severity      optional severity filter
-         * @param customerId    optional customer ID filter
-         * @param fromDate      optional start date filter
-         * @param toDate        optional end date filter
-         * @param pageable      pagination and sorting parameters
-         * @return Page of exceptions matching the specified filters
-         */
-        @Query("SELECT ie FROM InterfaceException ie WHERE " +
-                        "(:interfaceType IS NULL OR ie.interfaceType = :interfaceType) AND " +
-                        "(:status IS NULL OR ie.status = :status) AND " +
-                        "(:severity IS NULL OR ie.severity = :severity) AND " +
-                        "(:customerId IS NULL OR ie.customerId = :customerId) AND " +
-                        "(:fromDate IS NULL OR ie.timestamp >= :fromDate) AND " +
-                        "(:toDate IS NULL OR ie.timestamp <= :toDate)")
-        Page<InterfaceException> findWithFilters(
-                        @Param("interfaceType") InterfaceType interfaceType,
-                        @Param("status") ExceptionStatus status,
-                        @Param("severity") ExceptionSeverity severity,
-                        @Param("customerId") String customerId,
-                        @Param("fromDate") OffsetDateTime fromDate,
-                        @Param("toDate") OffsetDateTime toDate,
-                        Pageable pageable);
+        // Note: The findWithFilters method has been removed to prevent PostgreSQL
+        // parameter binding issues.
+        // Use the type-safe findWithFiltersTypeSafe method from
+        // InterfaceExceptionRepositoryCustom instead.
 
         /**
          * Full-text search across exception reason field using PostgreSQL text search.

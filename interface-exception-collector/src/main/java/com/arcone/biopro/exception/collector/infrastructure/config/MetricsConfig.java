@@ -1,4 +1,4 @@
-package com.arcone.biopro.exception.collector.config;
+package com.arcone.biopro.exception.collector.infrastructure.config;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;

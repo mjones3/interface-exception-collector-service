@@ -1,7 +1,7 @@
 meta {
   name: Exception Updates (Subscription)
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
@@ -16,7 +16,10 @@ auth:bearer {
 
 body:json {
   {
-    "query": "",
-    "variables": {}
+    "filters": {
+      "interfaceTypes": ["ORDER_COLLECTION"],
+      "severities": ["HIGH", "CRITICAL"],
+      "includeResolved": false
+    }
   }
 }

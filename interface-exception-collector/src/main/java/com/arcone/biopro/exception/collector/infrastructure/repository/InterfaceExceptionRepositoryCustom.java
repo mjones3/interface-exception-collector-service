@@ -4,6 +4,8 @@ import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionSeverity;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionStatus;
 import com.arcone.biopro.exception.collector.domain.enums.InterfaceType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.OffsetDateTime;
@@ -36,6 +38,29 @@ public interface InterfaceExceptionRepositoryCustom {
                         OffsetDateTime fromDate,
                         OffsetDateTime toDate,
                         Sort sort);
+
+        /**
+         * Find exceptions with filters using type-safe parameters with pagination
+         * support.
+         * This method handles null parameters properly and provides efficient querying.
+         *
+         * @param interfaceType optional interface type filter
+         * @param status        optional status filter
+         * @param severity      optional severity filter
+         * @param customerId    optional customer ID filter
+         * @param fromDate      optional start date filter
+         * @param toDate        optional end date filter
+         * @param pageable      pagination and sorting parameters
+         * @return page of exceptions matching the filters
+         */
+        Page<InterfaceException> findWithFiltersTypeSafePageable(
+                        InterfaceType interfaceType,
+                        ExceptionStatus status,
+                        ExceptionSeverity severity,
+                        String customerId,
+                        OffsetDateTime fromDate,
+                        OffsetDateTime toDate,
+                        Pageable pageable);
 
         /**
          * Search exceptions in specified fields with type-safe parameters.

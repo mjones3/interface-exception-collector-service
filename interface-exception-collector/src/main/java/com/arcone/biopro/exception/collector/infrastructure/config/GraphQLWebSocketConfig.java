@@ -2,11 +2,13 @@ package com.arcone.biopro.exception.collector.infrastructure.config;
 
 import com.arcone.biopro.exception.collector.api.graphql.resolver.ExceptionSubscriptionResolver;
 import com.arcone.biopro.exception.collector.api.graphql.dto.SubscriptionFilters;
+import com.arcone.biopro.exception.collector.infrastructure.config.security.JwtAuthenticationToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.socket.*;
@@ -29,15 +31,91 @@ import java.util.concurrent.ConcurrentHashMap;
 @EnableWebSocket
 @RequiredArgsConstructor
 @Slf4j
+@Order(1) // Give this configuration higher precedence
 public class GraphQLWebSocketConfig implements WebSocketConfigurer {
 
     private final ExceptionSubscriptionResolver subscriptionResolver;
     private final ObjectMapper objectMapper;
+    private final com.arcone.biopro.exception.collector.infrastructure.config.security.JwtService jwtService;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new GraphQLSubscriptionHandler(), "/subscriptions")
-                .setAllowedOrigins("*"); // Configure CORS as needed
+        registry.addHandler(new GraphQLSubscriptionHandler(), "/graphql-subscriptions")
+                .setAllowedOrigins("*") // Native WebSocket without SockJS
+                .addInterceptors(jwtHandshakeInterceptor()); // Add JWT authentication interceptor
+
+        log.info("Registered custom GraphQL WebSocket handler at /graphql-subscriptions with JWT authentication");
+    }
+
+    /**
+     * Handshake interceptor to process JWT authentication during WebSocket
+     * handshake.
+     */
+    private org.springframework.web.socket.server.HandshakeInterceptor jwtHandshakeInterceptor() {
+        return new org.springframework.web.socket.server.HandshakeInterceptor() {
+            @Override
+            public boolean beforeHandshake(org.springframework.http.server.ServerHttpRequest request,
+                    org.springframework.http.server.ServerHttpResponse response,
+                    org.springframework.web.socket.WebSocketHandler wsHandler,
+                    java.util.Map<String, Object> attributes) throws Exception {
+
+                log.debug("WebSocket handshake - processing JWT authentication");
+
+                // Get Authorization header
+                String authHeader = request.getHeaders().getFirst("Authorization");
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    try {
+                        // Extract token
+                        String token = authHeader.substring(7);
+                        attributes.put("JWT_TOKEN", token);
+                        log.debug("Stored JWT token in WebSocket session attributes");
+
+                        // Process JWT token to create Authentication object
+                        io.jsonwebtoken.Claims claims = jwtService.validateToken(token);
+                        if (!jwtService.isTokenExpired(claims)) {
+                            String username = jwtService.extractUsername(claims);
+                            java.util.Collection<org.springframework.security.core.GrantedAuthority> authorities = jwtService
+                                    .extractAuthorities(claims);
+
+                            if (username != null) {
+                                Authentication auth = new JwtAuthenticationToken(username, token, authorities);
+                                attributes.put("AUTHENTICATION", auth);
+                                log.info(
+                                        "Created authentication for WebSocket handshake - user: {} with authorities: {}",
+                                        username, authorities.stream()
+                                                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                                                .toList());
+                                log.info(
+                                        "Authentication details - isAuthenticated: {}, principal: {}, credentials: [PROTECTED]",
+                                        auth.isAuthenticated(), auth.getPrincipal());
+                            } else {
+                                log.warn("Could not extract username from JWT token during WebSocket handshake");
+                            }
+                        } else {
+                            log.warn("JWT token is expired during WebSocket handshake");
+                        }
+
+                    } catch (Exception e) {
+                        log.error("Error processing JWT token during WebSocket handshake", e);
+                    }
+                } else {
+                    log.warn("No Authorization header found in WebSocket handshake");
+                }
+
+                return true; // Allow handshake to proceed
+            }
+
+            @Override
+            public void afterHandshake(org.springframework.http.server.ServerHttpRequest request,
+                    org.springframework.http.server.ServerHttpResponse response,
+                    org.springframework.web.socket.WebSocketHandler wsHandler, Exception exception) {
+                if (exception != null) {
+                    log.error("WebSocket handshake failed", exception);
+                } else {
+                    log.debug("WebSocket handshake completed successfully");
+                }
+            }
+        };
     }
 
     /**
@@ -47,10 +125,28 @@ public class GraphQLWebSocketConfig implements WebSocketConfigurer {
     private class GraphQLSubscriptionHandler implements WebSocketHandler {
 
         private final Map<String, SubscriptionSession> activeSessions = new ConcurrentHashMap<>();
+        private final Map<String, Authentication> sessionAuthentications = new ConcurrentHashMap<>();
 
         @Override
         public void afterConnectionEstablished(WebSocketSession session) throws Exception {
             log.info("WebSocket connection established: {}", session.getId());
+
+            // Get authentication from session attributes (created during handshake)
+            Authentication auth = (Authentication) session.getAttributes().get("AUTHENTICATION");
+
+            if (auth != null) {
+                sessionAuthentications.put(session.getId(), auth);
+                log.info("Stored authentication for WebSocket session: {} - user: {} with authorities: {}",
+                        session.getId(), auth.getName(),
+                        auth.getAuthorities().stream()
+                                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                                .toList());
+            } else {
+                log.warn("No authentication found for WebSocket session: {} - this will cause subscription failures",
+                        session.getId());
+                log.debug("Session attributes: {}", session.getAttributes());
+                log.debug("Session principal: {}", session.getPrincipal());
+            }
 
             // Send connection acknowledgment
             Map<String, Object> ack = Map.of(
@@ -149,42 +245,56 @@ public class GraphQLWebSocketConfig implements WebSocketConfigurer {
                     filters = objectMapper.convertValue(variables.get("filters"), SubscriptionFilters.class);
                 }
 
-                // Get authentication context
-                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                // Get authentication context from stored session authentication
+                Authentication auth = sessionAuthentications.get(session.getId());
+                if (auth == null) {
+                    log.error("No authentication found for session: {}", session.getId());
+                    sendError(session, "AUTHENTICATION_ERROR", "Authentication required for subscriptions");
+                    return;
+                }
 
-                // Start subscription using the resolver
-                Flux<ExceptionSubscriptionResolver.ExceptionUpdateEvent> eventFlux = subscriptionResolver
-                        .exceptionUpdated(filters, auth);
+                // Set the SecurityContext for method-level authorization
+                SecurityContextHolder.getContext().setAuthentication(auth);
 
-                // Subscribe to the flux and send events to WebSocket
-                Disposable subscription = eventFlux.subscribe(
-                        event -> {
-                            try {
-                                Map<String, Object> message = Map.of(
-                                        "id", id,
-                                        "type", "data",
-                                        "payload", Map.of(
-                                                "data", Map.of("exceptionUpdated", event)));
+                try {
+                    // Start subscription using the resolver
+                    Flux<ExceptionSubscriptionResolver.ExceptionUpdateEvent> eventFlux = subscriptionResolver
+                            .exceptionUpdated(filters, auth);
 
-                                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+                    // Subscribe to the flux and send events to WebSocket
+                    Disposable subscription = eventFlux.subscribe(
+                            event -> {
+                                try {
+                                    Map<String, Object> message = Map.of(
+                                            "id", id,
+                                            "type", "data",
+                                            "payload", Map.of(
+                                                    "data", Map.of("exceptionUpdated", event)));
 
-                            } catch (Exception e) {
-                                log.error("Error sending subscription event", e);
-                            }
-                        },
-                        error -> {
-                            log.error("Subscription error", error);
-                            sendError(session, "SUBSCRIPTION_ERROR", error.getMessage());
-                        },
-                        () -> {
-                            log.debug("Subscription completed for id: {}", id);
-                            sendComplete(session, id);
-                        });
+                                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
 
-                // Store subscription session
-                activeSessions.put(session.getId() + ":" + id, new SubscriptionSession(session, subscription));
+                                } catch (Exception e) {
+                                    log.error("Error sending subscription event", e);
+                                }
+                            },
+                            error -> {
+                                log.error("Subscription error", error);
+                                sendError(session, "SUBSCRIPTION_ERROR", error.getMessage());
+                            },
+                            () -> {
+                                log.debug("Subscription completed for id: {}", id);
+                                sendComplete(session, id);
+                            });
 
-                log.info("Started exception updates subscription - session: {}, id: {}", session.getId(), id);
+                    // Store subscription session
+                    activeSessions.put(session.getId() + ":" + id, new SubscriptionSession(session, subscription));
+
+                    log.info("Started exception updates subscription - session: {}, id: {}", session.getId(), id);
+
+                } finally {
+                    // Clear the SecurityContext to avoid leaking authentication to other threads
+                    SecurityContextHolder.clearContext();
+                }
 
             } catch (Exception e) {
                 log.error("Failed to start exception updates subscription", e);
@@ -200,42 +310,56 @@ public class GraphQLWebSocketConfig implements WebSocketConfigurer {
                     transactionId = (String) variables.get("transactionId");
                 }
 
-                // Get authentication context
-                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                // Get authentication context from stored session authentication
+                Authentication auth = sessionAuthentications.get(session.getId());
+                if (auth == null) {
+                    log.error("No authentication found for session: {}", session.getId());
+                    sendError(session, "AUTHENTICATION_ERROR", "Authentication required for subscriptions");
+                    return;
+                }
 
-                // Start subscription using the resolver
-                Flux<ExceptionSubscriptionResolver.RetryStatusEvent> eventFlux = subscriptionResolver
-                        .retryStatusUpdated(transactionId, auth);
+                // Set the SecurityContext for method-level authorization
+                SecurityContextHolder.getContext().setAuthentication(auth);
 
-                // Subscribe to the flux and send events to WebSocket
-                Disposable subscription = eventFlux.subscribe(
-                        event -> {
-                            try {
-                                Map<String, Object> message = Map.of(
-                                        "id", id,
-                                        "type", "data",
-                                        "payload", Map.of(
-                                                "data", Map.of("retryStatusUpdated", event)));
+                try {
+                    // Start subscription using the resolver
+                    Flux<ExceptionSubscriptionResolver.RetryStatusEvent> eventFlux = subscriptionResolver
+                            .retryStatusUpdated(transactionId, auth);
 
-                                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+                    // Subscribe to the flux and send events to WebSocket
+                    Disposable subscription = eventFlux.subscribe(
+                            event -> {
+                                try {
+                                    Map<String, Object> message = Map.of(
+                                            "id", id,
+                                            "type", "data",
+                                            "payload", Map.of(
+                                                    "data", Map.of("retryStatusUpdated", event)));
 
-                            } catch (Exception e) {
-                                log.error("Error sending retry status event", e);
-                            }
-                        },
-                        error -> {
-                            log.error("Retry status subscription error", error);
-                            sendError(session, "SUBSCRIPTION_ERROR", error.getMessage());
-                        },
-                        () -> {
-                            log.debug("Retry status subscription completed for id: {}", id);
-                            sendComplete(session, id);
-                        });
+                                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
 
-                // Store subscription session
-                activeSessions.put(session.getId() + ":" + id, new SubscriptionSession(session, subscription));
+                                } catch (Exception e) {
+                                    log.error("Error sending retry status event", e);
+                                }
+                            },
+                            error -> {
+                                log.error("Retry status subscription error", error);
+                                sendError(session, "SUBSCRIPTION_ERROR", error.getMessage());
+                            },
+                            () -> {
+                                log.debug("Retry status subscription completed for id: {}", id);
+                                sendComplete(session, id);
+                            });
 
-                log.info("Started retry status subscription - session: {}, id: {}", session.getId(), id);
+                    // Store subscription session
+                    activeSessions.put(session.getId() + ":" + id, new SubscriptionSession(session, subscription));
+
+                    log.info("Started retry status subscription - session: {}, id: {}", session.getId(), id);
+
+                } finally {
+                    // Clear the SecurityContext to avoid leaking authentication to other threads
+                    SecurityContextHolder.clearContext();
+                }
 
             } catch (Exception e) {
                 log.error("Failed to start retry status subscription", e);
@@ -301,7 +425,10 @@ public class GraphQLWebSocketConfig implements WebSocketConfigurer {
                 return false;
             });
 
-            log.debug("Cleaned up subscriptions for session: {}", sessionId);
+            // Clean up stored authentication
+            sessionAuthentications.remove(sessionId);
+
+            log.debug("Cleaned up subscriptions and authentication for session: {}", sessionId);
         }
 
         private void sendError(WebSocketSession session, String code, String message) {

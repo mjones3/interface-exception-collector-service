@@ -33,14 +33,17 @@ public class JwtService {
         System.out.println("=== JWT SERVICE INITIALIZATION ===");
         System.out.println("JWT Secret being used: '" + secret + "'");
         System.out.println("JWT Secret length: " + secret.length());
-        System.out.println("JWT Secret first 10 chars: '" + (secret.length() >= 10 ? secret.substring(0, 10) : secret) + "...'");
-        System.out.println("JWT Secret last 10 chars: '..." + (secret.length() >= 10 ? secret.substring(secret.length() - 10) : secret) + "'");
-        
+        System.out.println(
+                "JWT Secret first 10 chars: '" + (secret.length() >= 10 ? secret.substring(0, 10) : secret) + "...'");
+        System.out.println("JWT Secret last 10 chars: '..."
+                + (secret.length() >= 10 ? secret.substring(secret.length() - 10) : secret) + "'");
+
         log.info("=== JWT SERVICE INITIALIZATION ===");
         log.info("JWT Secret: '{}'", secret);
         log.info("JWT Secret length: {}", secret.length());
         log.info("JWT Secret first 10 chars: '{}'", secret.length() >= 10 ? secret.substring(0, 10) + "..." : secret);
-        log.info("JWT Secret last 10 chars: '{}'", secret.length() >= 10 ? "..." + secret.substring(secret.length() - 10) : secret);
+        log.info("JWT Secret last 10 chars: '{}'",
+                secret.length() >= 10 ? "..." + secret.substring(secret.length() - 10) : secret);
 
         // Use Keys.hmacShaKeyFor() with shorter secret to ensure HmacSHA256
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -89,7 +92,7 @@ public class JwtService {
             log.debug("[JWT-AUTH] Secret key algorithm: {}", secretKey.getAlgorithm());
             log.debug("[JWT-AUTH] Token parts: header={}, payload={}, signature={}",
                     tokenParts[0].length(), tokenParts[1].length(), tokenParts[2].length());
-            
+
             // Log token structure for debugging
             try {
                 String headerJson = new String(java.util.Base64.getUrlDecoder().decode(tokenParts[0]));
@@ -247,7 +250,10 @@ public class JwtService {
                     })
                     .collect(Collectors.toList());
 
-            log.debug("[JWT-AUTH] Extracted {} authorities for user: {}", authorities.size(), subject);
+            log.info("[JWT-AUTH] Extracted {} authorities for user: {} - authorities: {}",
+                    authorities.size(), subject, authorities.stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .collect(Collectors.toList()));
             return authorities;
 
         } catch (ClassCastException e) {

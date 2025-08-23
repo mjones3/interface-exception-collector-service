@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -147,5 +149,18 @@ public class SecurityConfig {
                 source.registerCorsConfiguration("/graphiql/**", configuration);
 
                 return source;
+        }
+
+        /**
+         * Configure role hierarchy so that higher roles automatically include lower
+         * role permissions.
+         * ADMIN > OPERATIONS > VIEWER
+         */
+        @Bean
+        public RoleHierarchy roleHierarchy() {
+                RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+                String hierarchy = "ROLE_ADMIN > ROLE_OPERATIONS \n ROLE_OPERATIONS > ROLE_VIEWER";
+                roleHierarchy.setHierarchy(hierarchy);
+                return roleHierarchy;
         }
 }

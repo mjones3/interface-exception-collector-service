@@ -430,9 +430,9 @@ public class SummaryService {
      */
     private long getCountByInterfaceTypeAndDateRange(InterfaceType interfaceType, OffsetDateTime startDate,
             OffsetDateTime endDate) {
-        // Use a custom query to count by interface type and date range
-        return exceptionRepository.findWithFilters(interfaceType, null, null, null, startDate, endDate, null)
-                .getTotalElements();
+        // Use the type-safe query to avoid PostgreSQL parameter type issues
+        return exceptionRepository.findWithFiltersTypeSafe(interfaceType, null, null, null, startDate, endDate, null)
+                .size();
     }
 
     /**
@@ -440,9 +440,9 @@ public class SummaryService {
      */
     private long getCountBySeverityAndDateRange(ExceptionSeverity severity, OffsetDateTime startDate,
             OffsetDateTime endDate) {
-        // Use a custom query to count by severity and date range
-        return exceptionRepository.findWithFilters(null, null, severity, null, startDate, endDate, null)
-                .getTotalElements();
+        // Use the type-safe query to avoid PostgreSQL parameter type issues
+        return exceptionRepository.findWithFiltersTypeSafe(null, null, severity, null, startDate, endDate, null)
+                .size();
     }
 
     /**
@@ -450,9 +450,9 @@ public class SummaryService {
      */
     private long getCountByStatusAndDateRange(ExceptionStatus status, OffsetDateTime startDate,
             OffsetDateTime endDate) {
-        // Use a custom query to count by status and date range
-        return exceptionRepository.findWithFilters(null, status, null, null, startDate, endDate, null)
-                .getTotalElements();
+        // Use the type-safe query to avoid PostgreSQL parameter type issues
+        return exceptionRepository.findWithFiltersTypeSafe(null, status, null, null, startDate, endDate, null)
+                .size();
     }
 
     /**
