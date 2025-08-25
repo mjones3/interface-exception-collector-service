@@ -1,0 +1,24 @@
+meta {
+  name: search exceptions multiple
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8080/api/v1/exceptions/search?query=error&fields=exceptionReason,externalId,operation
+  body: json
+  auth: bearer
+}
+
+params:query {
+  query: error
+  fields: exceptionReason,externalId,operation
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+}

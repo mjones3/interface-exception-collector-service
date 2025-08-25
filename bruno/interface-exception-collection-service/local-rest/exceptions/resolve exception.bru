@@ -1,0 +1,28 @@
+meta {
+  name: resolve exception
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:8080/api/v1/exceptions/31236328-f3f1-4c91-a234-166e0ce609ca/resolve
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "acknowledgedBy": "user-id",
+    "resolvedBy": "user-id",
+    "resolutionMethod": "MANUAL_RESOLUTION",
+    "notes": "Acknowledgment notes"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
