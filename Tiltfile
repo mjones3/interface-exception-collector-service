@@ -47,6 +47,27 @@ k8s_resource('partner-order-migration-job', resource_deps=['partner-order-postgr
 k8s_yaml('k8s/kafka-topics-job.yaml')
 k8s_resource('kafka-topics-job', resource_deps=['kafka'])
 
+# Mock RSocket Server for development and testing
+k8s_yaml('k8s/mock-rsocket-server.yaml')
+k8s_resource(
+    'mock-rsocket-server',
+    port_forwards='7000:7000',
+    resource_deps=['kafka']
+)
+
+# Watch for mapping and response file changes
+watch_file('./mappings')
+watch_file('./mock-responses')
+
+# Local resource to reload mock server when mappings change
+local_resource(
+    'reload-mock-mappings',
+    'kubectl rollout restart deployment/mock-rsocket-server -n ' + namespace,
+    deps=['mappings', 'mock-responses'],
+    auto_init=False,
+    trigger_mode=TRIGGER_MODE_AUTO
+)
+
 # Interface Exception Collector Service
 if 'interface-exception-collector' in services_to_run:
     # Prepare dependencies
@@ -149,8 +170,18 @@ local_resource(
     trigger_mode=TRIGGER_MODE_MANUAL
 )
 
+# Local resource for testing mock RSocket server connectivity
+local_resource(
+    'test-mock-rsocket-server',
+    'echo "Testing mock RSocket server connectivity..." && nc -z localhost 7000 && echo "✅ Mock RSocket server is reachable on port 7000" || echo "❌ Mock RSocket server is not reachable"',
+    auto_init=False,
+    trigger_mode=TRIGGER_MODE_MANUAL,
+    resource_deps=['mock-rsocket-server']
+)
+
 print("🚀 BioPro Interface Services development environment ready!")
 print("📊 Kafka UI: http://localhost:8081")
+print("🔌 Mock RSocket Server: rsocket://localhost:7000")
 if 'interface-exception-collector' in services_to_run:
     print("🔍 Interface Exception Collector: http://localhost:8080")
     print("📖 IEC API Docs: http://localhost:8080/swagger-ui.html")

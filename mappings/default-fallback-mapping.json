@@ -1,0 +1,17 @@
+{
+  "request": {
+    "routePathPattern": ".*"
+  },
+  "response": {
+    "status": 404,
+    "jsonBody": {
+      "error": "Endpoint not found",
+      "message": "The requested order endpoint was not found in the mock server mappings",
+      "timestamp": "{{now}}",
+      "path": "{{request.path}}"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -216,7 +216,7 @@ public class ExceptionController {
          * Implements requirement US-008 for detailed exception retrieval.
          */
         @GetMapping("/{transactionId}")
-        @Operation(summary = "Get exception details", description = "Retrieves detailed information for a specific exception including retry history and related exceptions")
+        @Operation(summary = "Get exception details", description = "Retrieves detailed information for a specific exception including retry history, related exceptions, and optionally order data")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Successfully retrieved exception details", content = @Content(schema = @Schema(implementation = ExceptionDetailResponse.class))),
                         @ApiResponse(responseCode = "404", description = "Exception not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -224,10 +224,12 @@ public class ExceptionController {
         public ResponseEntity<ExceptionDetailResponse> getExceptionDetails(
                         @Parameter(description = "Unique transaction identifier", required = true) @PathVariable String transactionId,
 
-                        @Parameter(description = "Whether to include original payload from source system") @RequestParam(defaultValue = "false") Boolean includePayload) {
+                        @Parameter(description = "Whether to include original payload from source system") @RequestParam(defaultValue = "false") Boolean includePayload,
 
-                log.info("Getting exception details for transaction: {}, includePayload: {}", transactionId,
-                                includePayload);
+                        @Parameter(description = "Whether to include complete order data retrieved from Partner Order Service or mock server") @RequestParam(defaultValue = "false") Boolean includeOrderData) {
+
+                log.info("Getting exception details for transaction: {}, includePayload: {}, includeOrderData: {}", 
+                                transactionId, includePayload, includeOrderData);
 
                 // Find the exception
                 Optional<InterfaceException> exceptionOpt = exceptionQueryService
@@ -240,8 +242,15 @@ public class ExceptionController {
 
                 InterfaceException exception = exceptionOpt.get();
 
-                // Map to detail response
-                ExceptionDetailResponse response = exceptionMapper.toDetailResponse(exception);
+                // Map to detail response - use appropriate mapper based on includeOrderData
+                ExceptionDetailResponse response;
+                if (includeOrderData) {
+                        response = exceptionMapper.toDetailResponseWithOrderData(exception);
+                        log.debug("Including order data in response for transaction: {}, hasOrderData: {}", 
+                                        transactionId, exception.getOrderReceived() != null);
+                } else {
+                        response = exceptionMapper.toDetailResponse(exception);
+                }
 
                 // Include original payload if requested
                 if (includePayload) {
@@ -259,7 +268,8 @@ public class ExceptionController {
                         response.setRelatedExceptions(exceptionMapper.toListResponse(relatedExceptions));
                 }
 
-                log.info("Retrieved exception details for transaction: {}", transactionId);
+                log.info("Retrieved exception details for transaction: {}, includeOrderData: {}", 
+                                transactionId, includeOrderData);
                 return ResponseEntity.ok(response);
         }
 

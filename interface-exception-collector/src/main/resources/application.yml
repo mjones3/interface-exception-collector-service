@@ -418,6 +418,36 @@ app:
     timeout: 5000
     connection-timeout: 3000
     read-timeout: 5000
+
+  # RSocket Configuration
+  rsocket:
+    mock-server:
+      enabled: ${MOCK_RSOCKET_SERVER_ENABLED:true}
+      host: ${MOCK_RSOCKET_SERVER_HOST:localhost}
+      port: ${MOCK_RSOCKET_SERVER_PORT:7000}
+      timeout: ${MOCK_RSOCKET_SERVER_TIMEOUT:5s}
+      connection-timeout: ${MOCK_RSOCKET_SERVER_CONNECTION_TIMEOUT:10s}
+      keep-alive-interval: ${MOCK_RSOCKET_SERVER_KEEP_ALIVE_INTERVAL:30s}
+      keep-alive-max-lifetime: ${MOCK_RSOCKET_SERVER_KEEP_ALIVE_MAX_LIFETIME:300s}
+      debug-logging: ${MOCK_RSOCKET_SERVER_DEBUG_LOGGING:false}
+      circuit-breaker:
+        enabled: ${MOCK_RSOCKET_SERVER_CIRCUIT_BREAKER_ENABLED:true}
+        failure-rate-threshold: ${MOCK_RSOCKET_SERVER_FAILURE_RATE_THRESHOLD:50}
+        wait-duration-in-open-state: ${MOCK_RSOCKET_SERVER_WAIT_DURATION:30s}
+        sliding-window-size: ${MOCK_RSOCKET_SERVER_SLIDING_WINDOW_SIZE:10}
+        minimum-number-of-calls: ${MOCK_RSOCKET_SERVER_MIN_CALLS:5}
+        permitted-calls-in-half-open: ${MOCK_RSOCKET_SERVER_HALF_OPEN_CALLS:3}
+      retry:
+        enabled: ${MOCK_RSOCKET_SERVER_RETRY_ENABLED:true}
+        max-attempts: ${MOCK_RSOCKET_SERVER_RETRY_MAX_ATTEMPTS:3}
+        wait-duration: ${MOCK_RSOCKET_SERVER_RETRY_WAIT_DURATION:1s}
+        exponential-backoff-multiplier: ${MOCK_RSOCKET_SERVER_RETRY_MULTIPLIER:2}
+    partner-order-service:
+      enabled: ${PARTNER_ORDER_SERVICE_ENABLED:false}
+      host: ${PARTNER_ORDER_SERVICE_HOST:partner-order-service}
+      port: ${PARTNER_ORDER_SERVICE_PORT:8090}
+      timeout: ${PARTNER_ORDER_SERVICE_TIMEOUT:10s}
+      connection-timeout: ${PARTNER_ORDER_SERVICE_CONNECTION_TIMEOUT:15s}
   
   # Database retry configuration
   database:
@@ -478,6 +508,23 @@ resilience4j:
           - java.net.ConnectException
         ignore-exceptions:
           - org.springframework.web.client.HttpClientErrorException
+      mock-rsocket-server:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 30s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+        record-exceptions:
+          - java.util.concurrent.TimeoutException
+          - java.net.ConnectException
+          - io.rsocket.exceptions.ConnectionErrorException
+          - io.rsocket.exceptions.RejectedSetupException
+          - reactor.core.Exceptions$ReactiveException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
   retry:
     instances:
       source-service:
@@ -489,9 +536,23 @@ resilience4j:
           - java.net.ConnectException
         ignore-exceptions:
           - org.springframework.web.client.HttpClientErrorException
+      mock-rsocket-server:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.net.ConnectException
+          - io.rsocket.exceptions.ConnectionErrorException
+          - java.util.concurrent.TimeoutException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+          - io.rsocket.exceptions.ApplicationErrorException
   timelimiter:
     instances:
       source-service:
+        timeout-duration: 5s
+        cancel-running-future: true
+      mock-rsocket-server:
         timeout-duration: 5s
         cancel-running-future: true
 

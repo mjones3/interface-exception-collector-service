@@ -1,0 +1,12 @@
+{
+  "request": {
+    "routePathPattern": "orders\\.(ERROR-500-.*|SERVER-ERROR-.*)"
+  },
+  "response": {
+    "status": 500,
+    "bodyFileName": "errors/server-error.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

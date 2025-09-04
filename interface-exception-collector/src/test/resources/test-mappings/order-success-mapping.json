@@ -1,0 +1,12 @@
+{
+  "request": {
+    "routePathPattern": "orders\\.([A-Z0-9-]+)"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "orders/complete-order-with-items.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

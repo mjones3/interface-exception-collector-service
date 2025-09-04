@@ -1,0 +1,14 @@
+{
+  "request": {
+    "routePathPattern": "orders\\.(URGENT-.*|EMERGENCY-.*|STAT-.*)"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "orders/urgent-order-response.json",
+    "headers": {
+      "Content-Type": "application/json",
+      "X-Order-Priority": "URGENT",
+      "X-Processing-Time": "100ms"
+    }
+  }
+}

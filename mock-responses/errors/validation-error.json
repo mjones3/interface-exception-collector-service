@@ -1,0 +1,24 @@
+{
+  "error": "VALIDATION_ERROR",
+  "message": "The order data failed validation checks",
+  "timestamp": "2025-01-15T12:00:00Z",
+  "details": {
+    "errorCode": "ORD_400",
+    "description": "Order data contains invalid or missing required fields",
+    "validationErrors": [
+      {
+        "field": "externalId",
+        "message": "ExternalId must match pattern ^[A-Z0-9-]+$"
+      },
+      {
+        "field": "customerId",
+        "message": "CustomerId is required and cannot be empty"
+      }
+    ]
+  },
+  "suggestions": [
+    "Ensure externalId follows the required pattern",
+    "Verify all required fields are present",
+    "Check field formats match expected types"
+  ]
+}

@@ -1,5 +1,6 @@
 package com.arcone.biopro.exception.collector.application.service;
 
+import com.arcone.biopro.exception.collector.api.dto.PayloadResponse;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionCategory;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionSeverity;
@@ -10,6 +11,8 @@ import com.arcone.biopro.exception.collector.domain.event.inbound.DistributionFa
 import com.arcone.biopro.exception.collector.domain.event.inbound.OrderCancelledEvent;
 import com.arcone.biopro.exception.collector.domain.event.inbound.OrderRejectedEvent;
 import com.arcone.biopro.exception.collector.domain.event.inbound.ValidationErrorEvent;
+import com.arcone.biopro.exception.collector.infrastructure.client.SourceServiceClient;
+import com.arcone.biopro.exception.collector.infrastructure.client.SourceServiceClientRegistry;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +28,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,6 +48,18 @@ class ExceptionProcessingServiceTest {
 
     @Mock
     private InterfaceExceptionRepository exceptionRepository;
+
+    @Mock
+    private CacheEvictionService cacheEvictionService;
+
+    @Mock
+    private MetricsService metricsService;
+
+    @Mock
+    private SourceServiceClientRegistry clientRegistry;
+
+    @Mock
+    private SourceServiceClient sourceServiceClient;
 
     @InjectMocks
     private ExceptionProcessingService exceptionProcessingService;
@@ -224,6 +240,306 @@ class ExceptionProcessingServiceTest {
             InterfaceException result = exceptionProcessingService.processOrderRejectedEvent(event);
 
             assertThat(result.getRetryable()).isEqualTo(expectedRetryable);
+        }
+
+        @Test
+        @DisplayName("Should retrieve and store order data when processing OrderRejected event")
+        void shouldRetrieveAndStoreOrderDataWhenProcessingOrderRejectedEvent() {
+            // Given
+            String transactionId = "txn-order-data-123";
+            String externalId = "TEST-ORDER-1";
+            OrderRejectedEvent event = createOrderRejectedEventWithExternalId(transactionId, "Order validation failed", "CREATE_ORDER", externalId);
+
+            // Mock order data that would be returned from the mock RSocket server
+            Object mockOrderData = createMockOrderData(externalId);
+            PayloadResponse successfulResponse = PayloadResponse.builder()
+                    .transactionId(transactionId)
+                    .interfaceType(InterfaceType.ORDER.name())
+                    .payload(mockOrderData)
+                    .sourceService("mock-rsocket-server")
+                    .retrieved(true)
+                    .build();
+
+            when(exceptionRepository.findByTransactionId(transactionId)).thenReturn(Optional.empty());
+            when(exceptionRepository.save(any(InterfaceException.class))).thenAnswer(invocation -> {
+                InterfaceException exception = invocation.getArgument(0);
+                exception.setId(1L);
+                return exception;
+            });
+            when(clientRegistry.hasClient(InterfaceType.ORDER)).thenReturn(true);
+            when(clientRegistry.getClient(InterfaceType.ORDER)).thenReturn(sourceServiceClient);
+            when(sourceServiceClient.getOriginalPayload(any(InterfaceException.class)))
+                    .thenReturn(CompletableFuture.completedFuture(successfulResponse));
+
+            // When
+            InterfaceException result = exceptionProcessingService.processOrderRejectedEvent(event);
+
+            // Then
+            ArgumentCaptor<InterfaceException> captor = ArgumentCaptor.forClass(InterfaceException.class);
+            verify(exceptionRepository).save(captor.capture());
+
+            InterfaceException savedException = captor.getValue();
+            assertThat(savedException.getOrderRetrievalAttempted()).isTrue();
+            assertThat(savedException.getOrderReceived()).isEqualTo(mockOrderData);
+            assertThat(savedException.getOrderRetrievedAt()).isNotNull();
+            assertThat(savedException.getOrderRetrievalError()).isNull();
+            assertThat(savedException.getRetryable()).isTrue();
+            
+            verify(clientRegistry).hasClient(InterfaceType.ORDER);
+            verify(clientRegistry).getClient(InterfaceType.ORDER);
+            verify(sourceServiceClient).getOriginalPayload(any(InterfaceException.class));
+        }
+
+        @Test
+        @DisplayName("Should handle order data retrieval failure gracefully")
+        void shouldHandleOrderDataRetrievalFailureGracefully() {
+            // Given
+            String transactionId = "txn-order-data-fail-123";
+            String externalId = "NOTFOUND-ORDER-1";
+            OrderRejectedEvent event = createOrderRejectedEventWithExternalId(transactionId, "Order validation failed", "CREATE_ORDER", externalId);
+
+            PayloadResponse failedResponse = PayloadResponse.builder()
+                    .transactionId(transactionId)
+                    .interfaceType(InterfaceType.ORDER.name())
+                    .sourceService("mock-rsocket-server")
+                    .retrieved(false)
+                    .errorMessage("Order not found")
+                    .build();
+
+            when(exceptionRepository.findByTransactionId(transactionId)).thenReturn(Optional.empty());
+            when(exceptionRepository.save(any(InterfaceException.class))).thenAnswer(invocation -> {
+                InterfaceException exception = invocation.getArgument(0);
+                exception.setId(1L);
+                return exception;
+            });
+            when(clientRegistry.hasClient(InterfaceType.ORDER)).thenReturn(true);
+            when(clientRegistry.getClient(InterfaceType.ORDER)).thenReturn(sourceServiceClient);
+            when(sourceServiceClient.getOriginalPayload(any(InterfaceException.class)))
+                    .thenReturn(CompletableFuture.completedFuture(failedResponse));
+
+            // When
+            InterfaceException result = exceptionProcessingService.processOrderRejectedEvent(event);
+
+            // Then
+            ArgumentCaptor<InterfaceException> captor = ArgumentCaptor.forClass(InterfaceException.class);
+            verify(exceptionRepository).save(captor.capture());
+
+            InterfaceException savedException = captor.getValue();
+            assertThat(savedException.getOrderRetrievalAttempted()).isTrue();
+            assertThat(savedException.getOrderReceived()).isNull();
+            assertThat(savedException.getOrderRetrievedAt()).isNull();
+            assertThat(savedException.getOrderRetrievalError()).isEqualTo("Order not found");
+            assertThat(savedException.getRetryable()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should handle missing source service client gracefully")
+        void shouldHandleMissingSourceServiceClientGracefully() {
+            // Given
+            String transactionId = "txn-no-client-123";
+            String externalId = "TEST-ORDER-2";
+            OrderRejectedEvent event = createOrderRejectedEventWithExternalId(transactionId, "Order validation failed", "CREATE_ORDER", externalId);
+
+            when(exceptionRepository.findByTransactionId(transactionId)).thenReturn(Optional.empty());
+            when(exceptionRepository.save(any(InterfaceException.class))).thenAnswer(invocation -> {
+                InterfaceException exception = invocation.getArgument(0);
+                exception.setId(1L);
+                return exception;
+            });
+            when(clientRegistry.hasClient(InterfaceType.ORDER)).thenReturn(false);
+
+            // When
+            InterfaceException result = exceptionProcessingService.processOrderRejectedEvent(event);
+
+            // Then
+            ArgumentCaptor<InterfaceException> captor = ArgumentCaptor.forClass(InterfaceException.class);
+            verify(exceptionRepository).save(captor.capture());
+
+            InterfaceException savedException = captor.getValue();
+            assertThat(savedException.getOrderRetrievalAttempted()).isTrue();
+            assertThat(savedException.getOrderReceived()).isNull();
+            assertThat(savedException.getOrderRetrievedAt()).isNull();
+            assertThat(savedException.getOrderRetrievalError()).isEqualTo("No source service client available");
+            assertThat(savedException.getRetryable()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should handle timeout during order data retrieval")
+        void shouldHandleTimeoutDuringOrderDataRetrieval() {
+            // Given
+            String transactionId = "txn-timeout-123";
+            String externalId = "TIMEOUT-ORDER-1";
+            OrderRejectedEvent event = createOrderRejectedEventWithExternalId(transactionId, "Order validation failed", "CREATE_ORDER", externalId);
+
+            when(exceptionRepository.findByTransactionId(transactionId)).thenReturn(Optional.empty());
+            when(exceptionRepository.save(any(InterfaceException.class))).thenAnswer(invocation -> {
+                InterfaceException exception = invocation.getArgument(0);
+                exception.setId(1L);
+                return exception;
+            });
+            when(clientRegistry.hasClient(InterfaceType.ORDER)).thenReturn(true);
+            when(clientRegistry.getClient(InterfaceType.ORDER)).thenReturn(sourceServiceClient);
+            
+            // Mock timeout scenario
+            CompletableFuture<PayloadResponse> timeoutFuture = new CompletableFuture<>();
+            timeoutFuture.completeExceptionally(new java.util.concurrent.TimeoutException("Request timeout"));
+            when(sourceServiceClient.getOriginalPayload(any(InterfaceException.class)))
+                    .thenReturn(timeoutFuture);
+
+            // When
+            InterfaceException result = exceptionProcessingService.processOrderRejectedEvent(event);
+
+            // Then
+            ArgumentCaptor<InterfaceException> captor = ArgumentCaptor.forClass(InterfaceException.class);
+            verify(exceptionRepository).save(captor.capture());
+
+            InterfaceException savedException = captor.getValue();
+            assertThat(savedException.getOrderRetrievalAttempted()).isTrue();
+            assertThat(savedException.getOrderReceived()).isNull();
+            assertThat(savedException.getOrderRetrievedAt()).isNull();
+            assertThat(savedException.getOrderRetrievalError()).contains("timeout");
+            assertThat(savedException.getRetryable()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should handle circuit breaker open during order data retrieval")
+        void shouldHandleCircuitBreakerOpenDuringOrderDataRetrieval() {
+            // Given
+            String transactionId = "txn-cb-open-123";
+            String externalId = "CB-OPEN-ORDER-1";
+            OrderRejectedEvent event = createOrderRejectedEventWithExternalId(transactionId, "Order validation failed", "CREATE_ORDER", externalId);
+
+            PayloadResponse circuitBreakerResponse = PayloadResponse.builder()
+                    .transactionId(transactionId)
+                    .interfaceType(InterfaceType.ORDER.name())
+                    .sourceService("mock-rsocket-server")
+                    .retrieved(false)
+                    .errorMessage("Mock RSocket server unavailable - circuit breaker open")
+                    .build();
+
+            when(exceptionRepository.findByTransactionId(transactionId)).thenReturn(Optional.empty());
+            when(exceptionRepository.save(any(InterfaceException.class))).thenAnswer(invocation -> {
+                InterfaceException exception = invocation.getArgument(0);
+                exception.setId(1L);
+                return exception;
+            });
+            when(clientRegistry.hasClient(InterfaceType.ORDER)).thenReturn(true);
+            when(clientRegistry.getClient(InterfaceType.ORDER)).thenReturn(sourceServiceClient);
+            when(sourceServiceClient.getOriginalPayload(any(InterfaceException.class)))
+                    .thenReturn(CompletableFuture.completedFuture(circuitBreakerResponse));
+
+            // When
+            InterfaceException result = exceptionProcessingService.processOrderRejectedEvent(event);
+
+            // Then
+            ArgumentCaptor<InterfaceException> captor = ArgumentCaptor.forClass(InterfaceException.class);
+            verify(exceptionRepository).save(captor.capture());
+
+            InterfaceException savedException = captor.getValue();
+            assertThat(savedException.getOrderRetrievalAttempted()).isTrue();
+            assertThat(savedException.getOrderReceived()).isNull();
+            assertThat(savedException.getOrderRetrievedAt()).isNull();
+            assertThat(savedException.getOrderRetrievalError()).contains("circuit breaker open");
+            assertThat(savedException.getRetryable()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should handle partial order data retrieval")
+        void shouldHandlePartialOrderDataRetrieval() {
+            // Given
+            String transactionId = "txn-partial-123";
+            String externalId = "PARTIAL-ORDER-1";
+            OrderRejectedEvent event = createOrderRejectedEventWithExternalId(transactionId, "Order validation failed", "CREATE_ORDER", externalId);
+
+            // Mock partial order data (missing some fields)
+            Object partialOrderData = createPartialMockOrderData(externalId);
+            PayloadResponse partialResponse = PayloadResponse.builder()
+                    .transactionId(transactionId)
+                    .interfaceType(InterfaceType.ORDER.name())
+                    .payload(partialOrderData)
+                    .sourceService("mock-rsocket-server")
+                    .retrieved(true)
+                    .build();
+
+            when(exceptionRepository.findByTransactionId(transactionId)).thenReturn(Optional.empty());
+            when(exceptionRepository.save(any(InterfaceException.class))).thenAnswer(invocation -> {
+                InterfaceException exception = invocation.getArgument(0);
+                exception.setId(1L);
+                return exception;
+            });
+            when(clientRegistry.hasClient(InterfaceType.ORDER)).thenReturn(true);
+            when(clientRegistry.getClient(InterfaceType.ORDER)).thenReturn(sourceServiceClient);
+            when(sourceServiceClient.getOriginalPayload(any(InterfaceException.class)))
+                    .thenReturn(CompletableFuture.completedFuture(partialResponse));
+
+            // When
+            InterfaceException result = exceptionProcessingService.processOrderRejectedEvent(event);
+
+            // Then
+            ArgumentCaptor<InterfaceException> captor = ArgumentCaptor.forClass(InterfaceException.class);
+            verify(exceptionRepository).save(captor.capture());
+
+            InterfaceException savedException = captor.getValue();
+            assertThat(savedException.getOrderRetrievalAttempted()).isTrue();
+            assertThat(savedException.getOrderReceived()).isEqualTo(partialOrderData);
+            assertThat(savedException.getOrderRetrievedAt()).isNotNull();
+            assertThat(savedException.getOrderRetrievalError()).isNull();
+            assertThat(savedException.getRetryable()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should retry order data retrieval for existing exceptions without order data")
+        void shouldRetryOrderDataRetrievalForExistingExceptions() {
+            // Given
+            String transactionId = "txn-retry-123";
+            String externalId = "RETRY-ORDER-1";
+            OrderRejectedEvent event = createOrderRejectedEventWithExternalId(transactionId, "Updated rejection reason", "CREATE_ORDER", externalId);
+
+            // Existing exception without order data
+            InterfaceException existingException = InterfaceException.builder()
+                    .id(1L)
+                    .transactionId(transactionId)
+                    .externalId(externalId)
+                    .exceptionReason("Original rejection reason")
+                    .orderRetrievalAttempted(false)
+                    .orderReceived(null)
+                    .processedAt(testTimestamp.minusHours(1))
+                    .build();
+
+            Object mockOrderData = createMockOrderData(externalId);
+            PayloadResponse successfulResponse = PayloadResponse.builder()
+                    .transactionId(transactionId)
+                    .interfaceType(InterfaceType.ORDER.name())
+                    .payload(mockOrderData)
+                    .sourceService("mock-rsocket-server")
+                    .retrieved(true)
+                    .build();
+
+            when(exceptionRepository.findByTransactionId(transactionId)).thenReturn(Optional.of(existingException));
+            when(exceptionRepository.save(any(InterfaceException.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(clientRegistry.hasClient(InterfaceType.ORDER)).thenReturn(true);
+            when(clientRegistry.getClient(InterfaceType.ORDER)).thenReturn(sourceServiceClient);
+            when(sourceServiceClient.getOriginalPayload(any(InterfaceException.class)))
+                    .thenReturn(CompletableFuture.completedFuture(successfulResponse));
+
+            // When
+            InterfaceException result = exceptionProcessingService.processOrderRejectedEvent(event);
+
+            // Then
+            verify(exceptionRepository).save(existingException);
+            assertThat(result.getExceptionReason()).isEqualTo("Updated rejection reason");
+            assertThat(result.getOrderRetrievalAttempted()).isTrue();
+            assertThat(result.getOrderReceived()).isEqualTo(mockOrderData);
+            assertThat(result.getOrderRetrievedAt()).isNotNull();
+            assertThat(result.getRetryable()).isTrue();
+        }
+
+        private Object createPartialMockOrderData(String externalId) {
+            return java.util.Map.of(
+                    "externalId", externalId,
+                    "customerId", "CUST001"
+                    // Missing some fields like locationCode, status, etc.
+            );
         }
     }
 
@@ -554,6 +870,69 @@ class ExceptionProcessingServiceTest {
                         .locationCode("LOC-001")
                         .build())
                 .build();
+    }
+
+    private OrderRejectedEvent createOrderRejectedEventWithExternalId(String transactionId, String rejectedReason, String operation, String externalId) {
+        return OrderRejectedEvent.builder()
+                .eventId("event-" + transactionId)
+                .eventType("OrderRejected")
+                .eventVersion("1.0")
+                .occurredOn(testTimestamp)
+                .source("order-service")
+                .correlationId("corr-" + transactionId)
+                .payload(OrderRejectedEvent.OrderRejectedPayload.builder()
+                        .transactionId(transactionId)
+                        .externalId(externalId)
+                        .operation(operation)
+                        .rejectedReason(rejectedReason)
+                        .customerId("CUST-123")
+                        .locationCode("LOC-001")
+                        .build())
+                .build();
+    }
+
+    private Object createMockOrderData(String externalId) {
+        return java.util.Map.of(
+                "externalId", externalId,
+                "customerId", "CUST001",
+                "locationCode", "LOC001",
+                "orderDate", "2025-01-15T10:30:00Z",
+                "status", "PENDING",
+                "totalAmount", 1250.00,
+                "currency", "USD",
+                "orderItems", java.util.List.of(
+                        java.util.Map.of(
+                                "itemId", "ITEM001",
+                                "productCode", "PROD-ABC123",
+                                "bloodType", "O_POS",
+                                "productFamily", "RED_BLOOD_CELLS",
+                                "quantity", 2,
+                                "unitPrice", 500.00,
+                                "totalPrice", 1000.00
+                        ),
+                        java.util.Map.of(
+                                "itemId", "ITEM002",
+                                "productCode", "PROD-XYZ789",
+                                "bloodType", "A_NEG",
+                                "productFamily", "PLATELETS",
+                                "quantity", 1,
+                                "unitPrice", 250.00,
+                                "totalPrice", 250.00
+                        )
+                ),
+                "customerInfo", java.util.Map.of(
+                        "name", "Test Customer Hospital",
+                        "email", "orders@testcustomer.com",
+                        "phone", "+1-555-0123",
+                        "contactPerson", "Dr. Jane Smith"
+                ),
+                "metadata", java.util.Map.of(
+                        "priority", "URGENT",
+                        "deliveryDate", "2025-01-16T08:00:00Z",
+                        "specialHandling", true,
+                        "temperatureControlled", true
+                )
+        );
     }
 
     private OrderCancelledEvent createOrderCancelledEvent(String transactionId, String cancelReason) {

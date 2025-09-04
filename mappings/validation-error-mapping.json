@@ -1,0 +1,12 @@
+{
+  "request": {
+    "routePathPattern": "orders\\.(INVALID-.*|ERROR-400-.*)"
+  },
+  "response": {
+    "status": 400,
+    "bodyFileName": "errors/validation-error.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

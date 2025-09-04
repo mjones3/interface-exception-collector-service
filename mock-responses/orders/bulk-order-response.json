@@ -1,0 +1,110 @@
+{
+  "externalId": "BULK-ORDER-2025-001",
+  "customerId": "CUST-HOSPITAL-NETWORK-001",
+  "locationCode": "HOSP-NETWORK-CENTRAL",
+  "orderDate": "2025-01-15T08:00:00Z",
+  "status": "PENDING",
+  "totalAmount": 15750.00,
+  "currency": "USD",
+  "orderItems": [
+    {
+      "itemId": "ITEM001",
+      "productCode": "RBC-O-POS-001",
+      "bloodType": "O_POS",
+      "productFamily": "RED_BLOOD_CELLS",
+      "quantity": 10,
+      "unitPrice": 450.00,
+      "totalPrice": 4500.00,
+      "attributes": {
+        "expirationDate": "2025-02-15",
+        "donorId": "DONOR001-010",
+        "collectionDate": "2025-01-10",
+        "testResults": "NEGATIVE"
+      }
+    },
+    {
+      "itemId": "ITEM002",
+      "productCode": "RBC-A-POS-001",
+      "bloodType": "A_POS",
+      "productFamily": "RED_BLOOD_CELLS",
+      "quantity": 8,
+      "unitPrice": 450.00,
+      "totalPrice": 3600.00,
+      "attributes": {
+        "expirationDate": "2025-02-12",
+        "donorId": "DONOR011-018",
+        "collectionDate": "2025-01-08",
+        "testResults": "NEGATIVE"
+      }
+    },
+    {
+      "itemId": "ITEM003",
+      "productCode": "PLT-O-POS-001",
+      "bloodType": "O_POS",
+      "productFamily": "PLATELETS",
+      "quantity": 15,
+      "unitPrice": 275.00,
+      "totalPrice": 4125.00,
+      "attributes": {
+        "expirationDate": "2025-01-20",
+        "donorId": "DONOR019-033",
+        "collectionDate": "2025-01-15",
+        "testResults": "NEGATIVE"
+      }
+    },
+    {
+      "itemId": "ITEM004",
+      "productCode": "PLT-A-NEG-001",
+      "bloodType": "A_NEG",
+      "productFamily": "PLATELETS",
+      "quantity": 6,
+      "unitPrice": 300.00,
+      "totalPrice": 1800.00,
+      "attributes": {
+        "expirationDate": "2025-01-18",
+        "donorId": "DONOR034-039",
+        "collectionDate": "2025-01-13",
+        "testResults": "NEGATIVE"
+      }
+    },
+    {
+      "itemId": "ITEM005",
+      "productCode": "PLASMA-AB-POS-001",
+      "bloodType": "AB_POS",
+      "productFamily": "PLASMA",
+      "quantity": 5,
+      "unitPrice": 350.00,
+      "totalPrice": 1750.00,
+      "attributes": {
+        "expirationDate": "2026-01-15",
+        "donorId": "DONOR040-044",
+        "collectionDate": "2025-01-12",
+        "testResults": "NEGATIVE"
+      }
+    }
+  ],
+  "customerInfo": {
+    "name": "Regional Hospital Network",
+    "email": "procurement@regionalhospital.com",
+    "phone": "+1-555-0199",
+    "contactPerson": "Dr. Sarah Johnson, Chief of Transfusion Medicine"
+  },
+  "shippingAddress": {
+    "street": "500 Medical Center Drive",
+    "city": "Metropolitan City",
+    "state": "NY",
+    "zipCode": "10001",
+    "country": "US",
+    "deliveryInstructions": "Deliver to Central Blood Bank - Loading Dock B. Contact security at extension 2500."
+  },
+  "metadata": {
+    "priority": "HIGH",
+    "deliveryDate": "2025-01-16T06:00:00Z",
+    "specialHandling": true,
+    "temperatureControlled": true,
+    "bulkOrder": true,
+    "contractNumber": "CONTRACT-2025-RHN-001",
+    "approvedBy": "Dr. Michael Chen, Medical Director",
+    "notes": "Bulk order for monthly inventory replenishment. Requires temperature monitoring throughout transport."
+  }
+}

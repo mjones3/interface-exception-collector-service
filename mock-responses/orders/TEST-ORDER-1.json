@@ -1,0 +1,60 @@
+{
+  "externalId": "TEST-ORDER-1",
+  "customerId": "CUST001",
+  "locationCode": "LOC001",
+  "orderDate": "2025-01-15T10:30:00Z",
+  "status": "PENDING",
+  "totalAmount": 750.00,
+  "currency": "USD",
+  "orderItems": [
+    {
+      "itemId": "ITEM001",
+      "productCode": "PROD-TEST123",
+      "bloodType": "O_POS",
+      "productFamily": "RED_BLOOD_CELLS",
+      "quantity": 1,
+      "unitPrice": 500.00,
+      "totalPrice": 500.00,
+      "attributes": {
+        "expirationDate": "2025-02-15",
+        "donorId": "DONOR123",
+        "testScenario": "basic-order"
+      }
+    },
+    {
+      "itemId": "ITEM002",
+      "productCode": "PROD-TEST456",
+      "bloodType": "A_POS",
+      "productFamily": "PLASMA",
+      "quantity": 1,
+      "unitPrice": 250.00,
+      "totalPrice": 250.00,
+      "attributes": {
+        "expirationDate": "2025-01-25",
+        "donorId": "DONOR456",
+        "testScenario": "basic-order"
+      }
+    }
+  ],
+  "customerInfo": {
+    "name": "Test Hospital Alpha",
+    "email": "orders@testhospitalalpha.com",
+    "phone": "+1-555-0001",
+    "contactPerson": "Dr. Test Alpha"
+  },
+  "shippingAddress": {
+    "street": "100 Test Drive",
+    "city": "Test City",
+    "state": "TX",
+    "zipCode": "10001",
+    "country": "US",
+    "deliveryInstructions": "Test scenario delivery"
+  },
+  "metadata": {
+    "priority": "NORMAL",
+    "deliveryDate": "2025-01-16T09:00:00Z",
+    "specialHandling": false,
+    "temperatureControlled": true,
+    "testScenario": "TEST-ORDER-1"
+  }
+}

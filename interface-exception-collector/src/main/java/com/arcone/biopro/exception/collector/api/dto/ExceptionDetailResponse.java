@@ -104,6 +104,19 @@ public class ExceptionDetailResponse {
     @Schema(description = "Original payload from the source system (if requested and available)")
     private Object originalPayload;
 
+    @Schema(description = "Complete order data retrieved from Partner Order Service or mock server (if available and requested)")
+    private Object orderReceived;
+
+    @Schema(description = "Whether order data retrieval was attempted", example = "true")
+    private Boolean orderRetrievalAttempted;
+
+    @Schema(description = "Error message if order retrieval failed", example = "Connection timeout to order service")
+    private String orderRetrievalError;
+
+    @Schema(description = "When order data was successfully retrieved", example = "2025-08-04T10:35:00Z")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+    private OffsetDateTime orderRetrievedAt;
+
     @Schema(description = "History of retry attempts for this exception")
     private List<RetryAttemptResponse> retryHistory;
 

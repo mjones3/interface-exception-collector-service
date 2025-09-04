@@ -1,0 +1,13 @@
+{
+  "request": {
+    "routePathPattern": "orders\\.TEST-ORD-2025-018"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "orders/TEST-ORD-2025-018.json",
+    "headers": {
+      "Content-Type": "application/json",
+      "X-Test-Scenario": "TEST-ORD-2025-018"
+    }
+  }
+}

@@ -97,6 +97,9 @@ components:
         acknowledgedAt:
           type: string
           format: date-time
+        hasOrderData:
+          type: boolean
+          description: Whether order data is available for this exception
 
     ExceptionDetailResponse:
       allOf:
@@ -105,6 +108,20 @@ components:
           properties:
             originalPayload:
               type: object
+              description: Original payload from the source system (if requested and available)
+            orderReceived:
+              type: object
+              description: Complete order data retrieved from Partner Order Service or mock server (if available and requested)
+            orderRetrievalAttempted:
+              type: boolean
+              description: Whether order data retrieval was attempted
+            orderRetrievalError:
+              type: string
+              description: Error message if order retrieval failed
+            orderRetrievedAt:
+              type: string
+              format: date-time
+              description: When order data was successfully retrieved
             retryHistory:
               type: array
               items:
@@ -547,6 +564,12 @@ paths:
         - name: includePayload
           in: query
           description: Whether to include original payload from source system
+          schema:
+            type: boolean
+            default: false
+        - name: includeOrderData
+          in: query
+          description: Whether to include complete order data retrieved from Partner Order Service or mock server
           schema:
             type: boolean
             default: false

@@ -25,6 +25,7 @@ public interface ExceptionMapper {
      * @param exception the entity to map
      * @return the mapped DTO
      */
+    @Mapping(target = "hasOrderData", expression = "java(exception.getOrderReceived() != null)")
     ExceptionListResponse toListResponse(InterfaceException exception);
 
     /**
@@ -43,9 +44,22 @@ public interface ExceptionMapper {
      * @return the mapped DTO
      */
     @Mapping(target = "originalPayload", ignore = true)
+    @Mapping(target = "orderReceived", ignore = true) // Will be set conditionally in controller
     @Mapping(target = "retryHistory", source = "retryAttempts")
     @Mapping(target = "relatedExceptions", ignore = true)
     ExceptionDetailResponse toDetailResponse(InterfaceException exception);
+
+    /**
+     * Maps InterfaceException entity to ExceptionDetailResponse DTO with order data.
+     * Includes order data fields when requested.
+     *
+     * @param exception the entity to map
+     * @return the mapped DTO with order data
+     */
+    @Mapping(target = "originalPayload", ignore = true)
+    @Mapping(target = "retryHistory", source = "retryAttempts")
+    @Mapping(target = "relatedExceptions", ignore = true)
+    ExceptionDetailResponse toDetailResponseWithOrderData(InterfaceException exception);
 
     /**
      * Maps RetryAttempt entity to RetryAttemptResponse DTO.

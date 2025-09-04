@@ -1,0 +1,15 @@
+{
+  "request": {
+    "routePathPattern": "orders\\.(RATE-LIMIT-.*|TOO-MANY-.*)"
+  },
+  "response": {
+    "status": 429,
+    "bodyFileName": "errors/rate-limit-error.json",
+    "headers": {
+      "Content-Type": "application/json",
+      "Retry-After": "60",
+      "X-RateLimit-Limit": "100",
+      "X-RateLimit-Remaining": "0"
+    }
+  }
+}

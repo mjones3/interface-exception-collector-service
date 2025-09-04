@@ -101,6 +101,7 @@ The service follows clean architecture principles with clear layer separation:
 - **Critical Alerting**: Automatic alerts for critical exceptions and escalation
 - **Operational Dashboard**: REST APIs for monitoring and management
 - **High Availability**: Resilient design with circuit breakers and graceful degradation
+- **Mock RSocket Server Integration**: Development and testing support with containerized mock server for order data retrieval
 
 ## Prerequisites
 
@@ -149,19 +150,25 @@ This will automatically set up your local development environment.
    ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
    ```
 
-### Development with Tilt
+### Development with Tilt (Includes Mock RSocket Server)
 
-For advanced development with hot reload:
+For advanced development with hot reload and mock server integration:
 
 ```bash
 ./scripts/deploy-local.sh
 ```
+
+This automatically deploys:
+- Interface Exception Collector service
+- Mock RSocket Server for order data retrieval
+- All required infrastructure (PostgreSQL, Kafka, Redis)
 
 ### Access Points
 
 - **API**: http://localhost:8080
 - **Swagger UI**: http://localhost:8080/swagger-ui/index.html
 - **Health Check**: http://localhost:8080/actuator/health
+- **Mock RSocket Server**: rsocket://localhost:7000
 - **Tilt UI**: http://localhost:10350 (when using Tilt)
 
 ## Configuration
@@ -1200,7 +1207,136 @@ Structured JSON logging with correlation IDs:
 - **Kafka**: Consumer group health monitoring
 - **Redis**: Cache connectivity monitoring
 
+## Mock RSocket Server Integration
+
+The Interface Exception Collector includes integration with a containerized mock RSocket server for development and testing. This enables order data retrieval during OrderRejected event processing without dependencies on external services.
+
+### Overview
+
+When processing OrderRejected events, the service can retrieve complete order data from the mock server using the `externalId` from the event payload. This order data is stored in the database and used for retry operations.
+
+### Quick Start with Mock Server
+
+1. **Start with Tilt (Recommended)**:
+   ```bash
+   tilt up
+   ```
+   This automatically deploys the mock server alongside the application.
+
+2. **Test Order Data Retrieval**:
+   ```bash
+   # Create an OrderRejected event that will trigger order data retrieval
+   curl -X POST \
+     -H @auth_header.txt \
+     -H "Content-Type: application/json" \
+     -d '{
+       "externalId": "TEST-ORDER-1",
+       "operation": "CREATE_ORDER",
+       "rejectedReason": "Insufficient inventory",
+       "customerId": "CUST001"
+     }' \
+     "http://localhost:8080/api/v1/exceptions"
+   ```
+
+3. **Verify Order Data Storage**:
+   ```bash
+   # Check that the exception includes order data
+   curl -H @auth_header.txt "http://localhost:8080/api/v1/exceptions/{transactionId}"
+   ```
+
+### Configuration
+
+#### Enable Mock Server (Development)
+```yaml
+app:
+  rsocket:
+    mock-server:
+      enabled: true
+      host: localhost
+      port: 7000
+      timeout: 5s
+```
+
+#### Disable Mock Server (Production)
+```yaml
+app:
+  rsocket:
+    mock-server:
+      enabled: false
+    partner-order-service:
+      enabled: true
+      host: partner-order-service
+      port: 8090
+```
+
+### Test Scenarios
+
+The mock server supports various test scenarios:
+
+#### Successful Order Retrieval
+- `TEST-ORDER-1` - Basic order with 2 items
+- `TEST-ORD-2025-018` - Bulk order with multiple items
+- Any pattern matching `[A-Z0-9-]+` - Returns generic complete order
+
+#### Error Scenarios
+- `NOTFOUND-123` - Returns 404 not found
+- `INVALID-ABC` - Returns 400 validation error
+- `ERROR-500-XYZ` - Returns 500 server error
+
+### Monitoring
+
+Monitor mock server integration through:
+- **Health Check**: `/actuator/health/rsocket`
+- **Metrics**: `/actuator/metrics` (search for `rsocket.*`)
+- **Logs**: Enable debug logging for detailed interaction logs
+
+### Documentation
+
+For detailed configuration and troubleshooting:
+- 📖 **[RSocket Configuration Guide](interface-exception-collector/RSOCKET_CONFIGURATION_GUIDE.md)**
+- 📖 **[Configuration Management](interface-exception-collector/CONFIGURATION_MANAGEMENT.md)**
+- 📖 **[Mapping Files Guide](mappings/README.md)**
+- 📖 **[Response Files Guide](mock-responses/README.md)**
+
 ## Troubleshooting
+
+### Mock RSocket Server Issues
+
+1. **Mock server connection failures:**
+   ```bash
+   # Check mock server logs
+   tilt logs mock-rsocket-server
+   
+   # Restart mock server
+   tilt restart mock-rsocket-server
+   
+   # Check RSocket connection health
+   curl -H @auth_header.txt "http://localhost:8080/actuator/health/rsocket"
+   ```
+
+2. **Order data not retrieved:**
+   ```bash
+   # Check if mock server is enabled
+   curl -H @auth_header.txt "http://localhost:8080/actuator/configprops" | grep rsocket
+   
+   # Check circuit breaker status
+   curl -H @auth_header.txt "http://localhost:8080/actuator/metrics/resilience4j.circuitbreaker.state"
+   
+   # Enable debug logging
+   kubectl patch deployment interface-exception-collector -p '{"spec":{"template":{"spec":{"containers":[{"name":"interface-exception-collector","env":[{"name":"LOGGING_LEVEL_COM_ARCONE_BIOPRO_EXCEPTION_COLLECTOR_INFRASTRUCTURE_CLIENT","value":"DEBUG"}]}]}}}}'
+   ```
+
+3. **Mapping file issues:**
+   ```bash
+   # Check mapping files are loaded
+   kubectl exec -it mock-rsocket-server-xxx -- ls -la /app/mappings/
+   
+   # Reload mappings
+   tilt trigger reload-mock-mappings
+   
+   # Test specific mapping
+   curl -X POST rsocket://localhost:7000/orders.TEST-ORDER-1
+   ```
 
 ### Quick Diagnostics
 

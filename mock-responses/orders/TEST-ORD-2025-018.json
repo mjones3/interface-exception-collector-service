@@ -1,0 +1,62 @@
+{
+  "externalId": "TEST-ORD-2025-018",
+  "customerId": "CUST018",
+  "locationCode": "LOC018",
+  "orderDate": "2025-01-18T14:45:00Z",
+  "status": "PROCESSING",
+  "totalAmount": 2100.00,
+  "currency": "USD",
+  "orderItems": [
+    {
+      "itemId": "ITEM018-001",
+      "productCode": "PROD-2025-RBC",
+      "bloodType": "AB_POS",
+      "productFamily": "RED_BLOOD_CELLS",
+      "quantity": 3,
+      "unitPrice": 500.00,
+      "totalPrice": 1500.00,
+      "attributes": {
+        "expirationDate": "2025-02-18",
+        "donorId": "DONOR2025-001",
+        "testScenario": "bulk-order"
+      }
+    },
+    {
+      "itemId": "ITEM018-002",
+      "productCode": "PROD-2025-PLT",
+      "bloodType": "AB_POS",
+      "productFamily": "PLATELETS",
+      "quantity": 2,
+      "unitPrice": 300.00,
+      "totalPrice": 600.00,
+      "attributes": {
+        "expirationDate": "2025-01-23",
+        "donorId": "DONOR2025-002",
+        "testScenario": "bulk-order"
+      }
+    }
+  ],
+  "customerInfo": {
+    "name": "Regional Medical Center 2025",
+    "email": "orders@regional2025.com",
+    "phone": "+1-555-2025",
+    "contactPerson": "Dr. Regional 2025"
+  },
+  "shippingAddress": {
+    "street": "2025 Medical Boulevard",
+    "city": "Regional City",
+    "state": "CA",
+    "zipCode": "20250",
+    "country": "US",
+    "deliveryInstructions": "Bulk order - coordinate with blood bank manager"
+  },
+  "metadata": {
+    "priority": "HIGH",
+    "deliveryDate": "2025-01-19T06:00:00Z",
+    "specialHandling": true,
+    "temperatureControlled": true,
+    "testScenario": "TEST-ORD-2025-018",
+    "bulkOrder": true,
+    "requiresSpecialHandling": true
+  }
+}

@@ -74,4 +74,7 @@ public class ExceptionListResponse {
     @Schema(description = "When the exception was last retried", example = "2025-08-04T11:15:00Z")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private OffsetDateTime lastRetryAt;
+
+    @Schema(description = "Whether order data is available for this exception", example = "true")
+    private Boolean hasOrderData;
 }

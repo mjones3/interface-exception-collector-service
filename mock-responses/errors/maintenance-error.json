@@ -1,0 +1,20 @@
+{
+  "error": {
+    "code": "SERVICE_MAINTENANCE",
+    "message": "Partner Order Service is currently undergoing maintenance",
+    "details": "The service is temporarily unavailable due to scheduled maintenance. Please retry later.",
+    "timestamp": "2025-01-15T10:30:00Z",
+    "correlationId": "maintenance-001",
+    "estimatedRecoveryTime": "2025-01-15T12:00:00Z",
+    "maintenanceWindow": {
+      "start": "2025-01-15T10:00:00Z",
+      "end": "2025-01-15T12:00:00Z",
+      "reason": "Database migration and performance optimization"
+    },
+    "suggestions": [
+      "Retry the request after the maintenance window",
+      "Check service status at /health endpoint",
+      "Enable circuit breaker to handle maintenance periods gracefully"
+    ]
+  }
+}

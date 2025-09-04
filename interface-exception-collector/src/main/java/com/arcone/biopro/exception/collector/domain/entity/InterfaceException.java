@@ -9,6 +9,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -159,6 +161,21 @@ public class InterfaceException {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    // Order data retrieval fields for mock RSocket server integration
+    @Column(name = "order_received", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Object orderReceived;
+
+    @Builder.Default
+    @Column(name = "order_retrieval_attempted", nullable = false)
+    private Boolean orderRetrievalAttempted = false;
+
+    @Column(name = "order_retrieval_error")
+    private String orderRetrievalError;
+
+    @Column(name = "order_retrieved_at")
+    private OffsetDateTime orderRetrievedAt;
 
     @OneToMany(mappedBy = "interfaceException", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference("exception-retryAttempts")

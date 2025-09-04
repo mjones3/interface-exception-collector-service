@@ -1,0 +1,13 @@
+{
+  "request": {
+    "routePathPattern": "orders\\.(MAINTENANCE-.*|SERVICE-DOWN-.*)"
+  },
+  "response": {
+    "status": 503,
+    "bodyFileName": "errors/maintenance-error.json",
+    "headers": {
+      "Content-Type": "application/json",
+      "Retry-After": "3600"
+    }
+  }
+}

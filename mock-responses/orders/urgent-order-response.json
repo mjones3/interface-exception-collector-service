@@ -1,0 +1,71 @@
+{
+  "externalId": "URGENT-TRAUMA-001",
+  "customerId": "CUST-TRAUMA-CENTER-001",
+  "locationCode": "TRAUMA-ER-001",
+  "orderDate": "2025-01-15T14:30:00Z",
+  "status": "URGENT_PROCESSING",
+  "totalAmount": 2250.00,
+  "currency": "USD",
+  "orderItems": [
+    {
+      "itemId": "URGENT001",
+      "productCode": "RBC-O-NEG-UNIVERSAL",
+      "bloodType": "O_NEG",
+      "productFamily": "RED_BLOOD_CELLS",
+      "quantity": 4,
+      "unitPrice": 500.00,
+      "totalPrice": 2000.00,
+      "attributes": {
+        "expirationDate": "2025-02-10",
+        "donorId": "UNIVERSAL-DONOR-001",
+        "collectionDate": "2025-01-12",
+        "testResults": "NEGATIVE",
+        "crossMatchRequired": false,
+        "universalDonor": true
+      }
+    },
+    {
+      "itemId": "URGENT002",
+      "productCode": "PLT-O-NEG-UNIVERSAL",
+      "bloodType": "O_NEG",
+      "productFamily": "PLATELETS",
+      "quantity": 1,
+      "unitPrice": 250.00,
+      "totalPrice": 250.00,
+      "attributes": {
+        "expirationDate": "2025-01-18",
+        "donorId": "UNIVERSAL-DONOR-002",
+        "collectionDate": "2025-01-14",
+        "testResults": "NEGATIVE",
+        "crossMatchRequired": false,
+        "universalDonor": true
+      }
+    }
+  ],
+  "customerInfo": {
+    "name": "City Trauma Center",
+    "email": "bloodbank@traumacenter.org",
+    "phone": "+1-555-TRAUMA",
+    "contactPerson": "Dr. Lisa Rodriguez, Emergency Medicine"
+  },
+  "shippingAddress": {
+    "street": "1000 Emergency Drive",
+    "city": "Metro City",
+    "state": "CA",
+    "zipCode": "90210",
+    "country": "US",
+    "deliveryInstructions": "URGENT DELIVERY - Emergency Room Blood Bank. Call Dr. Rodriguez at ext 911 upon arrival."
+  },
+  "metadata": {
+    "priority": "STAT",
+    "deliveryDate": "2025-01-15T15:00:00Z",
+    "specialHandling": true,
+    "temperatureControlled": true,
+    "urgentDelivery": true,
+    "traumaCase": true,
+    "patientId": "TRAUMA-PATIENT-001",
+    "requestedBy": "Dr. Lisa Rodriguez",
+    "medicalJustification": "Multi-trauma patient with massive blood loss. Requires immediate transfusion support.",
+    "notes": "STAT order for trauma patient. Deliver immediately to ER Blood Bank. Patient in OR 3."
+  }
+}

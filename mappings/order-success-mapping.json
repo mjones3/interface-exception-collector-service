@@ -1,0 +1,12 @@
+{
+  "request": {
+    "routePathPattern": "orders\\.(TEST-ORDER-1|TEST-ORD-2025-018|[A-Z0-9-]+)"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "orders/complete-order-with-items.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

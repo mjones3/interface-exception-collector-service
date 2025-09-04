@@ -1,5 +1,6 @@
 package com.arcone.biopro.exception.collector.application.service;
 
+import com.arcone.biopro.exception.collector.api.dto.PayloadResponse;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionCategory;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionSeverity;
@@ -10,6 +11,8 @@ import com.arcone.biopro.exception.collector.domain.event.inbound.DistributionFa
 import com.arcone.biopro.exception.collector.domain.event.inbound.OrderCancelledEvent;
 import com.arcone.biopro.exception.collector.domain.event.inbound.OrderRejectedEvent;
 import com.arcone.biopro.exception.collector.domain.event.inbound.ValidationErrorEvent;
+import com.arcone.biopro.exception.collector.infrastructure.client.SourceServiceClient;
+import com.arcone.biopro.exception.collector.infrastructure.client.SourceServiceClientRegistry;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
 import com.arcone.biopro.exception.collector.infrastructure.config.LoggingConfig;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -40,10 +44,11 @@ public class ExceptionProcessingService {
     private final InterfaceExceptionRepository exceptionRepository;
     private final CacheEvictionService cacheEvictionService;
     private final MetricsService metricsService;
+    private final SourceServiceClientRegistry clientRegistry;
 
     /**
      * Process an OrderRejected event and create or update an interface exception.
-     * Implements requirements US-001 for order exception capture.
+     * Implements requirements US-001 for order exception capture and 3.1, 3.2, 3.3, 1.5 for order data retrieval.
      *
      * @param event the OrderRejected event to process
      * @return the processed InterfaceException entity
@@ -57,7 +62,8 @@ public class ExceptionProcessingService {
         LoggingConfig.LoggingContext.setTransactionId(transactionId);
         LoggingConfig.LoggingContext.setInterfaceType(InterfaceType.ORDER.name());
 
-        log.info("Processing OrderRejected event for transaction: {}", transactionId);
+        log.info("Processing OrderRejected event for transaction: {} with externalId: {}", 
+                transactionId, event.getPayload().getExternalId());
 
         try {
             // Check for duplicate using transaction ID (US-005)
@@ -86,11 +92,16 @@ public class ExceptionProcessingService {
                     .timestamp(event.getOccurredOn())
                     .processedAt(OffsetDateTime.now())
                     .retryCount(0)
+                    .orderRetrievalAttempted(false)
                     .build();
 
+            // Attempt to retrieve order data from mock server
+            retrieveAndStoreOrderData(exception);
+
             InterfaceException savedException = exceptionRepository.save(exception);
-            log.info("Created new exception with ID: {} for transaction: {}",
-                    savedException.getId(), savedException.getTransactionId());
+            log.info("Created new exception with ID: {} for transaction: {}, order data retrieved: {}",
+                    savedException.getId(), savedException.getTransactionId(), 
+                    savedException.getOrderReceived() != null);
 
             // Record metrics for monitoring
             Duration processingTime = Duration.between(start, Instant.now());
@@ -431,6 +442,61 @@ public class ExceptionProcessingService {
     }
 
     /**
+     * Retrieve and store order data from mock RSocket server.
+     * Implements requirements 3.1, 3.2, 3.3, 1.5 for order data retrieval.
+     *
+     * @param exception the interface exception to retrieve order data for
+     */
+    private void retrieveAndStoreOrderData(InterfaceException exception) {
+        try {
+            exception.setOrderRetrievalAttempted(true);
+            
+            log.info("Attempting to retrieve order data for externalId: {} from mock server", 
+                    exception.getExternalId());
+
+            // Get the appropriate source service client for ORDER interface type
+            if (clientRegistry.hasClient(InterfaceType.ORDER)) {
+                SourceServiceClient client = clientRegistry.getClient(InterfaceType.ORDER);
+                
+                // Retrieve order data with timeout
+                PayloadResponse response = client.getOriginalPayload(exception)
+                    .get(10, TimeUnit.SECONDS);
+                
+                if (response.isRetrieved() && response.getPayload() != null) {
+                    // Successfully retrieved order data
+                    exception.setOrderReceived(response.getPayload());
+                    exception.setOrderRetrievedAt(OffsetDateTime.now());
+                    exception.setRetryable(true);
+                    
+                    log.info("Successfully retrieved order data for externalId: {} from service: {}", 
+                            exception.getExternalId(), response.getSourceService());
+                } else {
+                    // Failed to retrieve order data
+                    String errorMessage = response.getErrorMessage() != null ? 
+                        response.getErrorMessage() : "Order data not found";
+                    exception.setOrderRetrievalError(errorMessage);
+                    exception.setRetryable(false);
+                    
+                    log.warn("Failed to retrieve order data for externalId: {}, error: {}", 
+                            exception.getExternalId(), errorMessage);
+                }
+            } else {
+                log.warn("No source service client available for ORDER interface type");
+                exception.setOrderRetrievalError("No source service client available");
+                exception.setRetryable(false);
+            }
+        } catch (Exception e) {
+            // Handle any errors during order data retrieval
+            String errorMessage = "Error retrieving order data: " + e.getMessage();
+            exception.setOrderRetrievalError(errorMessage);
+            exception.setRetryable(false);
+            
+            log.error("Error retrieving order data for externalId: {}", 
+                    exception.getExternalId(), e);
+        }
+    }
+
+    /**
      * Update an existing exception with new event data (duplicate detection logic).
      */
     private InterfaceException updateExistingException(InterfaceException existing, Object event) {
@@ -442,6 +508,12 @@ public class ExceptionProcessingService {
         if (!existing.getExceptionReason().equals(newReason)) {
             existing.setExceptionReason(newReason);
             log.info("Updated exception reason for transaction: {}", existing.getTransactionId());
+        }
+
+        // If this is an OrderRejected event and order data hasn't been retrieved yet, attempt retrieval
+        if (event instanceof OrderRejectedEvent && !existing.getOrderRetrievalAttempted()) {
+            log.info("Attempting order data retrieval for existing exception: {}", existing.getTransactionId());
+            retrieveAndStoreOrderData(existing);
         }
 
         return exceptionRepository.save(existing);

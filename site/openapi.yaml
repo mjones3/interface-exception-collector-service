@@ -122,6 +122,12 @@ paths:
           schema:
             type: boolean
             default: true
+        - name: includeOrderData
+          in: query
+          description: Whether to include complete order data retrieved from Partner Order Service or mock server
+          schema:
+            type: boolean
+            default: false
       responses:
         '200':
           description: Exception details retrieved successfully
@@ -416,6 +422,9 @@ components:
           format: date-time
           description: Timestamp of last retry attempt
           nullable: true
+        hasOrderData:
+          type: boolean
+          description: Whether order data is available for this exception
 
     DetailedExceptionResponse:
       allOf:
@@ -425,6 +434,22 @@ components:
             originalPayload:
               type: object
               description: Original customer request payload
+              nullable: true
+            orderReceived:
+              type: object
+              description: Complete order data retrieved from Partner Order Service or mock server (if available and requested)
+              nullable: true
+            orderRetrievalAttempted:
+              type: boolean
+              description: Whether order data retrieval was attempted
+            orderRetrievalError:
+              type: string
+              description: Error message if order retrieval failed
+              nullable: true
+            orderRetrievedAt:
+              type: string
+              format: date-time
+              description: When order data was successfully retrieved
               nullable: true
             retryHistory:
               type: array

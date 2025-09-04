@@ -1,0 +1,19 @@
+{
+  "error": "ORDER_NOT_FOUND",
+  "message": "The requested order could not be found in the system",
+  "timestamp": "2025-01-15T12:00:00Z",
+  "details": {
+    "errorCode": "ORD_404",
+    "description": "Order with the specified externalId does not exist",
+    "supportedPatterns": [
+      "TEST-ORDER-*",
+      "TEST-ORD-*",
+      "[A-Z0-9-]+"
+    ]
+  },
+  "suggestions": [
+    "Verify the externalId format matches expected patterns",
+    "Check if the order exists in the source system",
+    "Contact support if the order should exist"
+  ]
+}

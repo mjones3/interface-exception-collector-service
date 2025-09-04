@@ -1,0 +1,15 @@
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Rate limit exceeded for order retrieval requests",
+    "details": "Too many requests from this client. Please retry after the specified delay.",
+    "timestamp": "2025-01-15T10:30:00Z",
+    "correlationId": "rate-limit-001",
+    "retryAfter": 60,
+    "suggestions": [
+      "Implement exponential backoff in your retry logic",
+      "Reduce the frequency of order retrieval requests",
+      "Contact support if you need higher rate limits"
+    ]
+  }
+}

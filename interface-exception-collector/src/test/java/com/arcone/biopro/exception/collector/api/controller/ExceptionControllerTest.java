@@ -111,6 +111,80 @@ class ExceptionControllerTest {
         }
 
         @Test
+        void getExceptionDetails_WithIncludeOrderDataTrue_ShouldReturnOrderData() throws Exception {
+                // Given
+                String transactionId = "test-transaction-123";
+                InterfaceException exception = createTestExceptionWithOrderData();
+
+                when(exceptionQueryService.findExceptionByTransactionId(transactionId))
+                                .thenReturn(Optional.of(exception));
+
+                when(exceptionMapper.toDetailResponseWithOrderData(any(InterfaceException.class)))
+                                .thenReturn(createMockDetailResponseWithOrderData());
+
+                // When & Then
+                mockMvc.perform(get("/api/v1/exceptions/{transactionId}", transactionId)
+                                .param("includeOrderData", "true")
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.transactionId").value(transactionId))
+                                .andExpect(jsonPath("$.orderReceived").exists())
+                                .andExpect(jsonPath("$.orderRetrievalAttempted").value(true))
+                                .andExpect(jsonPath("$.orderRetrievedAt").exists());
+        }
+
+        @Test
+        void getExceptionDetails_WithIncludeOrderDataFalse_ShouldNotReturnOrderData() throws Exception {
+                // Given
+                String transactionId = "test-transaction-123";
+                InterfaceException exception = createTestExceptionWithOrderData();
+
+                when(exceptionQueryService.findExceptionByTransactionId(transactionId))
+                                .thenReturn(Optional.of(exception));
+
+                when(exceptionMapper.toDetailResponse(any(InterfaceException.class)))
+                                .thenReturn(createMockDetailResponse());
+
+                // When & Then
+                mockMvc.perform(get("/api/v1/exceptions/{transactionId}", transactionId)
+                                .param("includeOrderData", "false")
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.transactionId").value(transactionId))
+                                .andExpect(jsonPath("$.orderReceived").doesNotExist());
+        }
+
+        @Test
+        void getExceptionDetails_WithBothIncludeFlags_ShouldReturnBothPayloads() throws Exception {
+                // Given
+                String transactionId = "test-transaction-123";
+                InterfaceException exception = createTestExceptionWithOrderData();
+                Object originalPayload = java.util.Map.of("originalData", "test");
+
+                when(exceptionQueryService.findExceptionByTransactionId(transactionId))
+                                .thenReturn(Optional.of(exception));
+
+                when(exceptionMapper.toDetailResponseWithOrderData(any(InterfaceException.class)))
+                                .thenReturn(createMockDetailResponseWithOrderData());
+
+                when(payloadRetrievalService.getOriginalPayload(eq(transactionId), eq("ORDER")))
+                                .thenReturn(originalPayload);
+
+                // When & Then
+                mockMvc.perform(get("/api/v1/exceptions/{transactionId}", transactionId)
+                                .param("includePayload", "true")
+                                .param("includeOrderData", "true")
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.transactionId").value(transactionId))
+                                .andExpect(jsonPath("$.originalPayload").exists())
+                                .andExpect(jsonPath("$.orderReceived").exists());
+        }
+
+        @Test
         void searchExceptions_WithValidQuery_ShouldReturnResults() throws Exception {
                 // Given
                 InterfaceException exception = createTestException();
@@ -176,6 +250,38 @@ class ExceptionControllerTest {
                                 .build();
         }
 
+        private InterfaceException createTestExceptionWithOrderData() {
+                java.util.Map<String, Object> orderData = java.util.Map.of(
+                                "externalId", "ORDER-123",
+                                "customerId", "CUST001",
+                                "orderItems", List.of(
+                                                java.util.Map.of(
+                                                                "productCode", "PROD-ABC123",
+                                                                "bloodType", "O_POS",
+                                                                "quantity", 2)));
+
+                return InterfaceException.builder()
+                                .id(1L)
+                                .transactionId("test-transaction-123")
+                                .interfaceType(InterfaceType.ORDER)
+                                .exceptionReason("Test exception reason")
+                                .operation("CREATE_ORDER")
+                                .externalId("ORDER-123")
+                                .status(ExceptionStatus.NEW)
+                                .severity(ExceptionSeverity.MEDIUM)
+                                .category(ExceptionCategory.BUSINESS_RULE)
+                                .retryable(true)
+                                .customerId("CUST001")
+                                .locationCode("LOC001")
+                                .timestamp(OffsetDateTime.now())
+                                .processedAt(OffsetDateTime.now())
+                                .retryCount(0)
+                                .orderReceived(orderData)
+                                .orderRetrievalAttempted(true)
+                                .orderRetrievedAt(OffsetDateTime.now())
+                                .build();
+        }
+
         private com.arcone.biopro.exception.collector.api.dto.PagedResponse<com.arcone.biopro.exception.collector.api.dto.ExceptionListResponse> createMockPagedResponse() {
                 return com.arcone.biopro.exception.collector.api.dto.PagedResponse.<com.arcone.biopro.exception.collector.api.dto.ExceptionListResponse>builder()
                                 .content(List.of())
@@ -207,6 +313,34 @@ class ExceptionControllerTest {
                                 .retryable(true)
                                 .customerId("CUST001")
                                 .timestamp(OffsetDateTime.now())
+                                .build();
+        }
+
+        private com.arcone.biopro.exception.collector.api.dto.ExceptionDetailResponse createMockDetailResponseWithOrderData() {
+                java.util.Map<String, Object> orderData = java.util.Map.of(
+                                "externalId", "ORDER-123",
+                                "customerId", "CUST001",
+                                "orderItems", List.of(
+                                                java.util.Map.of(
+                                                                "productCode", "PROD-ABC123",
+                                                                "bloodType", "O_POS",
+                                                                "quantity", 2)));
+
+                return com.arcone.biopro.exception.collector.api.dto.ExceptionDetailResponse.builder()
+                                .id(1L)
+                                .transactionId("test-transaction-123")
+                                .interfaceType(InterfaceType.ORDER)
+                                .exceptionReason("Test exception reason")
+                                .operation("CREATE_ORDER")
+                                .status(ExceptionStatus.NEW)
+                                .severity(ExceptionSeverity.MEDIUM)
+                                .category(ExceptionCategory.BUSINESS_RULE)
+                                .retryable(true)
+                                .customerId("CUST001")
+                                .timestamp(OffsetDateTime.now())
+                                .orderReceived(orderData)
+                                .orderRetrievalAttempted(true)
+                                .orderRetrievedAt(OffsetDateTime.now())
                                 .build();
         }
 

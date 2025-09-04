@@ -1,0 +1,10 @@
+{
+  "error": "ORDER_NOT_FOUND",
+  "message": "Order with the specified externalId was not found",
+  "timestamp": "2025-01-15T10:30:00Z",
+  "details": {
+    "errorCode": "ORD_404",
+    "retryable": false,
+    "supportContact": "support@biopro.com"
+  }
+}

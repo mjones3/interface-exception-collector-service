@@ -1,0 +1,14 @@
+{
+  "request": {
+    "routePathPattern": "orders\\.(BULK-ORDER-.*|LARGE-.*|MULTI-.*)"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "orders/bulk-order-response.json",
+    "headers": {
+      "Content-Type": "application/json",
+      "X-Order-Type": "BULK",
+      "X-Processing-Time": "250ms"
+    }
+  }
+}
