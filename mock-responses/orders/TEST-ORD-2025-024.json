@@ -1,0 +1,62 @@
+{
+  "externalId": "TEST-ORD-2025-024",
+  "customerId": "CUST024",
+  "locationCode": "LOC024",
+  "orderDate": "2025-01-24T16:20:00Z",
+  "status": "CONFIRMED",
+  "totalAmount": 1850.00,
+  "currency": "USD",
+  "orderItems": [
+    {
+      "itemId": "ITEM024-001",
+      "productCode": "PROD-2025-O-NEG",
+      "bloodType": "O_NEG",
+      "productFamily": "RED_BLOOD_CELLS",
+      "quantity": 2,
+      "unitPrice": 550.00,
+      "totalPrice": 1100.00,
+      "attributes": {
+        "expirationDate": "2025-02-24",
+        "donorId": "DONOR2025-024",
+        "testScenario": "emergency-order"
+      }
+    },
+    {
+      "itemId": "ITEM024-002",
+      "productCode": "PROD-2025-FFP",
+      "bloodType": "O_NEG",
+      "productFamily": "FRESH_FROZEN_PLASMA",
+      "quantity": 3,
+      "unitPrice": 250.00,
+      "totalPrice": 750.00,
+      "attributes": {
+        "expirationDate": "2025-01-30",
+        "donorId": "DONOR2025-025",
+        "testScenario": "emergency-order"
+      }
+    }
+  ],
+  "customerInfo": {
+    "name": "Emergency Medical Center 2025",
+    "email": "emergency@emc2025.com",
+    "phone": "+1-555-EMRG",
+    "contactPerson": "Dr. Emergency Response"
+  },
+  "shippingAddress": {
+    "street": "2025 Emergency Lane",
+    "city": "Critical City",
+    "state": "NY",
+    "zipCode": "20254",
+    "country": "US",
+    "deliveryInstructions": "URGENT - Emergency delivery required within 2 hours"
+  },
+  "metadata": {
+    "priority": "CRITICAL",
+    "deliveryDate": "2025-01-24T18:00:00Z",
+    "specialHandling": true,
+    "temperatureControlled": true,
+    "testScenario": "TEST-ORD-2025-024",
+    "emergencyOrder": true,
+    "requiresImmediateDelivery": true
+  }
+}

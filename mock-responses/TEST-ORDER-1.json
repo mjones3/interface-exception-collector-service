@@ -1,0 +1,22 @@
+{
+  "orderId": "TEST-ORDER-1",
+  "status": "ACTIVE",
+  "priority": "ROUTINE",
+  "patientId": "PAT-TEST-001",
+  "facilityId": "FAC-TEST",
+  "orderDate": "2025-01-01T09:00:00Z",
+  "items": [
+    {
+      "itemId": "ITEM-TEST-001",
+      "productCode": "RBC-B-POS",
+      "productName": "Red Blood Cells - B Positive",
+      "quantity": 1,
+      "units": "units",
+      "status": "AVAILABLE"
+    }
+  ],
+  "metadata": {
+    "testScenario": "TEST-ORDER-1",
+    "description": "Basic test order"
+  }
+}

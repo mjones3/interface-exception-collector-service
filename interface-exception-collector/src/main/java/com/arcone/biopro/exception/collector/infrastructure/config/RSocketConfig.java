@@ -19,7 +19,7 @@ import java.time.Duration;
  * connection management, timeout settings, and error handling.
  */
 @Configuration
-@ConditionalOnProperty(name = "biopro.rsocket.mock-server.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "app.rsocket.mock-server.enabled", havingValue = "true")
 @Slf4j
 public class RSocketConfig {
 
@@ -35,7 +35,6 @@ public class RSocketConfig {
         return RSocketRequester.builder()
                 .rsocketStrategies(rSocketStrategies)
                 .dataMimeType(MimeTypeUtils.APPLICATION_JSON)
-                .metadataMimeType(MimeTypeUtils.APPLICATION_JSON)
                 .rsocketConnector(this::configureRSocketConnector);
     }
 
@@ -49,11 +48,11 @@ public class RSocketConfig {
         
         return RSocketStrategies.builder()
                 .encoders(encoders -> {
-                    // Add JSON encoder for request/response payloads
+                    // Jackson JSON encoder is included by default in Spring Boot
                     log.debug("Configuring JSON encoders for RSocket communication");
                 })
                 .decoders(decoders -> {
-                    // Add JSON decoder for request/response payloads
+                    // Jackson JSON decoder is included by default in Spring Boot
                     log.debug("Configuring JSON decoders for RSocket communication");
                 })
                 .build();

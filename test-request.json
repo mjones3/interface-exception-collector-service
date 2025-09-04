@@ -1,0 +1,7 @@
+{
+  "externalId": "TEST-ORDER-1",
+  "operation": "CREATE_ORDER",
+  "rejectedReason": "Test order rejection",
+  "customerId": "CUST001",
+  "locationCode": "LOC001"
+}

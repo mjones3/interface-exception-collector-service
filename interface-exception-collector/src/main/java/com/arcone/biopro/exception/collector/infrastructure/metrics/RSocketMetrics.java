@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @Slf4j
-@ConditionalOnProperty(name = "biopro.rsocket.mock-server.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "app.rsocket.mock-server.enabled", havingValue = "true")
 public class RSocketMetrics {
 
     private final Counter rSocketCallsTotal;

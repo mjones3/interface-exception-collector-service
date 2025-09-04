@@ -31,7 +31,7 @@ spec:
         - name: SERVER_PORT
           value: "7000"
         - name: LOG_LEVEL
-          value: "INFO"
+          value: "TRACE"
         - name: STARTUP_TIMEOUT
           value: "10"
         - name: QUICK_START
@@ -45,6 +45,13 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
+        volumeMounts:
+        - name: mappings-volume
+          mountPath: /app/mappings
+          readOnly: true
+        - name: responses-volume
+          mountPath: /app/__files
+          readOnly: true
         livenessProbe:
           tcpSocket:
             port: 7000
@@ -59,8 +66,207 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 2
           failureThreshold: 2
-
+      volumes:
+      - name: mappings-volume
+        configMap:
+          name: rsocket-mappings
+      - name: responses-volume
+        configMap:
+          name: rsocket-responses
       restartPolicy: Always
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rsocket-mappings
+  labels:
+    app: mock-rsocket-server
+data:
+  bulk-order-mapping.json: |
+    {
+      "request": {
+        "routePathPattern": "orders\\.BULK-ORDER-.*"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "bulk-order-response.json",
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Test-Scenario": "BULK-ORDER"
+        }
+      }
+    }
+  test-ord-2025-018-mapping.json: |
+    {
+      "request": {
+        "routePathPattern": "orders\\.TEST-ORD-2025-018"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "TEST-ORD-2025-018.json",
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Test-Scenario": "TEST-ORD-2025-018"
+        }
+      }
+    }
+  test-ord-2025-024-mapping.json: |
+    {
+      "request": {
+        "routePathPattern": "orders\\.TEST-ORD-2025-024"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "TEST-ORD-2025-024.json",
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Test-Scenario": "TEST-ORD-2025-024"
+        }
+      }
+    }
+  test-order-1-mapping.json: |
+    {
+      "request": {
+        "routePathPattern": "orders.*TEST-ORDER-1.*"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "TEST-ORDER-1.json",
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Test-Scenario": "TEST-ORDER-1"
+        }
+      }
+    }
+  order-not-found-mapping.json: |
+    {
+      "request": {
+        "routePathPattern": "orders\\.NOT-FOUND-.*"
+      },
+      "response": {
+        "status": 404,
+        "body": "{\"error\":\"Order not found\",\"code\":\"ORDER_NOT_FOUND\"}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rsocket-responses
+  labels:
+    app: mock-rsocket-server
+data:
+  TEST-ORD-2025-018.json: |
+    {
+      "orderId": "TEST-ORD-2025-018",
+      "status": "ACTIVE",
+      "priority": "ROUTINE",
+      "patientId": "PAT-12345",
+      "facilityId": "FAC-001",
+      "orderDate": "2025-01-18T10:30:00Z",
+      "items": [
+        {
+          "itemId": "ITEM-001",
+          "productCode": "RBC-A-POS",
+          "productName": "Red Blood Cells - A Positive",
+          "quantity": 2,
+          "units": "units",
+          "status": "AVAILABLE"
+        },
+        {
+          "itemId": "ITEM-002",
+          "productCode": "PLT-APHERESIS",
+          "productName": "Platelets - Apheresis",
+          "quantity": 1,
+          "units": "units",
+          "status": "AVAILABLE"
+        }
+      ],
+      "metadata": {
+        "testScenario": "TEST-ORD-2025-018",
+        "description": "Standard order with multiple blood products"
+      }
+    }
+  TEST-ORD-2025-024.json: |
+    {
+      "orderId": "TEST-ORD-2025-024",
+      "status": "URGENT",
+      "priority": "EMERGENCY",
+      "patientId": "PAT-67890",
+      "facilityId": "FAC-002",
+      "orderDate": "2025-01-24T14:45:00Z",
+      "items": [
+        {
+          "itemId": "ITEM-003",
+          "productCode": "RBC-O-NEG",
+          "productName": "Red Blood Cells - O Negative",
+          "quantity": 4,
+          "units": "units",
+          "status": "RESERVED"
+        },
+        {
+          "itemId": "ITEM-004",
+          "productCode": "FFP-O-NEG",
+          "productName": "Fresh Frozen Plasma - O Negative",
+          "quantity": 2,
+          "units": "units",
+          "status": "RESERVED"
+        }
+      ],
+      "metadata": {
+        "testScenario": "TEST-ORD-2025-024",
+        "description": "Emergency order with O-negative blood products"
+      }
+    }
+  TEST-ORDER-1.json: |
+    {
+      "orderId": "TEST-ORDER-1",
+      "status": "ACTIVE",
+      "priority": "ROUTINE",
+      "patientId": "PAT-TEST-001",
+      "facilityId": "FAC-TEST",
+      "orderDate": "2025-01-01T09:00:00Z",
+      "items": [
+        {
+          "itemId": "ITEM-TEST-001",
+          "productCode": "RBC-B-POS",
+          "productName": "Red Blood Cells - B Positive",
+          "quantity": 1,
+          "units": "units",
+          "status": "AVAILABLE"
+        }
+      ],
+      "metadata": {
+        "testScenario": "TEST-ORDER-1",
+        "description": "Basic test order"
+      }
+    }
+  bulk-order-response.json: |
+    {
+      "orderId": "BULK-ORDER-001",
+      "status": "PROCESSING",
+      "priority": "ROUTINE",
+      "patientId": "PAT-BULK-001",
+      "facilityId": "FAC-BULK",
+      "orderDate": "2025-01-01T12:00:00Z",
+      "items": [
+        {
+          "itemId": "BULK-ITEM-001",
+          "productCode": "RBC-MIXED",
+          "productName": "Red Blood Cells - Mixed Types",
+          "quantity": 10,
+          "units": "units",
+          "status": "PROCESSING"
+        }
+      ],
+      "metadata": {
+        "testScenario": "BULK-ORDER",
+        "description": "Bulk order processing scenario"
+      }
+    }
 ---
 apiVersion: v1
 kind: Service

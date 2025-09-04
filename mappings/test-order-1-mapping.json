@@ -1,10 +1,10 @@
 {
   "request": {
-    "routePathPattern": "orders\\.TEST-ORDER-1"
+    "routePathPattern": "orders.*TEST-ORDER-1.*"
   },
   "response": {
     "status": 200,
-    "bodyFileName": "orders/TEST-ORDER-1.json",
+    "bodyFileName": "TEST-ORDER-1.json",
     "headers": {
       "Content-Type": "application/json",
       "X-Test-Scenario": "TEST-ORDER-1"

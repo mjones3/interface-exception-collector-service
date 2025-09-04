@@ -138,9 +138,9 @@ public class MockRSocketOrderServiceClient extends BaseSourceServiceClient {
                 log.debug("Making RSocket call with route: {}", route);
 
                 RSocketProperties.MockServer config = rSocketProperties.getMockServer();
-                Object orderData = requester
+                String orderData = requester
                     .route(route)
-                    .retrieveMono(Object.class)
+                    .retrieveMono(String.class)
                     .timeout(config.getTimeout())
                     .doOnError(error -> {
                         log.error("RSocket call failed for externalId: {}, error: {}", 

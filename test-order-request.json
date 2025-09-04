@@ -1,0 +1,14 @@
+{
+  "externalId": "TEST-ORDER-1",
+  "operation": "CREATE",
+  "rejectedReason": "Test order rejection for mock server validation",
+  "customerId": "CUST-TEST-001",
+  "locationCode": "LOC-TEST-001",
+  "orderItems": [
+    {
+      "bloodType": "O_POS",
+      "productFamily": "RED_BLOOD_CELLS",
+      "quantity": 1
+    }
+  ]
+}

@@ -17,6 +17,8 @@ import java.util.Optional;
  * Service.
  * Enables JPA auditing for automatic timestamp management, Kafka for event
  * processing, and scheduling for periodic tasks.
+ * 
+ * Configuration fix: Removed spring.profiles.active from application-local.yml
  */
 @SpringBootApplication
 @EnableJpaAuditing(dateTimeProviderRef = "offsetDateTimeProvider")
