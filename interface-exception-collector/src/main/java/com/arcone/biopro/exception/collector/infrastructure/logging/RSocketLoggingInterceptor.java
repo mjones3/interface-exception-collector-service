@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 @Component
 @Slf4j
-@ConditionalOnProperty(name = "biopro.rsocket.mock-server.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "app.rsocket.mock-server.enabled", havingValue = "true")
 public class RSocketLoggingInterceptor {
 
     private static final String CORRELATION_ID_KEY = "rsocket.correlation_id";

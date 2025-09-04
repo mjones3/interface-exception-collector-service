@@ -16,6 +16,17 @@ data:
   LOGGING_LEVEL_COM_ARCONE_BIOPRO: "DEBUG"
   MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,metrics,prometheus,loggers"
   JWT_SECRET: "mySecretKey1234567890123456789012345678901234567890"
+  # RSocket Configuration - Override Kubernetes service discovery variables
+  MOCK_RSOCKET_SERVER_ENABLED: "true"
+  MOCK_RSOCKET_SERVER_HOST: "mock-rsocket-server"
+  MOCK_RSOCKET_SERVER_PORT: "7000"
+  PARTNER_ORDER_SERVICE_ENABLED: "false"
+  PARTNER_ORDER_SERVICE_HOST: "partner-order-service"
+  PARTNER_ORDER_SERVICE_PORT: "8090"
+  # Additional overrides to prevent Kubernetes service discovery conflicts
+  KAFKA_PORT: "9092"
+  REDIS_PORT: "6379"
+  POSTGRES_PORT: "5432"
 ---
 apiVersion: apps/v1
 kind: Deployment

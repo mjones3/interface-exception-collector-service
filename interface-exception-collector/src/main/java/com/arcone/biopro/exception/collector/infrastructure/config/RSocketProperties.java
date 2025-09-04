@@ -11,7 +11,6 @@ import java.time.Duration;
  * Binds configuration values from application.yml for mock server and partner order service.
  */
 @Data
-@Component
 @ConfigurationProperties(prefix = "app.rsocket")
 public class RSocketProperties {
 

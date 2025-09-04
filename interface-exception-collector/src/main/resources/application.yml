@@ -66,6 +66,7 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
+    defer-datasource-initialization: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -86,6 +87,10 @@ spring:
           use_query_cache: false
           # region:
           #   factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        # Schema management - COMPLETELY DISABLED
+        hbm2ddl:
+          auto: none
+        schema_management_tool: none
         # Connection and statement settings
         connection:
           provider_disables_autocommit: true
@@ -107,6 +112,12 @@ spring:
     schemas: public
     table: flyway_schema_history
     validate-on-migrate: true
+    out-of-order: false
+    clean-disabled: true
+  
+  sql:
+    init:
+      mode: never
 
   # Redis Cache Configuration - DISABLED to prevent Lettuce memory leaks
   # data:
