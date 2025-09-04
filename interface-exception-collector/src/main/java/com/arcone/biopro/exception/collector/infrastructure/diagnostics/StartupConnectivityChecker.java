@@ -1,6 +1,6 @@
 package com.arcone.biopro.exception.collector.infrastructure.diagnostics;
 
-import com.arcone.biopro.exception.collector.infrastructure.config.RSocketClientProperties;
+import com.arcone.biopro.exception.collector.infrastructure.config.RSocketProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,13 @@ public class StartupConnectivityChecker {
     private static final int RETRY_DELAY_MS = 2000; // 2 seconds
 
     private final NetworkConnectivityValidator networkValidator;
-    private final RSocketClientProperties rSocketClientProperties;
+    private final RSocketProperties rSocketProperties;
 
     @Autowired
     public StartupConnectivityChecker(NetworkConnectivityValidator networkValidator,
-                                    RSocketClientProperties rSocketClientProperties) {
+                                    RSocketProperties rSocketProperties) {
         this.networkValidator = networkValidator;
-        this.rSocketClientProperties = rSocketClientProperties;
+        this.rSocketProperties = rSocketProperties;
     }
 
     /**
@@ -45,8 +45,8 @@ public class StartupConnectivityChecker {
         
         try {
             // Get RSocket client configuration
-            String partnerOrderHost = rSocketClientProperties.getPartnerOrderService().getHost();
-            int partnerOrderPort = rSocketClientProperties.getPartnerOrderService().getPort();
+            String partnerOrderHost = rSocketProperties.getPartnerOrderService().getHost();
+            int partnerOrderPort = rSocketProperties.getPartnerOrderService().getPort();
             
             logger.info("Validating connectivity to Partner Order Service at {}:{}", 
                        partnerOrderHost, partnerOrderPort);
@@ -186,8 +186,8 @@ public class StartupConnectivityChecker {
      * @return true if connectivity is successful, false otherwise
      */
     public boolean validatePartnerOrderServiceConnectivity() {
-        String host = rSocketClientProperties.getPartnerOrderService().getHost();
-        int port = rSocketClientProperties.getPartnerOrderService().getPort();
+        String host = rSocketProperties.getPartnerOrderService().getHost();
+        int port = rSocketProperties.getPartnerOrderService().getPort();
         
         logger.info("Validating Partner Order Service connectivity to {}:{}", host, port);
         
@@ -201,7 +201,7 @@ public class StartupConnectivityChecker {
      */
     public String getRSocketClientConfiguration() {
         return String.format("%s:%d", 
-                           rSocketClientProperties.getPartnerOrderService().getHost(), 
-                           rSocketClientProperties.getPartnerOrderService().getPort());
+                           rSocketProperties.getPartnerOrderService().getHost(), 
+                           rSocketProperties.getPartnerOrderService().getPort());
     }
 }

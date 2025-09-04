@@ -2,6 +2,7 @@ package com.arcone.biopro.exception.collector.infrastructure.config;
 
 import com.arcone.biopro.exception.collector.infrastructure.client.MockRSocketOrderServiceClient;
 import com.arcone.biopro.exception.collector.infrastructure.client.OrderServiceClient;
+import com.arcone.biopro.exception.collector.infrastructure.client.RSocketConnectionManager;
 import com.arcone.biopro.exception.collector.infrastructure.client.SourceServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,8 @@ public class SourceServiceClientConfiguration {
     @ConditionalOnProperty(name = "app.rsocket.mock-server.enabled", havingValue = "true")
     @Primary
     public SourceServiceClient mockRSocketOrderServiceClient(RestTemplate restTemplate,
-                                                            RSocketRequester.Builder rSocketRequesterBuilder) {
+                                                            RSocketRequester.Builder rSocketRequesterBuilder,
+                                                            RSocketConnectionManager connectionManager) {
         String activeProfile = getActiveProfile();
         
         // Additional safety check - never use mock in production
@@ -60,7 +62,7 @@ public class SourceServiceClientConfiguration {
             log.debug("Mock RSocket server configuration: {}", rSocketProperties.getMockServer());
         }
         
-        return new MockRSocketOrderServiceClient(restTemplate, rSocketRequesterBuilder);
+        return new MockRSocketOrderServiceClient(restTemplate, rSocketRequesterBuilder, rSocketProperties, connectionManager);
     }
 
     /**

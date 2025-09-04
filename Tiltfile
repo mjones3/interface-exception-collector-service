@@ -51,8 +51,7 @@ k8s_resource('kafka-topics-job', resource_deps=['kafka'])
 k8s_yaml('k8s/mock-rsocket-server.yaml')
 k8s_resource(
     'mock-rsocket-server',
-    port_forwards='7000:7000',
-    resource_deps=['kafka']
+    port_forwards='7000:7000'
 )
 
 # Watch for mapping and response file changes
@@ -173,10 +172,17 @@ local_resource(
 # Local resource for testing mock RSocket server connectivity
 local_resource(
     'test-mock-rsocket-server',
-    'echo "Testing mock RSocket server connectivity..." && nc -z localhost 7000 && echo "✅ Mock RSocket server is reachable on port 7000" || echo "❌ Mock RSocket server is not reachable"',
+    'echo "Testing mock RSocket server connectivity..." && timeout 3 nc -z localhost 7000 && echo "✅ Mock RSocket server is reachable on port 7000" || echo "❌ Mock RSocket server is not reachable (this is OK if it is still starting)"',
     auto_init=False,
-    trigger_mode=TRIGGER_MODE_MANUAL,
-    resource_deps=['mock-rsocket-server']
+    trigger_mode=TRIGGER_MODE_MANUAL
+)
+
+# Local resource to force restart mock server if it hangs
+local_resource(
+    'restart-mock-rsocket-server',
+    'kubectl rollout restart deployment/mock-rsocket-server -n ' + namespace + ' && echo "🔄 Mock RSocket server restarted"',
+    auto_init=False,
+    trigger_mode=TRIGGER_MODE_MANUAL
 )
 
 print("🚀 BioPro Interface Services development environment ready!")

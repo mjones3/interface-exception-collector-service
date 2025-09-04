@@ -145,4 +145,44 @@ public class RSocketMetrics {
     public double getTotalErrors() {
         return rSocketErrors.count();
     }
+
+    /**
+     * Record a fallback response being used.
+     */
+    public void recordFallbackResponse(String operation) {
+        log.debug("Recorded fallback response usage: operation={}", operation);
+        // Could add specific fallback metrics here if needed
+    }
+
+    /**
+     * Record a successful connection establishment.
+     */
+    public void recordConnectionSuccess() {
+        log.debug("Recorded successful RSocket connection");
+        // Could add connection-specific metrics here if needed
+    }
+
+    /**
+     * Record a failed connection attempt.
+     */
+    public void recordConnectionFailure() {
+        log.debug("Recorded failed RSocket connection");
+        // Could add connection failure metrics here if needed
+    }
+
+    /**
+     * Record a connection retry attempt.
+     */
+    public void recordConnectionRetry() {
+        log.debug("Recorded RSocket connection retry");
+        // Could add retry-specific metrics here if needed
+    }
+
+    /**
+     * Record that fallback mode has been enabled.
+     */
+    public void recordFallbackModeEnabled() {
+        log.debug("Recorded fallback mode enabled");
+        // Could add fallback mode metrics here if needed
+    }
 }

@@ -6,6 +6,11 @@ metadata:
     app: mock-rsocket-server
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: mock-rsocket-server
@@ -13,6 +18,8 @@ spec:
     metadata:
       labels:
         app: mock-rsocket-server
+      annotations:
+        sidecar.istio.io/inject: "false"
     spec:
       containers:
       - name: mock-rsocket-server
@@ -20,22 +27,17 @@ spec:
         ports:
         - containerPort: 7000
           name: rsocket
-        volumeMounts:
-        - name: mappings
-          mountPath: /app/mappings
-          readOnly: true
-        - name: responses
-          mountPath: /app/__files
-          readOnly: true
         env:
         - name: SERVER_PORT
           value: "7000"
-        - name: MAPPINGS_PATH
-          value: "/app/mappings"
-        - name: RESPONSES_PATH
-          value: "/app/__files"
         - name: LOG_LEVEL
           value: "INFO"
+        - name: STARTUP_TIMEOUT
+          value: "10"
+        - name: QUICK_START
+          value: "true"
+        - name: EMBEDDED_MODE
+          value: "true"
         resources:
           requests:
             memory: "128Mi"
@@ -46,31 +48,18 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 7000
-          initialDelaySeconds: 15
-          periodSeconds: 30
-          timeoutSeconds: 5
-          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 5
         readinessProbe:
           tcpSocket:
             port: 7000
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          timeoutSeconds: 3
-          failureThreshold: 3
-        startupProbe:
-          tcpSocket:
-            port: 7000
-          initialDelaySeconds: 10
+          initialDelaySeconds: 2
           periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 6
-      volumes:
-      - name: mappings
-        configMap:
-          name: mock-rsocket-mappings
-      - name: responses
-        configMap:
-          name: mock-rsocket-responses
+          timeoutSeconds: 2
+          failureThreshold: 2
+
       restartPolicy: Always
 ---
 apiVersion: v1
@@ -88,125 +77,3 @@ spec:
     protocol: TCP
     name: rsocket
   type: ClusterIP
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mock-rsocket-mappings
-data:
-  order-success-mapping.json: |
-    {
-      "request": {
-        "routePathPattern": "orders\\.([A-Z0-9-]+)"
-      },
-      "response": {
-        "status": 200,
-        "bodyFileName": "orders/complete-order-with-items.json",
-        "headers": {
-          "Content-Type": "application/json"
-        }
-      }
-    }
-  order-not-found-mapping.json: |
-    {
-      "request": {
-        "routePathPattern": "orders\\.(NOTFOUND-.*)"
-      },
-      "response": {
-        "status": 404,
-        "bodyFileName": "errors/not-found.json",
-        "headers": {
-          "Content-Type": "application/json"
-        }
-      }
-    }
-  default-fallback-mapping.json: |
-    {
-      "request": {
-        "routePathPattern": ".*"
-      },
-      "response": {
-        "status": 404,
-        "jsonBody": {
-          "error": "Endpoint not found",
-          "message": "The requested route was not found in mock server mappings"
-        },
-        "headers": {
-          "Content-Type": "application/json"
-        }
-      }
-    }
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mock-rsocket-responses
-data:
-  orders/complete-order-with-items.json: |
-    {
-      "externalId": "TEST-ORDER-1",
-      "customerId": "CUST001",
-      "locationCode": "LOC001",
-      "orderDate": "2025-01-15T10:30:00Z",
-      "status": "PENDING",
-      "totalAmount": 1250.00,
-      "currency": "USD",
-      "orderItems": [
-        {
-          "itemId": "ITEM001",
-          "productCode": "PROD-ABC123",
-          "bloodType": "O_POS",
-          "productFamily": "RED_BLOOD_CELLS",
-          "quantity": 2,
-          "unitPrice": 500.00,
-          "totalPrice": 1000.00,
-          "attributes": {
-            "expirationDate": "2025-02-15",
-            "donorId": "DONOR123"
-          }
-        },
-        {
-          "itemId": "ITEM002",
-          "productCode": "PROD-XYZ789",
-          "bloodType": "A_NEG",
-          "productFamily": "PLATELETS",
-          "quantity": 1,
-          "unitPrice": 250.00,
-          "totalPrice": 250.00,
-          "attributes": {
-            "expirationDate": "2025-01-20",
-            "donorId": "DONOR456"
-          }
-        }
-      ],
-      "customerInfo": {
-        "name": "Test Customer Hospital",
-        "email": "orders@testcustomer.com",
-        "phone": "+1-555-0123",
-        "contactPerson": "Dr. Jane Smith"
-      },
-      "shippingAddress": {
-        "street": "123 Hospital Drive",
-        "city": "Medical City",
-        "state": "TX",
-        "zipCode": "12345",
-        "country": "US",
-        "deliveryInstructions": "Deliver to Blood Bank - Building A"
-      },
-      "metadata": {
-        "priority": "URGENT",
-        "deliveryDate": "2025-01-16T08:00:00Z",
-        "specialHandling": true,
-        "temperatureControlled": true
-      }
-    }
-  errors/not-found.json: |
-    {
-      "error": "ORDER_NOT_FOUND",
-      "message": "Order with the specified externalId was not found",
-      "timestamp": "2025-01-15T10:30:00Z",
-      "details": {
-        "errorCode": "ORD_404",
-        "retryable": false
-      }
-    }

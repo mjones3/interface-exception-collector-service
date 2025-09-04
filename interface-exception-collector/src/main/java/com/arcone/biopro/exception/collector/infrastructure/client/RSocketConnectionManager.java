@@ -124,8 +124,9 @@ public class RSocketConnectionManager {
 
             // Create RSocket requester
             RSocketRequester requester = rSocketRequesterBuilder
-                .rsocketConnector(connector)
-                .transport(TcpClientTransport.create(tcpClient));
+                .rsocketConnector(rSocketConnector -> rSocketConnector
+                    .keepAlive(mockServerConfig.getKeepAliveInterval(), mockServerConfig.getKeepAliveMaxLifetime()))
+                .tcp(mockServerConfig.getHost(), mockServerConfig.getPort());
 
             // Test the connection
             testConnection(requester, mockServerConfig.getTimeout());
@@ -143,16 +144,18 @@ public class RSocketConnectionManager {
                     mockServerConfig.getHost(), mockServerConfig.getPort());
             
             loggingInterceptor.logConnectionEvent("CONNECTED", 
-                    mockServerConfig.getHost() + ":" + mockServerConfig.getPort(), 
-                    null, true);
+                    mockServerConfig.getHost(), 
+                    mockServerConfig.getPort(), 
+                    "Connection established successfully");
 
         } catch (Exception e) {
             log.error("Failed to establish RSocket connection: {}", e.getMessage(), e);
             rSocketMetrics.recordConnectionFailure();
             
             loggingInterceptor.logConnectionEvent("CONNECTION_FAILED", 
-                    rSocketProperties.getMockServer().getHost() + ":" + rSocketProperties.getMockServer().getPort(), 
-                    e.getMessage(), false);
+                    rSocketProperties.getMockServer().getHost(), 
+                    rSocketProperties.getMockServer().getPort(), 
+                    e.getMessage());
             
             enableFallbackMode("Connection establishment failed: " + e.getMessage());
             throw new RuntimeException("Failed to establish RSocket connection", e);
@@ -241,8 +244,9 @@ public class RSocketConnectionManager {
         rSocketMetrics.recordFallbackModeEnabled();
         
         loggingInterceptor.logConnectionEvent("FALLBACK_ENABLED", 
-                rSocketProperties.getMockServer().getHost() + ":" + rSocketProperties.getMockServer().getPort(), 
-                reason, false);
+                rSocketProperties.getMockServer().getHost(), 
+                rSocketProperties.getMockServer().getPort(), 
+                reason);
     }
 
     /**
@@ -347,8 +351,9 @@ public class RSocketConnectionManager {
         }
         
         loggingInterceptor.logConnectionEvent("SHUTDOWN", 
-                rSocketProperties.getMockServer().getHost() + ":" + rSocketProperties.getMockServer().getPort(), 
-                null, true);
+                rSocketProperties.getMockServer().getHost(), 
+                rSocketProperties.getMockServer().getPort(), 
+                "Connection manager shutdown");
         
         log.info("RSocket connection manager shutdown completed");
     }
