@@ -2,7 +2,7 @@ package com.arcone.biopro.partner.order.application.service;
 
 import com.arcone.biopro.partner.order.api.dto.PartnerOrderRequest;
 import com.arcone.biopro.partner.order.api.dto.PartnerOrderResponse;
-import com.arcone.biopro.partner.order.application.exception.DuplicateExternalIdException;
+
 import com.arcone.biopro.partner.order.domain.entity.PartnerOrder;
 import com.arcone.biopro.partner.order.domain.entity.PartnerOrderItem;
 import com.arcone.biopro.partner.order.domain.enums.OrderStatus;
@@ -44,7 +44,9 @@ public class PartnerOrderService {
     @Transactional
     public PartnerOrderResponse processOrder(PartnerOrderRequest request, boolean isRetry, UUID originalTransactionId) {
         UUID correlationId = UUID.randomUUID();
-        UUID transactionId = isRetry && originalTransactionId != null ? originalTransactionId : UUID.randomUUID();
+        // Always generate a new UUID for transaction_id to avoid unique constraint violations
+        // The originalTransactionId is kept for correlation purposes only
+        UUID transactionId = UUID.randomUUID();
 
         // Set up MDC for logging
         MDC.put("correlationId", correlationId.toString());
@@ -52,19 +54,19 @@ public class PartnerOrderService {
         MDC.put("externalId", request.getExternalId());
 
         try {
-            log.info("Processing partner order - externalId: {}, isRetry: {}",
-                    request.getExternalId(), isRetry);
-
-            // Check for duplicate external ID (unless it's a retry)
-            if (!isRetry && partnerOrderRepository.existsByExternalId(request.getExternalId())) {
-                log.warn("Duplicate external ID detected: {}", request.getExternalId());
-                throw new DuplicateExternalIdException(request.getExternalId());
+            if (isRetry && originalTransactionId != null) {
+                log.info("Processing partner order retry - externalId: {}, originalTransactionId: {}, newTransactionId: {}",
+                        request.getExternalId(), originalTransactionId, transactionId);
+            } else {
+                log.info("Processing partner order - externalId: {}, isRetry: {}",
+                        request.getExternalId(), isRetry);
             }
 
             // Convert request to JSON for storage
             JsonNode originalPayload = objectMapper.valueToTree(request);
 
-            // Create partner order entity
+            // Create new partner order entity (always create new, even for retries)
+            // Duplicate external_ids are now allowed for retry scenarios
             PartnerOrder partnerOrder = PartnerOrder.builder()
                     .transactionId(transactionId)
                     .externalId(request.getExternalId())
@@ -113,9 +115,6 @@ public class PartnerOrderService {
                     request.getLocationCode(),
                     correlationId);
 
-        } catch (DuplicateExternalIdException e) {
-            log.error("Duplicate external ID error: {}", e.getMessage());
-            return PartnerOrderResponse.duplicateError(request.getExternalId(), correlationId);
         } catch (Exception e) {
             log.error("Error processing partner order", e);
             return PartnerOrderResponse.error(

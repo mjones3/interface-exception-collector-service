@@ -40,7 +40,7 @@ public class PartnerOrder {
     @Column(name = "transaction_id", nullable = false, unique = true)
     private UUID transactionId;
 
-    @Column(name = "external_id", nullable = false, unique = true, length = 255)
+    @Column(name = "external_id", nullable = false, length = 255)
     private String externalId;
 
     @Enumerated(EnumType.STRING)
