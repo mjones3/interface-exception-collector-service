@@ -1,31 +1,27 @@
 -- Create exception status changes table for audit trail
 -- This table tracks all status transitions for interface exceptions
 
-CREATE TABLE exception_status_changes (
+CREATE TABLE IF NOT EXISTS exception_status_changes (
     id BIGSERIAL PRIMARY KEY,
     exception_id BIGINT NOT NULL,
-    from_status VARCHAR(50) NOT NULL,
+    from_status VARCHAR(50),
     to_status VARCHAR(50) NOT NULL,
-    changed_by VARCHAR(255) NOT NULL,
-    changed_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    changed_by VARCHAR(255),
+    changed_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     reason VARCHAR(500),
-    notes VARCHAR(1000),
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     
-    CONSTRAINT fk_status_changes_exception 
+    CONSTRAINT fk_exception_status_changes_exception 
         FOREIGN KEY (exception_id) 
         REFERENCES interface_exceptions(id) 
         ON DELETE CASCADE
 );
 
 -- Create indexes for performance
-CREATE INDEX idx_status_changes_exception_id ON exception_status_changes (exception_id);
-CREATE INDEX idx_status_changes_changed_at ON exception_status_changes (changed_at);
-CREATE INDEX idx_status_changes_changed_by ON exception_status_changes (changed_by);
-CREATE INDEX idx_status_changes_from_to_status ON exception_status_changes (from_status, to_status);
-
--- Create composite index for common queries
-CREATE INDEX idx_status_changes_exception_changed_at ON exception_status_changes (exception_id, changed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_exception_status_changes_exception_id ON exception_status_changes(exception_id);
+CREATE INDEX IF NOT EXISTS idx_exception_status_changes_changed_at ON exception_status_changes(changed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_exception_status_changes_status_transition ON exception_status_changes(from_status, to_status);
 
 -- Add comments for documentation
 COMMENT ON TABLE exception_status_changes IS 'Audit trail of all status changes for interface exceptions';

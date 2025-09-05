@@ -42,9 +42,8 @@ public class StatusChange {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "From status is required")
     @Enumerated(EnumType.STRING)
-    @Column(name = "from_status", nullable = false, length = 50)
+    @Column(name = "from_status", nullable = true, length = 50)
     private ExceptionStatus fromStatus;
 
     @NotNull(message = "To status is required")
