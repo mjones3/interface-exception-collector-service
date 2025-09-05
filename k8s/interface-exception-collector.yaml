@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
-  SPRING_PROFILES_ACTIVE: "local"
+  SPRING_PROFILES_ACTIVE: "tilt"
   SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/exception_collector_db"
   SPRING_DATASOURCE_USERNAME: "exception_user"
   SPRING_DATASOURCE_PASSWORD: "exception_pass"

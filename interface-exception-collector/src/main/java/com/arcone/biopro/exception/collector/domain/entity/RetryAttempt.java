@@ -121,8 +121,14 @@ public class RetryAttempt {
                 // Already JSON format
                 this.resultErrorDetails = errorDetails;
             } else {
-                // Convert string to JSON object
-                this.resultErrorDetails = "{\"error\": \"" + errorDetails.replace("\"", "\\\"") + "\"}";
+                // Convert string to JSON object with proper escaping
+                String escapedError = errorDetails
+                    .replace("\\", "\\\\")  // Escape backslashes first
+                    .replace("\"", "\\\"")  // Escape quotes
+                    .replace("\n", "\\n")   // Escape newlines
+                    .replace("\r", "\\r")   // Escape carriage returns
+                    .replace("\t", "\\t");  // Escape tabs
+                this.resultErrorDetails = "{\"error\": \"" + escapedError + "\"}";
             }
         } else {
             this.resultErrorDetails = null;

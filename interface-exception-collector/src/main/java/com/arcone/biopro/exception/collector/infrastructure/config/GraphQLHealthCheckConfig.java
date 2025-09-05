@@ -150,14 +150,13 @@ public class GraphQLHealthCheckConfig {
 
         private boolean checkDatabaseHealth() {
             try (Connection connection = dataSource.getConnection()) {
-                // Test with a simple GraphQL-relevant query
-                String testQuery = "SELECT COUNT(*) FROM interface_exceptions WHERE created_at > NOW() - INTERVAL '1 hour'";
+                // Test with a simple database connectivity check
+                String testQuery = "SELECT 1";
                 try (PreparedStatement stmt = connection.prepareStatement(testQuery);
                         ResultSet rs = stmt.executeQuery()) {
 
                     if (rs.next()) {
-                        int recentExceptions = rs.getInt(1);
-                        log.debug("GraphQL database health check passed. Recent exceptions: {}", recentExceptions);
+                        log.debug("GraphQL database health check passed");
                         return true;
                     }
                 }
@@ -285,8 +284,8 @@ public class GraphQLHealthCheckConfig {
 
         private boolean testDataLoaderConnectivity() {
             try (Connection connection = dataSource.getConnection()) {
-                // Test a typical DataLoader query pattern
-                String testQuery = "SELECT id FROM interface_exceptions LIMIT 5";
+                // Test basic database connectivity for DataLoader
+                String testQuery = "SELECT 1";
                 try (PreparedStatement stmt = connection.prepareStatement(testQuery);
                         ResultSet rs = stmt.executeQuery()) {
                     return rs.next(); // Just check if we can execute the query
@@ -422,14 +421,13 @@ public class GraphQLHealthCheckConfig {
 
         private boolean executeTestQuery() {
             try (Connection connection = dataSource.getConnection()) {
-                // Execute a query similar to what GraphQL would do
-                String testQuery = "SELECT COUNT(*) as total FROM interface_exceptions WHERE status = 'PENDING'";
+                // Execute a simple connectivity test
+                String testQuery = "SELECT 1";
                 try (PreparedStatement stmt = connection.prepareStatement(testQuery);
                         ResultSet rs = stmt.executeQuery()) {
 
                     if (rs.next()) {
-                        int count = rs.getInt("total");
-                        log.debug("GraphQL query execution test passed. Pending exceptions: {}", count);
+                        log.debug("GraphQL query execution test passed");
                         return true;
                     }
                 }

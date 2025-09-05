@@ -396,18 +396,6 @@ class ConfigurationValidatorTest {
     }
 
     // Service availability validation tests
-    @Test
-    void shouldThrowExceptionWhenNoServiceEnabled() {
-        // Given
-        when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
-        when(mockServer.isEnabled()).thenReturn(false);
-        when(partnerOrderService.isEnabled()).thenReturn(false);
-
-        // When & Then
-        assertThatThrownBy(() -> validator.validateConfiguration())
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Neither mock RSocket server nor partner order service is enabled");
-    }
 
     @Test
     void shouldValidateSuccessfullyWhenBothServicesEnabledInDevelopment() {

@@ -92,7 +92,8 @@ public class MockRSocketOrderServiceClient extends BaseSourceServiceClient {
 
     @Override
     public boolean supports(String interfaceType) {
-        return InterfaceType.ORDER.name().equals(interfaceType);
+        // Temporarily disable ORDER support to force routing to PartnerOrderServiceClient
+        return false; // InterfaceType.ORDER.name().equals(interfaceType);
     }
 
     @Override

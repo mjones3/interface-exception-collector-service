@@ -2,19 +2,24 @@ package com.arcone.biopro.exception.collector.infrastructure.config;
 
 import com.arcone.biopro.exception.collector.infrastructure.client.MockRSocketOrderServiceClient;
 import com.arcone.biopro.exception.collector.infrastructure.client.OrderServiceClient;
+import com.arcone.biopro.exception.collector.infrastructure.client.PartnerOrderServiceClient;
 import com.arcone.biopro.exception.collector.infrastructure.client.RSocketConnectionManager;
 import com.arcone.biopro.exception.collector.infrastructure.client.SourceServiceClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.web.client.RestTemplate;
+
+import java.time.Duration;
 
 /**
  * Configuration class for source service clients with conditional bean registration
@@ -29,6 +34,23 @@ public class SourceServiceClientConfiguration {
     private final RSocketProperties rSocketProperties;
     private final FeatureFlagsProperties featureFlagsProperties;
     private final Environment environment;
+
+    /**
+     * Creates a configured RestTemplate for HTTP communication with source services.
+     * Includes timeout configuration.
+     *
+     * @param builder the RestTemplate builder
+     * @return configured RestTemplate
+     */
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        log.info("Configuring RestTemplate for source service communication");
+        
+        return builder
+                .setConnectTimeout(Duration.ofMillis(5000))
+                .setReadTimeout(Duration.ofMillis(30000))
+                .build();
+    }
 
     /**
      * Creates the mock RSocket order service client when mock server is enabled.
@@ -87,6 +109,31 @@ public class SourceServiceClientConfiguration {
         }
         
         return new OrderServiceClient(restTemplate, baseUrl);
+    }
+
+    /**
+     * Creates the Partner Order Service client for handling PARTNER_ORDER interface types.
+     * This client uses REST-based communication instead of RSocket.
+     *
+     * @param restTemplate the REST template for HTTP calls
+     * @param baseUrl the base URL for the partner order service
+     * @return the partner order service client
+     */
+    @Bean
+    public SourceServiceClient partnerOrderServiceClient(RestTemplate restTemplate,
+            @Value("${source-services.partner-order.base-url}") String baseUrl,
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper,
+            RSocketRequester.Builder rSocketRequesterBuilder) {
+        String activeProfile = getActiveProfile();
+        
+        log.info("Configuring Partner Order Service Client - Environment: {}, Base URL: {}", 
+                activeProfile, baseUrl);
+        
+        if (featureFlagsProperties.shouldEnableDebugLogging(activeProfile)) {
+            log.debug("Partner order service hybrid client configured for PARTNER_ORDER interface type");
+        }
+        
+        return new PartnerOrderServiceClient(restTemplate, baseUrl, objectMapper, rSocketRequesterBuilder);
     }
 
     /**

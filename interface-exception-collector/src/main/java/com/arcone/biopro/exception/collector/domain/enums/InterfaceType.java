@@ -9,5 +9,7 @@ public enum InterfaceType {
     ORDER,
     COLLECTION,
     DISTRIBUTION,
-    RECRUITMENT
+    RECRUITMENT,
+    PARTNER_ORDER,
+    MOCK_RSOCKET
 }
