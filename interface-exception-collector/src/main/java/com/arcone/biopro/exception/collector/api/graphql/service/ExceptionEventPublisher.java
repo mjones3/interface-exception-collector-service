@@ -20,6 +20,7 @@ public class ExceptionEventPublisher {
 
         private final ExceptionSubscriptionResolver subscriptionResolver;
         private final com.arcone.biopro.exception.collector.api.graphql.config.GraphQLWebSocketTransportConfig.GraphQLWebSocketSessionManager webSocketSessionManager;
+        private final DashboardSubscriptionService dashboardSubscriptionService;
 
         /**
          * Publishes an exception created event to GraphQL subscribers.
@@ -49,6 +50,11 @@ public class ExceptionEventPublisher {
                         webSocketSessionManager.broadcastToAll(webSocketMessage);
                         log.info("📡 Broadcasted exception created event via WebSocket to {} sessions", 
                                 webSocketSessionManager.getActiveSessionCount());
+                        
+                        // Trigger dashboard update
+                        dashboardSubscriptionService.triggerUpdate();
+                        log.debug("📊 Triggered dashboard update for exception created");
+                        
                 } catch (Exception e) {
                         log.error("❌ ERROR in publishExceptionCreated for transaction: {}", exception.getTransactionId(), e);
                         throw e;
@@ -71,6 +77,9 @@ public class ExceptionEventPublisher {
                                 triggeredBy);
 
                 subscriptionResolver.publishExceptionUpdate(event);
+                
+                // Trigger dashboard update
+                dashboardSubscriptionService.triggerUpdate();
         }
 
         /**

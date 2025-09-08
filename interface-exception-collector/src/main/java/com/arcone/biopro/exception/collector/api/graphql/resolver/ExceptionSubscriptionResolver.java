@@ -2,6 +2,7 @@ package com.arcone.biopro.exception.collector.api.graphql.resolver;
 
 import com.arcone.biopro.exception.collector.api.graphql.dto.ExceptionFilters;
 import com.arcone.biopro.exception.collector.api.graphql.dto.SubscriptionFilters;
+import com.arcone.biopro.exception.collector.api.graphql.service.DashboardSubscriptionService;
 import com.arcone.biopro.exception.collector.api.graphql.service.GraphQLSecurityService;
 import com.arcone.biopro.exception.collector.api.graphql.service.SubscriptionFilterService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class ExceptionSubscriptionResolver {
 
     private final SubscriptionFilterService subscriptionFilterService;
     private final GraphQLSecurityService securityService;
+    private final DashboardSubscriptionService dashboardSubscriptionService;
 
     // Sinks for broadcasting events to subscribers
     private final Sinks.Many<ExceptionUpdateEvent> exceptionUpdateSink = Sinks.many().multicast()
@@ -135,6 +137,35 @@ public class ExceptionSubscriptionResolver {
                 .timeout(Duration.ofMinutes(15)) // Shorter timeout for retry subscriptions
                 .onErrorResume(throwable -> {
                     log.warn("Retry status subscription timeout or error for user {}: {}", username,
+                            throwable.getMessage());
+                    return Flux.empty();
+                });
+    }
+
+    /**
+     * GraphQL subscription for real-time dashboard metrics.
+     * Provides aggregated statistics including active exceptions, retry rates, and API performance.
+     * 
+     * @param authentication User authentication context
+     * @return Flux of dashboard summary updates
+     */
+    @SubscriptionMapping("dashboardSummary")
+    @PreAuthorize("hasRole('VIEWER')")
+    public Flux<DashboardSubscriptionService.DashboardSummary> dashboardSummary(Authentication authentication) {
+        
+        String username = authentication.getName();
+        log.info("Starting dashboard summary subscription for user: {}", username);
+
+        return dashboardSubscriptionService.getDashboardStream()
+                .doOnSubscribe(subscription -> {
+                    log.info("User {} subscribed to dashboard summary", username);
+                })
+                .doOnCancel(() -> {
+                    log.info("User {} cancelled dashboard summary subscription", username);
+                })
+                .timeout(Duration.ofMinutes(60)) // Longer timeout for dashboard
+                .onErrorResume(throwable -> {
+                    log.warn("Dashboard summary subscription timeout or error for user {}: {}", username,
                             throwable.getMessage());
                     return Flux.empty();
                 });
