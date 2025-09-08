@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL Subscriptions Test Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .connecting { background-color: #fff3cd; color: #856404; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        textarea {
+            width: 100%;
+            height: 200px;
+            font-family: monospace;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .event {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-left: 3px solid #007bff;
+            background-color: #e7f3ff;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>GraphQL Subscriptions Test Client</h1>
+    
+    <div class="container">
+        <h2>Connection</h2>
+        <div id="status" class="status disconnected">Disconnected</div>
+        
+        <label for="wsUrl">WebSocket URL:</label>
+        <input type="text" id="wsUrl" value="ws://localhost:8080/subscriptions" />
+        
+        <label for="jwtToken">JWT Token (optional):</label>
+        <input type="text" id="jwtToken" placeholder="Enter JWT token if authentication is required" />
+        
+        <button id="connectBtn" onclick="connect()">Connect</button>
+        <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+    </div>
+
+    <div class="container">
+        <h2>Subscriptions</h2>
+        
+        <h3>Exception Updates</h3>
+        <button onclick="subscribeToExceptions()" disabled id="subExceptionsBtn">Subscribe to Exception Updates</button>
+        <button onclick="unsubscribeFromExceptions()" disabled id="unsubExceptionsBtn">Unsubscribe</button>
+        
+        <h3>Retry Status Updates</h3>
+        <input type="text" id="transactionId" placeholder="Transaction ID (optional)" />
+        <button onclick="subscribeToRetries()" disabled id="subRetriesBtn">Subscribe to Retry Updates</button>
+        <button onclick="unsubscribeFromRetries()" disabled id="unsubRetriesBtn">Unsubscribe</button>
+        
+        <h3>Summary Updates</h3>
+        <button onclick="subscribeToSummary()" disabled id="subSummaryBtn">Subscribe to Summary Updates</button>
+        <button onclick="unsubscribeFromSummary()" disabled id="unsubSummaryBtn">Unsubscribe</button>
+    </div>
+
+    <div class="container">
+        <h2>Custom Subscription</h2>
+        <textarea id="customQuery" placeholder="Enter your GraphQL subscription query here...">
+subscription {
+  exceptionUpdated {
+    eventType
+    exception {
+      transactionId
+      status
+      severity
+      interfaceType
+    }
+    timestamp
+    triggeredBy
+  }
+}</textarea>
+        <button onclick="subscribeCustom()" disabled id="customSubBtn">Subscribe</button>
+        <button onclick="unsubscribeCustom()" disabled id="customUnsubBtn">Unsubscribe</button>
+    </div>
+
+    <div class="container">
+        <h2>Events Log</h2>
+        <button onclick="clearLog()">Clear Log</button>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        let subscriptionId = 1;
+        let activeSubscriptions = new Map();
+
+        function updateStatus(message, className) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${className}`;
+        }
+
+        function log(message, isError = false) {
+            const logDiv = document.getElementById('log');
+            const eventDiv = document.createElement('div');
+            eventDiv.className = isError ? 'event error' : 'event';
+            eventDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            logDiv.appendChild(eventDiv);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function connect() {
+            const url = document.getElementById('wsUrl').value;
+            const token = document.getElementById('jwtToken').value;
+            
+            let wsUrl = url;
+            if (token) {
+                wsUrl += `?token=${encodeURIComponent(token)}`;
+            }
+
+            updateStatus('Connecting...', 'connecting');
+            log(`Connecting to ${wsUrl}`);
+
+            ws = new WebSocket(wsUrl, 'graphql-ws');
+
+            ws.onopen = function() {
+                updateStatus('Connected', 'connected');
+                log('WebSocket connected');
+                
+                // Send connection init
+                ws.send(JSON.stringify({ type: 'connection_init' }));
+                
+                // Enable subscription buttons
+                document.querySelectorAll('button[id$="Btn"]').forEach(btn => {
+                    if (btn.id !== 'connectBtn') btn.disabled = false;
+                });
+                document.getElementById('connectBtn').disabled = true;
+            };
+
+            ws.onmessage = function(event) {
+                const message = JSON.parse(event.data);
+                log(`Received: ${JSON.stringify(message, null, 2)}`);
+                
+                if (message.type === 'data') {
+                    log(`📊 Subscription Data: ${JSON.stringify(message.payload, null, 2)}`);
+                } else if (message.type === 'error') {
+                    log(`❌ Subscription Error: ${JSON.stringify(message.payload, null, 2)}`, true);
+                }
+            };
+
+            ws.onclose = function() {
+                updateStatus('Disconnected', 'disconnected');
+                log('WebSocket disconnected');
+                
+                // Disable subscription buttons
+                document.querySelectorAll('button[id$="Btn"]').forEach(btn => {
+                    if (btn.id !== 'connectBtn') btn.disabled = true;
+                });
+                document.getElementById('connectBtn').disabled = false;
+                
+                activeSubscriptions.clear();
+            };
+
+            ws.onerror = function(error) {
+                log(`WebSocket error: ${error}`, true);
+            };
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function subscribe(query, id) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('Not connected to WebSocket', true);
+                return null;
+            }
+
+            const subId = id || `sub_${subscriptionId++}`;
+            const message = {
+                id: subId,
+                type: 'start',
+                payload: { query: query }
+            };
+
+            ws.send(JSON.stringify(message));
+            log(`📡 Subscribed with ID: ${subId}`);
+            log(`Query: ${query}`);
+            
+            return subId;
+        }
+
+        function unsubscribe(subId) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+            ws.send(JSON.stringify({
+                id: subId,
+                type: 'stop'
+            }));
+            
+            activeSubscriptions.delete(subId);
+            log(`🛑 Unsubscribed: ${subId}`);
+        }
+
+        function subscribeToExceptions() {
+            const query = `
+                subscription {
+                    exceptionUpdated {
+                        eventType
+                        exception {
+                            transactionId
+                            status
+                            severity
+                            interfaceType
+                        }
+                        timestamp
+                        triggeredBy
+                    }
+                }`;
+            
+            const subId = subscribe(query, 'exceptions');
+            if (subId) {
+                activeSubscriptions.set('exceptions', subId);
+                document.getElementById('subExceptionsBtn').disabled = true;
+                document.getElementById('unsubExceptionsBtn').disabled = false;
+            }
+        }
+
+        function unsubscribeFromExceptions() {
+            const subId = activeSubscriptions.get('exceptions');
+            if (subId) {
+                unsubscribe(subId);
+                document.getElementById('subExceptionsBtn').disabled = false;
+                document.getElementById('unsubExceptionsBtn').disabled = true;
+            }
+        }
+
+        function subscribeToRetries() {
+            const transactionId = document.getElementById('transactionId').value;
+            const transactionFilter = transactionId ? `(transactionId: "${transactionId}")` : '';
+            
+            const query = `
+                subscription {
+                    retryStatusUpdated${transactionFilter} {
+                        transactionId
+                        eventType
+                        timestamp
+                        retryAttempt {
+                            attemptNumber
+                            status
+                        }
+                    }
+                }`;
+            
+            const subId = subscribe(query, 'retries');
+            if (subId) {
+                activeSubscriptions.set('retries', subId);
+                document.getElementById('subRetriesBtn').disabled = true;
+                document.getElementById('unsubRetriesBtn').disabled = false;
+            }
+        }
+
+        function unsubscribeFromRetries() {
+            const subId = activeSubscriptions.get('retries');
+            if (subId) {
+                unsubscribe(subId);
+                document.getElementById('subRetriesBtn').disabled = false;
+                document.getElementById('unsubRetriesBtn').disabled = true;
+            }
+        }
+
+        function subscribeToSummary() {
+            const query = `
+                subscription {
+                    summaryUpdated(timeRange: LAST_24_HOURS) {
+                        totalExceptions
+                        keyMetrics {
+                            retrySuccessRate
+                            criticalExceptionCount
+                        }
+                    }
+                }`;
+            
+            const subId = subscribe(query, 'summary');
+            if (subId) {
+                activeSubscriptions.set('summary', subId);
+                document.getElementById('subSummaryBtn').disabled = true;
+                document.getElementById('unsubSummaryBtn').disabled = false;
+            }
+        }
+
+        function unsubscribeFromSummary() {
+            const subId = activeSubscriptions.get('summary');
+            if (subId) {
+                unsubscribe(subId);
+                document.getElementById('subSummaryBtn').disabled = false;
+                document.getElementById('unsubSummaryBtn').disabled = true;
+            }
+        }
+
+        function subscribeCustom() {
+            const query = document.getElementById('customQuery').value;
+            if (!query.trim()) {
+                log('Please enter a subscription query', true);
+                return;
+            }
+            
+            const subId = subscribe(query, 'custom');
+            if (subId) {
+                activeSubscriptions.set('custom', subId);
+                document.getElementById('customSubBtn').disabled = true;
+                document.getElementById('customUnsubBtn').disabled = false;
+            }
+        }
+
+        function unsubscribeCustom() {
+            const subId = activeSubscriptions.get('custom');
+            if (subId) {
+                unsubscribe(subId);
+                document.getElementById('customSubBtn').disabled = false;
+                document.getElementById('customUnsubBtn').disabled = true;
+            }
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Initialize
+        log('GraphQL Subscription Test Client loaded');
+        log('Click Connect to start testing subscriptions');
+    </script>
+</body>
+</html>

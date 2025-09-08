@@ -49,7 +49,7 @@ public class ExceptionSubscriptionResolver {
      * @param authentication User authentication context
      * @return Flux of exception update events
      */
-    @SubscriptionMapping
+    @SubscriptionMapping("exceptionUpdated")
     @PreAuthorize("hasRole('VIEWER')")
     public Flux<ExceptionUpdateEvent> exceptionUpdated(
             @Argument("filters") SubscriptionFilters filters,
@@ -107,7 +107,7 @@ public class ExceptionSubscriptionResolver {
      * @param authentication User authentication context
      * @return Flux of retry status events
      */
-    @SubscriptionMapping
+    @SubscriptionMapping("retryStatusUpdated")
     @PreAuthorize("hasRole('OPERATIONS')")
     public Flux<RetryStatusEvent> retryStatusUpdated(
             @Argument("transactionId") String transactionId,
@@ -147,19 +147,27 @@ public class ExceptionSubscriptionResolver {
      * @param event The exception update event to publish
      */
     public void publishExceptionUpdate(ExceptionUpdateEvent event) {
-        log.debug("Publishing exception update event: {}", event.getEventType());
+        log.info("📡 Received exception update event for publishing: {} - transaction: {}", 
+                event.getEventType(), event.getException().getTransactionId());
+        log.info("🔍 DEBUG: Active subscriptions count: {}", getActiveSubscriptionCount());
+        log.info("🔍 DEBUG: Sink has subscribers: {}", exceptionUpdateSink.currentSubscriberCount());
 
         try {
             Sinks.EmitResult result = exceptionUpdateSink.tryEmitNext(event);
 
             if (result.isFailure()) {
-                log.warn("Failed to emit exception update event: {}", result);
+                log.warn("❌ Failed to emit exception update event: {} - Reason: {}", result, result.name());
+                log.warn("🔍 DEBUG: Sink state - subscribers: {}, terminated: {}", 
+                        exceptionUpdateSink.currentSubscriberCount(), 
+                        result == Sinks.EmitResult.FAIL_TERMINATED);
             } else {
-                log.debug("Successfully published exception update event for transaction: {}",
-                        event.getException().getTransactionId());
+                log.info("✅ Successfully published exception update event for transaction: {} to {} subscribers",
+                        event.getException().getTransactionId(), getActiveSubscriptionCount());
+                log.info("🔍 DEBUG: Sink subscribers after emit: {}", exceptionUpdateSink.currentSubscriberCount());
             }
         } catch (java.lang.Exception e) {
-            log.error("Error publishing exception update event", e);
+            log.error("❌ ERROR in publishExceptionUpdate for transaction: {}", 
+                    event.getException().getTransactionId(), e);
         }
     }
 
@@ -315,17 +323,85 @@ public class ExceptionSubscriptionResolver {
         CANCELLED
     }
 
-    // Placeholder classes - these should reference actual domain entities
+    // GraphQL Exception class for subscriptions - matches the GraphQL schema
     public static class Exception {
+        private String id;
         private String transactionId;
+        private String externalId;
+        private String interfaceType;
+        private String exceptionReason;
+        private String operation;
+        private String status;
+        private String severity;
+        private String category;
+        private String customerId;
+        private String locationCode;
+        private java.time.OffsetDateTime timestamp;
+        private java.time.OffsetDateTime processedAt;
+        private Boolean retryable;
+        private Integer retryCount;
+        private Integer maxRetries;
+        private java.time.OffsetDateTime lastRetryAt;
+        private String acknowledgedBy;
+        private java.time.OffsetDateTime acknowledgedAt;
 
-        public String getTransactionId() {
-            return transactionId;
-        }
-
-        public void setTransactionId(String transactionId) {
-            this.transactionId = transactionId;
-        }
+        // Getters and setters
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        
+        public String getTransactionId() { return transactionId; }
+        public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
+        
+        public String getExternalId() { return externalId; }
+        public void setExternalId(String externalId) { this.externalId = externalId; }
+        
+        public String getInterfaceType() { return interfaceType; }
+        public void setInterfaceType(String interfaceType) { this.interfaceType = interfaceType; }
+        
+        public String getExceptionReason() { return exceptionReason; }
+        public void setExceptionReason(String exceptionReason) { this.exceptionReason = exceptionReason; }
+        
+        public String getOperation() { return operation; }
+        public void setOperation(String operation) { this.operation = operation; }
+        
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+        
+        public String getSeverity() { return severity; }
+        public void setSeverity(String severity) { this.severity = severity; }
+        
+        public String getCategory() { return category; }
+        public void setCategory(String category) { this.category = category; }
+        
+        public String getCustomerId() { return customerId; }
+        public void setCustomerId(String customerId) { this.customerId = customerId; }
+        
+        public String getLocationCode() { return locationCode; }
+        public void setLocationCode(String locationCode) { this.locationCode = locationCode; }
+        
+        public java.time.OffsetDateTime getTimestamp() { return timestamp; }
+        public void setTimestamp(java.time.OffsetDateTime timestamp) { this.timestamp = timestamp; }
+        
+        public java.time.OffsetDateTime getProcessedAt() { return processedAt; }
+        public void setProcessedAt(java.time.OffsetDateTime processedAt) { this.processedAt = processedAt; }
+        
+        public Boolean getRetryable() { return retryable; }
+        public void setRetryable(Boolean retryable) { this.retryable = retryable; }
+        
+        public Integer getRetryCount() { return retryCount; }
+        public void setRetryCount(Integer retryCount) { this.retryCount = retryCount; }
+        
+        public Integer getMaxRetries() { return maxRetries; }
+        public void setMaxRetries(Integer maxRetries) { this.maxRetries = maxRetries; }
+        
+        public java.time.OffsetDateTime getLastRetryAt() { return lastRetryAt; }
+        public void setLastRetryAt(java.time.OffsetDateTime lastRetryAt) { this.lastRetryAt = lastRetryAt; }
+        
+        public String getAcknowledgedBy() { return acknowledgedBy; }
+        public void setAcknowledgedBy(String acknowledgedBy) { this.acknowledgedBy = acknowledgedBy; }
+        
+        public java.time.OffsetDateTime getAcknowledgedAt() { return acknowledgedAt; }
+        public void setAcknowledgedAt(java.time.OffsetDateTime acknowledgedAt) { this.acknowledgedAt = acknowledgedAt; }
     }
 
     public static class RetryAttempt {

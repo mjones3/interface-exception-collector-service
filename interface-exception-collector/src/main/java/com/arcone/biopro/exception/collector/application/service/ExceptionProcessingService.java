@@ -15,6 +15,8 @@ import com.arcone.biopro.exception.collector.infrastructure.client.SourceService
 import com.arcone.biopro.exception.collector.infrastructure.client.SourceServiceClientRegistry;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
 import com.arcone.biopro.exception.collector.infrastructure.config.LoggingConfig;
+import com.arcone.biopro.exception.collector.api.graphql.service.ExceptionEventPublisher;
+import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,9 @@ public class ExceptionProcessingService {
     private final CacheEvictionService cacheEvictionService;
     private final MetricsService metricsService;
     private final SourceServiceClientRegistry clientRegistry;
+    
+    @Qualifier("graphQLExceptionEventPublisher")
+    private final ExceptionEventPublisher graphqlEventPublisher;
 
     /**
      * Process an OrderRejected event and create or update an interface exception.
@@ -102,6 +107,14 @@ public class ExceptionProcessingService {
             log.info("Created new exception with ID: {} for transaction: {}, order data retrieved: {}",
                     savedException.getId(), savedException.getTransactionId(), 
                     savedException.getOrderReceived() != null);
+
+            // Publish GraphQL subscription event
+            try {
+                graphqlEventPublisher.publishExceptionCreated(savedException, "system");
+                log.debug("Published GraphQL subscription event for new exception: {}", savedException.getTransactionId());
+            } catch (Exception e) {
+                log.warn("Failed to publish GraphQL subscription event for exception: {}", savedException.getTransactionId(), e);
+            }
 
             // Record metrics for monitoring
             Duration processingTime = Duration.between(start, Instant.now());
@@ -168,6 +181,14 @@ public class ExceptionProcessingService {
             log.info("Created new exception with ID: {} for transaction: {}",
                     savedException.getId(), savedException.getTransactionId());
 
+            // Publish GraphQL subscription event
+            try {
+                graphqlEventPublisher.publishExceptionCreated(savedException, "system");
+                log.debug("Published GraphQL subscription event for new exception: {}", savedException.getTransactionId());
+            } catch (Exception e) {
+                log.warn("Failed to publish GraphQL subscription event for exception: {}", savedException.getTransactionId(), e);
+            }
+
             // Record metrics for monitoring
             Duration processingTime = Duration.between(start, Instant.now());
             metricsService.recordExceptionProcessed(InterfaceType.ORDER, severity);
@@ -232,6 +253,14 @@ public class ExceptionProcessingService {
             InterfaceException savedException = exceptionRepository.save(exception);
             log.info("Created new exception with ID: {} for transaction: {}",
                     savedException.getId(), savedException.getTransactionId());
+
+            // Publish GraphQL subscription event
+            try {
+                graphqlEventPublisher.publishExceptionCreated(savedException, "system");
+                log.debug("Published GraphQL subscription event for new exception: {}", savedException.getTransactionId());
+            } catch (Exception e) {
+                log.warn("Failed to publish GraphQL subscription event for exception: {}", savedException.getTransactionId(), e);
+            }
 
             // Record metrics for monitoring
             Duration processingTime = Duration.between(start, Instant.now());
@@ -298,6 +327,14 @@ public class ExceptionProcessingService {
             log.info("Created new exception with ID: {} for transaction: {}",
                     savedException.getId(), savedException.getTransactionId());
 
+            // Publish GraphQL subscription event
+            try {
+                graphqlEventPublisher.publishExceptionCreated(savedException, "system");
+                log.debug("Published GraphQL subscription event for new exception: {}", savedException.getTransactionId());
+            } catch (Exception e) {
+                log.warn("Failed to publish GraphQL subscription event for exception: {}", savedException.getTransactionId(), e);
+            }
+
             // Record metrics for monitoring
             Duration processingTime = Duration.between(start, Instant.now());
             metricsService.recordExceptionProcessed(InterfaceType.DISTRIBUTION, severity);
@@ -363,6 +400,14 @@ public class ExceptionProcessingService {
             log.info("Created new validation exception with ID: {} for transaction: {}",
                     savedException.getId(), savedException.getTransactionId());
 
+            // Publish GraphQL subscription event
+            try {
+                graphqlEventPublisher.publishExceptionCreated(savedException, "system");
+                log.debug("Published GraphQL subscription event for new exception: {}", savedException.getTransactionId());
+            } catch (Exception e) {
+                log.warn("Failed to publish GraphQL subscription event for exception: {}", savedException.getTransactionId(), e);
+            }
+
             // Record metrics for monitoring
             Duration processingTime = Duration.between(start, Instant.now());
             metricsService.recordExceptionProcessed(interfaceType, ExceptionSeverity.MEDIUM);
@@ -415,6 +460,14 @@ public class ExceptionProcessingService {
 
         InterfaceException updatedException = exceptionRepository.save(exception);
         log.info("Updated exception status to {} for transaction: {}", newStatus, transactionId);
+
+        // Publish GraphQL subscription event for status updates
+        try {
+            graphqlEventPublisher.publishExceptionUpdated(updatedException, updatedBy);
+            log.debug("Published GraphQL subscription event for status update: {}", updatedException.getTransactionId());
+        } catch (Exception e) {
+            log.warn("Failed to publish GraphQL subscription event for status update: {}", updatedException.getTransactionId(), e);
+        }
 
         return updatedException;
     }

@@ -1,44 +1,57 @@
-const WebSocket = require('ws');
+﻿const WebSocket = require('ws');
 
-const ws = new WebSocket('ws://localhost:8080/graphql-subscriptions', {
-  headers: {
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXIiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3NTU4Mjc2NDAsImV4cCI6MTc1NTgzMTI0MH0.eII2qwVI2-7-vY4Nq5NWTI486SQs7qQ4sFxQcJAd4G0'
-  }
+// Get token from command line or use a default
+const token = process.argv[2] || 'your-token-here';
+const wsUrl = 'ws://localhost:8080/graphql';
+
+console.log('🔌 Connecting to WebSocket:', wsUrl);
+
+const ws = new WebSocket(wsUrl, {
+    headers: {
+        'Authorization': `Bearer ${token}`
+    }
 });
 
-ws.on('open', function open() {
-  console.log('Connected to WebSocket');
-  
-  // Send connection init
-  ws.send(JSON.stringify({
-    type: 'connection_init',
-    payload: {}
-  }));
-});
-
-ws.on('message', function message(data) {
-  console.log('Received:', data.toString());
-  
-  const msg = JSON.parse(data.toString());
-  
-  // After receiving connection_ack, start subscription
-  if (msg.type === 'connection_ack') {
-    console.log('Connection acknowledged, starting subscription...');
+ws.on('open', () => {
+    console.log('✅ WebSocket connected');
     
+    // Send connection init
     ws.send(JSON.stringify({
-      id: '1',
-      type: 'start',
-      payload: {
-        query: 'subscription { exceptionUpdated { transactionId status } }'
-      }
+        type: 'connection_init',
+        payload: {
+            Authorization: `Bearer ${token}`
+        }
     }));
-  }
 });
 
-ws.on('error', function error(err) {
-  console.error('WebSocket error:', err);
+ws.on('message', (data) => {
+    const message = JSON.parse(data.toString());
+    console.log('📨 Received:', JSON.stringify(message, null, 2));
+    
+    if (message.type === 'connection_ack') {
+        console.log('✅ Connection acknowledged, starting subscription...');
+        
+        // Start subscription
+        ws.send(JSON.stringify({
+            id: 'test-sub',
+            type: 'start',
+            payload: {
+                query: 'subscription { exceptionEvents { eventType exception { transactionId } } }'
+            }
+        }));
+        
+        // Close after 5 seconds
+        setTimeout(() => {
+            console.log('⏰ Closing connection after 5 seconds');
+            ws.close();
+        }, 5000);
+    }
 });
 
-ws.on('close', function close() {
-  console.log('WebSocket connection closed');
+ws.on('error', (error) => {
+    console.log('❌ WebSocket error:', error.message);
+});
+
+ws.on('close', (code, reason) => {
+    console.log('🔌 WebSocket closed:', code, reason.toString());
 });

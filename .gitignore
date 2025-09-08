@@ -246,3 +246,4 @@ application-dev-local.yml
 /local/
 /dev-data/
 
+node_modules/

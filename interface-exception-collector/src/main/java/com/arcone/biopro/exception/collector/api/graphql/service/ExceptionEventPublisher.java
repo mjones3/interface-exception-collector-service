@@ -19,6 +19,7 @@ import java.time.OffsetDateTime;
 public class ExceptionEventPublisher {
 
         private final ExceptionSubscriptionResolver subscriptionResolver;
+        private final com.arcone.biopro.exception.collector.api.graphql.config.GraphQLWebSocketTransportConfig.GraphQLWebSocketSessionManager webSocketSessionManager;
 
         /**
          * Publishes an exception created event to GraphQL subscribers.
@@ -27,15 +28,31 @@ public class ExceptionEventPublisher {
          * @param triggeredBy Who or what triggered the creation
          */
         public void publishExceptionCreated(InterfaceException exception, String triggeredBy) {
-                log.debug("Publishing exception created event for transaction: {}", exception.getTransactionId());
+                log.info("🔔 Publishing GraphQL exception created event for transaction: {}", exception.getTransactionId());
+                log.info("🔍 DEBUG: Exception details - ID: {}, Status: {}, Severity: {}", 
+                        exception.getId(), exception.getStatus(), exception.getSeverity());
 
-                ExceptionSubscriptionResolver.ExceptionUpdateEvent event = new ExceptionSubscriptionResolver.ExceptionUpdateEvent(
-                                ExceptionSubscriptionResolver.ExceptionEventType.CREATED,
-                                mapToGraphQLException(exception),
-                                OffsetDateTime.now(),
-                                triggeredBy);
+                try {
+                        ExceptionSubscriptionResolver.ExceptionUpdateEvent event = new ExceptionSubscriptionResolver.ExceptionUpdateEvent(
+                                        ExceptionSubscriptionResolver.ExceptionEventType.CREATED,
+                                        mapToGraphQLException(exception),
+                                        OffsetDateTime.now(),
+                                        triggeredBy);
 
-                subscriptionResolver.publishExceptionUpdate(event);
+                        log.info("📡 Calling subscriptionResolver.publishExceptionUpdate() for transaction: {}", exception.getTransactionId());
+                        subscriptionResolver.publishExceptionUpdate(event);
+                        log.info("✅ Successfully called subscriptionResolver.publishExceptionUpdate() for transaction: {}", exception.getTransactionId());
+                        
+                        // Also broadcast via WebSocket transport
+                        String webSocketMessage = createWebSocketMessage("CREATED", exception, triggeredBy);
+                        log.info("🌐 Broadcasting WebSocket message for transaction: {}", exception.getTransactionId());
+                        webSocketSessionManager.broadcastToAll(webSocketMessage);
+                        log.info("📡 Broadcasted exception created event via WebSocket to {} sessions", 
+                                webSocketSessionManager.getActiveSessionCount());
+                } catch (Exception e) {
+                        log.error("❌ ERROR in publishExceptionCreated for transaction: {}", exception.getTransactionId(), e);
+                        throw e;
+                }
         }
 
         /**
@@ -45,7 +62,7 @@ public class ExceptionEventPublisher {
          * @param triggeredBy Who or what triggered the update
          */
         public void publishExceptionUpdated(InterfaceException exception, String triggeredBy) {
-                log.debug("Publishing exception updated event for transaction: {}", exception.getTransactionId());
+                log.info("🔔 Publishing GraphQL exception updated event for transaction: {}", exception.getTransactionId());
 
                 ExceptionSubscriptionResolver.ExceptionUpdateEvent event = new ExceptionSubscriptionResolver.ExceptionUpdateEvent(
                                 ExceptionSubscriptionResolver.ExceptionEventType.UPDATED,
@@ -186,13 +203,70 @@ public class ExceptionEventPublisher {
 
         /**
          * Maps domain InterfaceException to GraphQL Exception for subscriptions.
-         * This is a simplified mapping - in a real implementation, this would use
-         * the actual GraphQL Exception type.
+         * Maps all required fields for the GraphQL subscription.
          */
         private ExceptionSubscriptionResolver.Exception mapToGraphQLException(InterfaceException exception) {
                 ExceptionSubscriptionResolver.Exception graphqlException = new ExceptionSubscriptionResolver.Exception();
+                
+                // Map all required fields
+                graphqlException.setId(exception.getId() != null ? exception.getId().toString() : null);
                 graphqlException.setTransactionId(exception.getTransactionId());
+                graphqlException.setExternalId(exception.getExternalId());
+                graphqlException.setInterfaceType(exception.getInterfaceType() != null ? exception.getInterfaceType().name() : null);
+                graphqlException.setExceptionReason(exception.getExceptionReason());
+                graphqlException.setOperation(exception.getOperation());
+                graphqlException.setStatus(exception.getStatus() != null ? exception.getStatus().name() : null);
+                graphqlException.setSeverity(exception.getSeverity() != null ? exception.getSeverity().name() : null);
+                graphqlException.setCategory(exception.getCategory() != null ? exception.getCategory().name() : null);
+                graphqlException.setCustomerId(exception.getCustomerId());
+                graphqlException.setLocationCode(exception.getLocationCode());
+                graphqlException.setTimestamp(exception.getTimestamp());
+                graphqlException.setProcessedAt(exception.getProcessedAt());
+                graphqlException.setRetryable(exception.getRetryable());
+                graphqlException.setRetryCount(exception.getRetryCount());
+                graphqlException.setMaxRetries(exception.getMaxRetries());
+                graphqlException.setLastRetryAt(exception.getLastRetryAt());
+                graphqlException.setAcknowledgedBy(exception.getAcknowledgedBy());
+                graphqlException.setAcknowledgedAt(exception.getAcknowledgedAt());
+                
                 return graphqlException;
+        }
+
+        /**
+         * Creates a WebSocket message in GraphQL subscription format
+         */
+        private String createWebSocketMessage(String eventType, InterfaceException exception, String triggeredBy) {
+                return String.format("""
+                        {
+                          "type": "next",
+                          "payload": {
+                            "data": {
+                              "exceptionUpdated": {
+                                "eventType": "%s",
+                                "exception": {
+                                  "transactionId": "%s",
+                                  "status": "%s",
+                                  "severity": "%s",
+                                  "exceptionReason": "%s",
+                                  "interfaceType": "%s",
+                                  "retryCount": %d
+                                },
+                                "timestamp": "%s",
+                                "triggeredBy": "%s"
+                              }
+                            }
+                          }
+                        }""",
+                        eventType,
+                        exception.getTransactionId(),
+                        exception.getStatus() != null ? exception.getStatus().name() : "UNKNOWN",
+                        exception.getSeverity() != null ? exception.getSeverity().name() : "UNKNOWN",
+                        exception.getExceptionReason() != null ? exception.getExceptionReason().replace("\"", "\\\"") : "",
+                        exception.getInterfaceType() != null ? exception.getInterfaceType().name() : "UNKNOWN",
+                        exception.getRetryCount() != null ? exception.getRetryCount() : 0,
+                        OffsetDateTime.now().toString(),
+                        triggeredBy != null ? triggeredBy : "system"
+                );
         }
 
         /**
