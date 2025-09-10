@@ -75,8 +75,6 @@ input AcknowledgeExceptionInput {
     transactionId: String!
     reason: String!
     notes: String
-    estimatedResolutionTime: DateTime
-    assignedTo: String
 }
 
 # Resolution input
@@ -97,7 +95,6 @@ input BulkAcknowledgeInput {
     transactionIds: [String!]!
     reason: String!
     notes: String
-    assignedTo: String
 }
 
 # Search input for advanced filtering

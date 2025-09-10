@@ -245,4 +245,40 @@ public class InterfaceException {
         statusChanges.remove(statusChange);
         statusChange.setInterfaceException(null);
     }
+
+    /**
+     * Legacy method for backward compatibility.
+     * @deprecated Use exceptionReason instead
+     */
+    @Deprecated
+    public String getErrorMessage() {
+        return this.exceptionReason;
+    }
+
+    /**
+     * Legacy method for backward compatibility.
+     * @deprecated Use exceptionReason instead
+     */
+    @Deprecated
+    public void setErrorMessage(String errorMessage) {
+        this.exceptionReason = errorMessage;
+    }
+
+    /**
+     * Legacy method for backward compatibility.
+     * @deprecated Use orderReceived instead
+     */
+    @Deprecated
+    public String getPayload() {
+        return this.orderReceived != null ? this.orderReceived.toString() : null;
+    }
+
+    /**
+     * Legacy method for backward compatibility.
+     * @deprecated Use orderReceived instead
+     */
+    @Deprecated
+    public void setPayload(String payload) {
+        this.orderReceived = payload;
+    }
 }

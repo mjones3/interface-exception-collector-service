@@ -255,4 +255,12 @@ public interface RetryAttemptRepository extends JpaRepository<RetryAttempt, Long
          */
         long countByInitiatedAtBetweenAndResultSuccess(OffsetDateTime fromDate, OffsetDateTime toDate,
                         Boolean resultSuccess);
+
+        /**
+         * Legacy method for backward compatibility.
+         * @deprecated Use findByInterfaceException_IdOrderByAttemptNumberAsc instead
+         */
+        @Deprecated
+        @Query("SELECT ra FROM RetryAttempt ra WHERE ra.interfaceException.id = :exceptionId ORDER BY ra.attemptNumber ASC")
+        List<RetryAttempt> findByExceptionIdOrderByAttemptNumber(@Param("exceptionId") Long exceptionId);
 }

@@ -39,14 +39,8 @@ public class BulkAcknowledgeInput {
     /**
      * Optional additional notes about the bulk acknowledgment.
      * Applied to all exceptions in the batch.
+     * Simplified from previous version - removed assignedTo field to focus on core functionality.
      */
     @Size(max = 2000, message = "Notes must not exceed 2000 characters")
     private String notes;
-
-    /**
-     * Optional user ID to assign all exceptions to for resolution.
-     * Can be used for workload distribution in bulk operations.
-     */
-    @Size(max = 255, message = "Assigned user ID must not exceed 255 characters")
-    private String assignedTo;
 }

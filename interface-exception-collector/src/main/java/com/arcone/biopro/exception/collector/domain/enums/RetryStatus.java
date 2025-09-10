@@ -7,5 +7,6 @@ package com.arcone.biopro.exception.collector.domain.enums;
 public enum RetryStatus {
     PENDING,
     SUCCESS,
-    FAILED
+    FAILED,
+    CANCELLED
 }

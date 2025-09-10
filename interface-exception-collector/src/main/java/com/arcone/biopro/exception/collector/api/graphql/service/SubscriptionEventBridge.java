@@ -293,15 +293,18 @@ public class SubscriptionEventBridge {
         private final InterfaceException exception;
         private final RetryAttempt retryAttempt;
         private final String cancelledBy;
+        private final String reason;
 
-        public RetryCancelledEvent(InterfaceException exception, RetryAttempt retryAttempt, String cancelledBy) {
+        public RetryCancelledEvent(InterfaceException exception, RetryAttempt retryAttempt, String cancelledBy, String reason) {
             this.exception = exception;
             this.retryAttempt = retryAttempt;
             this.cancelledBy = cancelledBy;
+            this.reason = reason;
         }
 
         public InterfaceException getException() { return exception; }
         public RetryAttempt getRetryAttempt() { return retryAttempt; }
         public String getCancelledBy() { return cancelledBy; }
+        public String getReason() { return reason; }
     }
 }

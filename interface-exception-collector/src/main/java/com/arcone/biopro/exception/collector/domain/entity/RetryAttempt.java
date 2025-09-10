@@ -134,4 +134,13 @@ public class RetryAttempt {
             this.resultErrorDetails = null;
         }
     }
+
+    /**
+     * Legacy method for backward compatibility.
+     * @deprecated Use initiatedAt instead
+     */
+    @Deprecated
+    public void setAttemptedAt(java.time.LocalDateTime attemptedAt) {
+        this.initiatedAt = attemptedAt.atOffset(java.time.ZoneOffset.UTC);
+    }
 }

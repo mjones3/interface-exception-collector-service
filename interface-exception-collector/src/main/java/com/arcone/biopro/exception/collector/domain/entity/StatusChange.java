@@ -123,4 +123,22 @@ public class StatusChange {
         return String.format("Status changed from %s to %s by %s",
                 fromStatus, toStatus, changedBy);
     }
+
+    /**
+     * Legacy method for backward compatibility.
+     * @deprecated Use fromStatus instead
+     */
+    @Deprecated
+    public void setOldStatus(String oldStatus) {
+        this.fromStatus = ExceptionStatus.valueOf(oldStatus);
+    }
+
+    /**
+     * Legacy method for backward compatibility.
+     * @deprecated Use toStatus instead
+     */
+    @Deprecated
+    public void setNewStatus(String newStatus) {
+        this.toStatus = ExceptionStatus.valueOf(newStatus);
+    }
 }

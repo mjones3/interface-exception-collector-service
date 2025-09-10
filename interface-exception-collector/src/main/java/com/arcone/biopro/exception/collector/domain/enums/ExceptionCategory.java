@@ -13,5 +13,6 @@ public enum ExceptionCategory {
     AUTHENTICATION,
     AUTHORIZATION,
     DATA_INTEGRITY,
-    EXTERNAL_SERVICE
+    EXTERNAL_SERVICE,
+    SYSTEM
 }

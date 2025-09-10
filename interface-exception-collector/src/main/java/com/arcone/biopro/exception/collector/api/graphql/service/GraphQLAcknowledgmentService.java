@@ -175,7 +175,6 @@ public class GraphQLAcknowledgmentService {
                             .transactionId(transactionId)
                             .reason(input.getReason())
                             .notes(input.getNotes())
-                            .assignedTo(input.getAssignedTo())
                             .build();
 
                     // Process each acknowledgment synchronously to avoid overwhelming the system
@@ -245,14 +244,6 @@ public class GraphQLAcknowledgmentService {
         
         if (input.getNotes() != null && !input.getNotes().trim().isEmpty()) {
             notes.append("\nNotes: ").append(input.getNotes());
-        }
-        
-        if (input.getAssignedTo() != null && !input.getAssignedTo().trim().isEmpty()) {
-            notes.append("\nAssigned to: ").append(input.getAssignedTo());
-        }
-        
-        if (input.getEstimatedResolutionTime() != null) {
-            notes.append("\nEstimated resolution time: ").append(input.getEstimatedResolutionTime());
         }
         
         return notes.toString();

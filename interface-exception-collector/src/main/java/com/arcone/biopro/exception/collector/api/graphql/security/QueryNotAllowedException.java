@@ -1,44 +1,27 @@
 package com.arcone.biopro.exception.collector.api.graphql.security;
 
-import graphql.ErrorClassification;
-import graphql.ErrorType;
-import graphql.GraphQLError;
-import graphql.language.SourceLocation;
-
-import java.util.List;
-import java.util.Map;
-
 /**
- * Exception thrown when a GraphQL query is not in the production allowlist.
- * Implements GraphQLError to provide structured error responses.
+ * Exception thrown when a GraphQL query or mutation is not allowed.
+ * Used for security enforcement and operation restrictions.
+ * 
+ * Requirements: 5.3, 5.5
  */
-public class QueryNotAllowedException extends RuntimeException implements GraphQLError {
+public class QueryNotAllowedException extends RuntimeException {
 
-    private static final String ERROR_CODE = "QUERY_NOT_ALLOWED";
+    private final String operationType;
+    private final String reason;
 
-    public QueryNotAllowedException(String message) {
-        super(message);
+    public QueryNotAllowedException(String operationType, String reason) {
+        super(String.format("Operation %s not allowed: %s", operationType, reason));
+        this.operationType = operationType;
+        this.reason = reason;
     }
 
-    public QueryNotAllowedException(String message, Throwable cause) {
-        super(message, cause);
+    public String getOperationType() {
+        return operationType;
     }
 
-    @Override
-    public List<SourceLocation> getLocations() {
-        return null;
-    }
-
-    @Override
-    public ErrorClassification getErrorType() {
-        return ErrorType.ValidationError;
-    }
-
-    @Override
-    public Map<String, Object> getExtensions() {
-        return Map.of(
-                "errorCode", ERROR_CODE,
-                "classification", "SECURITY",
-                "description", "Query not approved for production use");
+    public String getReason() {
+        return reason;
     }
 }

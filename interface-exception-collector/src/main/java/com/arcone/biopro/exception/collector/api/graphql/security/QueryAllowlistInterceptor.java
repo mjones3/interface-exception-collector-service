@@ -63,7 +63,7 @@ public class QueryAllowlistInterceptor extends SimpleInstrumentation {
             log.warn("Query not in allowlist. Hash: {}, Query: {}", queryHash,
                     query.length() > 100 ? query.substring(0, 100) + "..." : query);
 
-            throw new QueryNotAllowedException(
+            throw new QueryNotAllowedException("QUERY_NOT_ALLOWED",
                     "Query not approved for production use. Hash: " + queryHash);
         }
 

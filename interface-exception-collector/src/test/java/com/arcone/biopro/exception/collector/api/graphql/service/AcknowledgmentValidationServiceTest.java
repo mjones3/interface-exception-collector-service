@@ -3,7 +3,6 @@ package com.arcone.biopro.exception.collector.api.graphql.service;
 import com.arcone.biopro.exception.collector.api.graphql.dto.AcknowledgeExceptionInput;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionStatus;
-import com.arcone.biopro.exception.collector.domain.enums.InterfaceType;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.OffsetDateTime;
@@ -20,10 +20,11 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for AcknowledgmentValidationService.
+ * Tests the simplified validation logic focusing on essential business rules.
  */
 @ExtendWith(MockitoExtension.class)
 class AcknowledgmentValidationServiceTest {
@@ -38,252 +39,223 @@ class AcknowledgmentValidationServiceTest {
     private AcknowledgmentValidationService validationService;
 
     private AcknowledgeExceptionInput validInput;
-    private InterfaceException testException;
+    private InterfaceException validException;
 
     @BeforeEach
     void setUp() {
         validInput = AcknowledgeExceptionInput.builder()
-                .transactionId("test-transaction-123")
-                .reason("Manual acknowledgment requested")
-                .notes("Test acknowledgment")
-                .assignedTo("test-user")
+                .transactionId("TXN-123")
+                .reason("Valid acknowledgment reason")
+                .notes("Optional notes")
                 .build();
 
-        testException = InterfaceException.builder()
-                .id(1L)
-                .transactionId("test-transaction-123")
-                .interfaceType(InterfaceType.ORDER)
-                .exceptionReason("Test exception")
-                .operation("CREATE_ORDER")
-                .status(ExceptionStatus.NEW)
-                .retryable(true)
-                .retryCount(0)
-                .maxRetries(3)
-                .timestamp(OffsetDateTime.now())
-                .processedAt(OffsetDateTime.now())
-                .build();
+        validException = new InterfaceException();
+        validException.setTransactionId("TXN-123");
+        validException.setStatus(ExceptionStatus.FAILED);
+        validException.setCreatedAt(OffsetDateTime.now().minusDays(1));
 
-        // Setup authentication mock
-        when(authentication.getName()).thenReturn("test-user");
+        // Setup mock authentication
+        when(authentication.getName()).thenReturn("test.user");
         when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_OPERATIONS")));
+                List.of(new SimpleGrantedAuthority("ROLE_OPERATIONS"))
+        );
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_Success() {
-        // Arrange
-        when(exceptionRepository.findByTransactionId(anyString())).thenReturn(Optional.of(testException));
+    void validateAcknowledgmentRequest_WithValidInput_ShouldPass() {
+        // Given
+        when(exceptionRepository.findByTransactionId("TXN-123"))
+                .thenReturn(Optional.of(validException));
 
-        // Act & Assert - should not throw exception
-        assertDoesNotThrow(() -> validationService.validateAcknowledgmentRequest(validInput, authentication));
+        // When & Then
+        assertDoesNotThrow(() -> 
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_NullInput() {
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(null, authentication));
+    void validateAcknowledgmentRequest_WithNullInput_ShouldThrowException() {
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateAcknowledgmentRequest(null, authentication));
+        
         assertEquals("Acknowledgment input cannot be null", exception.getMessage());
     }
 
-@Test
-    void testValidateAcknowledgmentRequest_EmptyTransactionId() {
-        // Arrange
-        AcknowledgeExceptionInput invalidInput = AcknowledgeExceptionInput.builder()
-                .transactionId("")
-                .reason("Test reason")
-                .build();
+    @Test
+    void validateAcknowledgmentRequest_WithEmptyTransactionId_ShouldThrowException() {
+        // Given
+        validInput.setTransactionId("");
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(invalidInput, authentication));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
+        
         assertEquals("Transaction ID is required", exception.getMessage());
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_EmptyReason() {
-        // Arrange
-        AcknowledgeExceptionInput invalidInput = AcknowledgeExceptionInput.builder()
-                .transactionId("test-transaction-123")
-                .reason("")
-                .build();
+    void validateAcknowledgmentRequest_WithEmptyReason_ShouldThrowException() {
+        // Given
+        validInput.setReason("");
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(invalidInput, authentication));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
+        
         assertEquals("Acknowledgment reason is required", exception.getMessage());
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_ReasonTooLong() {
-        // Arrange
-        String longReason = "a".repeat(1001);
-        AcknowledgeExceptionInput invalidInput = AcknowledgeExceptionInput.builder()
-                .transactionId("test-transaction-123")
-                .reason(longReason)
-                .build();
+    void validateAcknowledgmentRequest_WithTooLongReason_ShouldThrowException() {
+        // Given
+        validInput.setReason("A".repeat(1001));
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(invalidInput, authentication));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
+        
         assertEquals("Acknowledgment reason exceeds maximum length (1000 characters)", exception.getMessage());
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_NotesTooLong() {
-        // Arrange
-        String longNotes = "a".repeat(2001);
-        AcknowledgeExceptionInput invalidInput = AcknowledgeExceptionInput.builder()
-                .transactionId("test-transaction-123")
-                .reason("Valid reason")
-                .notes(longNotes)
-                .build();
+    void validateAcknowledgmentRequest_WithTooLongNotes_ShouldThrowException() {
+        // Given
+        validInput.setNotes("A".repeat(2001));
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(invalidInput, authentication));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
+        
         assertEquals("Acknowledgment notes exceed maximum length (2000 characters)", exception.getMessage());
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_NoPermission() {
-        // Arrange
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
+    void validateAcknowledgmentRequest_WithNonExistentException_ShouldThrowException() {
+        // Given
+        when(exceptionRepository.findByTransactionId("TXN-123"))
+                .thenReturn(Optional.empty());
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(validInput, authentication));
-        assertTrue(exception.getMessage().contains("does not have permission"));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
+        
+        assertEquals("Exception not found with transaction ID: TXN-123", exception.getMessage());
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_ExceptionNotFound() {
-        // Arrange
-        when(exceptionRepository.findByTransactionId(anyString())).thenReturn(Optional.empty());
+    void validateAcknowledgmentRequest_WithResolvedStatus_ShouldThrowException() {
+        // Given
+        validException.setStatus(ExceptionStatus.RESOLVED);
+        when(exceptionRepository.findByTransactionId("TXN-123"))
+                .thenReturn(Optional.of(validException));
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(validInput, authentication));
-        assertEquals("Exception not found with transaction ID: test-transaction-123", exception.getMessage());
-    }
-
-    @Test
-    void testValidateAcknowledgmentRequest_ExceptionResolved() {
-        // Arrange
-        InterfaceException resolvedException = testException.toBuilder()
-                .status(ExceptionStatus.RESOLVED)
-                .build();
-        when(exceptionRepository.findByTransactionId(anyString())).thenReturn(Optional.of(resolvedException));
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(validInput, authentication));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
+        
         assertEquals("Cannot acknowledge exception - it has already been resolved", exception.getMessage());
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_ExceptionClosed() {
-        // Arrange
-        InterfaceException closedException = testException.toBuilder()
-                .status(ExceptionStatus.CLOSED)
-                .build();
-        when(exceptionRepository.findByTransactionId(anyString())).thenReturn(Optional.of(closedException));
+    void validateAcknowledgmentRequest_WithClosedStatus_ShouldThrowException() {
+        // Given
+        validException.setStatus(ExceptionStatus.CLOSED);
+        when(exceptionRepository.findByTransactionId("TXN-123"))
+                .thenReturn(Optional.of(validException));
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(validInput, authentication));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
+        
         assertEquals("Cannot acknowledge exception - it has been closed", exception.getMessage());
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_NonAdminAssignToOther() {
-        // Arrange
-        AcknowledgeExceptionInput inputWithAssignment = validInput.toBuilder()
-                .assignedTo("other-user")
-                .build();
-        when(exceptionRepository.findByTransactionId(anyString())).thenReturn(Optional.of(testException));
+    void validateAcknowledgmentRequest_WithRetryingStatus_ShouldPassWithWarning() {
+        // Given
+        validException.setStatus(ExceptionStatus.RETRYING);
+        when(exceptionRepository.findByTransactionId("TXN-123"))
+                .thenReturn(Optional.of(validException));
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateAcknowledgmentRequest(inputWithAssignment, authentication));
-        assertEquals("Non-admin users can only assign exceptions to themselves", exception.getMessage());
+        // When & Then - Should not throw exception, just log warning
+        assertDoesNotThrow(() -> 
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
     }
 
     @Test
-    void testValidateAcknowledgmentRequest_AdminCanAssignToOther() {
-        // Arrange
-        AcknowledgeExceptionInput inputWithAssignment = validInput.toBuilder()
-                .assignedTo("other-user")
-                .build();
+    void validateAcknowledgmentRequest_WithAlreadyAcknowledged_ShouldPassWithInfo() {
+        // Given
+        validException.setStatus(ExceptionStatus.ACKNOWLEDGED);
+        validException.setAcknowledgedBy("previous.user");
+        when(exceptionRepository.findByTransactionId("TXN-123"))
+                .thenReturn(Optional.of(validException));
+
+        // When & Then - Should allow re-acknowledgment
+        assertDoesNotThrow(() -> 
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
+    }
+
+    @Test
+    void validateAcknowledgmentRequest_WithInsufficientPermissions_ShouldThrowException() {
+        // Given
         when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        when(exceptionRepository.findByTransactionId(anyString())).thenReturn(Optional.of(testException));
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
 
-        // Act & Assert - should not throw exception
-        assertDoesNotThrow(() -> validationService.validateAcknowledgmentRequest(inputWithAssignment, authentication));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateAcknowledgmentRequest(validInput, authentication));
+        
+        assertTrue(exception.getMessage().contains("does not have permission to acknowledge exceptions"));
     }
 
     @Test
-    void testValidateBulkAcknowledgmentRequest_Success() {
-        // Arrange
-        List<String> transactionIds = List.of("test-transaction-123", "test-transaction-456");
+    void validateBulkAcknowledgmentRequest_WithValidInput_ShouldPass() {
+        // Given
+        List<String> transactionIds = List.of("TXN-1", "TXN-2", "TXN-3");
 
-        // Act & Assert - should not throw exception
-        assertDoesNotThrow(() -> validationService.validateBulkAcknowledgmentRequest(transactionIds, authentication));
+        // When & Then
+        assertDoesNotThrow(() -> 
+                validationService.validateBulkAcknowledgmentRequest(transactionIds, authentication));
     }
 
     @Test
-    void testValidateBulkAcknowledgmentRequest_EmptyList() {
-        // Arrange
-        List<String> emptyList = List.of();
+    void validateBulkAcknowledgmentRequest_WithEmptyList_ShouldThrowException() {
+        // Given
+        List<String> transactionIds = List.of();
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateBulkAcknowledgmentRequest(emptyList, authentication));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateBulkAcknowledgmentRequest(transactionIds, authentication));
+        
         assertEquals("Transaction IDs list cannot be empty", exception.getMessage());
     }
 
     @Test
-    void testValidateBulkAcknowledgmentRequest_DuplicateIds() {
-        // Arrange
-        List<String> duplicateIds = List.of("test-transaction-123", "test-transaction-123");
+    void validateBulkAcknowledgmentRequest_WithDuplicates_ShouldThrowException() {
+        // Given
+        List<String> transactionIds = List.of("TXN-1", "TXN-2", "TXN-1");
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateBulkAcknowledgmentRequest(duplicateIds, authentication));
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateBulkAcknowledgmentRequest(transactionIds, authentication));
+        
         assertEquals("Duplicate transaction IDs found in bulk acknowledgment request", exception.getMessage());
     }
 
     @Test
-    void testValidateBulkOperationSize_Success() {
-        // Act & Assert - should not throw exception
-        assertDoesNotThrow(() -> validationService.validateBulkOperationSize(10, authentication));
+    void validateBulkOperationSize_WithValidSize_ShouldPass() {
+        // When & Then
+        assertDoesNotThrow(() -> 
+                validationService.validateBulkOperationSize(50, authentication));
     }
 
     @Test
-    void testValidateBulkOperationSize_ExceedsMaximum() {
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateBulkOperationSize(101, authentication));
+    void validateBulkOperationSize_WithExcessiveSize_ShouldThrowException() {
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                validationService.validateBulkOperationSize(101, authentication));
+        
         assertTrue(exception.getMessage().contains("exceeds maximum allowed"));
-    }
-
-    @Test
-    void testValidateBulkOperationSize_NonAdminExceedsLimit() {
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> validationService.validateBulkOperationSize(51, authentication));
-        assertEquals("Non-admin users cannot acknowledge more than 50 exceptions at once", exception.getMessage());
-    }
-
-    @Test
-    void testValidateBulkOperationSize_AdminCanExceedNonAdminLimit() {
-        // Arrange
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
-
-        // Act & Assert - should not throw exception
-        assertDoesNotThrow(() -> validationService.validateBulkOperationSize(75, authentication));
     }
 }

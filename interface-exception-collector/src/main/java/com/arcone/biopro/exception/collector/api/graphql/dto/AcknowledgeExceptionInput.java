@@ -7,12 +7,11 @@ import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.OffsetDateTime;
 
 /**
- * Input DTO for acknowledging a single exception via GraphQL.
- * Contains validation rules and business constraints for acknowledgment
- * operations.
+ * Simplified input DTO for acknowledging a single exception via GraphQL.
+ * Focuses on essential fields only to reduce complexity and improve usability.
+ * Aligns with REST API AcknowledgeRequest structure for consistency.
  */
 @Data
 @Builder
@@ -39,20 +38,9 @@ public class AcknowledgeExceptionInput {
     /**
      * Optional additional notes about the acknowledgment.
      * Can contain detailed information about the acknowledgment context.
+     * Simplified from previous version - removed estimatedResolutionTime and assignedTo
+     * to focus on core acknowledgment functionality.
      */
     @Size(max = 2000, message = "Notes must not exceed 2000 characters")
     private String notes;
-
-    /**
-     * Optional estimated resolution time for the exception.
-     * Helps with planning and tracking resolution progress.
-     */
-    private OffsetDateTime estimatedResolutionTime;
-
-    /**
-     * Optional user ID to assign the exception to for resolution.
-     * Can be used for workload distribution and accountability.
-     */
-    @Size(max = 255, message = "Assigned user ID must not exceed 255 characters")
-    private String assignedTo;
 }

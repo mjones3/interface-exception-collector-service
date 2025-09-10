@@ -1,0 +1,1 @@
+package com.arcone.biopro.exception.collect

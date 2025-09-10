@@ -62,14 +62,31 @@ type Subscription {
     
     # Retry operation updates
     retryStatusUpdated(transactionId: String): RetryStatusEvent!
+    
+    # Mutation completion updates
+    mutationCompleted(
+        mutationType: String
+        transactionId: String
+    ): MutationCompletionEvent!
+    
+    # Dashboard summary updates
+    dashboardSummary: DashboardSummary!
 }
 
-# Mutation result types
+# Mutation result types with enhanced metadata
 type RetryExceptionResult {
     success: Boolean!
     exception: Exception
     retryAttempt: RetryAttempt
     errors: [GraphQLError!]!
+    
+    # Enhanced metadata fields
+    operationId: String
+    timestamp: DateTime!
+    performedBy: String
+    retryPriority: RetryPriority
+    retryReason: String
+    attemptNumber: Int
 }
 
 type BulkRetryResult {
@@ -83,6 +100,13 @@ type AcknowledgeExceptionResult {
     success: Boolean!
     exception: Exception
     errors: [GraphQLError!]!
+    
+    # Enhanced metadata fields
+    operationId: String
+    timestamp: DateTime!
+    performedBy: String
+    acknowledgmentReason: String
+    acknowledgmentNotes: String
 }
 
 type BulkAcknowledgeResult {
@@ -96,12 +120,27 @@ type ResolveExceptionResult {
     success: Boolean!
     exception: Exception
     errors: [GraphQLError!]!
+    
+    # Enhanced metadata fields
+    operationId: String
+    timestamp: DateTime!
+    performedBy: String
+    resolutionMethod: ResolutionMethod
+    resolutionNotes: String
 }
 
 type CancelRetryResult {
     success: Boolean!
     exception: Exception
+    cancelledRetryAttempt: RetryAttempt
     errors: [GraphQLError!]!
+    
+    # Enhanced metadata fields
+    operationId: String
+    timestamp: DateTime!
+    performedBy: String
+    cancellationReason: String
+    cancelledAttemptNumber: Int
 }
 
 # Event types for subscriptions
@@ -135,6 +174,25 @@ enum RetryEventType {
     COMPLETED
     FAILED
     CANCELLED
+}
+
+type MutationCompletionEvent {
+    mutationType: MutationType!
+    transactionId: String!
+    success: Boolean!
+    performedBy: String!
+    timestamp: DateTime!
+    message: String!
+    operationId: String!
+}
+
+enum MutationType {
+    RETRY
+    ACKNOWLEDGE
+    RESOLVE
+    CANCEL_RETRY
+    BULK_RETRY
+    BULK_ACKNOWLEDGE
 }
 
 # System health type

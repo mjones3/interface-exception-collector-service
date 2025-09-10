@@ -40,6 +40,9 @@ public class ExceptionSubscriptionResolver {
 
     private final Sinks.Many<RetryStatusEvent> retryStatusSink = Sinks.many().multicast().onBackpressureBuffer();
 
+    private final Sinks.Many<MutationCompletionEvent> mutationCompletionSink = Sinks.many().multicast()
+            .onBackpressureBuffer();
+
     // Track active subscriptions for metrics
     private final ConcurrentMap<String, SubscriptionMetrics> activeSubscriptions = new ConcurrentHashMap<>();
 
@@ -172,6 +175,55 @@ public class ExceptionSubscriptionResolver {
     }
 
     /**
+     * GraphQL subscription for mutation completion events.
+     * Provides real-time updates when mutation operations complete.
+     * 
+     * @param mutationType   Optional filter for specific mutation types (retry, acknowledge, resolve, cancel)
+     * @param transactionId  Optional filter for specific transaction ID
+     * @param authentication User authentication context
+     * @return Flux of mutation completion events
+     */
+    @SubscriptionMapping("mutationCompleted")
+    @PreAuthorize("hasRole('OPERATIONS')")
+    public Flux<MutationCompletionEvent> mutationCompleted(
+            @Argument("mutationType") String mutationType,
+            @Argument("transactionId") String transactionId,
+            Authentication authentication) {
+
+        String username = authentication.getName();
+        log.info("Starting mutation completion subscription for user: {} with type: {} and transaction: {}", 
+                username, mutationType, transactionId);
+
+        return mutationCompletionSink.asFlux()
+                .filter(event -> {
+                    // Filter by mutation type if specified
+                    if (mutationType != null && !mutationType.equalsIgnoreCase(event.getMutationType().name())) {
+                        return false;
+                    }
+
+                    // Filter by transaction ID if specified
+                    if (transactionId != null && !transactionId.equals(event.getTransactionId())) {
+                        return false;
+                    }
+
+                    // Apply security filtering
+                    return securityService.canViewMutationEvents(authentication, event);
+                })
+                .doOnSubscribe(subscription -> {
+                    log.info("User {} subscribed to mutation completion events", username);
+                })
+                .doOnCancel(() -> {
+                    log.info("User {} cancelled mutation completion subscription", username);
+                })
+                .timeout(Duration.ofMinutes(30)) // Standard timeout for mutation events
+                .onErrorResume(throwable -> {
+                    log.warn("Mutation completion subscription timeout or error for user {}: {}", username,
+                            throwable.getMessage());
+                    return Flux.empty();
+                });
+    }
+
+    /**
      * Publishes an exception update event to all subscribers.
      * Called by Kafka consumers when exception events are received.
      * 
@@ -223,6 +275,32 @@ public class ExceptionSubscriptionResolver {
             }
         } catch (java.lang.Exception e) {
             log.error("Error publishing retry status event", e);
+        }
+    }
+
+    /**
+     * Publishes a mutation completion event to all subscribers.
+     * Called by mutation services when operations complete.
+     * 
+     * @param event The mutation completion event to publish
+     */
+    public void publishMutationCompletion(MutationCompletionEvent event) {
+        log.info("Publishing mutation completion event: {} for transaction: {} with success: {}",
+                event.getMutationType(), event.getTransactionId(), event.isSuccess());
+
+        try {
+            Sinks.EmitResult result = mutationCompletionSink.tryEmitNext(event);
+
+            if (result.isFailure()) {
+                log.warn("Failed to emit mutation completion event: {} for transaction: {}", 
+                        result, event.getTransactionId());
+            } else {
+                log.info("Successfully published mutation completion event for transaction: {} to {} subscribers",
+                        event.getTransactionId(), mutationCompletionSink.currentSubscriberCount());
+            }
+        } catch (java.lang.Exception e) {
+            log.error("Error publishing mutation completion event for transaction: {}", 
+                    event.getTransactionId(), e);
         }
     }
 
@@ -445,5 +523,50 @@ public class ExceptionSubscriptionResolver {
         public void setAttemptNumber(int attemptNumber) {
             this.attemptNumber = attemptNumber;
         }
+    }
+
+    /**
+     * Mutation completion event for GraphQL subscriptions.
+     * Provides real-time updates when mutation operations complete.
+     */
+    public static class MutationCompletionEvent {
+        private final MutationType mutationType;
+        private final String transactionId;
+        private final boolean success;
+        private final String performedBy;
+        private final OffsetDateTime timestamp;
+        private final String message;
+        private final String operationId;
+
+        public MutationCompletionEvent(MutationType mutationType, String transactionId, boolean success,
+                                     String performedBy, OffsetDateTime timestamp, String message, String operationId) {
+            this.mutationType = mutationType;
+            this.transactionId = transactionId;
+            this.success = success;
+            this.performedBy = performedBy;
+            this.timestamp = timestamp;
+            this.message = message;
+            this.operationId = operationId;
+        }
+
+        public MutationType getMutationType() { return mutationType; }
+        public String getTransactionId() { return transactionId; }
+        public boolean isSuccess() { return success; }
+        public String getPerformedBy() { return performedBy; }
+        public OffsetDateTime getTimestamp() { return timestamp; }
+        public String getMessage() { return message; }
+        public String getOperationId() { return operationId; }
+    }
+
+    /**
+     * Mutation types for subscription filtering.
+     */
+    public enum MutationType {
+        RETRY,
+        ACKNOWLEDGE,
+        RESOLVE,
+        CANCEL_RETRY,
+        BULK_RETRY,
+        BULK_ACKNOWLEDGE
     }
 }

@@ -35,3 +35,24 @@ enum RetryEventType {
     FAILED
     CANCELLED
 }
+
+# Mutation completion event for subscriptions
+type MutationCompletionEvent {
+    mutationType: MutationType!
+    transactionId: String!
+    success: Boolean!
+    performedBy: String!
+    timestamp: DateTime!
+    message: String!
+    operationId: String!
+}
+
+# Mutation types for filtering
+enum MutationType {
+    RETRY
+    ACKNOWLEDGE
+    RESOLVE
+    CANCEL_RETRY
+    BULK_RETRY
+    BULK_ACKNOWLEDGE
+}

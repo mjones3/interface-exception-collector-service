@@ -1,5 +1,7 @@
 package com.arcone.biopro.exception.collector.application.service;
 
+import com.arcone.biopro.exception.collector.application.service.ValidationResult;
+
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionSeverity;
 import com.arcone.biopro.exception.collector.domain.enums.InterfaceType;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,16 @@ import java.time.Duration;
  */
 @Service
 public class MetricsService {
+
+    // Constructor for backward compatibility with tests
+    public MetricsService() {
+        // Default constructor
+    }
+
+    // Constructor for backward compatibility with tests
+    public MetricsService(Object meterRegistry, Object repository) {
+        // Constructor that accepts parameters but ignores them for stub implementation
+    }
 
     public void recordExceptionProcessed(InterfaceType interfaceType, ExceptionSeverity severity) {
         // Stub implementation

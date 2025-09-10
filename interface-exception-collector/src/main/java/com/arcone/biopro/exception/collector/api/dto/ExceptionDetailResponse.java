@@ -89,6 +89,9 @@ public class ExceptionDetailResponse {
     @Schema(description = "Number of retry attempts made", example = "2")
     private Integer retryCount;
 
+    @Schema(description = "Maximum number of retry attempts allowed", example = "3")
+    private Integer maxRetries;
+
     @Schema(description = "When the exception was last retried", example = "2025-08-04T11:15:00Z")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private OffsetDateTime lastRetryAt;
@@ -122,4 +125,13 @@ public class ExceptionDetailResponse {
 
     @Schema(description = "Related exceptions for the same customer")
     private List<ExceptionListResponse> relatedExceptions;
+
+    /**
+     * Legacy method for backward compatibility.
+     * @deprecated Use maxRetries field directly
+     */
+    @Deprecated
+    public Integer getMaxRetries() {
+        return this.maxRetries;
+    }
 }

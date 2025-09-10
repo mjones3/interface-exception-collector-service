@@ -1,263 +1,225 @@
 package com.arcone.biopro.exception.collector.api.graphql.security;
 
+import com.arcone.biopro.exception.collector.domain.entity.MutationAuditLog;
+import com.arcone.biopro.exception.collector.infrastructure.repository.MutationAuditLogRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.ExecutionResult;
-import graphql.GraphQLError;
-import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for SecurityAuditLogger.
+ * Unit tests for SecurityAuditLogger mutation audit logging functionality.
+ * Tests the comprehensive audit logging for all mutation operations.
+ * 
+ * Requirements: 5.3, 5.5, 6.4
  */
 @ExtendWith(MockitoExtension.class)
 class SecurityAuditLoggerTest {
 
     @Mock
+    private MutationAuditLogRepository auditLogRepository;
+
+    @Mock
     private ObjectMapper objectMapper;
 
-    @Mock
-    private Authentication authentication;
-
-    @Mock
-    private SecurityContext securityContext;
-
-    @Mock
-    private InstrumentationExecutionParameters parameters;
-
-    @Mock
-    private ExecutionResult executionResult;
-
-    @Mock
-    private GraphQLError graphQLError;
-
-    private SecurityAuditLogger securityAuditLogger;
+    private SecurityAuditLogger auditLogger;
 
     @BeforeEach
     void setUp() {
-        securityAuditLogger = new SecurityAuditLogger(objectMapper);
-        
-        // Setup security context
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-    }
-
-@Test
-    void shouldLogOperationStartForAuthenticatedUser() throws Exception {
-        // Given
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("testuser");
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
-        when(parameters.getOperation()).thenReturn("GetExceptions");
-        when(parameters.getQuery()).thenReturn("query GetExceptions { exceptions { id } }");
-        when(parameters.getVariables()).thenReturn(Map.of());
-        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
-
-        // When
-        var context = securityAuditLogger.beginExecution(parameters, null);
-        context.onDispatched(null);
-
-        // Then
-        verify(objectMapper).writeValueAsString(argThat(auditEvent -> {
-            Map<String, Object> event = (Map<String, Object>) auditEvent;
-            return "GRAPHQL_OPERATION_START".equals(event.get("event")) &&
-                   "testuser".equals(event.get("user_id")) &&
-                   Boolean.TRUE.equals(event.get("authenticated"));
-        }));
+        auditLogger = new SecurityAuditLogger(objectMapper, auditLogRepository);
     }
 
     @Test
-    void shouldLogOperationStartForUnauthenticatedUser() throws Exception {
+    void logMutationAttempt_ShouldCreateAuditLogEntry() {
         // Given
-        when(authentication.isAuthenticated()).thenReturn(false);
-        when(parameters.getOperation()).thenReturn("GetExceptions");
-        when(parameters.getQuery()).thenReturn("query GetExceptions { exceptions { id } }");
-        when(parameters.getVariables()).thenReturn(Map.of());
-        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        String transactionId = "TXN-123";
+        String performedBy = "test-user";
+        Map<String, Object> inputData = Map.of("reason", "Test retry");
+        String operationId = "RETRY_TXN123_123456789";
+        String correlationId = "corr-123";
+
+        when(auditLogRepository.save(any(MutationAuditLog.class))).thenReturn(new MutationAuditLog());
 
         // When
-        var context = securityAuditLogger.beginExecution(parameters, null);
-        context.onDispatched(null);
+        auditLogger.logMutationAttempt(
+                MutationAuditLog.OperationType.RETRY,
+                transactionId,
+                performedBy,
+                inputData,
+                operationId,
+                correlationId
+        );
 
         // Then
-        verify(objectMapper).writeValueAsString(argThat(auditEvent -> {
-            Map<String, Object> event = (Map<String, Object>) auditEvent;
-            return "GRAPHQL_OPERATION_START".equals(event.get("event")) &&
-                   Boolean.FALSE.equals(event.get("authenticated"));
-        }));
+        ArgumentCaptor<MutationAuditLog> captor = ArgumentCaptor.forClass(MutationAuditLog.class);
+        verify(auditLogRepository).save(captor.capture());
+
+        MutationAuditLog savedLog = captor.getValue();
+        assertThat(savedLog.getOperationType()).isEqualTo(MutationAuditLog.OperationType.RETRY);
+        assertThat(savedLog.getTransactionId()).isEqualTo(transactionId);
+        assertThat(savedLog.getPerformedBy()).isEqualTo(performedBy);
+        assertThat(savedLog.getOperationId()).isEqualTo(operationId);
+        assertThat(savedLog.getCorrelationId()).isEqualTo(correlationId);
+        assertThat(savedLog.getResultStatus()).isEqualTo(MutationAuditLog.ResultStatus.SUCCESS);
     }
 
     @Test
-    void shouldLogSuccessfulOperationCompletion() throws Exception {
+    void logMutationResult_ShouldUpdateExistingAuditLog() {
         // Given
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("testuser");
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
-        when(parameters.getOperation()).thenReturn("GetExceptions");
-        when(parameters.getQuery()).thenReturn("query GetExceptions { exceptions { id } }");
-        when(parameters.getVariables()).thenReturn(Map.of());
-        when(executionResult.getErrors()).thenReturn(List.of());
-        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        String operationId = "RETRY_TXN123_123456789";
+        boolean success = true;
+        List<Object> errors = List.of();
+        long executionTimeMs = 150L;
+
+        MutationAuditLog existingLog = MutationAuditLog.builder()
+                .operationId(operationId)
+                .operationType(MutationAuditLog.OperationType.RETRY)
+                .transactionId("TXN-123")
+                .performedBy("test-user")
+                .resultStatus(MutationAuditLog.ResultStatus.SUCCESS)
+                .build();
+
+        when(auditLogRepository.findByOperationIdOrderByPerformedAtAsc(operationId))
+                .thenReturn(List.of(existingLog));
+        when(auditLogRepository.save(any(MutationAuditLog.class))).thenReturn(existingLog);
 
         // When
-        var context = securityAuditLogger.beginExecution(parameters, null);
-        context.onCompleted(executionResult, null);
+        auditLogger.logMutationResult(operationId, success, errors, executionTimeMs);
 
         // Then
-        verify(objectMapper).writeValueAsString(argThat(auditEvent -> {
-            Map<String, Object> event = (Map<String, Object>) auditEvent;
-            return "GRAPHQL_OPERATION_COMPLETE".equals(event.get("event")) &&
-                   Boolean.TRUE.equals(event.get("success")) &&
-                   Integer.valueOf(0).equals(event.get("error_count"));
-        }));
+        ArgumentCaptor<MutationAuditLog> captor = ArgumentCaptor.forClass(MutationAuditLog.class);
+        verify(auditLogRepository).save(captor.capture());
+
+        MutationAuditLog updatedLog = captor.getValue();
+        assertThat(updatedLog.getResultStatus()).isEqualTo(MutationAuditLog.ResultStatus.SUCCESS);
+        assertThat(updatedLog.getExecutionTimeMs()).isEqualTo(150);
     }
 
     @Test
-    void shouldLogOperationWithErrors() throws Exception {
+    void logBulkMutationResult_ShouldHandlePartialSuccess() {
         // Given
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("testuser");
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
-        when(parameters.getOperation()).thenReturn("GetExceptions");
-        when(parameters.getQuery()).thenReturn("query GetExceptions { exceptions { id } }");
-        when(parameters.getVariables()).thenReturn(Map.of());
-        when(executionResult.getErrors()).thenReturn(List.of(graphQLError));
-        when(graphQLError.getErrorType()).thenReturn(graphql.ErrorType.ValidationError);
-        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        String operationId = "BULK_RETRY_MULTIPLE_123456789";
+        int successCount = 3;
+        int failureCount = 2;
+        List<Object> errors = List.of("Error 1", "Error 2");
+        long executionTimeMs = 500L;
+
+        MutationAuditLog existingLog = MutationAuditLog.builder()
+                .operationId(operationId)
+                .operationType(MutationAuditLog.OperationType.BULK_RETRY)
+                .transactionId("BULK_5_TRANSACTIONS")
+                .performedBy("test-user")
+                .resultStatus(MutationAuditLog.ResultStatus.SUCCESS)
+                .build();
+
+        when(auditLogRepository.findByOperationIdOrderByPerformedAtAsc(operationId))
+                .thenReturn(List.of(existingLog));
+        when(auditLogRepository.save(any(MutationAuditLog.class))).thenReturn(existingLog);
 
         // When
-        var context = securityAuditLogger.beginExecution(parameters, null);
-        context.onCompleted(executionResult, null);
+        auditLogger.logBulkMutationResult(operationId, successCount, failureCount, errors, executionTimeMs);
 
         // Then
-        verify(objectMapper).writeValueAsString(argThat(auditEvent -> {
-            Map<String, Object> event = (Map<String, Object>) auditEvent;
-            return "GRAPHQL_OPERATION_COMPLETE".equals(event.get("event")) &&
-                   Boolean.FALSE.equals(event.get("success")) &&
-                   Integer.valueOf(1).equals(event.get("error_count"));
-        }));
+        ArgumentCaptor<MutationAuditLog> captor = ArgumentCaptor.forClass(MutationAuditLog.class);
+        verify(auditLogRepository).save(captor.capture());
+
+        MutationAuditLog updatedLog = captor.getValue();
+        assertThat(updatedLog.getResultStatus()).isEqualTo(MutationAuditLog.ResultStatus.PARTIAL_SUCCESS);
+        assertThat(updatedLog.getExecutionTimeMs()).isEqualTo(500);
     }
 
     @Test
-    void shouldLogSecurityViolationAtHigherLevel() throws Exception {
-        // Given
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("testuser");
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
-        when(parameters.getOperation()).thenReturn("GetExceptions");
-        when(parameters.getQuery()).thenReturn("query GetExceptions { exceptions { id } }");
-        when(parameters.getVariables()).thenReturn(Map.of());
-        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
-
-        AccessDeniedException securityException = new AccessDeniedException("Access denied");
-
+    void generateOperationId_ShouldCreateUniqueId() {
         // When
-        var context = securityAuditLogger.beginExecution(parameters, null);
-        context.onCompleted(null, securityException);
+        String operationId1 = auditLogger.generateOperationId("retry", "TXN-123");
+        String operationId2 = auditLogger.generateOperationId("retry", "TXN-123");
 
         // Then
-        verify(objectMapper).writeValueAsString(argThat(auditEvent -> {
-            Map<String, Object> event = (Map<String, Object>) auditEvent;
-            return "GRAPHQL_OPERATION_COMPLETE".equals(event.get("event")) &&
-                   Boolean.FALSE.equals(event.get("success")) &&
-                   "AccessDeniedException".equals(event.get("exception_type")) &&
-                   Boolean.TRUE.equals(event.get("security_violation"));
-        }));
+        assertThat(operationId1).startsWith("RETRY_TXN123_");
+        assertThat(operationId2).startsWith("RETRY_TXN123_");
+        assertThat(operationId1).isNotEqualTo(operationId2); // Should be unique due to timestamp
     }
 
     @Test
-    void shouldLogRateLimitViolation() throws Exception {
-        // Given
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("testuser");
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
-        when(parameters.getOperation()).thenReturn("GetExceptions");
-        when(parameters.getQuery()).thenReturn("query GetExceptions { exceptions { id } }");
-        when(parameters.getVariables()).thenReturn(Map.of());
-        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
-
-        RateLimitExceededException rateLimitException = new RateLimitExceededException("Rate limit exceeded");
-
+    void generateCorrelationId_ShouldCreateUniqueUUID() {
         // When
-        var context = securityAuditLogger.beginExecution(parameters, null);
-        context.onCompleted(null, rateLimitException);
+        String correlationId1 = auditLogger.generateCorrelationId();
+        String correlationId2 = auditLogger.generateCorrelationId();
 
         // Then
-        verify(objectMapper).writeValueAsString(argThat(auditEvent -> {
-            Map<String, Object> event = (Map<String, Object>) auditEvent;
-            return "GRAPHQL_OPERATION_COMPLETE".equals(event.get("event")) &&
-                   Boolean.FALSE.equals(event.get("success")) &&
-                   "RateLimitExceededException".equals(event.get("exception_type")) &&
-                   Boolean.TRUE.equals(event.get("security_violation"));
-        }));
+        assertThat(correlationId1).isNotNull();
+        assertThat(correlationId2).isNotNull();
+        assertThat(correlationId1).isNotEqualTo(correlationId2);
+        assertThat(correlationId1).matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
     }
 
     @Test
-    void shouldHandleJsonSerializationErrors() {
+    void logMutationAttempt_ShouldHandleNullInputData() {
         // Given
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("testuser");
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
-        when(parameters.getOperation()).thenReturn("GetExceptions");
-        when(parameters.getQuery()).thenReturn("query GetExceptions { exceptions { id } }");
-        when(parameters.getVariables()).thenReturn(Map.of());
-        
-        try {
-            when(objectMapper.writeValueAsString(any())).thenThrow(new RuntimeException("JSON error"));
-        } catch (Exception e) {
-            // This shouldn't happen in the test setup
-        }
+        String transactionId = "TXN-123";
+        String performedBy = "test-user";
+        String operationId = "RETRY_TXN123_123456789";
+        String correlationId = "corr-123";
 
-        // When & Then - Should not throw exception
-        assertDoesNotThrow(() -> {
-            var context = securityAuditLogger.beginExecution(parameters, null);
-            context.onDispatched(null);
-        });
+        when(auditLogRepository.save(any(MutationAuditLog.class))).thenReturn(new MutationAuditLog());
+
+        // When
+        auditLogger.logMutationAttempt(
+                MutationAuditLog.OperationType.RETRY,
+                transactionId,
+                performedBy,
+                null, // null input data
+                operationId,
+                correlationId
+        );
+
+        // Then
+        ArgumentCaptor<MutationAuditLog> captor = ArgumentCaptor.forClass(MutationAuditLog.class);
+        verify(auditLogRepository).save(captor.capture());
+
+        MutationAuditLog savedLog = captor.getValue();
+        assertThat(savedLog.getInputData()).isNull();
     }
 
     @Test
-    void shouldIncludeDurationInCompletionLog() throws Exception {
+    void logMutationResult_ShouldHandleFailureCase() {
         // Given
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("testuser");
-        when(authentication.getAuthorities()).thenReturn(
-                List.of(new SimpleGrantedAuthority("ROLE_VIEWER")));
-        when(parameters.getOperation()).thenReturn("GetExceptions");
-        when(parameters.getQuery()).thenReturn("query GetExceptions { exceptions { id } }");
-        when(parameters.getVariables()).thenReturn(Map.of());
-        when(executionResult.getErrors()).thenReturn(List.of());
-        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        String operationId = "RETRY_TXN123_123456789";
+        boolean success = false;
+        List<Object> errors = List.of("Validation failed", "Transaction not found");
+        long executionTimeMs = 50L;
+
+        MutationAuditLog existingLog = MutationAuditLog.builder()
+                .operationId(operationId)
+                .operationType(MutationAuditLog.OperationType.RETRY)
+                .transactionId("TXN-123")
+                .performedBy("test-user")
+                .resultStatus(MutationAuditLog.ResultStatus.SUCCESS)
+                .build();
+
+        when(auditLogRepository.findByOperationIdOrderByPerformedAtAsc(operationId))
+                .thenReturn(List.of(existingLog));
+        when(auditLogRepository.save(any(MutationAuditLog.class))).thenReturn(existingLog);
 
         // When
-        var context = securityAuditLogger.beginExecution(parameters, null);
-        Thread.sleep(10); // Small delay to ensure duration > 0
-        context.onCompleted(executionResult, null);
+        auditLogger.logMutationResult(operationId, success, errors, executionTimeMs);
 
         // Then
-        verify(objectMapper).writeValueAsString(argThat(auditEvent -> {
-            Map<String, Object> event = (Map<String, Object>) auditEvent;
-            Object duration = event.get("duration_ms");
-            return duration instanceof Long && ((Long) duration) >= 0;
-        }));
+        ArgumentCaptor<MutationAuditLog> captor = ArgumentCaptor.forClass(MutationAuditLog.class);
+        verify(auditLogRepository).save(captor.capture());
+
+        MutationAuditLog updatedLog = captor.getValue();
+        assertThat(updatedLog.getResultStatus()).isEqualTo(MutationAuditLog.ResultStatus.FAILURE);
+        assertThat(updatedLog.getExecutionTimeMs()).isEqualTo(50);
     }
 }

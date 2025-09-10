@@ -1,6 +1,10 @@
 package com.arcone.biopro.exception.collector.api.graphql.service;
 
 import com.arcone.biopro.exception.collector.api.graphql.dto.AcknowledgeExceptionInput;
+import com.arcone.biopro.exception.collector.api.graphql.dto.GraphQLError;
+import com.arcone.biopro.exception.collector.api.graphql.validation.GraphQLErrorHandler;
+import com.arcone.biopro.exception.collector.api.graphql.validation.MutationErrorCode;
+import com.arcone.biopro.exception.collector.api.graphql.validation.ValidationResult;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.ExceptionStatus;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
@@ -9,14 +13,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
- * Validation service for GraphQL acknowledgment operations.
- * Implements business rules and security validations for acknowledgment requests.
- * Supports requirements 3.4, 3.5, 6.4, and 7.1.
+ * Enhanced validation service for GraphQL acknowledgment operations.
+ * Implements business rules and security validations for acknowledgment requests
+ * with standardized error handling and detailed error categorization.
+ * Supports requirements 2.2, 2.4, 6.2, 6.3, 6.4, and 7.3.
  */
 @Service
 @RequiredArgsConstructor
@@ -25,160 +35,312 @@ public class AcknowledgmentValidationService {
 
     private final InterfaceExceptionRepository exceptionRepository;
 
-    // Maximum number of exceptions that can be acknowledged in a single bulk operation
+    // Validation constants
+    private static final int MAX_REASON_LENGTH = 500;
+    private static final int MAX_NOTES_LENGTH = 1000;
     private static final int MAX_BULK_ACKNOWLEDGMENT_SIZE = 100;
+    private static final int MAX_BULK_ACKNOWLEDGMENT_SIZE_NON_ADMIN = 10;
+    private static final Pattern TRANSACTION_ID_PATTERN = Pattern.compile("^[A-Za-z0-9\\-_]{1,50}$");
 
     /**
-     * Validates a single acknowledgment request.
-     * Checks input validation, business rules, and user permissions.
+     * Enhanced validation for acknowledgment requests with detailed error categorization.
      *
-     * @param input the acknowledgment input to validate
+     * @param input          the acknowledgment input to validate
      * @param authentication the user authentication context
-     * @throws IllegalArgumentException if validation fails
+     * @return ValidationResult with detailed error information
      */
-    public void validateAcknowledgmentRequest(AcknowledgeExceptionInput input, Authentication authentication) {
+    public ValidationResult validateAcknowledgmentOperation(AcknowledgeExceptionInput input, Authentication authentication) {
         log.debug("Validating acknowledgment request for transaction: {} by user: {}",
                 input.getTransactionId(), authentication.getName());
 
-        // Validate input parameters
-        validateInputParameters(input);
+        List<GraphQLError> errors = new ArrayList<>();
+
+        // Validate input format and structure
+        validateAcknowledgmentInputFormat(input, errors);
 
         // Validate user permissions
-        validateUserPermissions(authentication, "acknowledge exceptions");
+        validateUserPermissions(authentication, "acknowledge", errors);
 
-        // Validate exception exists and can be acknowledged
-        validateExceptionState(input.getTransactionId());
-
-        // Validate assignment if specified
-        if (input.getAssignedTo() != null && !input.getAssignedTo().trim().isEmpty()) {
-            validateAssignment(input.getAssignedTo(), authentication);
+        // If basic validation failed, return early
+        if (!errors.isEmpty()) {
+            return ValidationResult.failure("acknowledge", input.getTransactionId(), errors);
         }
 
-        log.debug("Acknowledgment request validation passed for transaction: {}", input.getTransactionId());
+        // Find and validate the exception
+        Optional<InterfaceException> exceptionOpt = exceptionRepository.findByTransactionId(input.getTransactionId());
+        if (exceptionOpt.isEmpty()) {
+            errors.add(GraphQLErrorHandler.createNotFoundError(
+                    MutationErrorCode.EXCEPTION_NOT_FOUND, 
+                    input.getTransactionId()));
+            return ValidationResult.failure("acknowledge", input.getTransactionId(), errors);
+        }
+
+        InterfaceException exception = exceptionOpt.get();
+
+        // Validate business rules for acknowledgment
+        validateAcknowledgmentBusinessRules(exception, errors);
+
+        if (errors.isEmpty()) {
+            log.debug("Acknowledgment request validation passed for transaction: {}", input.getTransactionId());
+            return ValidationResult.success("acknowledge", input.getTransactionId());
+        } else {
+            log.debug("Acknowledgment request validation failed for transaction: {} with {} errors", 
+                    input.getTransactionId(), errors.size());
+            return ValidationResult.failure("acknowledge", input.getTransactionId(), errors);
+        }
     }
 
     /**
-     * Validates a bulk acknowledgment request.
-     * Checks bulk operation limits and individual exception states.
+     * Legacy validation method for backward compatibility.
+     * @deprecated Use validateAcknowledgmentOperation instead
+     */
+    @Deprecated
+    public void validateAcknowledgmentRequest(AcknowledgeExceptionInput input, Authentication authentication) {
+        ValidationResult result = validateAcknowledgmentOperation(input, authentication);
+        if (!result.isValid()) {
+            // Convert to legacy exceptions for backward compatibility
+            GraphQLError firstError = result.getErrors().get(0);
+            throw new IllegalArgumentException(firstError.getMessage());
+        }
+    }
+
+    /**
+     * Enhanced validation for bulk acknowledgment requests.
      *
      * @param transactionIds the list of transaction IDs to acknowledge
      * @param authentication the user authentication context
-     * @throws IllegalArgumentException if validation fails
+     * @return ValidationResult with detailed error information
      */
-    public void validateBulkAcknowledgmentRequest(List<String> transactionIds, Authentication authentication) {
+    public ValidationResult validateBulkAcknowledgmentOperation(List<String> transactionIds, Authentication authentication) {
         log.debug("Validating bulk acknowledgment request for {} transactions by user: {}",
                 transactionIds.size(), authentication.getName());
 
-        // Validate transaction IDs list
+        List<GraphQLError> errors = new ArrayList<>();
+
+        // Validate bulk operation format and permissions
+        validateBulkOperationFormat(transactionIds, authentication, errors);
+
+        if (errors.isEmpty()) {
+            log.debug("Bulk acknowledgment request validation passed for {} transactions", transactionIds.size());
+            return ValidationResult.success("bulk_acknowledge", "bulk_operation");
+        } else {
+            log.debug("Bulk acknowledgment request validation failed with {} errors", errors.size());
+            return ValidationResult.failure("bulk_acknowledge", "bulk_operation", errors);
+        }
+    }
+
+    /**
+     * Legacy validation method for backward compatibility.
+     * @deprecated Use validateBulkAcknowledgmentOperation instead
+     */
+    @Deprecated
+    public void validateBulkAcknowledgmentRequest(List<String> transactionIds, Authentication authentication) {
+        ValidationResult result = validateBulkAcknowledgmentOperation(transactionIds, authentication);
+        if (!result.isValid()) {
+            // Convert to legacy exceptions for backward compatibility
+            GraphQLError firstError = result.getErrors().get(0);
+            throw new IllegalArgumentException(firstError.getMessage());
+        }
+    }
+
+    /**
+     * Legacy validation method for backward compatibility.
+     * @deprecated Use validateBulkAcknowledgmentOperation instead
+     */
+    @Deprecated
+    public void validateBulkOperationSize(int operationSize, Authentication authentication) {
+        List<String> dummyIds = new ArrayList<>();
+        for (int i = 0; i < operationSize; i++) {
+            dummyIds.add("dummy-" + i);
+        }
+        ValidationResult result = validateBulkAcknowledgmentOperation(dummyIds, authentication);
+        if (!result.isValid()) {
+            GraphQLError firstError = result.getErrors().get(0);
+            throw new IllegalArgumentException(firstError.getMessage());
+        }
+    }
+
+    // ========== Input Format Validation Methods ==========
+
+    /**
+     * Validates acknowledgment input format and structure.
+     */
+    private void validateAcknowledgmentInputFormat(AcknowledgeExceptionInput input, List<GraphQLError> errors) {
+        // Validate transaction ID
+        if (!StringUtils.hasText(input.getTransactionId())) {
+            errors.add(GraphQLErrorHandler.createValidationError(
+                    MutationErrorCode.MISSING_REQUIRED_FIELD, 
+                    "transactionId", 
+                    "Transaction ID is required"));
+        } else if (!TRANSACTION_ID_PATTERN.matcher(input.getTransactionId()).matches()) {
+            errors.add(GraphQLErrorHandler.createValidationError(
+                    MutationErrorCode.INVALID_TRANSACTION_ID, 
+                    "transactionId", 
+                    "Transaction ID format is invalid"));
+        }
+
+        // Validate reason
+        if (!StringUtils.hasText(input.getReason())) {
+            errors.add(GraphQLErrorHandler.createValidationError(
+                    MutationErrorCode.MISSING_REQUIRED_FIELD, 
+                    "reason", 
+                    "Acknowledgment reason is required"));
+        } else if (input.getReason().length() > MAX_REASON_LENGTH) {
+            errors.add(GraphQLErrorHandler.createValidationError(
+                    MutationErrorCode.INVALID_REASON_LENGTH, 
+                    "reason", 
+                    "Reason exceeds maximum length of " + MAX_REASON_LENGTH + " characters"));
+        }
+
+        // Validate notes if provided
+        if (input.getNotes() != null && input.getNotes().length() > MAX_NOTES_LENGTH) {
+            errors.add(GraphQLErrorHandler.createValidationError(
+                    MutationErrorCode.INVALID_NOTES_LENGTH, 
+                    "notes", 
+                    "Notes exceed maximum length of " + MAX_NOTES_LENGTH + " characters"));
+        }
+    }
+
+    /**
+     * Validates bulk operation format and permissions.
+     */
+    private void validateBulkOperationFormat(List<String> transactionIds, Authentication authentication, List<GraphQLError> errors) {
+        // Validate list is not empty
         if (transactionIds == null || transactionIds.isEmpty()) {
-            throw new IllegalArgumentException("Transaction IDs list cannot be empty");
+            errors.add(GraphQLErrorHandler.createValidationError(
+                    MutationErrorCode.MISSING_REQUIRED_FIELD, 
+                    "transactionIds", 
+                    "Transaction IDs list cannot be empty"));
+            return;
+        }
+
+        // Validate bulk operation size based on user role
+        Set<String> authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        boolean isAdmin = authorities.contains("ROLE_ADMIN");
+        int maxSize = isAdmin ? MAX_BULK_ACKNOWLEDGMENT_SIZE : MAX_BULK_ACKNOWLEDGMENT_SIZE_NON_ADMIN;
+
+        if (transactionIds.size() > maxSize) {
+            errors.add(GraphQLErrorHandler.createSecurityError(
+                    MutationErrorCode.BULK_SIZE_EXCEEDED, 
+                    "Bulk operation size exceeds maximum allowed limit of " + maxSize + " for your role"));
+            return;
         }
 
         // Check for duplicates
-        long uniqueCount = transactionIds.stream().distinct().count();
-        if (uniqueCount != transactionIds.size()) {
-            throw new IllegalArgumentException("Duplicate transaction IDs found in bulk acknowledgment request");
+        Set<String> uniqueIds = Set.copyOf(transactionIds);
+        if (uniqueIds.size() != transactionIds.size()) {
+            errors.add(GraphQLErrorHandler.createValidationError(
+                    MutationErrorCode.INVALID_FIELD_VALUE, 
+                    "transactionIds", 
+                    "Duplicate transaction IDs found in bulk operation"));
         }
 
         // Validate each transaction ID format
-        for (String transactionId : transactionIds) {
-            if (transactionId == null || transactionId.trim().isEmpty()) {
-                throw new IllegalArgumentException("Transaction ID cannot be null or empty");
+        for (int i = 0; i < transactionIds.size(); i++) {
+            String transactionId = transactionIds.get(i);
+            if (!StringUtils.hasText(transactionId)) {
+                errors.add(GraphQLErrorHandler.createValidationError(
+                        MutationErrorCode.MISSING_REQUIRED_FIELD, 
+                        "transactionIds[" + i + "]", 
+                        "Transaction ID at index " + i + " is empty"));
+            } else if (!TRANSACTION_ID_PATTERN.matcher(transactionId).matches()) {
+                errors.add(GraphQLErrorHandler.createValidationError(
+                        MutationErrorCode.INVALID_TRANSACTION_ID, 
+                        "transactionIds[" + i + "]", 
+                        "Transaction ID at index " + i + " has invalid format"));
             }
-            if (transactionId.length() > 255) {
-                throw new IllegalArgumentException("Transaction ID exceeds maximum length: " + transactionId);
+        }
+    }
+
+    // ========== Business Rule Validation Methods ==========
+
+    /**
+     * Validates business rules for acknowledgment operations.
+     */
+    private void validateAcknowledgmentBusinessRules(InterfaceException exception, List<GraphQLError> errors) {
+        // Check if already resolved
+        if (exception.getStatus() == ExceptionStatus.RESOLVED) {
+            errors.add(GraphQLErrorHandler.createBusinessRuleError(
+                    MutationErrorCode.ALREADY_RESOLVED, 
+                    "Exception is already resolved and cannot be acknowledged"));
+        }
+
+        // Check if closed
+        if (exception.getStatus() == ExceptionStatus.CLOSED) {
+            errors.add(GraphQLErrorHandler.createBusinessRuleError(
+                    MutationErrorCode.INVALID_STATUS_TRANSITION, 
+                    "Exception is closed and cannot be acknowledged"));
+        }
+
+        // Allow re-acknowledgment but log it
+        if (exception.getStatus() == ExceptionStatus.ACKNOWLEDGED) {
+            log.info("Re-acknowledging exception {} that is already acknowledged by: {}", 
+                    exception.getTransactionId(), exception.getAcknowledgedBy());
+        }
+
+        // Validate exception is not too old (business rule)
+        if (exception.getCreatedAt() != null) {
+            long daysSinceCreation = java.time.Duration.between(
+                exception.getCreatedAt().toInstant(), 
+                java.time.Instant.now()
+            ).toDays();
+            
+            if (daysSinceCreation > 90) {
+                log.warn("Acknowledging very old exception: {} (created {} days ago)", 
+                        exception.getTransactionId(), daysSinceCreation);
+                // Allow but log warning for audit purposes
             }
         }
-
-        // Validate user permissions for bulk operations
-        validateUserPermissions(authentication, "perform bulk acknowledgment operations");
-
-        log.debug("Bulk acknowledgment request validation passed for {} transactions", transactionIds.size());
     }
 
-    /**
-     * Validates the size of bulk operations based on user permissions.
-     *
-     * @param operationSize the number of items in the bulk operation
-     * @param authentication the user authentication context
-     * @throws IllegalArgumentException if the operation size exceeds limits
-     */
-    public void validateBulkOperationSize(int operationSize, Authentication authentication) {
-        if (operationSize > MAX_BULK_ACKNOWLEDGMENT_SIZE) {
-            throw new IllegalArgumentException(
-                    String.format("Bulk acknowledgment size (%d) exceeds maximum allowed (%d)",
-                            operationSize, MAX_BULK_ACKNOWLEDGMENT_SIZE));
-        }
-
-        // Additional size restrictions for non-admin users
-        if (!hasRole(authentication, "ADMIN") && operationSize > 50) {
-            throw new IllegalArgumentException(
-                    "Non-admin users cannot acknowledge more than 50 exceptions at once");
-        }
-    }
+    // ========== Permission Validation Methods ==========
 
     /**
-     * Validates input parameters for acknowledgment requests.
-     *
-     * @param input the acknowledgment input to validate
-     * @throws IllegalArgumentException if input validation fails
+     * Enhanced user permission validation with detailed error reporting.
      */
-    private void validateInputParameters(AcknowledgeExceptionInput input) {
-        if (input == null) {
-            throw new IllegalArgumentException("Acknowledgment input cannot be null");
-        }
-
-        if (input.getTransactionId() == null || input.getTransactionId().trim().isEmpty()) {
-            throw new IllegalArgumentException("Transaction ID is required");
-        }
-
-        if (input.getTransactionId().length() > 255) {
-            throw new IllegalArgumentException("Transaction ID exceeds maximum length");
-        }
-
-        if (input.getReason() == null || input.getReason().trim().isEmpty()) {
-            throw new IllegalArgumentException("Acknowledgment reason is required");
-        }
-
-        if (input.getReason().length() > 1000) {
-            throw new IllegalArgumentException("Acknowledgment reason exceeds maximum length (1000 characters)");
-        }
-
-        if (input.getNotes() != null && input.getNotes().length() > 2000) {
-            throw new IllegalArgumentException("Acknowledgment notes exceed maximum length (2000 characters)");
-        }
-
-        if (input.getAssignedTo() != null && input.getAssignedTo().length() > 255) {
-            throw new IllegalArgumentException("Assigned user ID exceeds maximum length");
-        }
-    }
-
-    /**
-     * Validates user permissions for acknowledgment operations.
-     *
-     * @param authentication the user authentication context
-     * @param operation the operation being performed (for error messages)
-     * @throws IllegalArgumentException if user lacks required permissions
-     */
-    private void validateUserPermissions(Authentication authentication, String operation) {
+    private void validateUserPermissions(Authentication authentication, String operation, List<GraphQLError> errors) {
         if (authentication == null || authentication.getName() == null) {
-            throw new IllegalArgumentException("User authentication is required");
+            errors.add(GraphQLErrorHandler.createSecurityError(
+                    MutationErrorCode.INSUFFICIENT_PERMISSIONS, 
+                    "User authentication is required"));
+            return;
         }
 
-        // Check if user has required roles
-        if (!hasRole(authentication, "OPERATIONS") && !hasRole(authentication, "ADMIN")) {
-            throw new IllegalArgumentException(
-                    String.format("User '%s' does not have permission to %s",
-                            authentication.getName(), operation));
+        Set<String> authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        boolean hasPermission = authorities.contains("ROLE_ADMIN") ||
+                authorities.contains("ROLE_OPERATIONS");
+
+        if (!hasPermission) {
+            log.warn("User {} lacks permissions for operation: {}, authorities: {}",
+                    authentication.getName(), operation, authorities);
+            errors.add(GraphQLErrorHandler.createSecurityError(
+                    MutationErrorCode.INSUFFICIENT_PERMISSIONS, 
+                    "Insufficient permissions for " + operation + " operation"));
         }
+
+        // Additional validation for bulk operations
+        if (operation.startsWith("bulk_") && !authorities.contains("ROLE_ADMIN")) {
+            // This will be checked in bulk operation format validation
+            log.debug("Non-admin user {} attempting bulk operation: {}", authentication.getName(), operation);
+        }
+
+        log.debug("User {} permission validation for operation: {} - {}", 
+                authentication.getName(), operation, hasPermission ? "PASSED" : "FAILED");
     }
 
+    // ========== Legacy Methods (for backward compatibility) ==========
+
     /**
-     * Validates that an exception exists and can be acknowledged.
-     *
-     * @param transactionId the transaction ID to validate
-     * @throws IllegalArgumentException if the exception cannot be acknowledged
+     * Legacy method for backward compatibility.
+     * @deprecated Use validateAcknowledgmentOperation instead
      */
+    @Deprecated
     private void validateExceptionState(String transactionId) {
         Optional<InterfaceException> exceptionOpt = exceptionRepository.findByTransactionId(transactionId);
         
@@ -187,44 +349,24 @@ public class AcknowledgmentValidationService {
         }
 
         InterfaceException exception = exceptionOpt.get();
-        ExceptionStatus status = exception.getStatus();
-
-        // Check if exception is in a state that allows acknowledgment
-        if (status == ExceptionStatus.RESOLVED) {
-            throw new IllegalArgumentException(
-                    "Cannot acknowledge exception - it has already been resolved");
-        }
-
-        if (status == ExceptionStatus.CLOSED) {
-            throw new IllegalArgumentException(
-                    "Cannot acknowledge exception - it has been closed");
-        }
-
-        // Check if already acknowledged by the same user
-        if (status == ExceptionStatus.ACKNOWLEDGED && exception.getAcknowledgedBy() != null) {
-            log.info("Exception {} is already acknowledged by user: {}", 
-                    transactionId, exception.getAcknowledgedBy());
-            // Allow re-acknowledgment to update notes or assignment
+        List<GraphQLError> errors = new ArrayList<>();
+        validateAcknowledgmentBusinessRules(exception, errors);
+        
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(errors.get(0).getMessage());
         }
     }
 
     /**
-     * Validates assignment of exceptions to users.
-     *
-     * @param assignedTo the user ID to assign the exception to
-     * @param authentication the current user authentication context
-     * @throws IllegalArgumentException if assignment validation fails
+     * Legacy method for backward compatibility.
+     * @deprecated Use validateUserPermissions with error list instead
      */
-    private void validateAssignment(String assignedTo, Authentication authentication) {
-        // Basic validation - in a real system, you might check if the assigned user exists
-        if (assignedTo.trim().isEmpty()) {
-            throw new IllegalArgumentException("Assigned user ID cannot be empty");
-        }
-
-        // Non-admin users can only assign to themselves
-        if (!hasRole(authentication, "ADMIN") && !assignedTo.equals(authentication.getName())) {
-            throw new IllegalArgumentException(
-                    "Non-admin users can only assign exceptions to themselves");
+    @Deprecated
+    private void validateUserPermissions(Authentication authentication, String operation) {
+        List<GraphQLError> errors = new ArrayList<>();
+        validateUserPermissions(authentication, operation, errors);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(errors.get(0).getMessage());
         }
     }
 

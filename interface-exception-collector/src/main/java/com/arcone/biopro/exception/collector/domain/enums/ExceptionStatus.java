@@ -12,5 +12,9 @@ public enum ExceptionStatus {
     RETRIED_FAILED,
     ESCALATED,
     RESOLVED,
-    CLOSED
+    CLOSED,
+    FAILED,
+    RETRY_IN_PROGRESS,
+    RETRY_FAILED,
+    OPEN
 }

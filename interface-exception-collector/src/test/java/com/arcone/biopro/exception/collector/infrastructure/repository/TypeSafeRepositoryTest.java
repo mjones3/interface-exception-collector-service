@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.OffsetDateTime;
@@ -30,7 +30,7 @@ public class TypeSafeRepositoryTest {
     @Test
     void findWithFiltersTypeSafe_ShouldReturnEmptyResults_WhenNoDataExists() {
         // Given
-        Pageable pageable = PageRequest.of(0, 10);
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
 
         // When
         Page<InterfaceException> result = repository.findWithFiltersTypeSafe(
@@ -40,7 +40,7 @@ public class TypeSafeRepositoryTest {
                 "customer123",
                 OffsetDateTime.now().minusDays(1),
                 OffsetDateTime.now(),
-                pageable);
+                sort);
 
         // Then
         assertThat(result).isNotNull();
@@ -51,11 +51,11 @@ public class TypeSafeRepositoryTest {
     @Test
     void findWithFiltersTypeSafe_ShouldReturnEmptyResults_WithNullFilters() {
         // Given
-        Pageable pageable = PageRequest.of(0, 10);
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
 
         // When
         Page<InterfaceException> result = repository.findWithFiltersTypeSafe(
-                null, null, null, null, null, null, pageable);
+                null, null, null, null, null, null, sort);
 
         // Then
         assertThat(result).isNotNull();

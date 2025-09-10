@@ -219,6 +219,29 @@ public class GraphQLSecurityService {
     }
 
     /**
+     * Checks if the authenticated user can view mutation completion events.
+     * 
+     * @param authentication the current user's authentication
+     * @param mutationEvent  the mutation completion event to check access for
+     * @return true if the user can view the mutation event, false otherwise
+     */
+    public boolean canViewMutationEvents(Authentication authentication,
+            com.arcone.biopro.exception.collector.api.graphql.resolver.ExceptionSubscriptionResolver.MutationCompletionEvent mutationEvent) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Set<String> userRoles = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(java.util.stream.Collectors.toSet());
+
+        // Admin and Operations users can view mutation events
+        // Viewers cannot see mutation events as they contain operational details
+        return hasAnyRole(userRoles, ADMIN_ROLES) || hasAnyRole(userRoles, OPERATIONS_ROLES);
+    }
+
+    /**
      * Gets the user's highest privilege level for logging and audit purposes.
      */
     public String getUserPrivilegeLevel(Authentication authentication) {

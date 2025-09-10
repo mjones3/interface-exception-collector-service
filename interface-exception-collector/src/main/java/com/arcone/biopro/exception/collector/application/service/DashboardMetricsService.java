@@ -35,21 +35,21 @@ public class DashboardMetricsService {
             OffsetDateTime startOfDay = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC);
             OffsetDateTime endOfDay = startOfDay.plusDays(1);
 
-            // Active exceptions (NEW, IN_PROGRESS, ACKNOWLEDGED)
+            // Active exceptions (NEW, ACKNOWLEDGED)
             long activeExceptions = exceptionRepository.countByStatusIn(
-                java.util.List.of(ExceptionStatus.NEW, ExceptionStatus.ACKNOWLEDGED)
+                java.util.List.of(ExceptionStatus.NEW.name(), ExceptionStatus.ACKNOWLEDGED.name())
             );
 
             // Today's exceptions
             long todayExceptions = exceptionRepository.countByTimestampBetween(startOfDay, endOfDay);
 
             // Retry statistics
-            long failedRetries = retryAttemptRepository.countByStatusAndInitiatedAtBetween(
-                RetryStatus.FAILED, startOfDay, endOfDay
+            long failedRetries = retryAttemptRepository.countByInitiatedAtBetweenAndResultSuccess(
+                startOfDay, endOfDay, false
             );
 
-            long successfulRetries = retryAttemptRepository.countByStatusAndInitiatedAtBetween(
-                RetryStatus.SUCCESS, startOfDay, endOfDay
+            long successfulRetries = retryAttemptRepository.countByInitiatedAtBetweenAndResultSuccess(
+                startOfDay, endOfDay, true
             );
 
             long totalRetries = failedRetries + successfulRetries;

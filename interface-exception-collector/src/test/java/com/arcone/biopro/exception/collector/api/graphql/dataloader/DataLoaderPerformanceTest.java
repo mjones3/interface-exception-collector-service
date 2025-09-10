@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import com.arcone.biopro.exception.collector.domain.enums.InterfaceType;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -232,9 +234,10 @@ class DataLoaderPerformanceTest {
     private InterfaceException createMockException(String transactionId) {
         InterfaceException exception = new InterfaceException();
         exception.setTransactionId(transactionId);
-        exception.setInterfaceType("TEST");
+        exception.setInterfaceType(InterfaceType.ORDER);
         exception.setErrorMessage("Test error");
-        exception.setCreatedAt(LocalDateTime.now());
+        exception.setCreatedAt(OffsetDateTime.now());
+        exception.setTimestamp(OffsetDateTime.now());
         return exception;
     }
 
@@ -242,7 +245,7 @@ class DataLoaderPerformanceTest {
         RetryAttempt retry = new RetryAttempt();
         retry.setInterfaceException(exception);
         retry.setAttemptNumber(attemptNumber);
-        retry.setAttemptedAt(LocalDateTime.now());
+        retry.setInitiatedAt(OffsetDateTime.now());
         retry.setResultSuccess(attemptNumber % 2 == 0); // Even attempts succeed
         return retry;
     }
@@ -253,7 +256,8 @@ class DataLoaderPerformanceTest {
         statusChange.setInterfaceException(exception);
         statusChange.setOldStatus("PENDING");
         statusChange.setNewStatus(status);
-        statusChange.setChangedAt(LocalDateTime.now());
+        statusChange.setChangedAt(OffsetDateTime.now());
+        statusChange.setChangedBy("test-user");
         return statusChange;
     }
 }

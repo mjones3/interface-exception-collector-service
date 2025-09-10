@@ -1,45 +1,47 @@
 package com.arcone.biopro.exception.collector.api.graphql.security;
 
-import graphql.ErrorClassification;
-import graphql.ErrorType;
-import graphql.GraphQLError;
-import graphql.language.SourceLocation;
-
-import java.util.List;
-import java.util.Map;
-
 /**
- * Exception thrown when GraphQL rate limits are exceeded.
- * Implements GraphQLError to provide structured error responses.
+ * Exception thrown when rate limiting is exceeded for mutation operations.
+ * Used to prevent abuse of the GraphQL mutation endpoints.
+ * 
+ * Requirements: 5.3, 5.5
  */
-public class RateLimitExceededException extends RuntimeException implements GraphQLError {
+public class RateLimitExceededException extends RuntimeException {
 
-    private static final String ERROR_CODE = "RATE_LIMIT_EXCEEDED";
+    private final String userId;
+    private final String operationType;
+    private final int currentCount;
+    private final int maxAllowed;
+    private final long resetTimeMs;
 
-    public RateLimitExceededException(String message) {
-        super(message);
+    public RateLimitExceededException(String userId, String operationType, 
+                                    int currentCount, int maxAllowed, long resetTimeMs) {
+        super(String.format("Rate limit exceeded for user %s on operation %s: %d/%d requests. Reset in %d ms", 
+              userId, operationType, currentCount, maxAllowed, resetTimeMs));
+        this.userId = userId;
+        this.operationType = operationType;
+        this.currentCount = currentCount;
+        this.maxAllowed = maxAllowed;
+        this.resetTimeMs = resetTimeMs;
     }
 
-    public RateLimitExceededException(String message, Throwable cause) {
-        super(message, cause);
+    public String getUserId() {
+        return userId;
     }
 
-    @Override
-    public List<SourceLocation> getLocations() {
-        return null;
+    public String getOperationType() {
+        return operationType;
     }
 
-    @Override
-    public ErrorClassification getErrorType() {
-        return ErrorType.ExecutionAborted;
+    public int getCurrentCount() {
+        return currentCount;
     }
 
-    @Override
-    public Map<String, Object> getExtensions() {
-        return Map.of(
-                "errorCode", ERROR_CODE,
-                "classification", "RATE_LIMITING",
-                "retryAfter", 60 // Suggest retry after 60 seconds
-        );
+    public int getMaxAllowed() {
+        return maxAllowed;
+    }
+
+    public long getResetTimeMs() {
+        return resetTimeMs;
     }
 }

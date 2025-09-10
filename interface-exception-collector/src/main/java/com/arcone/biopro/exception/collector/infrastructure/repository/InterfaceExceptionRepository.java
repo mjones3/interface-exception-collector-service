@@ -399,4 +399,32 @@ public interface InterfaceExceptionRepository
          * @return count of exceptions created after the date
          */
         long countByCreatedAtAfter(OffsetDateTime date);
+
+        /**
+         * Find exceptions with flexible filters.
+         * 
+         * @param interfaceType the interface type filter (can be null)
+         * @param status        the status filter (can be null)
+         * @param severity      the severity filter (can be null)
+         * @param customerId    the customer ID filter (can be null)
+         * @param locationCode  the location code filter (can be null)
+         * @param operation     the operation filter (can be null)
+         * @param pageable      pagination parameters
+         * @return Page of exceptions matching the filters
+         */
+        @Query("SELECT ie FROM InterfaceException ie WHERE " +
+                        "(:interfaceType IS NULL OR ie.interfaceType = :interfaceType) AND " +
+                        "(:status IS NULL OR ie.status = :status) AND " +
+                        "(:severity IS NULL OR ie.severity = :severity) AND " +
+                        "(:customerId IS NULL OR ie.customerId = :customerId) AND " +
+                        "(:locationCode IS NULL OR ie.locationCode = :locationCode) AND " +
+                        "(:operation IS NULL OR ie.operation = :operation)")
+        Page<InterfaceException> findWithFilters(
+                        @Param("interfaceType") InterfaceType interfaceType,
+                        @Param("status") ExceptionStatus status,
+                        @Param("severity") ExceptionSeverity severity,
+                        @Param("customerId") Object customerId,
+                        @Param("locationCode") Object locationCode,
+                        @Param("operation") Object operation,
+                        Pageable pageable);
 }

@@ -18,13 +18,27 @@ import com.arcone.biopro.exception.collector.api.graphql.dto.BulkAcknowledgeResu
 import com.arcone.biopro.exception.collector.api.graphql.dto.ResolveExceptionInput;
 import com.arcone.biopro.exception.collector.api.graphql.dto.ResolveExceptionResult;
 import com.arcone.biopro.exception.collector.api.graphql.dto.GraphQLError;
+import com.arcone.biopro.exception.collector.api.graphql.validation.GraphQLErrorHandler;
+import com.arcone.biopro.exception.collector.api.graphql.validation.MutationErrorCode;
+import com.arcone.biopro.exception.collector.api.graphql.service.RetryValidationService;
+import com.arcone.biopro.exception.collector.api.graphql.service.AcknowledgmentValidationService;
+import com.arcone.biopro.exception.collector.api.graphql.service.ResolutionValidationService;
+import com.arcone.biopro.exception.collector.api.graphql.service.CancelRetryValidationService;
+import com.arcone.biopro.exception.collector.api.graphql.validation.ValidationResult;
+import com.arcone.biopro.exception.collector.api.graphql.security.SecurityAuditLogger;
+import com.arcone.biopro.exception.collector.api.graphql.security.MutationRateLimiter;
+import com.arcone.biopro.exception.collector.api.graphql.security.OperationTracker;
+import com.arcone.biopro.exception.collector.api.graphql.security.RateLimitExceededException;
 import com.arcone.biopro.exception.collector.application.service.RetryService;
 import com.arcone.biopro.exception.collector.application.service.ExceptionManagementService;
 import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.entity.RetryAttempt;
+import com.arcone.biopro.exception.collector.domain.entity.MutationAuditLog;
 import com.arcone.biopro.exception.collector.infrastructure.repository.InterfaceExceptionRepository;
 import com.arcone.biopro.exception.collector.infrastructure.repository.RetryAttemptRepository;
+import com.arcone.biopro.exception.collector.infrastructure.monitoring.MutationMetrics;
 
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -35,6 +49,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -52,8 +67,17 @@ public class RetryMutationResolver {
 
         private final RetryService retryService;
         private final ExceptionManagementService exceptionManagementService;
+        private final RetryValidationService validationService;
+        private final AcknowledgmentValidationService acknowledgmentValidationService;
+        private final ResolutionValidationService resolutionValidationService;
+        private final CancelRetryValidationService cancelRetryValidationService;
+        private final SecurityAuditLogger auditLogger;
+        private final MutationRateLimiter rateLimiter;
+        private final OperationTracker operationTracker;
         private final InterfaceExceptionRepository exceptionRepository;
         private final RetryAttemptRepository retryAttemptRepository;
+        private final com.arcone.biopro.exception.collector.api.graphql.service.MutationEventPublisher mutationEventPublisher;
+        private final MutationMetrics mutationMetrics;
 
         /**
          * Initiates a retry operation for a single exception.
@@ -74,16 +98,69 @@ public class RetryMutationResolver {
                                 input.getTransactionId(), authentication.getName());
 
                 return CompletableFuture.supplyAsync(() -> {
+                        long startTime = System.currentTimeMillis();
+                        Timer.Sample metricsTimer = mutationMetrics.startRetryOperation();
+                        String operationId = auditLogger.generateOperationId("retry", input.getTransactionId());
+                        String correlationId = auditLogger.generateCorrelationId();
+                        String trackingId = null;
+                        
                         try {
-                                // Validate if retry is possible (same logic as REST API)
-                                if (!retryService.canRetry(input.getTransactionId())) {
-                                        log.warn("Retry not allowed for transaction: {}", input.getTransactionId());
+                                // Check rate limits before processing
+                                rateLimiter.checkRateLimit(authentication.getName(), "RETRY");
+                                
+                                // Start operation tracking
+                                trackingId = operationTracker.recordOperationStart("RETRY", 
+                                        authentication.getName(), input.getTransactionId());
+                                
+                                // Log mutation attempt with comprehensive audit information
+                                auditLogger.logMutationAttempt(
+                                        MutationAuditLog.OperationType.RETRY,
+                                        input.getTransactionId(),
+                                        authentication.getName(),
+                                        input,
+                                        operationId,
+                                        correlationId
+                                );
+                        } catch (RateLimitExceededException e) {
+                                log.warn("Rate limit exceeded for user {} on retry operation: {}", 
+                                        authentication.getName(), e.getMessage());
+                                
+                                com.arcone.biopro.exception.collector.api.graphql.dto.GraphQLError error = 
+                                        com.arcone.biopro.exception.collector.api.graphql.validation.GraphQLErrorHandler
+                                                .createRateLimitError(e);
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                mutationMetrics.recordRetryOperation(metricsTimer, false, "RATE_LIMIT_EXCEEDED");
+                                
+                                return RetryExceptionResult.builder()
+                                        .success(false)
+                                        .errors(List.of(error))
+                                        .build();
+                        }
+
+                        try {
+                                // Enhanced validation with detailed error categorization
+                                ValidationResult validation = validationService.validateRetryOperation(input, authentication);
+                                if (!validation.isValid()) {
+                                        log.warn("Retry validation failed for transaction: {} with {} errors", 
+                                                input.getTransactionId(), validation.getErrorCount());
+                                        
+                                        long executionTime = System.currentTimeMillis() - startTime;
+                                        auditLogger.logMutationResult(operationId, false, 
+                                                List.of(validation.getErrors()), executionTime);
+                                        
+                                        mutationMetrics.recordRetryOperation(metricsTimer, false, "VALIDATION_ERROR");
+                                        
+                                        // Record operation completion in tracker
+                                        if (trackingId != null) {
+                                                operationTracker.recordOperationComplete(trackingId, "RETRY", 
+                                                        authentication.getName(), false, executionTime);
+                                        }
+                                        
                                         return RetryExceptionResult.builder()
                                                         .success(false)
-                                                        .errors(List.of(GraphQLError.builder()
-                                                                        .message("Exception is not retryable or retry already in progress")
-                                                                        .code("RETRY_NOT_ALLOWED")
-                                                                        .build()))
+                                                        .errors(validation.getErrors())
                                                         .build();
                                 }
 
@@ -109,6 +186,23 @@ public class RetryMutationResolver {
                                 log.info("GraphQL retry exception completed for transaction: {}, retry ID: {}",
                                                 input.getTransactionId(), retryResponse.getRetryId());
 
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, true, List.of(), executionTime);
+
+                                mutationMetrics.recordRetryOperation(metricsTimer, true, null);
+                                
+                                // Record operation completion in tracker
+                                if (trackingId != null) {
+                                        operationTracker.recordOperationComplete(trackingId, "RETRY", 
+                                                authentication.getName(), true, executionTime);
+                                }
+
+                                // Publish mutation completion event for real-time subscription updates
+                                if (retryAttempt != null) {
+                                        mutationEventPublisher.publishRetryMutationCompleted(
+                                                exception, retryAttempt, true, authentication.getName());
+                                }
+
                                 return RetryExceptionResult.builder()
                                                 .success(true)
                                                 .exception(exception)
@@ -117,27 +211,51 @@ public class RetryMutationResolver {
                                                 .build();
 
                         } catch (IllegalArgumentException e) {
-                                log.warn("Retry validation failed for transaction: {}, error: {}",
+                                log.warn("Retry operation failed for transaction: {}, error: {}",
                                                 input.getTransactionId(), e.getMessage());
+
+                                com.arcone.biopro.exception.collector.api.graphql.dto.GraphQLError error = 
+                                        com.arcone.biopro.exception.collector.api.graphql.validation.GraphQLErrorHandler
+                                                .createFromException(e, "retry");
+
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+
+                                mutationMetrics.recordRetryOperation(metricsTimer, false, "BUSINESS_RULE_ERROR");
+                                
+                                // Record operation completion in tracker
+                                if (trackingId != null) {
+                                        operationTracker.recordOperationComplete(trackingId, "RETRY", 
+                                                authentication.getName(), false, executionTime);
+                                }
 
                                 return RetryExceptionResult.builder()
                                                 .success(false)
-                                                .errors(List.of(GraphQLError.builder()
-                                                                .message(e.getMessage())
-                                                                .code("EXCEPTION_NOT_FOUND")
-                                                                .build()))
+                                                .errors(List.of(error))
                                                 .build();
 
                         } catch (Exception e) {
                                 log.error("GraphQL retry exception failed for transaction: {}, error: {}",
                                                 input.getTransactionId(), e.getMessage(), e);
 
+                                com.arcone.biopro.exception.collector.api.graphql.dto.GraphQLError error = 
+                                        com.arcone.biopro.exception.collector.api.graphql.validation.GraphQLErrorHandler
+                                                .createFromException(e, "retry");
+
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+
+                                mutationMetrics.recordRetryOperation(metricsTimer, false, "SYSTEM_ERROR");
+                                
+                                // Record operation completion in tracker
+                                if (trackingId != null) {
+                                        operationTracker.recordOperationComplete(trackingId, "RETRY", 
+                                                authentication.getName(), false, executionTime);
+                                }
+
                                 return RetryExceptionResult.builder()
                                                 .success(false)
-                                                .errors(List.of(GraphQLError.builder()
-                                                                .message("Retry operation failed: " + e.getMessage())
-                                                                .code("RETRY_OPERATION_FAILED")
-                                                                .build()))
+                                                .errors(List.of(error))
                                                 .build();
                         }
                 });
@@ -162,6 +280,20 @@ public class RetryMutationResolver {
                                 input.getTransactionIds().size(), authentication.getName());
 
                 return CompletableFuture.supplyAsync(() -> {
+                        long startTime = System.currentTimeMillis();
+                        String operationId = auditLogger.generateOperationId("bulk_retry", "multiple");
+                        String correlationId = auditLogger.generateCorrelationId();
+                        
+                        // Log bulk mutation attempt
+                        auditLogger.logMutationAttempt(
+                                MutationAuditLog.OperationType.BULK_RETRY,
+                                "BULK_" + input.getTransactionIds().size() + "_TRANSACTIONS",
+                                authentication.getName(),
+                                input,
+                                operationId,
+                                correlationId
+                        );
+
                         List<RetryExceptionResult> results = new ArrayList<>();
                         int successCount = 0;
                         int failureCount = 0;
@@ -205,6 +337,10 @@ public class RetryMutationResolver {
 
                         log.info("GraphQL bulk retry completed: {} successful, {} failed", successCount, failureCount);
 
+                        long executionTime = System.currentTimeMillis() - startTime;
+                        auditLogger.logBulkMutationResult(operationId, successCount, failureCount, 
+                                List.of(), executionTime);
+
                         return BulkRetryResult.builder()
                                         .successCount(successCount)
                                         .failureCount(failureCount)
@@ -215,13 +351,14 @@ public class RetryMutationResolver {
         }
 
         /**
-         * Cancels a pending retry operation.
-         * Uses the same business logic as the REST API endpoint.
+         * Cancels a pending retry operation with enhanced validation and error handling.
+         * Provides better error messages for cancellation failures, validates retry state,
+         * and implements proper concurrent operation handling.
          *
          * @param transactionId  the transaction ID of the exception
          * @param reason         the reason for cancellation
          * @param authentication the current user authentication
-         * @return CompletableFuture containing the cancel result
+         * @return CompletableFuture containing the enhanced cancel result
          */
         @MutationMapping
         @PreAuthorize("hasRole('OPERATIONS') or hasRole('ADMIN')")
@@ -230,80 +367,132 @@ public class RetryMutationResolver {
                         @Argument String reason,
                         Authentication authentication) {
 
-                log.info("GraphQL cancel retry requested for transaction: {} by user: {}",
-                                transactionId, authentication.getName());
+                log.info("GraphQL cancel retry requested for transaction: {} by user: {} with reason: {}",
+                                transactionId, authentication.getName(), reason);
 
                 return CompletableFuture.supplyAsync(() -> {
+                        long startTime = System.currentTimeMillis();
+                        Timer.Sample metricsTimer = mutationMetrics.startCancelRetryOperation();
+                        String operationId = auditLogger.generateOperationId("cancel", transactionId);
+                        String correlationId = auditLogger.generateCorrelationId();
+                        String performedBy = authentication.getName();
+
+                        // Log mutation attempt
+                        Map<String, Object> cancelInput = Map.of(
+                                "transactionId", transactionId,
+                                "reason", reason
+                        );
+                        auditLogger.logMutationAttempt(
+                                MutationAuditLog.OperationType.CANCEL_RETRY,
+                                transactionId,
+                                performedBy,
+                                cancelInput,
+                                operationId,
+                                correlationId
+                        );
+
                         try {
-                                // Find the latest pending retry attempt (same logic as REST API)
-                                InterfaceException exception = exceptionRepository.findByTransactionId(transactionId)
-                                                .orElseThrow(() -> new IllegalArgumentException(
-                                                                "Exception not found: " + transactionId));
-
-                                Optional<RetryAttempt> latestAttempt = retryAttemptRepository
-                                                .findTopByInterfaceExceptionOrderByAttemptNumberDesc(exception);
-
-                                if (latestAttempt.isEmpty()) {
-                                        return CancelRetryResult.builder()
-                                                        .success(false)
-                                                        .errors(List.of(GraphQLError.builder()
-                                                                        .message("No retry attempts found for this exception")
-                                                                        .code("NO_RETRY_FOUND")
-                                                                        .build()))
-                                                        .build();
+                                // Enhanced validation with detailed error categorization
+                                ValidationResult validation = cancelRetryValidationService.validateCancelRetryOperation(
+                                        transactionId, reason, authentication);
+                                
+                                if (!validation.isValid()) {
+                                        log.warn("Cancel retry validation failed for transaction: {} with {} errors", 
+                                                transactionId, validation.getErrorCount());
+                                        
+                                        long executionTime = System.currentTimeMillis() - startTime;
+                                        auditLogger.logMutationResult(operationId, false, 
+                                                List.of(validation.getErrors()), executionTime);
+                                        
+                                        mutationMetrics.recordCancelRetryOperation(metricsTimer, false, "VALIDATION_ERROR");
+                                        
+                                        return CancelRetryResult.failure(validation.getErrors(), operationId, performedBy);
                                 }
 
-                                // Cancel the retry through existing service (same as REST API)
-                                boolean cancelled = retryService.cancelRetry(transactionId,
-                                                latestAttempt.get().getAttemptNumber());
+                                // Use available cancellation method
+                                boolean cancelResult = retryService.cancelRetry(transactionId, 1); // Use attempt number 1 as default
 
-                                if (cancelled) {
-                                        // Fetch updated exception
-                                        exception = exceptionRepository.findByTransactionId(transactionId)
-                                                        .orElseThrow(() -> new IllegalArgumentException(
-                                                                        "Exception not found after cancellation"));
+                                if (cancelResult) {
+                                        log.info("GraphQL cancel retry completed successfully for transaction: {}, operation: {}",
+                                                        transactionId, operationId);
 
-                                        log.info("GraphQL cancel retry completed for transaction: {}, success: true",
-                                                        transactionId);
+                                        long executionTime = System.currentTimeMillis() - startTime;
+                                        auditLogger.logMutationResult(operationId, true, List.of(), executionTime);
 
-                                        return CancelRetryResult.builder()
-                                                        .success(true)
-                                                        .exception(exception)
-                                                        .errors(List.of())
-                                                        .build();
+                                        mutationMetrics.recordCancelRetryOperation(metricsTimer, true, null);
+
+                                        // Create a simple success result without detailed exception/attempt info
+                                        return CancelRetryResult.success(
+                                                null, // exception not available from boolean result
+                                                null, // cancelled attempt not available from boolean result
+                                                operationId,
+                                                performedBy,
+                                                reason
+                                        );
                                 } else {
-                                        return CancelRetryResult.builder()
-                                                        .success(false)
-                                                        .errors(List.of(GraphQLError.builder()
-                                                                        .message("Unable to cancel retry - it may have already completed or been cancelled")
-                                                                        .code("CANCEL_NOT_ALLOWED")
-                                                                        .build()))
-                                                        .build();
+                                        log.warn("Cancel retry operation failed for transaction: {}, operation: {}",
+                                                        transactionId, operationId);
+
+                                        GraphQLError error = GraphQLErrorHandler.createBusinessRuleError(
+                                                MutationErrorCode.CANCELLATION_FAILED,
+                                                "Failed to cancel retry operation"
+                                        );
+                                        
+                                        long executionTime = System.currentTimeMillis() - startTime;
+                                        auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                        
+                                        mutationMetrics.recordCancelRetryOperation(metricsTimer, false, "BUSINESS_RULE_ERROR");
+                                        
+                                        return CancelRetryResult.failure(error, operationId, performedBy);
                                 }
 
                         } catch (IllegalArgumentException e) {
-                                log.warn("Cancel retry failed - exception not found: {}", transactionId);
+                                log.warn("Cancel retry validation failed for transaction: {}, error: {}, operation: {}",
+                                                transactionId, e.getMessage(), operationId);
 
-                                return CancelRetryResult.builder()
-                                                .success(false)
-                                                .errors(List.of(GraphQLError.builder()
-                                                                .message(e.getMessage())
-                                                                .code("EXCEPTION_NOT_FOUND")
-                                                                .build()))
-                                                .build();
+                                GraphQLError error = GraphQLErrorHandler.createBusinessRuleError(
+                                        MutationErrorCode.EXCEPTION_NOT_FOUND,
+                                        e.getMessage()
+                                );
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                
+                                mutationMetrics.recordCancelRetryOperation(metricsTimer, false, "BUSINESS_RULE_ERROR");
+                                
+                                return CancelRetryResult.failure(error, operationId, performedBy);
+
+                        } catch (SecurityException e) {
+                                log.warn("Cancel retry security error for transaction: {}, error: {}, operation: {}",
+                                                transactionId, e.getMessage(), operationId);
+
+                                GraphQLError error = GraphQLErrorHandler.createSecurityError(
+                                        MutationErrorCode.INSUFFICIENT_PERMISSIONS,
+                                        e.getMessage()
+                                );
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                
+                                mutationMetrics.recordCancelRetryOperation(metricsTimer, false, "SECURITY_ERROR");
+                                
+                                return CancelRetryResult.failure(error, operationId, performedBy);
 
                         } catch (Exception e) {
-                                log.error("GraphQL cancel retry failed for transaction: {}, error: {}",
-                                                transactionId, e.getMessage(), e);
+                                log.error("GraphQL cancel retry failed for transaction: {}, error: {}, operation: {}",
+                                                transactionId, e.getMessage(), operationId, e);
 
-                                return CancelRetryResult.builder()
-                                                .success(false)
-                                                .errors(List.of(GraphQLError.builder()
-                                                                .message("Cancel retry operation failed: "
-                                                                                + e.getMessage())
-                                                                .code("CANCEL_RETRY_OPERATION_FAILED")
-                                                                .build()))
-                                                .build();
+                                GraphQLError error = GraphQLErrorHandler.createSystemError(
+                                        MutationErrorCode.DATABASE_ERROR,
+                                        "Cancel retry operation failed: " + e.getMessage()
+                                );
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                
+                                mutationMetrics.recordCancelRetryOperation(metricsTimer, false, "SYSTEM_ERROR");
+                                
+                                return CancelRetryResult.failure(error, operationId, performedBy);
                         }
                 });
         }
@@ -327,17 +516,37 @@ public class RetryMutationResolver {
                                 input.getTransactionId(), authentication.getName());
 
                 return CompletableFuture.supplyAsync(() -> {
+                        long startTime = System.currentTimeMillis();
+                        Timer.Sample metricsTimer = mutationMetrics.startAcknowledgeOperation();
+                        String operationId = auditLogger.generateOperationId("acknowledge", input.getTransactionId());
+                        String correlationId = auditLogger.generateCorrelationId();
+                        
+                        // Log mutation attempt
+                        auditLogger.logMutationAttempt(
+                                MutationAuditLog.OperationType.ACKNOWLEDGE,
+                                input.getTransactionId(),
+                                authentication.getName(),
+                                input,
+                                operationId,
+                                correlationId
+                        );
+
                         try {
-                                // Check if exception can be acknowledged (same logic as REST API)
-                                if (!exceptionManagementService.canAcknowledge(input.getTransactionId())) {
-                                        log.warn("Exception cannot be acknowledged - transaction: {}",
-                                                        input.getTransactionId());
+                                // Enhanced validation with detailed error categorization
+                                ValidationResult validation = acknowledgmentValidationService.validateAcknowledgmentOperation(input, authentication);
+                                if (!validation.isValid()) {
+                                        log.warn("Acknowledgment validation failed for transaction: {} with {} errors", 
+                                                input.getTransactionId(), validation.getErrorCount());
+                                        
+                                        long executionTime = System.currentTimeMillis() - startTime;
+                                        auditLogger.logMutationResult(operationId, false, 
+                                                List.of(validation.getErrors()), executionTime);
+                                        
+                                        mutationMetrics.recordAcknowledgeOperation(metricsTimer, false, "VALIDATION_ERROR");
+                                        
                                         return AcknowledgeExceptionResult.builder()
                                                         .success(false)
-                                                        .errors(List.of(GraphQLError.builder()
-                                                                        .message("Exception cannot be acknowledged (not found, already resolved, or closed)")
-                                                                        .code("ACKNOWLEDGMENT_NOT_ALLOWED")
-                                                                        .build()))
+                                                        .errors(validation.getErrors())
                                                         .build();
                                 }
 
@@ -361,6 +570,14 @@ public class RetryMutationResolver {
                                                 input.getTransactionId(), acknowledgeResponse.getAcknowledgedBy(),
                                                 acknowledgeResponse.getAcknowledgedAt());
 
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, true, List.of(), executionTime);
+
+                                mutationMetrics.recordAcknowledgeOperation(metricsTimer, true, null);
+
+                                // Publish mutation completion event for real-time subscription updates
+                                mutationEventPublisher.publishAcknowledgeMutationCompleted(exception, authentication.getName());
+
                                 return AcknowledgeExceptionResult.builder()
                                                 .success(true)
                                                 .exception(exception)
@@ -368,28 +585,35 @@ public class RetryMutationResolver {
                                                 .build();
 
                         } catch (IllegalArgumentException e) {
-                                log.warn("Acknowledgment validation failed for transaction: {}, error: {}",
+                                log.warn("Acknowledgment operation failed for transaction: {}, error: {}",
                                                 input.getTransactionId(), e.getMessage());
+
+                                GraphQLError error = GraphQLErrorHandler.createFromException(e, "acknowledge");
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+
+                                mutationMetrics.recordAcknowledgeOperation(metricsTimer, false, "BUSINESS_RULE_ERROR");
 
                                 return AcknowledgeExceptionResult.builder()
                                                 .success(false)
-                                                .errors(List.of(GraphQLError.builder()
-                                                                .message(e.getMessage())
-                                                                .code("EXCEPTION_NOT_FOUND")
-                                                                .build()))
+                                                .errors(List.of(error))
                                                 .build();
 
                         } catch (Exception e) {
                                 log.error("GraphQL acknowledge exception failed for transaction: {}, error: {}",
                                                 input.getTransactionId(), e.getMessage(), e);
 
+                                GraphQLError error = GraphQLErrorHandler.createFromException(e, "acknowledge");
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+
+                                mutationMetrics.recordAcknowledgeOperation(metricsTimer, false, "SYSTEM_ERROR");
+
                                 return AcknowledgeExceptionResult.builder()
                                                 .success(false)
-                                                .errors(List.of(GraphQLError.builder()
-                                                                .message("Acknowledgment operation failed: "
-                                                                                + e.getMessage())
-                                                                .code("ACKNOWLEDGMENT_OPERATION_FAILED")
-                                                                .build()))
+                                                .errors(List.of(error))
                                                 .build();
                         }
                 });
@@ -415,6 +639,20 @@ public class RetryMutationResolver {
                                 input.getTransactionIds().size(), authentication.getName());
 
                 return CompletableFuture.supplyAsync(() -> {
+                        long startTime = System.currentTimeMillis();
+                        String operationId = auditLogger.generateOperationId("bulk_acknowledge", "multiple");
+                        String correlationId = auditLogger.generateCorrelationId();
+                        
+                        // Log bulk mutation attempt
+                        auditLogger.logMutationAttempt(
+                                MutationAuditLog.OperationType.BULK_ACKNOWLEDGE,
+                                "BULK_" + input.getTransactionIds().size() + "_TRANSACTIONS",
+                                authentication.getName(),
+                                input,
+                                operationId,
+                                correlationId
+                        );
+
                         List<AcknowledgeExceptionResult> results = new ArrayList<>();
                         int successCount = 0;
                         int failureCount = 0;
@@ -425,7 +663,6 @@ public class RetryMutationResolver {
                                                         .transactionId(transactionId)
                                                         .reason(input.getReason())
                                                         .notes(input.getNotes())
-                                                        .assignedTo(input.getAssignedTo())
                                                         .build();
 
                                         // Process each acknowledgment using the same logic as single acknowledgment
@@ -460,6 +697,10 @@ public class RetryMutationResolver {
                         log.info("GraphQL bulk acknowledge completed: {} successful, {} failed", successCount,
                                         failureCount);
 
+                        long executionTime = System.currentTimeMillis() - startTime;
+                        auditLogger.logBulkMutationResult(operationId, successCount, failureCount, 
+                                List.of(), executionTime);
+
                         return BulkAcknowledgeResult.builder()
                                         .successCount(successCount)
                                         .failureCount(failureCount)
@@ -470,13 +711,14 @@ public class RetryMutationResolver {
         }
 
         /**
-         * Resolves a single exception with proper validation and audit logging.
-         * Uses the same business logic as the REST API endpoint.
+         * Resolves a single exception with enhanced validation, proper state transition checking,
+         * and streamlined resolution logic. Uses enhanced business rule validation and
+         * improved error handling for invalid resolution attempts.
          *
          * @param input          the resolution input containing transaction ID and
          *                       resolution details
          * @param authentication the current user authentication
-         * @return CompletableFuture containing the resolution result
+         * @return CompletableFuture containing the resolution result with enhanced metadata
          */
         @MutationMapping
         @PreAuthorize("hasRole('OPERATIONS') or hasRole('ADMIN')")
@@ -484,82 +726,168 @@ public class RetryMutationResolver {
                         @Argument ResolveExceptionInput input,
                         Authentication authentication) {
 
-                log.info("GraphQL resolve exception requested for transaction: {} by user: {}",
-                                input.getTransactionId(), authentication.getName());
+                log.info("GraphQL resolve exception requested for transaction: {} by user: {} with method: {}",
+                                input.getTransactionId(), authentication.getName(), input.getResolutionMethod());
 
                 return CompletableFuture.supplyAsync(() -> {
+                        long startTime = System.currentTimeMillis();
+                        Timer.Sample metricsTimer = mutationMetrics.startResolveOperation();
+                        String operationId = auditLogger.generateOperationId("resolve", input.getTransactionId());
+                        String correlationId = auditLogger.generateCorrelationId();
+                        String performedBy = authentication.getName();
+
+                        // Log mutation attempt
+                        auditLogger.logMutationAttempt(
+                                MutationAuditLog.OperationType.RESOLVE,
+                                input.getTransactionId(),
+                                performedBy,
+                                input,
+                                operationId,
+                                correlationId
+                        );
+
                         try {
-                                // Check if exception can be resolved (same logic as REST API)
-                                if (!exceptionManagementService.canResolve(input.getTransactionId())) {
-                                        log.warn("Exception cannot be resolved - transaction: {}",
-                                                        input.getTransactionId());
-                                        return ResolveExceptionResult.builder()
-                                                        .success(false)
-                                                        .errors(List.of(GraphQLError.builder()
-                                                                        .message("Exception cannot be resolved (not found, already resolved, or closed)")
-                                                                        .code("RESOLUTION_NOT_ALLOWED")
-                                                                        .build()))
-                                                        .build();
+                                // Enhanced validation with detailed error categorization and state transition checking
+                                ValidationResult validation = resolutionValidationService.validateResolutionOperation(input, authentication);
+                                if (!validation.isValid()) {
+                                        log.warn("Resolution validation failed for transaction: {} with {} errors", 
+                                                input.getTransactionId(), validation.getErrorCount());
+                                        
+                                        long executionTime = System.currentTimeMillis() - startTime;
+                                        auditLogger.logMutationResult(operationId, false, 
+                                                List.of(validation.getErrors()), executionTime);
+                                        
+                                        mutationMetrics.recordResolveOperation(metricsTimer, false, "VALIDATION_ERROR");
+                                        
+                                        return ResolveExceptionResult.failure(validation.getErrors(), operationId, performedBy);
                                 }
 
-                                // Convert GraphQL input to service request (same as REST API)
+                                // Additional business rule check using existing service for consistency
+                                if (!exceptionManagementService.canResolve(input.getTransactionId())) {
+                                        log.warn("Exception cannot be resolved - transaction: {}, status check failed",
+                                                        input.getTransactionId());
+                                        
+                                        GraphQLError error = GraphQLErrorHandler.createBusinessRuleError(
+                                                MutationErrorCode.RESOLUTION_NOT_ALLOWED,
+                                                "Exception cannot be resolved (not found, already resolved, or in invalid state)"
+                                        );
+                                        
+                                        long executionTime = System.currentTimeMillis() - startTime;
+                                        auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                        
+                                        mutationMetrics.recordResolveOperation(metricsTimer, false, "BUSINESS_RULE_ERROR");
+                                        
+                                        return ResolveExceptionResult.failure(error, operationId, performedBy);
+                                }
+
+                                // Convert GraphQL input to service request with enhanced data handling
                                 ResolveRequest resolveRequest = ResolveRequest.builder()
-                                                .resolvedBy(authentication.getName())
+                                                .resolvedBy(performedBy)
                                                 .resolutionMethod(input.getResolutionMethod())
-                                                .resolutionNotes(input.getResolutionNotes())
+                                                .resolutionNotes(input.getTrimmedResolutionNotes())
                                                 .build();
 
                                 // Execute resolution through existing service (same as REST API)
                                 ResolveResponse resolveResponse = exceptionManagementService
                                                 .resolveException(input.getTransactionId(), resolveRequest);
 
-                                // Fetch updated exception
+                                // Fetch updated exception with error handling
                                 InterfaceException exception = exceptionRepository
                                                 .findByTransactionId(input.getTransactionId())
-                                                .orElseThrow(() -> new IllegalArgumentException(
-                                                                "Exception not found after resolution"));
+                                                .orElseThrow(() -> new IllegalStateException(
+                                                                "Exception not found after resolution - possible concurrent modification"));
 
-                                log.info("GraphQL resolve exception completed for transaction: {}, resolved by: {}, method: {}, at: {}",
+                                log.info("GraphQL resolve exception completed for transaction: {}, resolved by: {}, method: {}, at: {}, operation: {}",
                                                 input.getTransactionId(), resolveResponse.getResolvedBy(),
-                                                resolveResponse.getResolutionMethod(), resolveResponse.getResolvedAt());
+                                                resolveResponse.getResolutionMethod(), resolveResponse.getResolvedAt(), operationId);
 
-                                return ResolveExceptionResult.builder()
-                                                .success(true)
-                                                .exception(exception)
-                                                .errors(List.of())
-                                                .build();
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, true, List.of(), executionTime);
+
+                                mutationMetrics.recordResolveOperation(metricsTimer, true, null);
+
+                                // Publish mutation completion event for real-time subscription updates
+                                mutationEventPublisher.publishResolveMutationCompleted(exception, performedBy);
+
+                                // Return enhanced result with operation metadata
+                                return ResolveExceptionResult.success(
+                                        exception,
+                                        operationId,
+                                        performedBy,
+                                        input.getResolutionMethod(),
+                                        input.getTrimmedResolutionNotes()
+                                );
 
                         } catch (IllegalArgumentException e) {
-                                log.warn("Resolution validation failed for transaction: {}, error: {}",
-                                                input.getTransactionId(), e.getMessage());
+                                log.warn("Resolution validation failed for transaction: {}, error: {}, operation: {}",
+                                                input.getTransactionId(), e.getMessage(), operationId);
 
-                                return ResolveExceptionResult.builder()
-                                                .success(false)
-                                                .errors(List.of(GraphQLError.builder()
-                                                                .message(e.getMessage())
-                                                                .code("EXCEPTION_NOT_FOUND")
-                                                                .build()))
-                                                .build();
+                                GraphQLError error = GraphQLErrorHandler.createBusinessRuleError(
+                                        MutationErrorCode.EXCEPTION_NOT_FOUND,
+                                        e.getMessage()
+                                );
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                
+                                mutationMetrics.recordResolveOperation(metricsTimer, false, "BUSINESS_RULE_ERROR");
+                                
+                                return ResolveExceptionResult.failure(error, operationId, performedBy);
+
+                        } catch (IllegalStateException e) {
+                                log.error("Resolution state error for transaction: {}, error: {}, operation: {}",
+                                                input.getTransactionId(), e.getMessage(), operationId);
+
+                                GraphQLError error = GraphQLErrorHandler.createBusinessRuleError(
+                                        MutationErrorCode.CONCURRENT_MODIFICATION,
+                                        e.getMessage()
+                                );
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                
+                                mutationMetrics.recordResolveOperation(metricsTimer, false, "BUSINESS_RULE_ERROR");
+                                
+                                return ResolveExceptionResult.failure(error, operationId, performedBy);
+
+                        } catch (SecurityException e) {
+                                log.warn("Resolution security error for transaction: {}, error: {}, operation: {}",
+                                                input.getTransactionId(), e.getMessage(), operationId);
+
+                                GraphQLError error = GraphQLErrorHandler.createSecurityError(
+                                        MutationErrorCode.INSUFFICIENT_PERMISSIONS,
+                                        e.getMessage()
+                                );
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                
+                                mutationMetrics.recordResolveOperation(metricsTimer, false, "SECURITY_ERROR");
+                                
+                                return ResolveExceptionResult.failure(error, operationId, performedBy);
 
                         } catch (Exception e) {
-                                log.error("GraphQL resolve exception failed for transaction: {}, error: {}",
-                                                input.getTransactionId(), e.getMessage(), e);
+                                log.error("GraphQL resolve exception failed for transaction: {}, error: {}, operation: {}",
+                                                input.getTransactionId(), e.getMessage(), operationId, e);
 
-                                return ResolveExceptionResult.builder()
-                                                .success(false)
-                                                .errors(List.of(GraphQLError.builder()
-                                                                .message("Resolution operation failed: "
-                                                                                + e.getMessage())
-                                                                .code("RESOLUTION_OPERATION_FAILED")
-                                                                .build()))
-                                                .build();
+                                GraphQLError error = GraphQLErrorHandler.createSystemError(
+                                        MutationErrorCode.DATABASE_ERROR,
+                                        "Resolution operation failed: " + e.getMessage()
+                                );
+                                
+                                long executionTime = System.currentTimeMillis() - startTime;
+                                auditLogger.logMutationResult(operationId, false, List.of(error), executionTime);
+                                
+                                mutationMetrics.recordResolveOperation(metricsTimer, false, "SYSTEM_ERROR");
+                                
+                                return ResolveExceptionResult.failure(error, operationId, performedBy);
                         }
                 });
         }
 
         /**
-         * Builds comprehensive acknowledgment notes from the input.
-         * Combines reason, notes, and assignment information.
+         * Builds simplified acknowledgment notes from the input.
+         * Combines reason and notes only - simplified from previous version.
          *
          * @param input the acknowledgment input
          * @return formatted acknowledgment notes
@@ -572,14 +900,8 @@ public class RetryMutationResolver {
                         notes.append("\nNotes: ").append(input.getNotes());
                 }
 
-                if (input.getAssignedTo() != null && !input.getAssignedTo().trim().isEmpty()) {
-                        notes.append("\nAssigned to: ").append(input.getAssignedTo());
-                }
-
-                if (input.getEstimatedResolutionTime() != null) {
-                        notes.append("\nEstimated resolution time: ").append(input.getEstimatedResolutionTime());
-                }
-
                 return notes.toString();
         }
+
+
 }

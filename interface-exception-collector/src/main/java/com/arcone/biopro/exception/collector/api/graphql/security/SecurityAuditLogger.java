@@ -1,5 +1,8 @@
 package com.arcone.biopro.exception.collector.api.graphql.security;
 
+import com.arcone.biopro.exception.collector.domain.entity.MutationAuditLog;
+import com.arcone.biopro.exception.collector.infrastructure.repository.MutationAuditLogRepository;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
 import graphql.execution.instrumentation.InstrumentationContext;
@@ -17,14 +20,17 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Security audit logging for all GraphQL operations.
- * Logs authentication, authorization, and operation details for security
- * monitoring.
+ * Logs authentication, authorization, and operation details for security monitoring.
+ * Enhanced to support comprehensive mutation audit logging with database persistence.
+ * 
+ * Requirements: 5.3, 5.5, 6.4
  */
 @Component
 @RequiredArgsConstructor
@@ -32,6 +38,13 @@ import java.util.concurrent.CompletableFuture;
 public class SecurityAuditLogger extends SimpleInstrumentation {
 
     private final ObjectMapper objectMapper;
+    private final MutationAuditLogRepository auditLogRepository;
+
+    // List of mutation operations that require detailed audit logging
+    private static final List<String> MUTATION_OPERATIONS = List.of(
+        "retryException", "bulkRetryExceptions", "cancelRetry",
+        "acknowledgeException", "bulkAcknowledgeExceptions", "resolveException"
+    );
 
     @Override
     public InstrumentationContext<ExecutionResult> beginExecution(
@@ -196,5 +209,198 @@ public class SecurityAuditLogger extends SimpleInstrumentation {
                 throwable instanceof QueryNotAllowedException ||
                 throwable instanceof org.springframework.security.access.AccessDeniedException ||
                 throwable.getClass().getName().contains("AuthenticationException");
+    }
+
+    /**
+     * Logs a mutation operation attempt with comprehensive audit information.
+     * 
+     * @param operationType the type of mutation operation
+     * @param transactionId the transaction ID being operated on
+     * @param performedBy the user performing the operation
+     * @param inputData the input parameters for the operation
+     * @param operationId unique identifier for this operation instance
+     * @param correlationId correlation ID for tracing
+     */
+    public void logMutationAttempt(MutationAuditLog.OperationType operationType,
+                                  String transactionId,
+                                  String performedBy,
+                                  Object inputData,
+                                  String operationId,
+                                  String correlationId) {
+        try {
+            String inputJson = inputData != null ? objectMapper.writeValueAsString(inputData) : null;
+            
+            MutationAuditLog auditLog = MutationAuditLog.builder()
+                .operationType(operationType)
+                .transactionId(transactionId)
+                .performedBy(performedBy)
+                .performedAt(Instant.now())
+                .inputData(inputJson)
+                .resultStatus(MutationAuditLog.ResultStatus.SUCCESS) // Will be updated on completion
+                .operationId(operationId)
+                .correlationId(correlationId)
+                .clientIp(getCurrentClientIp())
+                .userAgent(getCurrentUserAgent())
+                .build();
+
+            auditLogRepository.save(auditLog);
+            
+            log.info("Mutation audit logged: operation={}, transactionId={}, user={}, operationId={}", 
+                operationType, transactionId, performedBy, operationId);
+                
+        } catch (Exception e) {
+            log.error("Failed to log mutation attempt: operation={}, transactionId={}, error={}", 
+                operationType, transactionId, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Logs the completion of a mutation operation with result details.
+     * 
+     * @param operationId the operation ID to update
+     * @param success whether the operation was successful
+     * @param errors any errors that occurred
+     * @param executionTimeMs execution time in milliseconds
+     */
+    public void logMutationResult(String operationId,
+                                 boolean success,
+                                 List<Object> errors,
+                                 long executionTimeMs) {
+        try {
+            // Find the existing audit log entry by operation ID
+            List<MutationAuditLog> existingLogs = auditLogRepository.findByOperationIdOrderByPerformedAtAsc(operationId);
+            
+            if (!existingLogs.isEmpty()) {
+                MutationAuditLog auditLog = existingLogs.get(0); // Get the first (should be only one)
+                
+                // Update with result information
+                auditLog.setResultStatus(success ? 
+                    MutationAuditLog.ResultStatus.SUCCESS : 
+                    MutationAuditLog.ResultStatus.FAILURE);
+                
+                if (errors != null && !errors.isEmpty()) {
+                    String errorJson = objectMapper.writeValueAsString(errors);
+                    auditLog.setErrorDetails(errorJson);
+                }
+                
+                auditLog.setExecutionTimeMs((int) executionTimeMs);
+                
+                auditLogRepository.save(auditLog);
+                
+                log.info("Mutation result logged: operationId={}, success={}, executionTime={}ms", 
+                    operationId, success, executionTimeMs);
+            } else {
+                log.warn("No existing audit log found for operationId: {}", operationId);
+            }
+            
+        } catch (Exception e) {
+            log.error("Failed to log mutation result: operationId={}, error={}", 
+                operationId, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Logs a bulk operation result with partial success information.
+     * 
+     * @param operationId the operation ID to update
+     * @param successCount number of successful operations
+     * @param failureCount number of failed operations
+     * @param errors any errors that occurred
+     * @param executionTimeMs execution time in milliseconds
+     */
+    public void logBulkMutationResult(String operationId,
+                                     int successCount,
+                                     int failureCount,
+                                     List<Object> errors,
+                                     long executionTimeMs) {
+        try {
+            List<MutationAuditLog> existingLogs = auditLogRepository.findByOperationIdOrderByPerformedAtAsc(operationId);
+            
+            if (!existingLogs.isEmpty()) {
+                MutationAuditLog auditLog = existingLogs.get(0);
+                
+                // Determine result status based on success/failure counts
+                MutationAuditLog.ResultStatus resultStatus;
+                if (failureCount == 0) {
+                    resultStatus = MutationAuditLog.ResultStatus.SUCCESS;
+                } else if (successCount == 0) {
+                    resultStatus = MutationAuditLog.ResultStatus.FAILURE;
+                } else {
+                    resultStatus = MutationAuditLog.ResultStatus.PARTIAL_SUCCESS;
+                }
+                
+                auditLog.setResultStatus(resultStatus);
+                
+                // Create summary of bulk operation results
+                Map<String, Object> resultSummary = new HashMap<>();
+                resultSummary.put("successCount", successCount);
+                resultSummary.put("failureCount", failureCount);
+                resultSummary.put("totalCount", successCount + failureCount);
+                
+                if (errors != null && !errors.isEmpty()) {
+                    resultSummary.put("errors", errors);
+                }
+                
+                String resultJson = objectMapper.writeValueAsString(resultSummary);
+                auditLog.setErrorDetails(resultJson);
+                auditLog.setExecutionTimeMs((int) executionTimeMs);
+                
+                auditLogRepository.save(auditLog);
+                
+                log.info("Bulk mutation result logged: operationId={}, success={}, failure={}, executionTime={}ms", 
+                    operationId, successCount, failureCount, executionTimeMs);
+            }
+            
+        } catch (Exception e) {
+            log.error("Failed to log bulk mutation result: operationId={}, error={}", 
+                operationId, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Gets the current client IP address from the request context.
+     */
+    private String getCurrentClientIp() {
+        try {
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (requestAttributes != null) {
+                HttpServletRequest request = requestAttributes.getRequest();
+                return getClientIpAddress(request);
+            }
+        } catch (Exception e) {
+            log.debug("Could not get client IP: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Gets the current user agent from the request context.
+     */
+    private String getCurrentUserAgent() {
+        try {
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (requestAttributes != null) {
+                HttpServletRequest request = requestAttributes.getRequest();
+                return request.getHeader("User-Agent");
+            }
+        } catch (Exception e) {
+            log.debug("Could not get user agent: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Generates a unique operation ID for tracking mutation operations.
+     */
+    public String generateOperationId(String operationType, String transactionId) {
+        return String.format("%s_%s_%d", operationType.toUpperCase(), 
+            transactionId.replaceAll("[^a-zA-Z0-9]", ""), System.currentTimeMillis());
+    }
+
+    /**
+     * Generates a correlation ID for tracing operations across systems.
+     */
+    public String generateCorrelationId() {
+        return UUID.randomUUID().toString();
     }
 }
