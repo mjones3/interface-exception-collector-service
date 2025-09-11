@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * Tracks success rates, execution times, error rates, and operation counts.
  */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class MutationMetrics {
 

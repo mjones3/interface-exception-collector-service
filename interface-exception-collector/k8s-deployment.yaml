@@ -1,0 +1,57 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interface-exception-collector
+  labels:
+    app: interface-exception-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: interface-exception-collector
+  template:
+    metadata:
+      labels:
+        app: interface-exception-collector
+    spec:
+      containers:
+      - name: interface-exception-collector
+        image: interface-exception-collector:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: "postgres"  # Using the postgres service in default namespace
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "exception_collector_db"
+        - name: DB_USERNAME
+          value: "exception_user"
+        - name: DB_PASSWORD
+          value: "exception_pass"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interface-exception-collector-service
+spec:
+  selector:
+    app: interface-exception-collector
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP

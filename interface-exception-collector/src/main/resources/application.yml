@@ -6,6 +6,7 @@
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
+    lazy-initialization: true
   
   # Exclude Dynatrace, Redis, and GraphQL WebSocket auto-configuration completely
   autoconfigure:
@@ -22,7 +23,7 @@
     timeout-per-shutdown-phase: 45s
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/exception_collector_db?sslmode=${DB_SSL_MODE:disable}&sslcert=${DB_SSL_CERT:}&sslkey=${DB_SSL_KEY:}&sslrootcert=${DB_SSL_ROOT_CERT:}&prepareThreshold=${DB_PREPARE_THRESHOLD:5}&preparedStatementCacheQueries=${DB_PREPARED_STATEMENT_CACHE_QUERIES:256}&preparedStatementCacheSizeMiB=${DB_PREPARED_STATEMENT_CACHE_SIZE:5}&defaultRowFetchSize=${DB_DEFAULT_ROW_FETCH_SIZE:1000}
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/exception_collector_db?sslmode=${DB_SSL_MODE:disable}&sslcert=${DB_SSL_CERT:}&sslkey=${DB_SSL_KEY:}&sslrootcert=${DB_SSL_ROOT_CERT:}&prepareThreshold=${DB_PREPARE_THRESHOLD:5}&preparedStatementCacheQueries=${DB_PREPARED_STATEMENT_CACHE_QUERIES:256}&preparedStatementCacheSizeMiB=${DB_PREPARED_STATEMENT_CACHE_SIZE:5}&defaultRowFetchSize=${DB_DEFAULT_ROW_FETCH_SIZE:1000}
     username: exception_user
     password: exception_pass
     driver-class-name: org.postgresql.Driver
@@ -64,9 +65,9 @@
   
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: false
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -764,3 +765,15 @@ management:
         "[exception.processing.duration]": true
 
 # Application-specific configuration
+
+
+
+
+# Source services configuration for external service communication
+source-services:
+  partner-order:
+    base-url: http://partner-order-service:8090
+    timeout: 5000
+    connection-timeout: 3000
+    read-timeout: 5000
+

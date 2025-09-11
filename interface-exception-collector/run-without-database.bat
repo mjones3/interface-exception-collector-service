@@ -1,0 +1,3 @@
+﻿@echo off
+echo Starting application without database...
+mvn spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=nodatabase --server.port=8095"

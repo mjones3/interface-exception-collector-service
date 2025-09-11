@@ -86,24 +86,27 @@ public class MutationDatabaseConfig {
     }
 
     /**
-     * Gets JDBC URL from environment or default
+     * Gets JDBC URL from environment variables or default
      */
     private String getJdbcUrl() {
-        return System.getProperty("spring.datasource.url", 
-                "jdbc:postgresql://localhost:5432/interface_exception_collector");
+        String host = System.getenv().getOrDefault("DB_HOST", "postgres");
+        String port = System.getenv().getOrDefault("DB_PORT", "5432");
+        String database = System.getenv().getOrDefault("DB_NAME", "exception_collector_db");
+        
+        return String.format("jdbc:postgresql://%s:%s/%s", host, port, database);
     }
 
     /**
-     * Gets database username from environment or default
+     * Gets database username from environment variables or default
      */
     private String getUsername() {
-        return System.getProperty("spring.datasource.username", "postgres");
+        return System.getenv().getOrDefault("DB_USERNAME", "exception_user");
     }
 
     /**
-     * Gets database password from environment or default
+     * Gets database password from environment variables or default
      */
     private String getPassword() {
-        return System.getProperty("spring.datasource.password", "postgres");
+        return System.getenv().getOrDefault("DB_PASSWORD", "exception_pass");
     }
 }
