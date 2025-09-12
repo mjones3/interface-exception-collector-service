@@ -1,0 +1,53 @@
+meta {
+  name: BulkRetryExceptions
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/graphql
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:graphql {
+  mutation BulkRetryExceptions($input: BulkRetryInput!) {
+    bulkRetryExceptions(input: $input) {
+      successCount
+      failureCount
+      results {
+        success
+        exception {
+          transactionId
+          status
+        }
+        errors {
+          message
+          code
+        }
+      }
+      errors {
+        message
+        code
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "transactionIds": ["TXN-2024-001", "TXN-2024-002", "TXN-2024-003"],
+      "reason": "System maintenance completed, retrying failed transactions",
+      "priority": "NORMAL"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+}

@@ -36,9 +36,8 @@ public class DashboardMetricsService {
             OffsetDateTime endOfDay = startOfDay.plusDays(1);
 
             // Active exceptions (NEW, ACKNOWLEDGED)
-            long activeExceptions = exceptionRepository.countByStatusIn(
-                java.util.List.of(ExceptionStatus.NEW.name(), ExceptionStatus.ACKNOWLEDGED.name())
-            );
+            long activeExceptions = exceptionRepository.countByStatus(ExceptionStatus.NEW) + 
+                                  exceptionRepository.countByStatus(ExceptionStatus.ACKNOWLEDGED);
 
             // Today's exceptions
             long todayExceptions = exceptionRepository.countByTimestampBetween(startOfDay, endOfDay);

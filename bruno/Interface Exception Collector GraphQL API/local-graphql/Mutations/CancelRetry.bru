@@ -1,0 +1,52 @@
+meta {
+  name: CancelRetry
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/graphql
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:graphql {
+  mutation CancelRetry($transactionId: String!, $reason: String!) {
+    cancelRetry(transactionId: $transactionId, reason: $reason) {
+      success
+      exception {
+        id
+        transactionId
+        status
+      }
+      cancelledRetryAttempt {
+        id
+        attemptNumber
+        status
+      }
+      errors {
+        message
+        code
+      }
+      operationId
+      timestamp
+      performedBy
+      cancellationReason
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "transactionId": "TXN-2024-001",
+    "reason": "Customer cancelled order, retry no longer needed"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

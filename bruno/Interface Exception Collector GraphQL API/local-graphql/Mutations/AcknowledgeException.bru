@@ -1,0 +1,53 @@
+meta {
+  name: AcknowledgeException
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/graphql
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:graphql {
+  mutation AcknowledgeException($input: AcknowledgeExceptionInput!) {
+    acknowledgeException(input: $input) {
+      success
+      exception {
+        id
+        transactionId
+        status
+        acknowledgedBy
+        acknowledgedAt
+      }
+      errors {
+        message
+        code
+      }
+      operationId
+      timestamp
+      performedBy
+      acknowledgmentReason
+      acknowledgmentNotes
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "transactionId": "TXN-2024-001",
+      "reason": "Investigating customer data validation issue",
+      "notes": "Customer reported incorrect address format, checking validation rules"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+}

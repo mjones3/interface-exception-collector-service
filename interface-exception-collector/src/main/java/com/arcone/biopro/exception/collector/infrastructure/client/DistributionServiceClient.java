@@ -4,6 +4,7 @@ import com.arcone.biopro.exception.collector.domain.entity.InterfaceException;
 import com.arcone.biopro.exception.collector.domain.enums.InterfaceType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
  * and submit retry requests for distribution-related exceptions.
  */
 @Component
+@ConditionalOnProperty(name = "app.source-services.distribution.enabled", havingValue = "true", matchIfMissing = false)
 @Slf4j
 public class DistributionServiceClient extends BaseSourceServiceClient {
 

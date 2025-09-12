@@ -48,7 +48,7 @@
       read-only: false
       register-mbeans: true
       pool-name: "GraphQLExceptionCollectorCP"
-      auto-commit: false
+      auto-commit: true
       
       # Connection properties for performance
       data-source-properties:
@@ -60,7 +60,7 @@
         rewriteBatchedStatements: true
         cacheResultSetMetadata: true
         cacheServerConfiguration: true
-        elideSetAutoCommits: true
+        elideSetAutoCommits: false
         maintainTimeStats: false
   
   jpa:
@@ -94,7 +94,7 @@
         schema_management_tool: none
         # Connection and statement settings
         connection:
-          provider_disables_autocommit: true
+          provider_disables_autocommit: false
         statement:
           batch_size: ${HIBERNATE_STATEMENT_BATCH_SIZE:100}
         order_inserts: true
@@ -419,14 +419,17 @@ app:
       base-url: http://partner-order-service:8090
       api-key: ${ORDER_SERVICE_API_KEY:default-order-api-key}
       auth-header: X-API-Key
+    # Disabled non-existent services to prevent startup connectivity failures
     collection:
-      base-url: http://collection-service:8080
-      api-key: ${COLLECTION_SERVICE_API_KEY:default-collection-api-key}
-      auth-header: X-API-Key
+      enabled: false
+      # base-url: http://collection-service:8080
+      # api-key: ${COLLECTION_SERVICE_API_KEY:default-collection-api-key}
+      # auth-header: X-API-Key
     distribution:
-      base-url: http://distribution-service:8080
-      api-key: ${DISTRIBUTION_SERVICE_API_KEY:default-distribution-api-key}
-      auth-header: X-API-Key
+      enabled: false
+      # base-url: http://distribution-service:8080
+      # api-key: ${DISTRIBUTION_SERVICE_API_KEY:default-distribution-api-key}
+      # auth-header: X-API-Key
     timeout: 5000
     connection-timeout: 3000
     read-timeout: 5000

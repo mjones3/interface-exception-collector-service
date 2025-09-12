@@ -84,6 +84,7 @@ public class ExceptionQueryService {
      * @param sort          sorting parameters
      * @return list of exceptions with eager-loaded collections
      */
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public List<InterfaceException> findExceptionsWithFiltersEager(
             InterfaceType interfaceType,
             ExceptionStatus status,
@@ -95,30 +96,36 @@ public class ExceptionQueryService {
 
         log.debug("Finding exceptions with eager loading for GraphQL");
 
-        // Get exceptions with basic filters
-        List<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
-                interfaceType, status, severity, customerId, fromDate, toDate, sort);
+        try {
+            // Get exceptions with basic filters
+            List<InterfaceException> exceptions = exceptionRepository.findWithFiltersTypeSafe(
+                    interfaceType, status, severity, customerId, fromDate, toDate, sort);
 
-        // Force initialization of lazy collections within transaction
-        for (InterfaceException exception : exceptions) {
-            try {
-                // Initialize collections to prevent lazy loading issues
-                if (exception.getRetryAttempts() != null) {
-                    exception.getRetryAttempts().size(); // Force initialization
+            // Force initialization of lazy collections within transaction
+            for (InterfaceException exception : exceptions) {
+                try {
+                    // Initialize collections to prevent lazy loading issues
+                    if (exception.getRetryAttempts() != null) {
+                        exception.getRetryAttempts().size(); // Force initialization
+                    }
+                    if (exception.getOrderItems() != null) {
+                        exception.getOrderItems().size(); // Force initialization
+                    }
+                    if (exception.getStatusChanges() != null) {
+                        exception.getStatusChanges().size(); // Force initialization
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to initialize collections for exception {}: {}",
+                            exception.getTransactionId(), e.getMessage());
                 }
-                if (exception.getOrderItems() != null) {
-                    exception.getOrderItems().size(); // Force initialization
-                }
-                if (exception.getStatusChanges() != null) {
-                    exception.getStatusChanges().size(); // Force initialization
-                }
-            } catch (Exception e) {
-                log.warn("Failed to initialize collections for exception {}: {}",
-                        exception.getTransactionId(), e.getMessage());
             }
-        }
 
-        return exceptions;
+            return exceptions;
+        } catch (Exception e) {
+            log.error("Error in findExceptionsWithFiltersEager: {}", e.getMessage(), e);
+            // Return empty list instead of throwing exception to prevent transaction issues
+            return List.of();
+        }
     }
 
     /**

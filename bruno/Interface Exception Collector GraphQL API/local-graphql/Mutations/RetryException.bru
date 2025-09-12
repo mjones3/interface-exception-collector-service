@@ -1,0 +1,63 @@
+meta {
+  name: RetryException
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/graphql
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:graphql {
+  mutation RetryException($input: RetryExceptionInput!) {
+    retryException(input: $input) {
+      success
+      exception {
+        id
+        transactionId
+        status
+        retryCount
+        lastRetryAt
+      }
+      retryAttempt {
+        id
+        attemptNumber
+        status
+        initiatedBy
+        initiatedAt
+      }
+      errors {
+        message
+        code
+        path
+      }
+      operationId
+      timestamp
+      performedBy
+      retryPriority
+      retryReason
+      attemptNumber
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "transactionId": "TXN-2024-001",
+      "reason": "Customer data has been corrected, retrying order processing",
+      "priority": "HIGH",
+      "notes": "Customer contacted support, issue resolved on their end"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+}

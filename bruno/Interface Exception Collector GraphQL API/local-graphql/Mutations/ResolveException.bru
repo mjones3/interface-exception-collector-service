@@ -1,0 +1,51 @@
+meta {
+  name: ResolveException
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/graphql
+  body: graphql
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:graphql {
+  mutation ResolveException($input: ResolveExceptionInput!) {
+    resolveException(input: $input) {
+      success
+      exception {
+        id
+        transactionId
+        status
+      }
+      errors {
+        message
+        code
+      }
+      operationId
+      timestamp
+      performedBy
+      resolutionMethod
+      resolutionNotes
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "transactionId": "TXN-2024-001",
+      "resolutionMethod": "MANUAL_RESOLUTION",
+      "resolutionNotes": "Customer data corrected manually, order processed successfully"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+}
