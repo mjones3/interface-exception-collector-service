@@ -481,11 +481,11 @@ app:
       max-retries: 5
       retry-interval: 1000
     topics:
-      order-rejected: "order.rejected"
-      order-cancelled: "order.cancelled"
-      collection-rejected: "collection.rejected"
-      distribution-failed: "distribution.failed"
-      validation-error: "validation.error"
+      order-rejected: "OrderRejected"
+      order-cancelled: "OrderCancelled"
+      collection-rejected: "CollectionRejected"
+      distribution-failed: "DistributionFailed"
+      validation-error: "ValidationError"
 
   # Exception processing configuration
   exception:
